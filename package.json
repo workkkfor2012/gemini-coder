@@ -1,7 +1,7 @@
 {
   "name": "super-simple-fim",
-  "displayName": "super-simple-fim",
-  "description": "",
+  "displayName": "Super Simple FIM",
+  "description": "A VS Code extension that sends FIM (Fill In The Middle) requests to an API and inserts the response at the cursor position or replaces custom tokens <FIM>[OPTIONAL FILLING INSTRUCTIONS]</FIM>.",
   "version": "0.0.1",
   "repository": {},
   "engines": {
@@ -15,14 +15,64 @@
   "contributes": {
     "commands": [
       {
-        "command": "super-simple-fim.helloWorld",
-        "title": "Hello World"
+        "command": "extension.sendFimRequest",
+        "title": "Super Simple FIM: Run"
       },
       {
-        "command": "extension.sendFimRequest",
-        "title": "Run Super Simple FIM"
+        "command": "extension.insertFimTokens",
+        "title": "Super Simple FIM: Insert <FIM></FIM> tokens"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "extension.insertFimTokens",
+          "when": "editorTextFocus && !editorReadonly",
+          "group": "navigation@10"
+        }
+      ]
+    },
+    "configuration": {
+      "type": "object",
+      "title": "Super Simple FIM Settings",
+      "properties": {
+        "superSimpleFim.endpointUrl": {
+          "type": "string",
+          "default": "https://api.mistral.ai/v1/chat/completions",
+          "description": "The endpoint URL for the API."
+        },
+        "superSimpleFim.bearerToken": {
+          "type": "string",
+          "default": "",
+          "description": "The bearer token for API authentication. Supports multiple tokens separated by commas."
+        },
+        "superSimpleFim.model": {
+          "type": "string",
+          "default": "mistral-large-latest",
+          "description": "The model to be used for the API."
+        },
+        "superSimpleFim.temperature": {
+          "type": "number",
+          "default": 0,
+          "description": "The temperature to be used for the API."
+        },
+        "superSimpleFim.systemInstructions": {
+          "type": "string",
+          "default": "",
+          "description": "The system instructions to be used for the API."
+        },
+        "superSimpleFim.instruction": {
+          "type": "string",
+          "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code.",
+          "description": "The instruction to be used for the API."
+        },
+        "superSimpleFim.verbose": {
+          "type": "boolean",
+          "default": false,
+          "description": "Enable verbose logging."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
