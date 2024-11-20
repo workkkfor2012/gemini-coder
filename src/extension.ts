@@ -27,6 +27,13 @@ export function activate(context: vscode.ExtensionContext) {
         .getConfiguration()
         .get<boolean>('superSimpleFim.verbose');
 
+      if (!bearerTokens) {
+        vscode.window.showErrorMessage(
+          'Bearer token is missing. Please add it in the settings.'
+        );
+        return;
+      }
+
       const tokensArray =
         bearerTokens?.split(',').map((token) => token.trim()) || [];
       const bearerToken =
