@@ -1,6 +1,6 @@
 {
-  "name": "super-simple-fim",
-  "displayName": "Super Simple FIM",
+  "name": "any-model-fim",
+  "displayName": "Any Model FIM",
   "description": "A VS Code extension that sends FIM (Fill In The Middle) requests to an API and inserts the response at the cursor position or replaces custom tokens <FIM>[OPTIONAL FILLING INSTRUCTIONS]</FIM>.",
   "version": "0.0.1",
   "repository": {},
@@ -16,11 +16,11 @@
     "commands": [
       {
         "command": "extension.sendFimRequest",
-        "title": "Super Simple FIM: Run"
+        "title": "Any Model FIM: Run"
       },
       {
         "command": "extension.insertFimTokens",
-        "title": "Super Simple FIM: Insert <FIM></FIM> tokens"
+        "title": "Any Model FIM: Insert <FIM></FIM> tokens"
       }
     ],
     "menus": {
@@ -34,7 +34,7 @@
     },
     "configuration": {
       "type": "object",
-      "title": "Super Simple FIM Settings",
+      "title": "Any Model FIM Settings",
       "properties": {
         "superSimpleFim.defaultProvider": {
           "type": "string",
@@ -92,6 +92,11 @@
           "type": "boolean",
           "default": false,
           "description": "Enable verbose logging."
+        },
+        "superSimpleFim.attachOpenFiles": {
+          "type": "boolean",
+          "default": true,
+          "description": "Attach all open files to the request."
         }
       }
     }

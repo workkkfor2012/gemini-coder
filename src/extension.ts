@@ -34,10 +34,13 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       let selectedProvider: string | undefined;
-      if (
+
+      // Check if default provider exists in the configured providers
+      const defaultProviderExists =
         defaultProviderName &&
-        providers.find((p) => p.name === defaultProviderName)
-      ) {
+        providers.some((p) => p.name === defaultProviderName);
+
+      if (defaultProviderExists) {
         // Use default provider if it exists
         selectedProvider = defaultProviderName;
       } else {
@@ -47,8 +50,13 @@ export function activate(context: vscode.ExtensionContext) {
           { placeHolder: 'Select a provider' }
         );
 
-        // Set the selected provider as default if no default was set before
-        if (selectedProvider && !defaultProviderName) {
+        // Set the selected provider as default if:
+        // 1. No default was set before OR
+        // 2. The existing default provider is no longer in the list
+        if (
+          selectedProvider &&
+          (!defaultProviderName || !defaultProviderExists)
+        ) {
           await vscode.workspace
             .getConfiguration()
             .update(
@@ -74,6 +82,9 @@ export function activate(context: vscode.ExtensionContext) {
       const verbose = vscode.workspace
         .getConfiguration()
         .get<boolean>('superSimpleFim.verbose');
+      const attachOpenFiles = vscode.workspace
+        .getConfiguration()
+        .get<boolean>('superSimpleFim.attachOpenFiles');
 
       if (!bearerTokens) {
         vscode.window.showErrorMessage(
@@ -117,15 +128,18 @@ export function activate(context: vscode.ExtensionContext) {
               )
             );
 
-            const openFilesContent = vscode.workspace.textDocuments
-              .filter((doc) => doc.uri.toString() !== document.uri.toString())
-              .map((doc) => {
-                const filePath = vscode.workspace.asRelativePath(doc.uri);
-                const fileLanguage = doc.languageId;
-                const fileContent = doc.getText();
-                return `\n\n## ${filePath}\n\`\`\`${fileLanguage}\n${fileContent}\n\`\`\``;
-              })
-              .join('');
+            let openFilesContent = '';
+            if (attachOpenFiles) {
+              openFilesContent = vscode.workspace.textDocuments
+                .filter((doc) => doc.uri.toString() !== document.uri.toString())
+                .map((doc) => {
+                  const filePath = vscode.workspace.asRelativePath(doc.uri);
+                  const fileLanguage = doc.languageId;
+                  const fileContent = doc.getText();
+                  return `\n\n## ${filePath}\n\`\`\`${fileLanguage}\n${fileContent}\n\`\`\``;
+                })
+                .join('');
+            }
 
             const payload = {
               before: `${instruction}\n\n${openFilesContent}\n\n## ${vscode.workspace.asRelativePath(

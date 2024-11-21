@@ -1,13 +1,13 @@
-# Super Simple FIM
+# Any Model FIM
 
 ## Description
-This VS Code extension sends a POST HTTP request with the content before and after the cursor in the opened file.
+A VS Code extension that sends FIM (Fill In The Middle) requests to an API and inserts the response at the cursor position or replaces custom tokens <FIM>[OPTIONAL FILLING INSTRUCTIONS]</FIM>.
 
 ## How to Use
 1. Open a file in VS Code.
 2. Place the cursor where you want to capture the text before and after.
 3. Open the Command Palette (`Ctrl+Shift+P`).
-4. Run the command `Run Super Simple FIM`.
+4. Run the command `Any Model FIM: Run`.
 
 ## Features
 - Captures the text before and after the cursor.
