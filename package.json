@@ -36,35 +36,57 @@
       "type": "object",
       "title": "Super Simple FIM Settings",
       "properties": {
-        "superSimpleFim.endpointUrl": {
+        "superSimpleFim.defaultProvider": {
           "type": "string",
-          "default": "https://api.mistral.ai/v1/chat/completions",
-          "description": "The endpoint URL for the API."
+          "description": "The default provider to use. Select from the list of configured providers.",
+          "default": "Mistral Large Latest"
         },
-        "superSimpleFim.bearerToken": {
-          "type": "string",
-          "default": "",
-          "description": "The bearer token for API authentication. Supports multiple tokens separated by commas."
-        },
-        "superSimpleFim.model": {
-          "type": "string",
-          "default": "pixtral-large-latest",
-          "description": "The model to be used for the API."
-        },
-        "superSimpleFim.temperature": {
-          "type": "number",
-          "default": 0,
-          "description": "The temperature to be used for the API."
-        },
-        "superSimpleFim.systemInstructions": {
-          "type": "string",
-          "default": "",
-          "description": "The system instructions to be used for the API."
-        },
-        "superSimpleFim.instruction": {
-          "type": "string",
-          "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code.",
-          "description": "The instruction to be used for the API."
+        "superSimpleFim.providers": {
+          "type": "array",
+          "default": [
+            {
+              "name": "Mistral Large Latest",
+              "endpointUrl": "https://api.mistral.ai/v1/chat/completions",
+              "bearerToken": "",
+              "model": "mistral-large-latest",
+              "temperature": 0,
+              "instruction": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
+            }
+          ],
+          "description": "Configure multiple API providers.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "A friendly name for the provider."
+              },
+              "endpointUrl": {
+                "type": "string",
+                "description": "The endpoint URL for the API."
+              },
+              "bearerToken": {
+                "type": "string",
+                "description": "The bearer token for API authentication. Supports multiple tokens separated by commas."
+              },
+              "model": {
+                "type": "string",
+                "description": "The model to be used for the API."
+              },
+              "temperature": {
+                "type": "number",
+                "description": "The temperature to be used for the API."
+              },
+              "systemInstructions": {
+                "type": "string",
+                "description": "The system instructions to be used for the API."
+              },
+              "instruction": {
+                "type": "string",
+                "description": "The instruction to be used for the API."
+              }
+            }
+          }
         },
         "superSimpleFim.verbose": {
           "type": "boolean",

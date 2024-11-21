@@ -2,30 +2,75 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 import { CancelTokenSource } from 'axios';
 
+interface Provider {
+  name: string;
+  endpointUrl: string;
+  bearerToken: string;
+  model: string;
+  temperature?: number;
+  systemInstructions?: string;
+  instruction?: string;
+}
+
 export function activate(context: vscode.ExtensionContext) {
   let cancelTokenSource: CancelTokenSource | undefined;
 
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
-      const endpointUrl = vscode.workspace
+      const providers =
+        vscode.workspace
+          .getConfiguration()
+          .get<Provider[]>('superSimpleFim.providers') || [];
+      const defaultProviderName = vscode.workspace
         .getConfiguration()
-        .get<string>('superSimpleFim.endpointUrl')!;
-      const bearerTokens = vscode.workspace
-        .getConfiguration()
-        .get<string>('superSimpleFim.bearerToken');
-      const model = vscode.workspace
-        .getConfiguration()
-        .get<string>('superSimpleFim.model');
-      const temperature = vscode.workspace
-        .getConfiguration()
-        .get<number>('superSimpleFim.temperature');
-      const systemInstructions = vscode.workspace
-        .getConfiguration()
-        .get<string>('superSimpleFim.systemInstructions');
-      const instruction = vscode.workspace
-        .getConfiguration()
-        .get<string>('superSimpleFim.instruction');
+        .get<string>('superSimpleFim.defaultProvider');
+
+      if (!providers || providers.length === 0) {
+        vscode.window.showErrorMessage(
+          'No providers configured. Please add providers in the settings.'
+        );
+        return;
+      }
+
+      let selectedProvider: string | undefined;
+      if (
+        defaultProviderName &&
+        providers.find((p) => p.name === defaultProviderName)
+      ) {
+        // Use default provider if it exists
+        selectedProvider = defaultProviderName;
+      } else {
+        // Otherwise, let the user select a provider
+        selectedProvider = await vscode.window.showQuickPick(
+          providers.map((p) => p.name),
+          { placeHolder: 'Select a provider' }
+        );
+
+        // Set the selected provider as default if no default was set before
+        if (selectedProvider && !defaultProviderName) {
+          await vscode.workspace
+            .getConfiguration()
+            .update(
+              'superSimpleFim.defaultProvider',
+              selectedProvider,
+              vscode.ConfigurationTarget.Global
+            );
+        }
+      }
+
+      if (!selectedProvider) {
+        return;
+      }
+
+      const provider = providers.find((p) => p.name === selectedProvider)!;
+
+      const endpointUrl = provider.endpointUrl;
+      const bearerTokens = provider.bearerToken;
+      const model = provider.model;
+      const temperature = provider.temperature;
+      const systemInstructions = provider.systemInstructions;
+      const instruction = provider.instruction;
       const verbose = vscode.workspace
         .getConfiguration()
         .get<boolean>('superSimpleFim.verbose');
@@ -38,7 +83,7 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const tokensArray =
-        bearerTokens?.split(',').map((token) => token.trim()) || [];
+        bearerTokens?.split(',').map((token: string) => token.trim()) || [];
       const bearerToken =
         tokensArray[Math.floor(Math.random() * tokensArray.length)];
 
@@ -134,13 +179,11 @@ export function activate(context: vscode.ExtensionContext) {
                 cancelToken: cancelTokenSource?.token,
               });
 
-              // Extract the content inside the code block
               const completion = response.data.choices[0].message.content;
               const unwrappedCompletion = completion
                 .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
                 .trim();
 
-              // Edit the document to insert the unwrapped completion
               await editor.edit((editBuilder) => {
                 if (
                   documentText.includes('<FIM>') &&
@@ -154,7 +197,6 @@ export function activate(context: vscode.ExtensionContext) {
                     document.positionAt(fimEnd)
                   );
                   editBuilder.replace(fimRange, unwrappedCompletion);
-                  // Wait until UI updates
                   setTimeout(() => {
                     const newPosition = document.positionAt(
                       fimStart + unwrappedCompletion.length
