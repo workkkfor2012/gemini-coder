@@ -21,6 +21,10 @@
       {
         "command": "extension.insertFimTokens",
         "title": "Any Model FIM: Insert <FIM></FIM> tokens"
+      },
+      {
+        "command": "extension.changeDefaultProvider",
+        "title": "Any Model FIM: Change Default Provider"
       }
     ],
     "menus": {
@@ -36,12 +40,12 @@
       "type": "object",
       "title": "Any Model FIM Settings",
       "properties": {
-        "superSimpleFim.defaultProvider": {
+        "anyModelFim.defaultProvider": {
           "type": "string",
           "description": "The default provider to use. Select from the list of configured providers.",
           "default": "Mistral Large Latest"
         },
-        "superSimpleFim.providers": {
+        "anyModelFim.providers": {
           "type": "array",
           "default": [
             {
@@ -50,7 +54,7 @@
               "bearerToken": "",
               "model": "mistral-large-latest",
               "temperature": 0,
-              "instruction": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
+              "instruction": ""
             }
           ],
           "description": "Configure multiple API providers.",
@@ -88,15 +92,20 @@
             }
           }
         },
-        "superSimpleFim.verbose": {
+        "anyModelFim.verbose": {
           "type": "boolean",
           "default": false,
           "description": "Enable verbose logging."
         },
-        "superSimpleFim.attachOpenFiles": {
+        "anyModelFim.attachOpenFiles": {
           "type": "boolean",
           "default": true,
           "description": "Attach all open files to the request."
+        },
+        "anyModelFim.globalInstruction": {
+          "type": "string",
+          "description": "A global instruction used if a provider does not specify its own.",
+          "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
         }
       }
     }

@@ -21,10 +21,13 @@ export function activate(context: vscode.ExtensionContext) {
       const providers =
         vscode.workspace
           .getConfiguration()
-          .get<Provider[]>('superSimpleFim.providers') || [];
+          .get<Provider[]>('anyModelFim.providers') || [];
       const defaultProviderName = vscode.workspace
         .getConfiguration()
-        .get<string>('superSimpleFim.defaultProvider');
+        .get<string>('anyModelFim.defaultProvider');
+      const globalInstruction = vscode.workspace
+        .getConfiguration()
+        .get<string>('anyModelFim.globalInstruction');
 
       if (!providers || providers.length === 0) {
         vscode.window.showErrorMessage(
@@ -60,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
           await vscode.workspace
             .getConfiguration()
             .update(
-              'superSimpleFim.defaultProvider',
+              'anyModelFim.defaultProvider',
               selectedProvider,
               vscode.ConfigurationTarget.Global
             );
@@ -78,13 +81,13 @@ export function activate(context: vscode.ExtensionContext) {
       const model = provider.model;
       const temperature = provider.temperature;
       const systemInstructions = provider.systemInstructions;
-      const instruction = provider.instruction;
+      const instruction = provider.instruction || globalInstruction;
       const verbose = vscode.workspace
         .getConfiguration()
-        .get<boolean>('superSimpleFim.verbose');
+        .get<boolean>('anyModelFim.verbose');
       const attachOpenFiles = vscode.workspace
         .getConfiguration()
-        .get<boolean>('superSimpleFim.attachOpenFiles');
+        .get<boolean>('anyModelFim.attachOpenFiles');
 
       if (!bearerTokens) {
         vscode.window.showErrorMessage(
@@ -131,21 +134,27 @@ export function activate(context: vscode.ExtensionContext) {
             let openFilesContent = '';
             if (attachOpenFiles) {
               openFilesContent = vscode.workspace.textDocuments
-                .filter((doc) => doc.uri.toString() !== document.uri.toString())
+                .filter(
+                  (doc) =>
+                    doc.uri.toString() !== document.uri.toString() &&
+                    !doc.uri.toString().endsWith('Code/User/settings.json') &&
+                    !doc.uri.toString().endsWith('git') &&
+                    doc.uri.toString() !== 'git/scm0/input'
+                )
                 .map((doc) => {
                   const filePath = vscode.workspace.asRelativePath(doc.uri);
                   const fileLanguage = doc.languageId;
                   const fileContent = doc.getText();
-                  return `\n\n## ${filePath}\n\`\`\`${fileLanguage}\n${fileContent}\n\`\`\``;
+                  return `\n<file path="${filePath}" language="${fileLanguage}">\n${fileContent}\n</file>`;
                 })
                 .join('');
             }
 
             const payload = {
-              before: `${instruction}\n\n${openFilesContent}\n\n## ${vscode.workspace.asRelativePath(
+              before: `<instruction>${instruction}</instruction>\n<files>${openFilesContent}\n<file path="${vscode.workspace.asRelativePath(
                 document.uri
-              )}\n\`\`\`${document.languageId}\n${textBeforeCursor}`,
-              after: `${textAfterCursor}\n\`\`\``,
+              )}" language="${document.languageId}">\n${textBeforeCursor}`,
+              after: `${textAfterCursor}\n</file></files>`,
             };
 
             const content = `${payload.before}${
@@ -171,7 +180,7 @@ export function activate(context: vscode.ExtensionContext) {
             };
 
             if (verbose) {
-              console.debug('> Super Simple FIM', content);
+              console.debug('[Any Model FIM] Prompt:', content);
             }
 
             const cursorListener = vscode.workspace.onDidChangeTextDocument(
@@ -197,6 +206,8 @@ export function activate(context: vscode.ExtensionContext) {
               const unwrappedCompletion = completion
                 .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
                 .trim();
+
+              console.debug('[Any Model FIM] Completion:', unwrappedCompletion);
 
               await editor.edit((editBuilder) => {
                 if (
@@ -272,8 +283,44 @@ export function activate(context: vscode.ExtensionContext) {
     }
   );
 
+  let disposableChangeDefaultProvider = vscode.commands.registerCommand(
+    'extension.changeDefaultProvider',
+    async () => {
+      const providers =
+        vscode.workspace
+          .getConfiguration()
+          .get<Provider[]>('anyModelFim.providers') || [];
+
+      if (!providers || providers.length === 0) {
+        vscode.window.showErrorMessage(
+          'No providers configured. Please add providers in the settings.'
+        );
+        return;
+      }
+
+      const selectedProvider = await vscode.window.showQuickPick(
+        providers.map((p) => p.name),
+        { placeHolder: 'Select a new default provider' }
+      );
+
+      if (selectedProvider) {
+        await vscode.workspace
+          .getConfiguration()
+          .update(
+            'anyModelFim.defaultProvider',
+            selectedProvider,
+            vscode.ConfigurationTarget.Global
+          );
+        vscode.window.showInformationMessage(
+          `Default provider changed to: ${selectedProvider}`
+        );
+      }
+    }
+  );
+
   context.subscriptions.push(disposableSendFimRequest);
   context.subscriptions.push(disposableInsertFimTokens);
+  context.subscriptions.push(disposableChangeDefaultProvider);
 }
 
 export function deactivate() {}
