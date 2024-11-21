@@ -15,6 +15,12 @@ interface Provider {
 export function activate(context: vscode.ExtensionContext) {
   let cancelTokenSource: CancelTokenSource | undefined;
 
+  function estimateTokens(text: string): number {
+    // A rough estimate: assume 1 token per word or punctuation
+    const words = text.split(/\s+|\b/);
+    return words.filter((word) => word.trim() !== '').length;
+  }
+
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
@@ -137,9 +143,12 @@ export function activate(context: vscode.ExtensionContext) {
                 .filter(
                   (doc) =>
                     doc.uri.toString() !== document.uri.toString() &&
-                    !doc.uri.toString().endsWith('Code/User/settings.json') &&
-                    !doc.uri.toString().endsWith('git') &&
-                    doc.uri.toString() !== 'git/scm0/input'
+                    !vscode.workspace
+                      .asRelativePath(doc.uri)
+                      .endsWith('Code/User/settings.json') &&
+                    !vscode.workspace.asRelativePath(doc.uri).endsWith('git') &&
+                    vscode.workspace.asRelativePath(doc.uri) !==
+                      'git/scm0/input'
                 )
                 .map((doc) => {
                   const filePath = vscode.workspace.asRelativePath(doc.uri);
@@ -179,8 +188,10 @@ export function activate(context: vscode.ExtensionContext) {
               temperature,
             };
 
+            const estimatedTokenCount = estimateTokens(JSON.stringify(body));
+
             if (verbose) {
-              console.debug('[Any Model FIM] Prompt:', content);
+              console.log('[Any Model FIM] Prompt:', content);
             }
 
             const cursorListener = vscode.workspace.onDidChangeTextDocument(
@@ -193,72 +204,83 @@ export function activate(context: vscode.ExtensionContext) {
               }
             );
 
-            try {
-              const response = await axios.post(endpointUrl, body, {
-                headers: {
-                  Authorization: `Bearer ${bearerToken}`,
-                  'Content-Type': 'application/json',
-                },
-                cancelToken: cancelTokenSource?.token,
-              });
+            vscode.window.withProgress(
+              {
+                location: vscode.ProgressLocation.Window,
+                title: `Waiting for code completion response... (~${estimatedTokenCount} tokens)`,
+              },
+              async (progress) => {
+                try {
+                  const response = await axios.post(endpointUrl, body, {
+                    headers: {
+                      Authorization: `Bearer ${bearerToken}`,
+                      'Content-Type': 'application/json',
+                    },
+                    cancelToken: cancelTokenSource?.token,
+                  });
 
-              const completion = response.data.choices[0].message.content;
-              const unwrappedCompletion = completion
-                .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                .trim();
+                  const completion = response.data.choices[0].message.content;
+                  const unwrappedCompletion = completion
+                    .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
+                    .trim();
 
-              console.debug('[Any Model FIM] Completion:', unwrappedCompletion);
-
-              await editor.edit((editBuilder) => {
-                if (
-                  documentText.includes('<FIM>') &&
-                  documentText.includes('</FIM>')
-                ) {
-                  const fimStart = documentText.indexOf('<FIM>');
-                  const fimEnd =
-                    documentText.indexOf('</FIM>') + '</FIM>'.length;
-                  const fimRange = new vscode.Range(
-                    document.positionAt(fimStart),
-                    document.positionAt(fimEnd)
+                  console.log(
+                    '[Any Model FIM] Completion:',
+                    unwrappedCompletion
                   );
-                  editBuilder.replace(fimRange, unwrappedCompletion);
-                  setTimeout(() => {
-                    const newPosition = document.positionAt(
-                      fimStart + unwrappedCompletion.length
-                    );
-                    editor.selection = new vscode.Selection(
-                      newPosition,
-                      newPosition
-                    );
-                  }, 50);
-                } else {
-                  editBuilder.insert(position, unwrappedCompletion);
-                  setTimeout(() => {
-                    const newPosition = position.translate(
-                      0,
-                      unwrappedCompletion.length
-                    );
-                    editor.selection = new vscode.Selection(
-                      newPosition,
-                      newPosition
-                    );
-                  }, 50);
-                }
-              });
-            } catch (error) {
-              if (axios.isCancel(error)) {
-                console.log('Request canceled:', error.message);
-              } else {
-                console.error('POST request failed:', error);
-                vscode.window.showErrorMessage(
-                  'Failed to send POST request. Check console for details.'
-                );
-              }
-            } finally {
-              cursorListener.dispose();
-            }
 
-            progress.report({ increment: 100 });
+                  await editor.edit((editBuilder) => {
+                    if (
+                      documentText.includes('<FIM>') &&
+                      documentText.includes('</FIM>')
+                    ) {
+                      const fimStart = documentText.indexOf('<FIM>');
+                      const fimEnd =
+                        documentText.indexOf('</FIM>') + '</FIM>'.length;
+                      const fimRange = new vscode.Range(
+                        document.positionAt(fimStart),
+                        document.positionAt(fimEnd)
+                      );
+                      editBuilder.replace(fimRange, unwrappedCompletion);
+                      setTimeout(() => {
+                        const newPosition = document.positionAt(
+                          fimStart + unwrappedCompletion.length
+                        );
+                        editor.selection = new vscode.Selection(
+                          newPosition,
+                          newPosition
+                        );
+                      }, 50);
+                    } else {
+                      editBuilder.insert(position, unwrappedCompletion);
+                      setTimeout(() => {
+                        const newPosition = position.translate(
+                          0,
+                          unwrappedCompletion.length
+                        );
+                        editor.selection = new vscode.Selection(
+                          newPosition,
+                          newPosition
+                        );
+                      }, 50);
+                    }
+                  });
+                } catch (error) {
+                  if (axios.isCancel(error)) {
+                    console.log('Request canceled:', error.message);
+                  } else {
+                    console.error('POST request failed:', error);
+                    vscode.window.showErrorMessage(
+                      'Failed to send POST request. Check console for details.'
+                    );
+                  }
+                } finally {
+                  cursorListener.dispose();
+                }
+
+                progress.report({ increment: 100 });
+              }
+            );
           }
         );
       }
