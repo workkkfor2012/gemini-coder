@@ -1,7 +1,10 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
+import { CancelTokenSource } from 'axios';
 
 export function activate(context: vscode.ExtensionContext) {
+  let cancelTokenSource: CancelTokenSource | undefined;
+
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
@@ -41,107 +44,156 @@ export function activate(context: vscode.ExtensionContext) {
 
       const editor = vscode.window.activeTextEditor;
       if (editor) {
-        const document = editor.document;
-        const documentText = document.getText();
-        const position = editor.selection.active;
-        const textBeforeCursor = document.getText(
-          new vscode.Range(new vscode.Position(0, 0), position)
-        );
-        const textAfterCursor = document.getText(
-          new vscode.Range(
-            position,
-            document.positionAt(document.getText().length)
-          )
-        );
+        if (cancelTokenSource) {
+          cancelTokenSource.cancel(
+            'User moved the cursor, cancelling request.'
+          );
+        }
+        cancelTokenSource = axios.CancelToken.source();
 
-        const openFilesContent = vscode.workspace.textDocuments
-          .filter((doc) => doc.uri.toString() !== document.uri.toString())
-          .map((doc) => {
-            const filePath = vscode.workspace.asRelativePath(doc.uri);
-            const fileLanguage = doc.languageId;
-            const fileContent = doc.getText();
-            return `\n\n## ${filePath}\n\`\`\`${fileLanguage}\n${fileContent}\n\`\`\``;
-          })
-          .join('');
-
-        const payload = {
-          before: `${instruction}\n\n${openFilesContent}\n\n## ${vscode.workspace.asRelativePath(
-            document.uri
-          )}\n\`\`\`${document.languageId}\n${textBeforeCursor}`,
-          after: `${textAfterCursor}\n\`\`\``,
-        };
-
-        const content = `${payload.before}${
-          !documentText.includes('<FIM>') ? '<FIM>' : ''
-        }${!documentText.includes('</FIM>') ? '</FIM>' : ''}${payload.after}`;
-
-        const messages = [
-          ...(systemInstructions
-            ? [{ role: 'system', content: systemInstructions }]
-            : []),
+        vscode.window.withProgress(
           {
-            role: 'user',
-            content,
+            location: vscode.ProgressLocation.Window,
+            title: 'Waiting for code completion response...',
           },
-        ];
+          async (progress) => {
+            progress.report({ increment: 0 });
 
-        const body = {
-          messages,
-          model,
-          temperature,
-        };
+            const document = editor.document;
+            const documentText = document.getText();
+            const position = editor.selection.active;
+            const textBeforeCursor = document.getText(
+              new vscode.Range(new vscode.Position(0, 0), position)
+            );
+            const textAfterCursor = document.getText(
+              new vscode.Range(
+                position,
+                document.positionAt(document.getText().length)
+              )
+            );
 
-        if (verbose) {
-          console.debug('> Super Simple FIM', content);
-        }
+            const openFilesContent = vscode.workspace.textDocuments
+              .filter((doc) => doc.uri.toString() !== document.uri.toString())
+              .map((doc) => {
+                const filePath = vscode.workspace.asRelativePath(doc.uri);
+                const fileLanguage = doc.languageId;
+                const fileContent = doc.getText();
+                return `\n\n## ${filePath}\n\`\`\`${fileLanguage}\n${fileContent}\n\`\`\``;
+              })
+              .join('');
 
-        try {
-          const response = await axios.post(endpointUrl, body, {
-            headers: {
-              Authorization: `Bearer ${bearerToken}`,
-              'Content-Type': 'application/json',
-            },
-          });
+            const payload = {
+              before: `${instruction}\n\n${openFilesContent}\n\n## ${vscode.workspace.asRelativePath(
+                document.uri
+              )}\n\`\`\`${document.languageId}\n${textBeforeCursor}`,
+              after: `${textAfterCursor}\n\`\`\``,
+            };
 
-          // Extract the content inside the code block
-          const completion = response.data.choices[0].message.content;
-          const unwrappedCompletion = completion
-            .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-            .trim();
+            const content = `${payload.before}${
+              !documentText.includes('<FIM>') ? '<FIM>' : ''
+            }${!documentText.includes('</FIM>') ? '</FIM>' : ''}${
+              payload.after
+            }`;
 
-          // Edit the document to insert the unwrapped completion
-          await editor.edit((editBuilder) => {
-            let newPosition;
-            if (
-              documentText.includes('<FIM>') &&
-              documentText.includes('</FIM>')
-            ) {
-              const fimStart = documentText.indexOf('<FIM>');
-              const fimEnd = documentText.indexOf('</FIM>') + '</FIM>'.length;
-              const fimRange = new vscode.Range(
-                document.positionAt(fimStart),
-                document.positionAt(fimEnd)
-              );
-              editBuilder.replace(fimRange, unwrappedCompletion);
-              newPosition = document.positionAt(
-                fimStart + unwrappedCompletion.length
-              );
-            } else {
-              editBuilder.insert(position, unwrappedCompletion);
-              newPosition = position.translate(0, unwrappedCompletion.length);
+            const messages = [
+              ...(systemInstructions
+                ? [{ role: 'system', content: systemInstructions }]
+                : []),
+              {
+                role: 'user',
+                content,
+              },
+            ];
+
+            const body = {
+              messages,
+              model,
+              temperature,
+            };
+
+            if (verbose) {
+              console.debug('> Super Simple FIM', content);
             }
-            editor.selection = new vscode.Selection(newPosition, newPosition);
-          });
 
-          vscode.window.showInformationMessage(
-            'Super Simple FIM response inserted!'
-          );
-        } catch (error) {
-          console.error('POST request failed:', error);
-          vscode.window.showErrorMessage(
-            'Failed to send POST request. Check console for details.'
-          );
-        }
+            const cursorListener = vscode.workspace.onDidChangeTextDocument(
+              () => {
+                if (cancelTokenSource) {
+                  cancelTokenSource.cancel(
+                    'User moved the cursor, cancelling request.'
+                  );
+                }
+              }
+            );
+
+            try {
+              const response = await axios.post(endpointUrl, body, {
+                headers: {
+                  Authorization: `Bearer ${bearerToken}`,
+                  'Content-Type': 'application/json',
+                },
+                cancelToken: cancelTokenSource?.token,
+              });
+
+              // Extract the content inside the code block
+              const completion = response.data.choices[0].message.content;
+              const unwrappedCompletion = completion
+                .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
+                .trim();
+
+              // Edit the document to insert the unwrapped completion
+              await editor.edit((editBuilder) => {
+                if (
+                  documentText.includes('<FIM>') &&
+                  documentText.includes('</FIM>')
+                ) {
+                  const fimStart = documentText.indexOf('<FIM>');
+                  const fimEnd =
+                    documentText.indexOf('</FIM>') + '</FIM>'.length;
+                  const fimRange = new vscode.Range(
+                    document.positionAt(fimStart),
+                    document.positionAt(fimEnd)
+                  );
+                  editBuilder.replace(fimRange, unwrappedCompletion);
+                  // Wait until UI updates
+                  setTimeout(() => {
+                    const newPosition = document.positionAt(
+                      fimStart + unwrappedCompletion.length
+                    );
+                    editor.selection = new vscode.Selection(
+                      newPosition,
+                      newPosition
+                    );
+                  }, 50);
+                } else {
+                  editBuilder.insert(position, unwrappedCompletion);
+                  setTimeout(() => {
+                    const newPosition = position.translate(
+                      0,
+                      unwrappedCompletion.length
+                    );
+                    editor.selection = new vscode.Selection(
+                      newPosition,
+                      newPosition
+                    );
+                  }, 50);
+                }
+              });
+            } catch (error) {
+              if (axios.isCancel(error)) {
+                console.log('Request canceled:', error.message);
+              } else {
+                console.error('POST request failed:', error);
+                vscode.window.showErrorMessage(
+                  'Failed to send POST request. Check console for details.'
+                );
+              }
+            } finally {
+              cursorListener.dispose();
+            }
+
+            progress.report({ increment: 100 });
+          }
+        );
       }
     }
   );

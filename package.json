@@ -48,7 +48,7 @@
         },
         "superSimpleFim.model": {
           "type": "string",
-          "default": "mistral-large-latest",
+          "default": "pixtral-large-latest",
           "description": "The model to be used for the API."
         },
         "superSimpleFim.temperature": {
