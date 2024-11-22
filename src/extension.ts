@@ -21,6 +21,30 @@ export function activate(context: vscode.ExtensionContext) {
     return words.filter((word) => word.trim() !== '').length;
   }
 
+  let openEditors: Set<string> = new Set();
+
+  // Register event listener for when a document is opened
+  context.subscriptions.push(
+    vscode.workspace.onDidOpenTextDocument((document) => {
+      if (
+        !document.uri.fsPath.endsWith('.git') &&
+        !document.uri.fsPath.includes('node_modules') &&
+        !document.uri.fsPath.includes('git/scm0/input')
+      ) {
+        openEditors.add(document.uri.fsPath);
+        console.log('[Any Model FIM] Document opened:', document.uri.fsPath);
+      }
+    })
+  );
+
+  // Register event listener for when a document is closed
+  context.subscriptions.push(
+    vscode.workspace.onDidCloseTextDocument((document) => {
+      openEditors.delete(document.uri.fsPath);
+      console.log('[Any Model FIM] Document closed:', document.uri.fsPath);
+    })
+  );
+
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
@@ -142,16 +166,12 @@ export function activate(context: vscode.ExtensionContext) {
               openFilesContent = vscode.workspace.textDocuments
                 .filter(
                   (doc) =>
-                    doc.uri.toString() !== document.uri.toString() &&
-                    !vscode.workspace
-                      .asRelativePath(doc.uri)
-                      .endsWith('Code/User/settings.json') &&
-                    !vscode.workspace.asRelativePath(doc.uri).endsWith('git') &&
-                    vscode.workspace.asRelativePath(doc.uri) !==
-                      'git/scm0/input'
+                    openEditors.has(doc.uri.fsPath) &&
+                    doc.uri.toString() !== document.uri.toString()
                 )
                 .map((doc) => {
                   const filePath = vscode.workspace.asRelativePath(doc.uri);
+                  console.log(filePath);
                   const fileLanguage = doc.languageId;
                   const fileContent = doc.getText();
                   return `\n<file path="${filePath}" language="${fileLanguage}">\n${fileContent}\n</file>`;
