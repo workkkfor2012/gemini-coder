@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
 import { CancelTokenSource } from 'axios';
-import openaiTokenCounter from 'openai-gpt-token-counter';
 import * as fs from 'fs';
 
 interface Provider {
@@ -16,6 +15,12 @@ interface Provider {
 
 export function activate(context: vscode.ExtensionContext) {
   let cancelTokenSource: CancelTokenSource | undefined;
+
+  function estimateTokens(text: string): number {
+    // A rough estimate: assume 1 token per word or punctuation
+    const words = text.split(/\s+|\b/);
+    return words.filter((word) => word.trim() !== '').length;
+  }
 
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
@@ -188,10 +193,7 @@ export function activate(context: vscode.ExtensionContext) {
               temperature,
             };
 
-            const estimatedTokenCount = openaiTokenCounter.chat(
-              messages,
-              'gpt-4'
-            );
+            const estimatedTokenCount = estimateTokens(content);
 
             if (verbose) {
               console.log('[Any Model FIM] Prompt:', content);
