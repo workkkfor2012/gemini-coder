@@ -188,8 +188,8 @@ export function activate(context: vscode.ExtensionContext) {
               temperature,
             };
 
-            const estimatedTokenCount = openaiTokenCounter.text(
-              content,
+            const estimatedTokenCount = openaiTokenCounter.chat(
+              messages,
               'gpt-4'
             );
 
