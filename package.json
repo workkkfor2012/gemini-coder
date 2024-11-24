@@ -2,7 +2,7 @@
   "name": "any-model-fim",
   "displayName": "Any Model FIM",
   "description": "Use any model via OpenAI API compatible provider as your Fill-in-the-middle coding assistant. Automatically attaches all open files as context and gets you the best help possible.",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
