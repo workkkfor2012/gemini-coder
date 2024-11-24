@@ -2,6 +2,7 @@ import * as vscode from 'vscode';
 import axios from 'axios';
 import { CancelTokenSource } from 'axios';
 import * as fs from 'fs';
+import openaiTokenCounter from 'openai-gpt-token-counter';
 
 interface Provider {
   name: string;
@@ -193,7 +194,10 @@ export function activate(context: vscode.ExtensionContext) {
               temperature,
             };
 
-            const estimatedTokenCount = estimateTokens(content);
+            const estimatedTokenCount = openaiTokenCounter.chat(
+              messages,
+              'gpt-4'
+            );
 
             if (verbose) {
               console.log('[Any Model FIM] Prompt:', content);

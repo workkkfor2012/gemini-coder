@@ -1,18 +1,36 @@
 {
   "name": "any-model-fim",
   "displayName": "Any Model FIM",
-  "description": "A VS Code extension that sends FIM (Fill In The Middle) requests to an API and inserts the response at the cursor position or replaces custom tokens <FIM>[OPTIONAL FILLING INSTRUCTIONS]</FIM>.",
-  "version": "0.0.1",
-  "repository": {},
+  "description": "Use any model via OpenAI API compatible provider as your Fill-in-the-middle coding assistant. Automatically attaches all open files as context and gets you the best help possible.",
+  "version": "1.0.3",
+  "publisher": "robertpiosik",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/robertpiosik/any-model-fim"
+  },
   "engines": {
     "vscode": "^1.92.0"
   },
   "categories": [
     "Other"
   ],
+  "keywords": [
+    "ai",
+    "Fill-in-the-middle",
+    "FIM",
+    "Coding assistant",
+    "OpenAI API"
+  ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
+    "gallery": {
+      "images": [
+        {
+          "path": "media/thumbnail.png"
+        }
+      ]
+    },
     "commands": [
       {
         "command": "extension.sendFimRequest",
