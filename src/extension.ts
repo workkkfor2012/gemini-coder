@@ -1,6 +1,8 @@
 import * as vscode from 'vscode';
 import axios from 'axios';
 import { CancelTokenSource } from 'axios';
+import openaiTokenCounter from 'openai-gpt-token-counter';
+import * as fs from 'fs';
 
 interface Provider {
   name: string;
@@ -14,36 +16,6 @@ interface Provider {
 
 export function activate(context: vscode.ExtensionContext) {
   let cancelTokenSource: CancelTokenSource | undefined;
-
-  function estimateTokens(text: string): number {
-    // A rough estimate: assume 1 token per word or punctuation
-    const words = text.split(/\s+|\b/);
-    return words.filter((word) => word.trim() !== '').length;
-  }
-
-  let openEditors: Set<string> = new Set();
-
-  // Register event listener for when a document is opened
-  context.subscriptions.push(
-    vscode.workspace.onDidOpenTextDocument((document) => {
-      if (
-        !document.uri.fsPath.endsWith('.git') &&
-        !document.uri.fsPath.includes('node_modules') &&
-        !document.uri.fsPath.includes('git/scm0/input')
-      ) {
-        openEditors.add(document.uri.fsPath);
-        console.log('[Any Model FIM] Document opened:', document.uri.fsPath);
-      }
-    })
-  );
-
-  // Register event listener for when a document is closed
-  context.subscriptions.push(
-    vscode.workspace.onDidCloseTextDocument((document) => {
-      openEditors.delete(document.uri.fsPath);
-      console.log('[Any Model FIM] Document closed:', document.uri.fsPath);
-    })
-  );
 
   let disposableSendFimRequest = vscode.commands.registerCommand(
     'extension.sendFimRequest',
@@ -163,20 +135,28 @@ export function activate(context: vscode.ExtensionContext) {
 
             let openFilesContent = '';
             if (attachOpenFiles) {
-              openFilesContent = vscode.workspace.textDocuments
-                .filter(
-                  (doc) =>
-                    openEditors.has(doc.uri.fsPath) &&
-                    doc.uri.toString() !== document.uri.toString()
+              const openTabs = vscode.window.tabGroups.all
+                .flatMap((group) => group.tabs)
+                .map((tab) =>
+                  tab.input instanceof vscode.TabInputText
+                    ? tab.input.uri
+                    : null
                 )
-                .map((doc) => {
-                  const filePath = vscode.workspace.asRelativePath(doc.uri);
-                  console.log(filePath);
-                  const fileLanguage = doc.languageId;
-                  const fileContent = doc.getText();
-                  return `\n<file path="${filePath}" language="${fileLanguage}">\n${fileContent}\n</file>`;
-                })
-                .join('');
+                .filter((uri): uri is vscode.Uri => uri !== null);
+
+              for (const file of openTabs) {
+                const relativePath = vscode.workspace.asRelativePath(file);
+                let fileContent = fs.readFileSync(file.fsPath, 'utf8');
+
+                // Remove BOM if present
+                if (fileContent.charCodeAt(0) === 0xfeff) {
+                  fileContent = fileContent.slice(1);
+                }
+
+                const languageId = await getLanguageId(file);
+
+                openFilesContent += `\n<file path="${relativePath}" language="${languageId}">\n${fileContent}\n</file>`;
+              }
             }
 
             const payload = {
@@ -208,7 +188,10 @@ export function activate(context: vscode.ExtensionContext) {
               temperature,
             };
 
-            const estimatedTokenCount = estimateTokens(JSON.stringify(body));
+            const estimatedTokenCount = openaiTokenCounter.text(
+              content,
+              'gpt-4'
+            );
 
             if (verbose) {
               console.log('[Any Model FIM] Prompt:', content);
@@ -366,3 +349,13 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
+
+async function getLanguageId(uri: vscode.Uri): Promise<string> {
+  try {
+    const document = await vscode.workspace.openTextDocument(uri);
+    return document.languageId;
+  } catch (error) {
+    console.error(`Error detecting language for ${uri.fsPath}:`, error);
+    return 'plaintext';
+  }
+}
