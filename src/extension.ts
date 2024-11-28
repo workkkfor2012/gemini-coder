@@ -1,367 +1,379 @@
-import * as vscode from 'vscode';
-import axios from 'axios';
-import { CancelTokenSource } from 'axios';
-import * as fs from 'fs';
-import openaiTokenCounter from 'openai-gpt-token-counter';
+import * as vscode from 'vscode'
+import axios from 'axios'
+import { CancelTokenSource } from 'axios'
+import * as fs from 'fs'
+import openai_token_counter from 'openai-gpt-token-counter'
 
 interface Provider {
-  name: string;
-  endpointUrl: string;
-  bearerToken: string;
-  model: string;
-  temperature?: number;
-  systemInstructions?: string;
-  instruction?: string;
+  name: string
+  endpointUrl: string
+  bearerToken: string
+  model: string
+  temperature?: number
+  systemInstructions?: string
+  instruction?: string
 }
 
 export function activate(context: vscode.ExtensionContext) {
-  let cancelTokenSource: CancelTokenSource | undefined;
+  let cancel_token_source: CancelTokenSource | undefined
 
-  function estimateTokens(text: string): number {
-    // A rough estimate: assume 1 token per word or punctuation
-    const words = text.split(/\s+|\b/);
-    return words.filter((word) => word.trim() !== '').length;
-  }
-
-  let disposableSendFimRequest = vscode.commands.registerCommand(
+  let disposable_send_fim_request = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
       const providers =
         vscode.workspace
           .getConfiguration()
-          .get<Provider[]>('anyModelFim.providers') || [];
-      const defaultProviderName = vscode.workspace
+          .get<Provider[]>('anyModelFim.providers') || []
+      const default_provider_name = vscode.workspace
         .getConfiguration()
-        .get<string>('anyModelFim.defaultProvider');
-      const globalInstruction = vscode.workspace
+        .get<string>('anyModelFim.defaultProvider')
+      const global_instruction = vscode.workspace
         .getConfiguration()
-        .get<string>('anyModelFim.globalInstruction');
+        .get<string>('anyModelFim.globalInstruction')
 
       if (!providers || providers.length === 0) {
         vscode.window.showErrorMessage(
           'No providers configured. Please add providers in the settings.'
-        );
-        return;
+        )
+        return
       }
 
-      let selectedProvider: string | undefined;
+      let selected_provider: string | undefined
 
       // Check if default provider exists in the configured providers
-      const defaultProviderExists =
-        defaultProviderName &&
-        providers.some((p) => p.name === defaultProviderName);
+      const default_provider_exists =
+        default_provider_name &&
+        providers.some((p) => p.name === default_provider_name)
 
-      if (defaultProviderExists) {
+      if (default_provider_exists) {
         // Use default provider if it exists
-        selectedProvider = defaultProviderName;
+        selected_provider = default_provider_name
       } else {
         // Otherwise, let the user select a provider
-        selectedProvider = await vscode.window.showQuickPick(
+        selected_provider = await vscode.window.showQuickPick(
           providers.map((p) => p.name),
           { placeHolder: 'Select a provider' }
-        );
+        )
 
         // Set the selected provider as default if:
         // 1. No default was set before OR
         // 2. The existing default provider is no longer in the list
         if (
-          selectedProvider &&
-          (!defaultProviderName || !defaultProviderExists)
+          selected_provider &&
+          (!default_provider_name || !default_provider_exists)
         ) {
           await vscode.workspace
             .getConfiguration()
             .update(
               'anyModelFim.defaultProvider',
-              selectedProvider,
+              selected_provider,
               vscode.ConfigurationTarget.Global
-            );
+            )
         }
       }
 
-      if (!selectedProvider) {
-        return;
+      if (!selected_provider) {
+        return
       }
 
-      const provider = providers.find((p) => p.name === selectedProvider)!;
+      const provider = providers.find((p) => p.name === selected_provider)!
 
-      const endpointUrl = provider.endpointUrl;
-      const bearerTokens = provider.bearerToken;
-      const model = provider.model;
-      const temperature = provider.temperature;
-      const systemInstructions = provider.systemInstructions;
-      const instruction = provider.instruction || globalInstruction;
+      const endpoint_url = provider.endpointUrl
+      const bearer_tokens = provider.bearerToken
+      const model = provider.model
+      const temperature = provider.temperature
+      const system_instructions = provider.systemInstructions
+      const instruction = provider.instruction || global_instruction
       const verbose = vscode.workspace
         .getConfiguration()
-        .get<boolean>('anyModelFim.verbose');
-      const attachOpenFiles = vscode.workspace
+        .get<boolean>('anyModelFim.verbose')
+      const attach_open_files = vscode.workspace
         .getConfiguration()
-        .get<boolean>('anyModelFim.attachOpenFiles');
+        .get<boolean>('anyModelFim.attachOpenFiles')
 
-      if (!bearerTokens) {
+      if (!bearer_tokens) {
         vscode.window.showErrorMessage(
           'Bearer token is missing. Please add it in the settings.'
-        );
-        return;
+        )
+        return
       }
 
-      const tokensArray =
-        bearerTokens?.split(',').map((token: string) => token.trim()) || [];
-      const bearerToken =
-        tokensArray[Math.floor(Math.random() * tokensArray.length)];
+      const tokens_array =
+        bearer_tokens?.split(',').map((token: string) => token.trim()) || []
+      const bearer_token =
+        tokens_array[Math.floor(Math.random() * tokens_array.length)]
 
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       if (editor) {
-        if (cancelTokenSource) {
-          cancelTokenSource.cancel(
+        if (cancel_token_source) {
+          cancel_token_source.cancel(
             'User moved the cursor, cancelling request.'
-          );
+          )
         }
-        cancelTokenSource = axios.CancelToken.source();
+        cancel_token_source = axios.CancelToken.source()
 
         vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Window,
-            title: 'Waiting for code completion response...',
+            title: 'Waiting for code completion response...'
           },
           async (progress) => {
-            progress.report({ increment: 0 });
+            progress.report({ increment: 0 })
 
-            const document = editor.document;
-            const documentText = document.getText();
-            const position = editor.selection.active;
-            const textBeforeCursor = document.getText(
+            const document = editor.document
+            const document_text = document.getText()
+            const position = editor.selection.active
+            const text_before_cursor = document.getText(
               new vscode.Range(new vscode.Position(0, 0), position)
-            );
-            const textAfterCursor = document.getText(
+            )
+            const text_after_cursor = document.getText(
               new vscode.Range(
                 position,
                 document.positionAt(document.getText().length)
               )
-            );
+            )
 
-            let openFilesContent = '';
-            if (attachOpenFiles) {
-              const openTabs = vscode.window.tabGroups.all
+            let open_files_content = ''
+            if (attach_open_files) {
+              const open_tabs = vscode.window.tabGroups.all
                 .flatMap((group) => group.tabs)
                 .map((tab) =>
                   tab.input instanceof vscode.TabInputText
                     ? tab.input.uri
                     : null
                 )
-                .filter((uri): uri is vscode.Uri => uri !== null);
+                .filter((uri): uri is vscode.Uri => uri !== null)
 
-              for (const file of openTabs) {
-                const relativePath = vscode.workspace.asRelativePath(file);
-                let fileContent = fs.readFileSync(file.fsPath, 'utf8');
+              for (const file of open_tabs) {
+                try {
+                  const relative_path = vscode.workspace.asRelativePath(file)
+                  let file_content = fs.readFileSync(file.fsPath, 'utf8')
 
-                // Remove BOM if present
-                if (fileContent.charCodeAt(0) === 0xfeff) {
-                  fileContent = fileContent.slice(1);
+                  // Remove BOM if present
+                  if (file_content.charCodeAt(0) === 0xfeff) {
+                    file_content = file_content.slice(1)
+                  }
+
+                  const language_id = await get_language_id(file)
+
+                  open_files_content += `\n<file path="${relative_path}" language="${language_id}">\n${file_content}\n</file>`
+                } catch {
+                  // Skip files that cannot be read
                 }
-
-                const languageId = await getLanguageId(file);
-
-                openFilesContent += `\n<file path="${relativePath}" language="${languageId}">\n${fileContent}\n</file>`;
               }
             }
 
             const payload = {
-              before: `<instruction>${instruction}</instruction>\n<files>${openFilesContent}\n<file path="${vscode.workspace.asRelativePath(
+              before: `<instruction>${instruction}</instruction>\n<files>${open_files_content}\n<file path="${vscode.workspace.asRelativePath(
                 document.uri
-              )}" language="${document.languageId}">\n${textBeforeCursor}`,
-              after: `${textAfterCursor}\n</file></files>`,
-            };
+              )}" language="${document.languageId}">\n${text_before_cursor}`,
+              after: `${text_after_cursor}\n</file></files>`
+            }
 
             const content = `${payload.before}${
-              !documentText.includes('<FIM>') ? '<FIM>' : ''
-            }${!documentText.includes('</FIM>') ? '</FIM>' : ''}${
+              !document_text.includes('<FIM>') ? '<FIM>' : ''
+            }${!document_text.includes('</FIM>') ? '</FIM>' : ''}${
               payload.after
-            }`;
+            }`
 
             const messages = [
-              ...(systemInstructions
-                ? [{ role: 'system', content: systemInstructions }]
+              ...(system_instructions
+                ? [{ role: 'system', content: system_instructions }]
                 : []),
               {
                 role: 'user',
-                content,
-              },
-            ];
+                content
+              }
+            ]
 
             const body = {
               messages,
               model,
-              temperature,
-            };
-
-            const estimatedTokenCount = openaiTokenCounter.chat(
-              messages,
-              'gpt-4'
-            );
-
-            if (verbose) {
-              console.log('[Any Model FIM] Prompt:', content);
+              temperature
             }
 
-            const cursorListener = vscode.workspace.onDidChangeTextDocument(
+            const estimated_token_count = openai_token_counter.chat(
+              messages,
+              'gpt-4'
+            )
+
+            if (verbose) {
+              console.log('[Any Model FIM] Prompt:', content)
+            }
+
+            const cursor_listener = vscode.workspace.onDidChangeTextDocument(
               () => {
-                if (cancelTokenSource) {
-                  cancelTokenSource.cancel(
+                if (cancel_token_source) {
+                  cancel_token_source.cancel(
                     'User moved the cursor, cancelling request.'
-                  );
+                  )
                 }
               }
-            );
+            )
 
             vscode.window.withProgress(
               {
                 location: vscode.ProgressLocation.Window,
-                title: `Waiting for code completion response... (~${estimatedTokenCount} tokens)`,
+                title: `Waiting for code completion response... (~${estimated_token_count} tokens)`
               },
               async (progress) => {
                 try {
-                  const response = await axios.post(endpointUrl, body, {
+                  const response = await axios.post(endpoint_url, body, {
                     headers: {
-                      Authorization: `Bearer ${bearerToken}`,
-                      'Content-Type': 'application/json',
+                      Authorization: `Bearer ${bearer_token}`,
+                      'Content-Type': 'application/json'
                     },
-                    cancelToken: cancelTokenSource?.token,
-                  });
+                    cancelToken: cancel_token_source?.token
+                  })
 
-                  const completion = response.data.choices[0].message.content;
-                  const unwrappedCompletion = completion
+                  const completion = response.data.choices[0].message.content
+                  const unwrapped_completion = completion
                     .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                    .trim();
+                    .trim()
 
                   console.log(
                     '[Any Model FIM] Completion:',
-                    unwrappedCompletion
-                  );
+                    unwrapped_completion
+                  )
 
-                  await editor.edit((editBuilder) => {
+                  await editor.edit((edit_builder) => {
                     if (
-                      documentText.includes('<FIM>') &&
-                      documentText.includes('</FIM>')
+                      document_text.includes('<FIM>') &&
+                      document_text.includes('</FIM>')
                     ) {
-                      const fimStart = documentText.indexOf('<FIM>');
-                      const fimEnd =
-                        documentText.indexOf('</FIM>') + '</FIM>'.length;
-                      const fimRange = new vscode.Range(
-                        document.positionAt(fimStart),
-                        document.positionAt(fimEnd)
-                      );
-                      editBuilder.replace(fimRange, unwrappedCompletion);
+                      const fim_start = document_text.indexOf('<FIM>')
+                      const fim_end =
+                        document_text.indexOf('</FIM>') + '</FIM>'.length
+                      const fim_range = new vscode.Range(
+                        document.positionAt(fim_start),
+                        document.positionAt(fim_end)
+                      )
+                      edit_builder.replace(fim_range, unwrapped_completion)
                       setTimeout(() => {
-                        const newPosition = document.positionAt(
-                          fimStart + unwrappedCompletion.length
-                        );
+                        const new_position = document.positionAt(
+                          fim_start + unwrapped_completion.length
+                        )
                         editor.selection = new vscode.Selection(
-                          newPosition,
-                          newPosition
-                        );
-                      }, 50);
+                          new_position,
+                          new_position
+                        )
+                      }, 50)
                     } else {
-                      editBuilder.insert(position, unwrappedCompletion);
+                      edit_builder.insert(position, unwrapped_completion)
                       setTimeout(() => {
-                        const newPosition = position.translate(
-                          0,
-                          unwrappedCompletion.length
-                        );
+                        const lines = unwrapped_completion.split('\n')
+                        const new_line = position.line + lines.length - 1
+                        const new_char =
+                          lines.length === 1
+                            ? position.character + lines[0].length
+                            : lines[lines.length - 1].length
+
+                        const new_position = new vscode.Position(
+                          new_line,
+                          new_char
+                        )
                         editor.selection = new vscode.Selection(
-                          newPosition,
-                          newPosition
-                        );
-                      }, 50);
+                          new_position,
+                          new_position
+                        )
+                      }, 50)
                     }
-                  });
+                  })
                 } catch (error) {
                   if (axios.isCancel(error)) {
-                    console.log('Request canceled:', error.message);
+                    console.log('Request canceled:', error.message)
+                  } else if (
+                    axios.isAxiosError(error) &&
+                    error.response?.status == 429
+                  ) {
+                    vscode.window.showErrorMessage(
+                      "You've reached the rate limit! Please try again later or switch to a different model."
+                    )
                   } else {
-                    console.error('POST request failed:', error);
+                    console.error('POST request failed:', error)
                     vscode.window.showErrorMessage(
                       'Failed to send POST request. Check console for details.'
-                    );
+                    )
                   }
                 } finally {
-                  cursorListener.dispose();
+                  cursor_listener.dispose()
                 }
 
-                progress.report({ increment: 100 });
+                progress.report({ increment: 100 })
               }
-            );
+            )
           }
-        );
+        )
       }
     }
-  );
+  )
 
-  let disposableInsertFimTokens = vscode.commands.registerCommand(
+  let disposable_insert_fim_tokens = vscode.commands.registerCommand(
     'extension.insertFimTokens',
     () => {
-      const editor = vscode.window.activeTextEditor;
+      const editor = vscode.window.activeTextEditor
       if (editor) {
-        const position = editor.selection.active;
+        const position = editor.selection.active
         editor
-          .edit((editBuilder) => {
-            editBuilder.insert(position, '<FIM></FIM>');
+          .edit((edit_builder) => {
+            edit_builder.insert(position, '<FIM></FIM>')
           })
           .then(() => {
-            const newPosition = position.translate(0, 5);
-            editor.selection = new vscode.Selection(newPosition, newPosition);
-          });
+            const new_position = position.translate(0, 5)
+            editor.selection = new vscode.Selection(new_position, new_position)
+          })
       }
     }
-  );
+  )
 
-  let disposableChangeDefaultProvider = vscode.commands.registerCommand(
+  let disposable_change_default_provider = vscode.commands.registerCommand(
     'extension.changeDefaultProvider',
     async () => {
       const providers =
         vscode.workspace
           .getConfiguration()
-          .get<Provider[]>('anyModelFim.providers') || [];
+          .get<Provider[]>('anyModelFim.providers') || []
 
-      if (!providers || providers.length === 0) {
+      if (!providers || providers.length == 0) {
         vscode.window.showErrorMessage(
           'No providers configured. Please add providers in the settings.'
-        );
-        return;
+        )
+        return
       }
 
-      const selectedProvider = await vscode.window.showQuickPick(
+      const selected_provider = await vscode.window.showQuickPick(
         providers.map((p) => p.name),
         { placeHolder: 'Select a new default provider' }
-      );
+      )
 
-      if (selectedProvider) {
+      if (selected_provider) {
         await vscode.workspace
           .getConfiguration()
           .update(
             'anyModelFim.defaultProvider',
-            selectedProvider,
+            selected_provider,
             vscode.ConfigurationTarget.Global
-          );
+          )
         vscode.window.showInformationMessage(
-          `Default provider changed to: ${selectedProvider}`
-        );
+          `Default provider changed to: ${selected_provider}`
+        )
       }
     }
-  );
+  )
 
-  context.subscriptions.push(disposableSendFimRequest);
-  context.subscriptions.push(disposableInsertFimTokens);
-  context.subscriptions.push(disposableChangeDefaultProvider);
+  context.subscriptions.push(disposable_send_fim_request)
+  context.subscriptions.push(disposable_insert_fim_tokens)
+  context.subscriptions.push(disposable_change_default_provider)
 }
 
 export function deactivate() {}
 
-async function getLanguageId(uri: vscode.Uri): Promise<string> {
+async function get_language_id(uri: vscode.Uri): Promise<string> {
   try {
-    const document = await vscode.workspace.openTextDocument(uri);
-    return document.languageId;
+    const document = await vscode.workspace.openTextDocument(uri)
+    return document.languageId
   } catch (error) {
-    console.error(`Error detecting language for ${uri.fsPath}:`, error);
-    return 'plaintext';
+    console.error(`Error detecting language for ${uri.fsPath}:`, error)
+    return 'plaintext'
   }
 }
