@@ -17,6 +17,22 @@ interface Provider {
 export function activate(context: vscode.ExtensionContext) {
   let cancel_token_source: CancelTokenSource | undefined
 
+  const status_bar_item = vscode.window.createStatusBarItem(
+    vscode.StatusBarAlignment.Right,
+    100
+  )
+  status_bar_item.command = 'extension.changeDefaultProvider'
+  context.subscriptions.push(status_bar_item)
+  update_status_bar(status_bar_item)
+
+  context.subscriptions.push(
+    vscode.workspace.onDidChangeConfiguration((e) => {
+      if (e.affectsConfiguration('anyModelFim.defaultProvider')) {
+        update_status_bar(status_bar_item)
+      }
+    })
+  )
+
   let disposable_send_fim_request = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
@@ -351,7 +367,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const selected_provider = await vscode.window.showQuickPick(
         providers.map((p) => p.name),
-        { placeHolder: 'Select a new default provider' }
+        { placeHolder: 'Select default provider for Any Model FIM' }
       )
 
       if (selected_provider) {
@@ -365,6 +381,7 @@ export function activate(context: vscode.ExtensionContext) {
         vscode.window.showInformationMessage(
           `Default provider changed to: ${selected_provider}`
         )
+        update_status_bar(status_bar_item)
       }
     }
   )
@@ -375,6 +392,14 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
+
+async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
+  const default_provider_name = vscode.workspace
+    .getConfiguration()
+    .get<string>('anyModelFim.defaultProvider')
+  status_bar_item.text = `${default_provider_name || 'Select FIM provider'}`
+  status_bar_item.show()
+}
 
 async function get_language_id(uri: vscode.Uri): Promise<string> {
   try {
