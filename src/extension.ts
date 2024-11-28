@@ -226,15 +226,23 @@ export function activate(context: vscode.ExtensionContext) {
                     cancelToken: cancel_token_source?.token
                   })
 
-                  const completion = response.data.choices[0].message.content
-                  const unwrapped_completion = completion
+                  let completion = response.data.choices[0].message.content
+                  completion = completion
                     .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
                     .trim()
 
-                  console.log(
-                    '[Any Model FIM] Completion:',
-                    unwrapped_completion
-                  )
+                  // Remove duplicated prefix
+                  const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
+                  if (prefix_match) {
+                    const prefix = prefix_match[0]
+                    if (
+                      completion.toLowerCase().startsWith(prefix.toLowerCase())
+                    ) {
+                      completion = completion.slice(prefix.length)
+                    }
+                  }
+
+                  console.log('[Any Model FIM] Completion:', completion)
 
                   await editor.edit((edit_builder) => {
                     if (
@@ -248,10 +256,10 @@ export function activate(context: vscode.ExtensionContext) {
                         document.positionAt(fim_start),
                         document.positionAt(fim_end)
                       )
-                      edit_builder.replace(fim_range, unwrapped_completion)
+                      edit_builder.replace(fim_range, completion)
                       setTimeout(() => {
                         const new_position = document.positionAt(
-                          fim_start + unwrapped_completion.length
+                          fim_start + completion.length
                         )
                         editor.selection = new vscode.Selection(
                           new_position,
@@ -259,9 +267,9 @@ export function activate(context: vscode.ExtensionContext) {
                         )
                       }, 50)
                     } else {
-                      edit_builder.insert(position, unwrapped_completion)
+                      edit_builder.insert(position, completion)
                       setTimeout(() => {
-                        const lines = unwrapped_completion.split('\n')
+                        const lines = completion.split('\n')
                         const new_line = position.line + lines.length - 1
                         const new_char =
                           lines.length === 1
