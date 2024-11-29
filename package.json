@@ -53,32 +53,31 @@
       "type": "object",
       "title": "Gemini FIM Settings",
       "properties": {
-        "anyModelFim.defaultProvider": {
+        "geminiFim.defaultProvider": {
           "type": "string",
-          "description": "The default provider to use. Select from the list of configured providers.",
-          "default": "Gemini Flash"
+          "description": "The default model to use.",
+          "default": "Gemini Flash",
+          "enum": [
+            "Gemini Flash",
+            "Gemini Pro"
+          ]
         },
-        "anyModelFim.providers": {
+        "geminiFim.apiKey": {
+          "type": "string",
+          "scope": "resource",
+          "description": "API key to use with Gemini models. Get yours here: https://aistudio.google.com/app/apikey",
+          "default": ""
+        },
+        "geminiFim.temperature": {
+          "type": "number",
+          "scope": "resource",
+          "description": "Temperature to use with Gemini models.",
+          "default": 0
+        },
+        "geminiFim.providers": {
           "type": "array",
-          "default": [
-            {
-              "name": "Gemini Flash",
-              "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
-              "bearerToken": "",
-              "model": "gemini-1.5-flash",
-              "temperature": 0,
-              "instruction": ""
-            },
-            {
-              "name": "Gemini Pro",
-              "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
-              "bearerToken": "",
-              "model": "gemini-1.5-pro",
-              "temperature": 0,
-              "instruction": ""
-            }
-          ],
-          "description": "Configure multiple API providers.",
+          "default": [],
+          "description": "Configure additional models via OpenAI API compatible providers.",
           "items": {
             "type": "object",
             "properties": {
@@ -113,17 +112,17 @@
             }
           }
         },
-        "anyModelFim.verbose": {
+        "geminiFim.verbose": {
           "type": "boolean",
           "default": false,
           "description": "Enable verbose logging."
         },
-        "anyModelFim.attachOpenFiles": {
+        "geminiFim.attachOpenFiles": {
           "type": "boolean",
           "default": true,
           "description": "Attach all open files to the request."
         },
-        "anyModelFim.globalInstruction": {
+        "geminiFim.globalInstruction": {
           "type": "string",
           "description": "A global instruction used if a provider does not specify its own.",
           "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."

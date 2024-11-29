@@ -27,7 +27,11 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration('anyModelFim.defaultProvider')) {
+      if (
+        e.affectsConfiguration('geminiFim.defaultProvider') ||
+        e.affectsConfiguration('geminiFim.apiKey') ||
+        e.affectsConfiguration('geminiFim.temperature')
+      ) {
         update_status_bar(status_bar_item)
       }
     })
@@ -36,55 +40,58 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable_send_fim_request = vscode.commands.registerCommand(
     'extension.sendFimRequest',
     async () => {
-      const providers =
-        vscode.workspace
-          .getConfiguration()
-          .get<Provider[]>('anyModelFim.providers') || []
-      const default_provider_name = vscode.workspace
-        .getConfiguration()
-        .get<string>('anyModelFim.defaultProvider')
-      const global_instruction = vscode.workspace
-        .getConfiguration()
-        .get<string>('anyModelFim.globalInstruction')
+      const config = vscode.workspace.getConfiguration()
+      const user_providers = config.get<Provider[]>('geminiFim.providers') || []
+      const default_provider_name = config.get<string>(
+        'geminiFim.defaultProvider'
+      )
+      const global_instruction = config.get<string>(
+        'geminiFim.globalInstruction'
+      )
+      const gemini_api_key = config.get<string>('geminiFim.apiKey')
+      const gemini_temperature = config.get<number>('geminiFim.temperature')
 
-      if (!providers || providers.length === 0) {
-        vscode.window.showErrorMessage(
-          'No providers configured. Please add providers in the settings.'
-        )
-        return
-      }
+      const built_in_providers: Provider[] = [
+        {
+          name: 'Gemini Flash',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          bearerToken: gemini_api_key || '',
+          model: 'gemini-1.5-flash',
+          temperature: gemini_temperature,
+          instruction: ''
+        },
+        {
+          name: 'Gemini Pro',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          bearerToken: gemini_api_key || '',
+          model: 'gemini-1.5-pro',
+          temperature: gemini_temperature,
+          instruction: ''
+        }
+      ]
+
+      const all_providers = [...built_in_providers, ...user_providers]
 
       let selected_provider: string | undefined
-
-      // Check if default provider exists in the configured providers
-      const default_provider_exists =
+      if (
         default_provider_name &&
-        providers.some((p) => p.name === default_provider_name)
-
-      if (default_provider_exists) {
-        // Use default provider if it exists
+        all_providers.some((p) => p.name === default_provider_name)
+      ) {
         selected_provider = default_provider_name
       } else {
-        // Otherwise, let the user select a provider
         selected_provider = await vscode.window.showQuickPick(
-          providers.map((p) => p.name),
+          all_providers.map((p) => p.name),
           { placeHolder: 'Select a provider' }
         )
 
-        // Set the selected provider as default if:
-        // 1. No default was set before OR
-        // 2. The existing default provider is no longer in the list
-        if (
-          selected_provider &&
-          (!default_provider_name || !default_provider_exists)
-        ) {
-          await vscode.workspace
-            .getConfiguration()
-            .update(
-              'anyModelFim.defaultProvider',
-              selected_provider,
-              vscode.ConfigurationTarget.Global
-            )
+        if (selected_provider && !default_provider_name) {
+          await config.update(
+            'geminiFim.defaultProvider',
+            selected_provider,
+            vscode.ConfigurationTarget.Global
+          )
         }
       }
 
@@ -92,7 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
         return
       }
 
-      const provider = providers.find((p) => p.name === selected_provider)!
+      const provider = all_providers.find((p) => p.name === selected_provider)!
 
       const endpoint_url = provider.endpointUrl
       const bearer_tokens = provider.bearerToken
@@ -100,12 +107,8 @@ export function activate(context: vscode.ExtensionContext) {
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
       const instruction = provider.instruction || global_instruction
-      const verbose = vscode.workspace
-        .getConfiguration()
-        .get<boolean>('anyModelFim.verbose')
-      const attach_open_files = vscode.workspace
-        .getConfiguration()
-        .get<boolean>('anyModelFim.attachOpenFiles')
+      const verbose = config.get<boolean>('geminiFim.verbose')
+      const attach_open_files = config.get<boolean>('geminiFim.attachOpenFiles')
 
       if (!bearer_tokens) {
         vscode.window.showErrorMessage(
@@ -354,12 +357,31 @@ export function activate(context: vscode.ExtensionContext) {
   let disposable_change_default_provider = vscode.commands.registerCommand(
     'extension.changeDefaultProvider',
     async () => {
-      const providers =
-        vscode.workspace
-          .getConfiguration()
-          .get<Provider[]>('anyModelFim.providers') || []
+      const config = vscode.workspace.getConfiguration()
+      const user_providers = config.get<Provider[]>('geminiFim.providers') || []
+      const built_in_providers: Provider[] = [
+        {
+          name: 'Gemini Flash',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          bearerToken: '',
+          model: 'gemini-1.5-flash',
+          temperature: 0,
+          instruction: ''
+        },
+        {
+          name: 'Gemini Pro',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          bearerToken: '',
+          model: 'gemini-1.5-pro',
+          temperature: 0,
+          instruction: ''
+        }
+      ]
+      const all_providers = [...built_in_providers, ...user_providers]
 
-      if (!providers || providers.length == 0) {
+      if (!all_providers || all_providers.length == 0) {
         vscode.window.showErrorMessage(
           'No providers configured. Please add providers in the settings.'
         )
@@ -367,18 +389,16 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const selected_provider = await vscode.window.showQuickPick(
-        providers.map((p) => p.name),
+        all_providers.map((p) => p.name),
         { placeHolder: 'Select default provider for Gemini FIM' }
       )
 
       if (selected_provider) {
-        await vscode.workspace
-          .getConfiguration()
-          .update(
-            'anyModelFim.defaultProvider',
-            selected_provider,
-            vscode.ConfigurationTarget.Global
-          )
+        await config.update(
+          'geminiFim.defaultProvider',
+          selected_provider,
+          vscode.ConfigurationTarget.Global
+        )
         vscode.window.showInformationMessage(
           `Default provider changed to: ${selected_provider}`
         )
@@ -397,7 +417,7 @@ export function deactivate() {}
 async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
   const default_provider_name = vscode.workspace
     .getConfiguration()
-    .get<string>('anyModelFim.defaultProvider')
+    .get<string>('geminiFim.defaultProvider')
   status_bar_item.text = `${default_provider_name || 'Select FIM provider'}`
   status_bar_item.show()
 }
