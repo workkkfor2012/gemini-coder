@@ -245,11 +245,25 @@ export function activate(context: vscode.ExtensionContext) {
                     cancelToken: cancel_token_source?.token
                   })
 
+                  console.log(
+                    '[Gemini FIM] Raw completion:',
+                    response.data.choices[0].message.content
+                  )
+
                   let completion = response.data.choices[0].message.content
                   completion = completion
                     .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
                     .replace(/`([\s\S]*?)`/, '$1')
                     .trim()
+
+                  // Check for redundant character at the cursor position
+                  const char_after_cursor = document.getText(
+                    new vscode.Range(position, position.translate(0, 1))
+                  )
+
+                  if (completion.endsWith(char_after_cursor)) {
+                    completion = completion.slice(0, -1)
+                  }
 
                   // Remove duplicated prefix
                   const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
@@ -261,8 +275,6 @@ export function activate(context: vscode.ExtensionContext) {
                       completion = completion.slice(prefix.length)
                     }
                   }
-
-                  console.log('[Gemini FIM] Completion:', completion)
 
                   await editor.edit((edit_builder) => {
                     if (
@@ -312,11 +324,91 @@ export function activate(context: vscode.ExtensionContext) {
                     console.log('Request canceled:', error.message)
                   } else if (
                     axios.isAxiosError(error) &&
-                    error.response?.status == 429
+                    error.response?.status === 429
                   ) {
-                    vscode.window.showErrorMessage(
-                      "You've reached the rate limit! Please try again later or switch to a different model."
-                    )
+                    if (provider.name === 'Gemini Pro') {
+                      // Retry with Gemini Flash
+                      vscode.window.showWarningMessage(
+                        'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
+                      )
+
+                      const fallback_provider = built_in_providers.find(
+                        (p) => p.name === 'Gemini Flash'
+                      )
+
+                      if (fallback_provider) {
+                        // Update provider details to use Gemini Flash
+                        const fallback_body = {
+                          ...body,
+                          model: fallback_provider.model,
+                          temperature: fallback_provider.temperature
+                        }
+
+                        try {
+                          const retry_response = await axios.post(
+                            fallback_provider.endpointUrl,
+                            fallback_body,
+                            {
+                              headers: {
+                                Authorization: `Bearer ${bearer_token}`,
+                                'Content-Type': 'application/json'
+                              },
+                              cancelToken: cancel_token_source?.token
+                            }
+                          )
+
+                          let fallback_completion =
+                            retry_response.data.choices[0].message.content
+                          fallback_completion = fallback_completion
+                            .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
+                            .replace(/`([\s\S]*?)`/, '$1')
+                            .trim()
+
+                          console.log(
+                            '[Gemini FIM] Fallback Completion:',
+                            fallback_completion
+                          )
+
+                          // Insert the completion into the editor
+                          await editor.edit((edit_builder) => {
+                            edit_builder.insert(position, fallback_completion)
+                            setTimeout(() => {
+                              const lines = fallback_completion.split('\n')
+                              const new_line = position.line + lines.length - 1
+                              const new_char =
+                                lines.length === 1
+                                  ? position.character + lines[0].length
+                                  : lines[lines.length - 1].length
+
+                              const new_position = new vscode.Position(
+                                new_line,
+                                new_char
+                              )
+                              editor.selection = new vscode.Selection(
+                                new_position,
+                                new_position
+                              )
+                            }, 50)
+                          })
+                        } catch (fallbackError) {
+                          vscode.window.showErrorMessage(
+                            'Fallback with Gemini Flash also failed. Please try again later.'
+                          )
+                          console.error(
+                            'Fallback request failed:',
+                            fallbackError
+                          )
+                        }
+                      } else {
+                        vscode.window.showErrorMessage(
+                          'No fallback provider (Gemini Flash) configured. Please check your settings.'
+                        )
+                      }
+                    } else {
+                      vscode.window.showErrorMessage(
+                        "You've reached the rate limit! Please try again later or switch to a different model."
+                      )
+                    }
                   } else {
                     console.error('POST request failed:', error)
                     vscode.window.showErrorMessage(
