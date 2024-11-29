@@ -56,11 +56,7 @@
         "geminiFim.defaultProvider": {
           "type": "string",
           "description": "The default model to use.",
-          "default": "Gemini Flash",
-          "enum": [
-            "Gemini Flash",
-            "Gemini Pro"
-          ]
+          "default": "Gemini Flash"
         },
         "geminiFim.apiKey": {
           "type": "string",
