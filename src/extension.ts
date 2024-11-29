@@ -214,7 +214,7 @@ export function activate(context: vscode.ExtensionContext) {
             )
 
             if (verbose) {
-              console.log('[Any Model FIM] Prompt:', content)
+              console.log('[Gemini FIM] Prompt:', content)
             }
 
             const cursor_listener = vscode.workspace.onDidChangeTextDocument(
@@ -245,6 +245,7 @@ export function activate(context: vscode.ExtensionContext) {
                   let completion = response.data.choices[0].message.content
                   completion = completion
                     .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
+                    .replace(/`([\s\S]*?)`/, '$1')
                     .trim()
 
                   // Remove duplicated prefix
@@ -258,7 +259,7 @@ export function activate(context: vscode.ExtensionContext) {
                     }
                   }
 
-                  console.log('[Any Model FIM] Completion:', completion)
+                  console.log('[Gemini FIM] Completion:', completion)
 
                   await editor.edit((edit_builder) => {
                     if (
@@ -367,7 +368,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       const selected_provider = await vscode.window.showQuickPick(
         providers.map((p) => p.name),
-        { placeHolder: 'Select default provider for Any Model FIM' }
+        { placeHolder: 'Select default provider for Gemini FIM' }
       )
 
       if (selected_provider) {
