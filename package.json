@@ -6,7 +6,7 @@
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
-    "url": "https://github.com/robertpiosik/any-model-fim"
+    "url": "https://github.com/robertpiosik/gemini-fim"
   },
   "engines": {
     "vscode": "^1.92.0"
