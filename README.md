@@ -2,27 +2,24 @@
 
 ## Description
 
-Gemini FIM let's you use Gemini as a Fill-in-the-middle coding assistant.
-
-Use the most powerful AI in a cost-effective manner with context automatically filled with all your opened tabs.
+Gemini FIM let's you use Gemini as a Fill-in-the-middle coding assistant. With special prompting techinque the extension infills expected code while utilizing Gemini's large context window.
 
 Set up a keybinding for the command: "Gemini FIM: Run" and enjoy quick, intelligent completions.
 
-Use the command "Gemini FIM: Insert <FIM></FIM> tokens" to provide detailed instructions for the intended filling <FIM>{instructions}</FIM>, then run as always. We suggest adding "fim" global snippet.
+Use the command "Gemini FIM: Insert <FIM></FIM> tokens" to provide detailed instructions for the intended filling between special tokens <FIM>your instructions</FIM>, then run as always.
 
 ## How to Use
 
-1. Open all relevant files to attach the best possbile context.
+1. Open all relevant files which you want to attach as context for the model.
 2. Place the cursor where you want to insert code completion.
 3. Open the Command Palette (`Ctrl+Shift+P`).
 4. Run the command `Gemini FIM: Run`.
-5. Bind key combination to `Gemini FIM: Run` command for easier use.
 
-## Features
+## Good to know
 
-- Attaches all open files as completion context.
-- Supports other OpenAI API compatible providers as well.
-- Cycles between API keys devided by comma for each completion request.
+- Rate limited Gemini Pro requests fallback to Gemini Flash.
+- Divide API keys with comma to cycle between them for each request.
+- Supports other OpenAI API compatible providers.
 
 ## Author
 
