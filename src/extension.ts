@@ -101,7 +101,6 @@ export function activate(context: vscode.ExtensionContext) {
 
       const provider = all_providers.find((p) => p.name === selected_provider)!
 
-      const endpoint_url = provider.endpointUrl
       const bearer_tokens = provider.bearerToken
       const model = provider.model
       const temperature = provider.temperature
@@ -230,6 +229,111 @@ export function activate(context: vscode.ExtensionContext) {
               }
             )
 
+            async function make_request(
+              provider: Provider,
+              body: any
+            ): Promise<string | null> {
+              try {
+                const response = await axios.post(provider.endpointUrl, body, {
+                  headers: {
+                    Authorization: `Bearer ${bearer_token}`,
+                    'Content-Type': 'application/json'
+                  },
+                  cancelToken: cancel_token_source?.token
+                })
+
+                console.log(
+                  `[Gemini FIM] ${provider.name} RAW completion:`,
+                  response.data.choices[0].message.content
+                )
+
+                let completion = response.data.choices[0].message.content
+                completion = completion
+                  .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
+                  .replace(/`([\s\S]*?)`/, '$1')
+                  .trim()
+
+                // Remove duplicated prefix
+                const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
+                if (prefix_match) {
+                  const prefix = prefix_match[0]
+                  if (
+                    completion.toLowerCase().startsWith(prefix.toLowerCase())
+                  ) {
+                    completion = completion.slice(prefix.length)
+                  }
+                }
+
+                return completion
+              } catch (error) {
+                if (axios.isCancel(error)) {
+                  console.log('Request canceled:', error.message)
+                  return null
+                } else if (
+                  axios.isAxiosError(error) &&
+                  error.response?.status === 429
+                ) {
+                  if (provider.name === 'Gemini Pro') {
+                    return 'rate_limit'
+                  } else {
+                    vscode.window.showErrorMessage(
+                      "You've reached the rate limit! Please try again later or switch to a different model."
+                    )
+                    return null
+                  }
+                } else {
+                  console.error('POST request failed:', error)
+                  vscode.window.showErrorMessage(
+                    `Failed to send POST request to ${provider.name}. Check console for details.`
+                  )
+                  return null
+                }
+              }
+            }
+
+            async function insert_completion(completion: string) {
+              await editor!.edit((edit_builder) => {
+                if (
+                  document_text.includes('<FIM>') &&
+                  document_text.includes('</FIM>')
+                ) {
+                  const fim_start = document_text.indexOf('<FIM>')
+                  const fim_end =
+                    document_text.indexOf('</FIM>') + '</FIM>'.length
+                  const fim_range = new vscode.Range(
+                    document.positionAt(fim_start),
+                    document.positionAt(fim_end)
+                  )
+                  edit_builder.replace(fim_range, completion)
+                  setTimeout(() => {
+                    const new_position = document.positionAt(
+                      fim_start + completion.length
+                    )
+                    editor!.selection = new vscode.Selection(
+                      new_position,
+                      new_position
+                    )
+                  }, 50)
+                } else {
+                  edit_builder.insert(position, completion)
+                  setTimeout(() => {
+                    const lines = completion.split('\n')
+                    const new_line = position.line + lines.length - 1
+                    const new_char =
+                      lines.length === 1
+                        ? position.character + lines[0].length
+                        : lines[lines.length - 1].length
+
+                    const new_position = new vscode.Position(new_line, new_char)
+                    editor!.selection = new vscode.Selection(
+                      new_position,
+                      new_position
+                    )
+                  }, 50)
+                }
+              })
+            }
+
             vscode.window.withProgress(
               {
                 location: vscode.ProgressLocation.Window,
@@ -237,183 +341,39 @@ export function activate(context: vscode.ExtensionContext) {
               },
               async (progress) => {
                 try {
-                  const response = await axios.post(endpoint_url, body, {
-                    headers: {
-                      Authorization: `Bearer ${bearer_token}`,
-                      'Content-Type': 'application/json'
-                    },
-                    cancelToken: cancel_token_source?.token
-                  })
+                  let completion = await make_request(provider, body)
 
-                  console.log(
-                    '[Gemini FIM] Raw completion:',
-                    response.data.choices[0].message.content
-                  )
+                  if (completion === 'rate_limit') {
+                    vscode.window.showWarningMessage(
+                      'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
+                    )
 
-                  let completion = response.data.choices[0].message.content
-                  completion = completion
-                    .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                    .replace(/`([\s\S]*?)`/, '$1')
-                    .trim()
+                    const fallback_provider = built_in_providers.find(
+                      (p) => p.name === 'Gemini Flash'
+                    )!
 
-                  // Check for redundant character at the cursor position
-                  const char_after_cursor = document.getText(
-                    new vscode.Range(position, position.translate(0, 1))
-                  )
-
-                  if (completion.endsWith(char_after_cursor)) {
-                    completion = completion.slice(0, -1)
-                  }
-
-                  // Remove duplicated prefix
-                  const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
-                  if (prefix_match) {
-                    const prefix = prefix_match[0]
-                    if (
-                      completion.toLowerCase().startsWith(prefix.toLowerCase())
-                    ) {
-                      completion = completion.slice(prefix.length)
+                    const fallback_body = {
+                      ...body,
+                      model: fallback_provider.model,
+                      temperature: fallback_provider.temperature
                     }
-                  }
 
-                  await editor.edit((edit_builder) => {
-                    if (
-                      document_text.includes('<FIM>') &&
-                      document_text.includes('</FIM>')
-                    ) {
-                      const fim_start = document_text.indexOf('<FIM>')
-                      const fim_end =
-                        document_text.indexOf('</FIM>') + '</FIM>'.length
-                      const fim_range = new vscode.Range(
-                        document.positionAt(fim_start),
-                        document.positionAt(fim_end)
-                      )
-                      edit_builder.replace(fim_range, completion)
-                      setTimeout(() => {
-                        const new_position = document.positionAt(
-                          fim_start + completion.length
-                        )
-                        editor.selection = new vscode.Selection(
-                          new_position,
-                          new_position
-                        )
-                      }, 50)
-                    } else {
-                      edit_builder.insert(position, completion)
-                      setTimeout(() => {
-                        const lines = completion.split('\n')
-                        const new_line = position.line + lines.length - 1
-                        const new_char =
-                          lines.length === 1
-                            ? position.character + lines[0].length
-                            : lines[lines.length - 1].length
+                    completion = await make_request(
+                      fallback_provider,
+                      fallback_body
+                    )
 
-                        const new_position = new vscode.Position(
-                          new_line,
-                          new_char
-                        )
-                        editor.selection = new vscode.Selection(
-                          new_position,
-                          new_position
-                        )
-                      }, 50)
-                    }
-                  })
-                } catch (error) {
-                  if (axios.isCancel(error)) {
-                    console.log('Request canceled:', error.message)
-                  } else if (
-                    axios.isAxiosError(error) &&
-                    error.response?.status === 429
-                  ) {
-                    if (provider.name === 'Gemini Pro') {
-                      // Retry with Gemini Flash
-                      vscode.window.showWarningMessage(
-                        'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
-                      )
+                    if (completion === null) return // Already handled error inside make_request
 
-                      const fallback_provider = built_in_providers.find(
-                        (p) => p.name === 'Gemini Flash'
-                      )
-
-                      if (fallback_provider) {
-                        // Update provider details to use Gemini Flash
-                        const fallback_body = {
-                          ...body,
-                          model: fallback_provider.model,
-                          temperature: fallback_provider.temperature
-                        }
-
-                        try {
-                          const retry_response = await axios.post(
-                            fallback_provider.endpointUrl,
-                            fallback_body,
-                            {
-                              headers: {
-                                Authorization: `Bearer ${bearer_token}`,
-                                'Content-Type': 'application/json'
-                              },
-                              cancelToken: cancel_token_source?.token
-                            }
-                          )
-
-                          let fallback_completion =
-                            retry_response.data.choices[0].message.content
-                          fallback_completion = fallback_completion
-                            .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                            .replace(/`([\s\S]*?)`/, '$1')
-                            .trim()
-
-                          console.log(
-                            '[Gemini FIM] Fallback Completion:',
-                            fallback_completion
-                          )
-
-                          // Insert the completion into the editor
-                          await editor.edit((edit_builder) => {
-                            edit_builder.insert(position, fallback_completion)
-                            setTimeout(() => {
-                              const lines = fallback_completion.split('\n')
-                              const new_line = position.line + lines.length - 1
-                              const new_char =
-                                lines.length === 1
-                                  ? position.character + lines[0].length
-                                  : lines[lines.length - 1].length
-
-                              const new_position = new vscode.Position(
-                                new_line,
-                                new_char
-                              )
-                              editor.selection = new vscode.Selection(
-                                new_position,
-                                new_position
-                              )
-                            }, 50)
-                          })
-                        } catch (fallbackError) {
-                          vscode.window.showErrorMessage(
-                            'Fallback with Gemini Flash also failed. Please try again later.'
-                          )
-                          console.error(
-                            'Fallback request failed:',
-                            fallbackError
-                          )
-                        }
-                      } else {
-                        vscode.window.showErrorMessage(
-                          'No fallback provider (Gemini Flash) configured. Please check your settings.'
-                        )
-                      }
+                    if (completion) {
+                      await insert_completion(completion)
                     } else {
                       vscode.window.showErrorMessage(
-                        "You've reached the rate limit! Please try again later or switch to a different model."
+                        'Fallback with Gemini Flash also failed. Please try again later.'
                       )
                     }
-                  } else {
-                    console.error('POST request failed:', error)
-                    vscode.window.showErrorMessage(
-                      'Failed to send POST request. Check console for details.'
-                    )
+                  } else if (completion) {
+                    await insert_completion(completion)
                   }
                 } finally {
                   cursor_listener.dispose()
