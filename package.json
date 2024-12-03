@@ -1,8 +1,8 @@
 {
   "name": "gemini-fim",
   "displayName": "Gemini FIM",
-  "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all open files as context and gets you the best code completions possible.",
-  "version": "1.0.11",
+  "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
+  "version": "1.0.13",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -22,28 +22,79 @@
     "Coding assistant",
     "OpenAI API"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onView.geminiFimView"
+  ],
   "main": "out/extension.js",
   "icon": "media/thumbnail.png",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "geminiFim",
+          "title": "Gemini FIM",
+          "icon": "resources/activity-bar-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "geminiFim": [
+        {
+          "id": "geminiFimView",
+          "name": "Context"
+        }
+      ]
+    },
     "commands": [
       {
-        "command": "extension.sendFimRequest",
+        "command": "geminiFim.copyContext",
+        "title": "Copy context",
+        "icon": {
+          "light": "resources/light/copy.svg",
+          "dark": "resources/dark/copy.svg"
+        }
+      },
+      {
+        "command": "geminiFim.clearChecks",
+        "title": "Clear all checks",
+        "icon": {
+          "light": "resources/light/clear.svg",
+          "dark": "resources/dark/clear.svg"
+        }
+      },
+      {
+        "command": "geminiFim.copyOpenFiles",
+        "title": "Gemini FIM: Copy Open Files"
+      },
+      {
+        "command": "geminiFim.sendFimRequest",
         "title": "Gemini FIM: Run"
       },
       {
-        "command": "extension.insertFimTokens",
+        "command": "geminiFim.insertFimTokens",
         "title": "Gemini FIM: Insert <FIM></FIM> tokens"
       },
       {
-        "command": "extension.changeDefaultProvider",
+        "command": "geminiFim.changeDefaultProvider",
         "title": "Gemini FIM: Change Default Provider"
       }
     ],
     "menus": {
+      "view/title": [
+        {
+          "command": "geminiFim.copyContext",
+          "when": "view == geminiFimView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "geminiFim.clearChecks",
+          "when": "view == geminiFimView",
+          "group": "navigation@3"
+        }
+      ],
       "editor/context": [
         {
-          "command": "extension.insertFimTokens",
+          "command": "geminiFim.insertFimTokens",
           "when": "editorTextFocus && !editorReadonly",
           "group": "navigation@10"
         }
@@ -83,27 +134,27 @@
               },
               "endpointUrl": {
                 "type": "string",
-                "description": "The endpoint URL for the API."
+                "description": "Endpoint URL."
               },
               "bearerToken": {
                 "type": "string",
-                "description": "The bearer token for API authentication. Supports multiple tokens separated by commas."
+                "description": "API key."
               },
               "model": {
                 "type": "string",
-                "description": "The model to be used for the API."
+                "description": "Model name."
               },
               "temperature": {
                 "type": "number",
-                "description": "The temperature to be used for the API."
+                "description": "Temperature."
               },
               "systemInstructions": {
                 "type": "string",
-                "description": "The system instructions to be used for the API."
+                "description": "The system instructions."
               },
               "instruction": {
                 "type": "string",
-                "description": "The instruction to be used for the API."
+                "description": "Custom FIM instruction."
               }
             }
           }
@@ -122,6 +173,11 @@
           "type": "string",
           "description": "A global instruction used if a provider does not specify its own.",
           "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
+        },
+        "geminiFim.ignoredExtensions": {
+          "type": "string",
+          "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'",
+          "default": "png,jpg,jpeg,gif,svg"
         }
       }
     }
@@ -146,6 +202,7 @@
   },
   "dependencies": {
     "axios": "^1.7.7",
+    "ignore": "^6.0.2",
     "openai-gpt-token-counter": "^1.1.1"
   }
 }

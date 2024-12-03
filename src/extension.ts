@@ -2,7 +2,9 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import { CancelTokenSource } from 'axios'
 import * as fs from 'fs'
+import * as path from 'path'
 import openai_token_counter from 'openai-gpt-token-counter'
+import { initialize_file_tree } from './file-tree/file-tree-initialization'
 
 interface Provider {
   name: string
@@ -15,13 +17,15 @@ interface Provider {
 }
 
 export function activate(context: vscode.ExtensionContext) {
+  const file_tree_provider = initialize_file_tree(context)
+
   let cancel_token_source: CancelTokenSource | undefined
 
   const status_bar_item = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
   )
-  status_bar_item.command = 'extension.changeDefaultProvider'
+  status_bar_item.command = 'geminiFim.changeDefaultProvider'
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
 
@@ -38,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_send_fim_request = vscode.commands.registerCommand(
-    'extension.sendFimRequest',
+    'geminiFim.sendFimRequest',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers = config.get<Provider[]>('geminiFim.providers') || []
@@ -139,6 +143,7 @@ export function activate(context: vscode.ExtensionContext) {
             progress.report({ increment: 0 })
 
             const document = editor.document
+            const document_path = document.uri.fsPath
             const document_text = document.getText()
             const position = editor.selection.active
             const text_before_cursor = document.getText(
@@ -151,7 +156,19 @@ export function activate(context: vscode.ExtensionContext) {
               )
             )
 
-            let open_files_content = ''
+            /** Context text handling */
+
+            let file_paths_to_be_attached: Set<string> = new Set()
+
+            if (file_tree_provider) {
+              const selected_files_paths = file_tree_provider.getCheckedFiles()
+              for (const file_path of selected_files_paths) {
+                if (file_path != document_path) {
+                  file_paths_to_be_attached.add(file_path)
+                }
+              }
+            }
+
             if (attach_open_files) {
               const open_tabs = vscode.window.tabGroups.all
                 .flatMap((group) => group.tabs)
@@ -162,37 +179,38 @@ export function activate(context: vscode.ExtensionContext) {
                 )
                 .filter((uri): uri is vscode.Uri => uri !== null)
 
-              for (const file of open_tabs) {
-                try {
-                  const relative_path = vscode.workspace.asRelativePath(file)
-                  let file_content = fs.readFileSync(file.fsPath, 'utf8')
-
-                  // Remove BOM if present
-                  if (file_content.charCodeAt(0) === 0xfeff) {
-                    file_content = file_content.slice(1)
-                  }
-
-                  const language_id = await get_language_id(file)
-
-                  open_files_content += `\n<file path="${relative_path}" language="${language_id}">\n${file_content}\n</file>`
-                } catch {
-                  // Skip files that cannot be read
+              for (const open_file_uri of open_tabs) {
+                if (open_file_uri.fsPath != document_path) {
+                  file_paths_to_be_attached.add(open_file_uri.fsPath)
                 }
               }
             }
 
-            const payload = {
-              before: `<instruction>${instruction}</instruction>\n<files>${open_files_content}\n<file path="${vscode.workspace.asRelativePath(
-                document.uri
-              )}" language="${document.languageId}">\n${text_before_cursor}`,
-              after: `${text_after_cursor}\n</file></files>`
+            let context_text = ''
+            for (const path_to_be_attached of file_paths_to_be_attached) {
+              let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
+              const relative_path = path.relative(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                path_to_be_attached
+              )
+              context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
             }
 
-            const content = `${payload.before}${
+            const payload = {
+              before: `<instruction>${instruction}</instruction>\n<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
+                document.uri
+              )}">\n${text_before_cursor}`,
+              after: `${text_after_cursor}\n</file>\n</files>`
+            }
+
+            let content = `${payload.before}${
               !document_text.includes('<FIM>') ? '<FIM>' : ''
             }${!document_text.includes('</FIM>') ? '</FIM>' : ''}${
               payload.after
             }`
+
+            // Remove emtpy lines
+            content = content.replace(/\n\s*\n/g, '\n')
 
             const messages = [
               ...(system_instructions
@@ -389,7 +407,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_insert_fim_tokens = vscode.commands.registerCommand(
-    'extension.insertFimTokens',
+    'geminiFim.insertFimTokens',
     () => {
       const editor = vscode.window.activeTextEditor
       if (editor) {
@@ -407,7 +425,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_change_default_provider = vscode.commands.registerCommand(
-    'extension.changeDefaultProvider',
+    'geminiFim.changeDefaultProvider',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers = config.get<Provider[]>('geminiFim.providers') || []
@@ -472,14 +490,4 @@ async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
     .get<string>('geminiFim.defaultProvider')
   status_bar_item.text = `${default_provider_name || 'Select FIM provider'}`
   status_bar_item.show()
-}
-
-async function get_language_id(uri: vscode.Uri): Promise<string> {
-  try {
-    const document = await vscode.workspace.openTextDocument(uri)
-    return document.languageId
-  } catch (error) {
-    console.error(`Error detecting language for ${uri.fsPath}:`, error)
-    return 'plaintext'
-  }
 }
