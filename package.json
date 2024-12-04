@@ -2,7 +2,7 @@
   "name": "gemini-fim",
   "displayName": "Gemini FIM",
   "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
