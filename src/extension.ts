@@ -25,16 +25,16 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Right,
     100
   )
-  status_bar_item.command = 'geminiFim.changeDefaultProvider'
+  status_bar_item.command = 'geminiCoder.changeDefaultProvider'
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
 
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (
-        e.affectsConfiguration('geminiFim.defaultProvider') ||
-        e.affectsConfiguration('geminiFim.apiKey') ||
-        e.affectsConfiguration('geminiFim.temperature')
+        e.affectsConfiguration('geminiCoder.defaultProvider') ||
+        e.affectsConfiguration('geminiCoder.apiKey') ||
+        e.affectsConfiguration('geminiCoder.temperature')
       ) {
         update_status_bar(status_bar_item)
       }
@@ -42,18 +42,18 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_send_fim_request = vscode.commands.registerCommand(
-    'geminiFim.sendFimRequest',
+    'geminiCoder.sendFimRequest',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiFim.providers') || []
+      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
       const default_provider_name = config.get<string>(
-        'geminiFim.defaultProvider'
+        'geminiCoder.defaultProvider'
       )
       const global_instruction = config.get<string>(
-        'geminiFim.globalInstruction'
+        'geminiCoder.globalInstruction'
       )
-      const gemini_api_key = config.get<string>('geminiFim.apiKey')
-      const gemini_temperature = config.get<number>('geminiFim.temperature')
+      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const built_in_providers: Provider[] = [
         {
@@ -92,7 +92,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (selected_provider && !default_provider_name) {
           await config.update(
-            'geminiFim.defaultProvider',
+            'geminiCoder.defaultProvider',
             selected_provider,
             vscode.ConfigurationTarget.Global
           )
@@ -110,8 +110,8 @@ export function activate(context: vscode.ExtensionContext) {
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
       const instruction = provider.instruction || global_instruction
-      const verbose = config.get<boolean>('geminiFim.verbose')
-      const attach_open_files = config.get<boolean>('geminiFim.attachOpenFiles')
+      const verbose = config.get<boolean>('geminiCoder.verbose')
+      const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
 
       if (!bearer_tokens) {
         vscode.window.showErrorMessage(
@@ -407,7 +407,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_insert_fim_tokens = vscode.commands.registerCommand(
-    'geminiFim.insertFimTokens',
+    'geminiCoder.insertFimTokens',
     () => {
       const editor = vscode.window.activeTextEditor
       if (editor) {
@@ -425,10 +425,10 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_change_default_provider = vscode.commands.registerCommand(
-    'geminiFim.changeDefaultProvider',
+    'geminiCoder.changeDefaultProvider',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiFim.providers') || []
+      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
@@ -465,7 +465,7 @@ export function activate(context: vscode.ExtensionContext) {
 
       if (selected_provider) {
         await config.update(
-          'geminiFim.defaultProvider',
+          'geminiCoder.defaultProvider',
           selected_provider,
           vscode.ConfigurationTarget.Global
         )
@@ -487,7 +487,7 @@ export function deactivate() {}
 async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
   const default_provider_name = vscode.workspace
     .getConfiguration()
-    .get<string>('geminiFim.defaultProvider')
+    .get<string>('geminiCoder.defaultProvider')
   status_bar_item.text = `${default_provider_name || 'Select FIM provider'}`
   status_bar_item.show()
 }

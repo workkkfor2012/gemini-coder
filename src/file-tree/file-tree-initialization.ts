@@ -14,7 +14,7 @@ export function initialize_file_tree(
     const workspaceRoot = workspaceFolders[0].uri.fsPath
     fileTreeProvider = new FileTreeProvider(workspaceRoot)
 
-    const treeView = vscode.window.createTreeView('geminiFimView', {
+    const treeView = vscode.window.createTreeView('geminiCoderView', {
       treeDataProvider: fileTreeProvider,
       manageCheckboxStateManually: true
     })
@@ -23,7 +23,7 @@ export function initialize_file_tree(
     context.subscriptions.push(fileTreeProvider)
 
     context.subscriptions.push(
-      vscode.commands.registerCommand('geminiFim.copyContext', async () => {
+      vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
         const checkedFiles = fileTreeProvider!.getCheckedFiles()
 
         if (checkedFiles.length === 0) {
@@ -57,11 +57,11 @@ export function initialize_file_tree(
           'File contents copied to clipboard.'
         )
       }),
-      vscode.commands.registerCommand('geminiFim.clearChecks', () => {
+      vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         fileTreeProvider!.clearChecks()
         vscode.window.showInformationMessage('All checks have been cleared.')
       }),
-      vscode.commands.registerCommand('geminiFim.copyOpenFiles', async () => {
+      vscode.commands.registerCommand('geminiCoder.copyOpenFiles', async () => {
         const tabGroups: ReadonlyArray<vscode.TabGroup> =
           vscode.window.tabGroups.all
 

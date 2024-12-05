@@ -1,12 +1,12 @@
 {
-  "name": "gemini-fim",
-  "displayName": "Gemini FIM",
+  "name": "gemini-coder",
+  "displayName": "Gemini Coder: Autocomplete with 1M context",
   "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
-    "url": "https://github.com/robertpiosik/gemini-fim"
+    "url": "https://github.com/robertpiosik/gemini-vscode"
   },
   "engines": {
     "vscode": "^1.92.0"
@@ -17,13 +17,14 @@
   "keywords": [
     "gemini",
     "ai",
+    "Autocomplete",
     "Fill-in-the-middle",
     "FIM",
     "Coding assistant",
     "OpenAI API"
   ],
   "activationEvents": [
-    "onView.geminiFimView"
+    "onView.geminiCoderView"
   ],
   "main": "out/extension.js",
   "icon": "media/thumbnail.png",
@@ -31,23 +32,23 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "geminiFim",
+          "id": "geminiCoder",
           "title": "Gemini FIM",
           "icon": "resources/activity-bar-icon.svg"
         }
       ]
     },
     "views": {
-      "geminiFim": [
+      "geminiCoder": [
         {
-          "id": "geminiFimView",
+          "id": "geminiCoderView",
           "name": "Context"
         }
       ]
     },
     "commands": [
       {
-        "command": "geminiFim.copyContext",
+        "command": "geminiCoder.copyContext",
         "title": "Copy context",
         "icon": {
           "light": "resources/light/copy.svg",
@@ -55,7 +56,7 @@
         }
       },
       {
-        "command": "geminiFim.clearChecks",
+        "command": "geminiCoder.clearChecks",
         "title": "Clear all checks",
         "icon": {
           "light": "resources/light/clear.svg",
@@ -63,38 +64,38 @@
         }
       },
       {
-        "command": "geminiFim.copyOpenFiles",
+        "command": "geminiCoder.copyOpenFiles",
         "title": "Gemini FIM: Copy Open Files"
       },
       {
-        "command": "geminiFim.sendFimRequest",
+        "command": "geminiCoder.sendFimRequest",
         "title": "Gemini FIM: Run"
       },
       {
-        "command": "geminiFim.insertFimTokens",
+        "command": "geminiCoder.insertFimTokens",
         "title": "Gemini FIM: Insert <FIM></FIM> tokens"
       },
       {
-        "command": "geminiFim.changeDefaultProvider",
+        "command": "geminiCoder.changeDefaultProvider",
         "title": "Gemini FIM: Change Default Provider"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "geminiFim.copyContext",
-          "when": "view == geminiFimView",
+          "command": "geminiCoder.copyContext",
+          "when": "view == geminiCoderView",
           "group": "navigation@1"
         },
         {
-          "command": "geminiFim.clearChecks",
-          "when": "view == geminiFimView",
+          "command": "geminiCoder.clearChecks",
+          "when": "view == geminiCoderView",
           "group": "navigation@3"
         }
       ],
       "editor/context": [
         {
-          "command": "geminiFim.insertFimTokens",
+          "command": "geminiCoder.insertFimTokens",
           "when": "editorTextFocus && !editorReadonly",
           "group": "navigation@10"
         }
@@ -104,24 +105,24 @@
       "type": "object",
       "title": "Gemini FIM Settings",
       "properties": {
-        "geminiFim.defaultProvider": {
+        "geminiCoder.defaultProvider": {
           "type": "string",
           "description": "The default model to use.",
           "default": "Gemini Flash"
         },
-        "geminiFim.apiKey": {
+        "geminiCoder.apiKey": {
           "type": "string",
           "scope": "resource",
           "description": "API key to use with Gemini models. Get yours here: https://aistudio.google.com/app/apikey",
           "default": ""
         },
-        "geminiFim.temperature": {
+        "geminiCoder.temperature": {
           "type": "number",
           "scope": "resource",
           "description": "Temperature to use with Gemini models.",
           "default": 0
         },
-        "geminiFim.providers": {
+        "geminiCoder.providers": {
           "type": "array",
           "default": [],
           "description": "Configure additional models via OpenAI API compatible providers.",
@@ -159,22 +160,22 @@
             }
           }
         },
-        "geminiFim.verbose": {
+        "geminiCoder.verbose": {
           "type": "boolean",
           "default": false,
           "description": "Enable verbose logging."
         },
-        "geminiFim.attachOpenFiles": {
+        "geminiCoder.attachOpenFiles": {
           "type": "boolean",
           "default": true,
           "description": "Attach all open files to the request."
         },
-        "geminiFim.globalInstruction": {
+        "geminiCoder.globalInstruction": {
           "type": "string",
           "description": "A global instruction used if a provider does not specify its own.",
           "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
         },
-        "geminiFim.ignoredExtensions": {
+        "geminiCoder.ignoredExtensions": {
           "type": "string",
           "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'",
           "default": "png,jpg,jpeg,gif,svg"

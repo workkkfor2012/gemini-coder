@@ -32,7 +32,7 @@ export class FileTreeProvider
 
     // Listen for configuration changes
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration("geminiFim.ignoredExtensions")) {
+      if (event.affectsConfiguration("geminiCoder.ignoredExtensions")) {
         this.loadIgnoredExtensions();
         this.refresh();
       }
