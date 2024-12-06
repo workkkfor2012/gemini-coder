@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 1M context",
   "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -173,7 +173,7 @@
         "geminiCoder.globalInstruction": {
           "type": "string",
           "description": "A global instruction used if a provider does not specify its own.",
-          "default": "The following text is a Git repository with code. Somewhere in the repository, you will encounter a <FIM></FIM> symbol. Think step by step about what code fits this place best. The text inside the symbol can help you understand the intended filling code. Please send nothing more than the filling code."
+          "default": "The following text is a Git repository with code. Somewhere in the repository you will encounter <fill missing code> symbol. Send nothing more than missing code. Format text in plain text."
         },
         "geminiCoder.ignoredExtensions": {
           "type": "string",

@@ -45,7 +45,8 @@ export function activate(context: vscode.ExtensionContext) {
     'geminiCoder.sendFimRequest',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
       const default_provider_name = config.get<string>(
         'geminiCoder.defaultProvider'
       )
@@ -111,7 +112,9 @@ export function activate(context: vscode.ExtensionContext) {
       const system_instructions = provider.systemInstructions
       const instruction = provider.instruction || global_instruction
       const verbose = config.get<boolean>('geminiCoder.verbose')
-      const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
+      const attach_open_files = config.get<boolean>(
+        'geminiCoder.attachOpenFiles'
+      )
 
       if (!bearer_tokens) {
         vscode.window.showErrorMessage(
@@ -203,11 +206,7 @@ export function activate(context: vscode.ExtensionContext) {
               after: `${text_after_cursor}\n</file>\n</files>`
             }
 
-            let content = `${payload.before}${
-              !document_text.includes('<FIM>') ? '<FIM>' : ''
-            }${!document_text.includes('</FIM>') ? '</FIM>' : ''}${
-              payload.after
-            }`
+            let content = `${payload.before}<fill missing code>${payload.after}`
 
             // Remove emtpy lines
             content = content.replace(/\n\s*\n/g, '\n')
@@ -265,10 +264,7 @@ export function activate(context: vscode.ExtensionContext) {
                   response.data.choices[0].message.content
                 )
 
-                let completion = response.data.choices[0].message.content
-                completion = completion
-                  .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                  .trim()
+                let completion = response.data.choices[0].message.content.trim()
 
                 // Remove duplicated prefix
                 const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
@@ -310,44 +306,21 @@ export function activate(context: vscode.ExtensionContext) {
 
             async function insert_completion(completion: string) {
               await editor!.edit((edit_builder) => {
-                if (
-                  document_text.includes('<FIM>') &&
-                  document_text.includes('</FIM>')
-                ) {
-                  const fim_start = document_text.indexOf('<FIM>')
-                  const fim_end =
-                    document_text.indexOf('</FIM>') + '</FIM>'.length
-                  const fim_range = new vscode.Range(
-                    document.positionAt(fim_start),
-                    document.positionAt(fim_end)
-                  )
-                  edit_builder.replace(fim_range, completion)
-                  setTimeout(() => {
-                    const new_position = document.positionAt(
-                      fim_start + completion.length
-                    )
-                    editor!.selection = new vscode.Selection(
-                      new_position,
-                      new_position
-                    )
-                  }, 50)
-                } else {
-                  edit_builder.insert(position, completion)
-                  setTimeout(() => {
-                    const lines = completion.split('\n')
-                    const new_line = position.line + lines.length - 1
-                    const new_char =
-                      lines.length === 1
-                        ? position.character + lines[0].length
-                        : lines[lines.length - 1].length
+                edit_builder.insert(position, completion)
+                setTimeout(() => {
+                  const lines = completion.split('\n')
+                  const new_line = position.line + lines.length - 1
+                  const new_char =
+                    lines.length === 1
+                      ? position.character + lines[0].length
+                      : lines[lines.length - 1].length
 
-                    const new_position = new vscode.Position(new_line, new_char)
-                    editor!.selection = new vscode.Selection(
-                      new_position,
-                      new_position
-                    )
-                  }, 50)
-                }
+                  const new_position = new vscode.Position(new_line, new_char)
+                  editor!.selection = new vscode.Selection(
+                    new_position,
+                    new_position
+                  )
+                }, 50)
               })
             }
 
@@ -413,7 +386,7 @@ export function activate(context: vscode.ExtensionContext) {
         const position = editor.selection.active
         editor
           .edit((edit_builder) => {
-            edit_builder.insert(position, '<FIM></FIM>')
+            edit_builder.insert(position, '<fill missing code>')
           })
           .then(() => {
             const new_position = position.translate(0, 5)
@@ -427,7 +400,8 @@ export function activate(context: vscode.ExtensionContext) {
     'geminiCoder.changeDefaultProvider',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
