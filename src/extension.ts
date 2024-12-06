@@ -268,7 +268,6 @@ export function activate(context: vscode.ExtensionContext) {
                 let completion = response.data.choices[0].message.content
                 completion = completion
                   .replace(/```[a-zA-Z]*\n([\s\S]*?)```/, '$1')
-                  .replace(/`([\s\S]*?)`/, '$1')
                   .trim()
 
                 // Remove duplicated prefix

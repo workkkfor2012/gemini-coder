@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 1M context",
   "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
-  "version": "1.0.16",
+  "version": "1.0.17",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
