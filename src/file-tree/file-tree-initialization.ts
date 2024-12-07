@@ -6,68 +6,68 @@ import { FileTreeProvider } from './file-tree-provider'
 export function initialize_file_tree(
   context: vscode.ExtensionContext
 ): FileTreeProvider | undefined {
-  const workspaceFolders = vscode.workspace.workspaceFolders
+  const workspace_folders = vscode.workspace.workspaceFolders
 
-  let fileTreeProvider: FileTreeProvider | undefined
+  let file_tree_provider: FileTreeProvider | undefined
 
-  if (workspaceFolders) {
-    const workspaceRoot = workspaceFolders[0].uri.fsPath
-    fileTreeProvider = new FileTreeProvider(workspaceRoot)
+  if (workspace_folders) {
+    const workspace_root = workspace_folders[0].uri.fsPath
+    file_tree_provider = new FileTreeProvider(workspace_root)
 
-    const treeView = vscode.window.createTreeView('geminiCoderView', {
-      treeDataProvider: fileTreeProvider,
+    const tree_view = vscode.window.createTreeView('geminiCoderView', {
+      treeDataProvider: file_tree_provider,
       manageCheckboxStateManually: true
     })
 
     // Add fileTreeProvider to ensure proper disposal
-    context.subscriptions.push(fileTreeProvider)
+    context.subscriptions.push(file_tree_provider)
 
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
-        const checkedFiles = fileTreeProvider!.getCheckedFiles()
+        const checked_files = file_tree_provider!.getCheckedFiles()
 
-        if (checkedFiles.length === 0) {
+        if (checked_files.length === 0) {
           vscode.window.showWarningMessage('No files selected.')
           return
         }
 
-        let xmlContent = ''
+        let xml_content = ''
 
-        for (const filePath of checkedFiles) {
+        for (const filePath of checked_files) {
           const content = fs.readFileSync(filePath, 'utf-8')
           // Escape any ']]>' sequences in file content
 
-          const fileName = path.relative(
+          const file_name = path.relative(
             vscode.workspace.workspaceFolders![0].uri.fsPath,
             filePath
           )
 
-          xmlContent += `<file path="${fileName}">\n${content}\n</file>\n`
+          xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
         }
 
-        let finalOutput = `<files>\n${xmlContent.replace(
+        let final_output = `<files>\n${xml_content.replace(
           /\n\s*\n/g,
           '\n'
         )}\n</files>`
 
         // Copy to clipboard
-        await vscode.env.clipboard.writeText(finalOutput)
+        await vscode.env.clipboard.writeText(final_output)
 
         vscode.window.showInformationMessage(
           'File contents copied to clipboard.'
         )
       }),
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
-        fileTreeProvider!.clearChecks()
+        file_tree_provider!.clearChecks()
         vscode.window.showInformationMessage('All checks have been cleared.')
       }),
       vscode.commands.registerCommand('geminiCoder.copyOpenFiles', async () => {
-        const tabGroups: ReadonlyArray<vscode.TabGroup> =
+        const tab_groups: ReadonlyArray<vscode.TabGroup> =
           vscode.window.tabGroups.all
 
-        let xmlContent = ''
+        let xml_content = ''
 
-        for (const group of tabGroups) {
+        for (const group of tab_groups) {
           for (const tab of group.tabs) {
             if (tab.input instanceof vscode.TabInputText) {
               const fileUri = tab.input.uri
@@ -79,32 +79,32 @@ export function initialize_file_tree(
                   filePath
                 )
 
-                xmlContent += `<file path="${file_path}">\n${content}\n</file>`
+                xml_content += `<file path="${file_path}">\n${content}\n</file>`
               }
             }
           }
         }
 
-        if (xmlContent === '') {
+        if (xml_content === '') {
           vscode.window.showWarningMessage('No open files to copy.')
           return
         }
 
-        const finalOutput = `<files>\n${xmlContent.replace(
+        const final_output = `<files>\n${xml_content.replace(
           /\n\s*\n/g,
           '\n'
         )}\n</files>`
 
-        await vscode.env.clipboard.writeText(finalOutput)
+        await vscode.env.clipboard.writeText(final_output)
 
         vscode.window.showInformationMessage('Open files copied to clipboard.')
       })
     )
 
     // Handle checkbox state changes asynchronously
-    treeView.onDidChangeCheckboxState(async (e) => {
+    tree_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
-        await fileTreeProvider!.updateCheckState(item, state)
+        await file_tree_provider!.updateCheckState(item, state)
       }
     })
   } else {
@@ -113,5 +113,5 @@ export function initialize_file_tree(
     )
   }
 
-  return fileTreeProvider
+  return file_tree_provider
 }

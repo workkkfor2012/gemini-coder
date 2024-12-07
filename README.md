@@ -25,7 +25,7 @@ Sources of context enabled by default: all open files, selected folders and file
 1. Open context view and select all relevant folders/files which you want to attach as context in each completion request.
 2. Place the cursor where you want to insert code completion.
 3. Open the Command Palette (`Ctrl+Shift+P`).
-4. Run the command `Gemini FIM: Autocomplete ...`.
+4. Run the command `Gemini Coder: Autocomplete ...`.
 5. Bind the command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g. Ctrl+P for primary model and Alt+P for secondary model.
 
 ## Features

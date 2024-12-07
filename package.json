@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 2M context",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Manually select all folders you want to attach in each request and get the best code completions possible.",
-  "version": "1.0.23",
+  "version": "1.0.26",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -165,7 +165,7 @@
               },
               "instruction": {
                 "type": "string",
-                "description": "Custom FIM instruction."
+                "description": "Custom Autocomplete instruction."
               }
             }
           }
@@ -195,20 +195,11 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "pretest": "npm run compile && npm run lint",
-    "lint": "eslint src"
+    "compile": "tsc -p ./"
   },
   "devDependencies": {
-    "@types/mocha": "^10.0.9",
     "@types/node": "20.x",
     "@types/vscode": "^1.92.0",
-    "@typescript-eslint/eslint-plugin": "^8.10.0",
-    "@typescript-eslint/parser": "^8.7.0",
-    "@vscode/test-cli": "^0.0.10",
-    "@vscode/test-electron": "^2.4.1",
-    "eslint": "^9.13.0",
     "typescript": "^5.6.3"
   },
   "dependencies": {

@@ -1,3 +1,4 @@
+// Credits: https://github.com/Thomas-McKanna/Files2Prompt/blob/main/src/fileTreeProvider.ts
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
@@ -26,9 +27,9 @@ export class FileTreeProvider
     // Create a file system watcher
     this.watcher = vscode.workspace.createFileSystemWatcher("**/*");
 
-    this.watcher.onDidCreate((uri) => this.onFileSystemChanged(uri));
-    this.watcher.onDidDelete((uri) => this.onFileSystemChanged(uri));
-    this.watcher.onDidChange((uri) => this.onFileSystemChanged(uri));
+    this.watcher.onDidCreate(this.onFileSystemChanged);
+    this.watcher.onDidDelete(this.onFileSystemChanged);
+    this.watcher.onDidChange(this.onFileSystemChanged);
 
     // Listen for configuration changes
     vscode.workspace.onDidChangeConfiguration((event) => {
@@ -43,7 +44,7 @@ export class FileTreeProvider
     this.watcher.dispose();
   }
 
-  private onFileSystemChanged(uri: vscode.Uri): void {
+  private onFileSystemChanged(): void {
     this.refresh();
   }
 

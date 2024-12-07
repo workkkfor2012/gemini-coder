@@ -189,7 +189,7 @@ export function activate(context: vscode.ExtensionContext) {
             )
 
             if (verbose) {
-              console.log('[Gemini FIM] Prompt:', content)
+              console.log('[Gemini Coder] Prompt:', content)
             }
 
             const cursor_listener = vscode.workspace.onDidChangeTextDocument(
@@ -215,7 +215,7 @@ export function activate(context: vscode.ExtensionContext) {
                   cancelToken: cancel_token_source?.token
                 })
                 console.log(
-                  `[Gemini FIM] ${provider.name} RAW completion:`,
+                  `[Gemini Coder] ${provider.name} RAW completion:`,
                   response.data.choices[0].message.content
                 )
                 let completion = response.data.choices[0].message.content.trim()
@@ -362,7 +362,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (is_primary) {
         const selected_provider = await vscode.window.showQuickPick(
           all_providers.map((p) => p.name),
-          { placeHolder: 'Select default provider for Gemini FIM' }
+          { placeHolder: 'Select default provider for Gemini Coder' }
         )
         if (selected_provider) {
           await config.update(
