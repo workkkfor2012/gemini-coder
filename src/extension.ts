@@ -18,9 +18,7 @@ interface Provider {
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = initialize_file_tree(context)
-
   let cancel_token_source: CancelTokenSource | undefined
-
   const status_bar_item = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
@@ -32,7 +30,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (
-        e.affectsConfiguration('geminiCoder.defaultProvider') ||
+        e.affectsConfiguration('geminiCoder.primaryProvider') ||
+        e.affectsConfiguration('geminiCoder.secondaryProvider') ||
         e.affectsConfiguration('geminiCoder.apiKey') ||
         e.affectsConfiguration('geminiCoder.temperature')
       ) {
@@ -41,26 +40,19 @@ export function activate(context: vscode.ExtensionContext) {
     })
   )
 
-  let disposable_send_fim_request = vscode.commands.registerCommand(
-    'geminiCoder.sendCompletionRequest',
-    async () => {
+  const registerCompletionRequestCommand = (command: string, providerType: 'primary' | 'secondary') => {
+    return vscode.commands.registerCommand(command, async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
-      const default_provider_name = config.get<string>(
-        'geminiCoder.defaultProvider'
-      )
-      const global_instruction = config.get<string>(
-        'geminiCoder.globalInstruction'
-      )
+      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+      const provider_name = config.get<string>(`geminiCoder.${providerType}Provider`)
+      const global_instruction = config.get<string>('geminiCoder.globalInstruction')
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: gemini_api_key || '',
           model: 'gemini-1.5-flash',
           temperature: gemini_temperature,
@@ -68,8 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
         {
           name: 'Gemini Pro',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: gemini_api_key || '',
           model: 'gemini-1.5-pro',
           temperature: gemini_temperature,
@@ -79,61 +70,32 @@ export function activate(context: vscode.ExtensionContext) {
 
       const all_providers = [...built_in_providers, ...user_providers]
 
-      let selected_provider: string | undefined
-      if (
-        default_provider_name &&
-        all_providers.some((p) => p.name === default_provider_name)
-      ) {
-        selected_provider = default_provider_name
-      } else {
-        selected_provider = await vscode.window.showQuickPick(
-          all_providers.map((p) => p.name),
-          { placeHolder: 'Select a provider' }
-        )
-
-        if (selected_provider && !default_provider_name) {
-          await config.update(
-            'geminiCoder.defaultProvider',
-            selected_provider,
-            vscode.ConfigurationTarget.Global
-          )
-        }
-      }
-
-      if (!selected_provider) {
+      if (!provider_name || !all_providers.some(p => p.name === provider_name)) {
+        vscode.window.showErrorMessage(`${providerType} provider is not set or invalid. Please set it in the settings.`)
         return
       }
 
-      const provider = all_providers.find((p) => p.name === selected_provider)!
-
+      const provider = all_providers.find(p => p.name === provider_name)!
       const bearer_tokens = provider.bearerToken
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
       const instruction = provider.instruction || global_instruction
       const verbose = config.get<boolean>('geminiCoder.verbose')
-      const attach_open_files = config.get<boolean>(
-        'geminiCoder.attachOpenFiles'
-      )
+      const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
 
       if (!bearer_tokens) {
-        vscode.window.showErrorMessage(
-          'Bearer token is missing. Please add it in the settings.'
-        )
+        vscode.window.showErrorMessage('Bearer token is missing. Please add it in the settings.')
         return
       }
 
-      const tokens_array =
-        bearer_tokens?.split(',').map((token: string) => token.trim()) || []
-      const bearer_token =
-        tokens_array[Math.floor(Math.random() * tokens_array.length)]
+      const tokens_array = bearer_tokens?.split(',').map((token: string) => token.trim()) || []
+      const bearer_token = tokens_array[Math.floor(Math.random() * tokens_array.length)]
 
       const editor = vscode.window.activeTextEditor
       if (editor) {
         if (cancel_token_source) {
-          cancel_token_source.cancel(
-            'User moved the cursor, cancelling request.'
-          )
+          cancel_token_source.cancel('User moved the cursor, cancelling request.')
         }
         cancel_token_source = axios.CancelToken.source()
 
@@ -144,7 +106,6 @@ export function activate(context: vscode.ExtensionContext) {
           },
           async (progress) => {
             progress.report({ increment: 0 })
-
             const document = editor.document
             const document_path = document.uri.fsPath
             const document_text = document.getText()
@@ -160,9 +121,7 @@ export function activate(context: vscode.ExtensionContext) {
             )
 
             /** Context text handling */
-
             let file_paths_to_be_attached: Set<string> = new Set()
-
             if (file_tree_provider) {
               const selected_files_paths = file_tree_provider.getCheckedFiles()
               for (const file_path of selected_files_paths) {
@@ -171,17 +130,15 @@ export function activate(context: vscode.ExtensionContext) {
                 }
               }
             }
-
             if (attach_open_files) {
               const open_tabs = vscode.window.tabGroups.all
-                .flatMap((group) => group.tabs)
-                .map((tab) =>
+                .flatMap(group => group.tabs)
+                .map(tab =>
                   tab.input instanceof vscode.TabInputText
                     ? tab.input.uri
                     : null
                 )
                 .filter((uri): uri is vscode.Uri => uri !== null)
-
               for (const open_file_uri of open_tabs) {
                 if (open_file_uri.fsPath != document_path) {
                   file_paths_to_be_attached.add(open_file_uri.fsPath)
@@ -207,7 +164,6 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
             let content = `${payload.before}<fill missing code>${payload.after}`
-
             // Remove emtpy lines
             content = content.replace(/\n\s*\n/g, '\n')
 
@@ -258,14 +214,11 @@ export function activate(context: vscode.ExtensionContext) {
                   },
                   cancelToken: cancel_token_source?.token
                 })
-
                 console.log(
                   `[Gemini FIM] ${provider.name} RAW completion:`,
                   response.data.choices[0].message.content
                 )
-
                 let completion = response.data.choices[0].message.content.trim()
-
                 // Remove duplicated prefix
                 const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
                 if (prefix_match) {
@@ -276,7 +229,6 @@ export function activate(context: vscode.ExtensionContext) {
                     completion = completion.slice(prefix.length)
                   }
                 }
-
                 return completion
               } catch (error) {
                 if (axios.isCancel(error)) {
@@ -314,7 +266,6 @@ export function activate(context: vscode.ExtensionContext) {
                     lines.length === 1
                       ? position.character + lines[0].length
                       : lines[lines.length - 1].length
-
                   const new_position = new vscode.Position(new_line, new_char)
                   editor!.selection = new vscode.Selection(
                     new_position,
@@ -332,29 +283,23 @@ export function activate(context: vscode.ExtensionContext) {
               async (progress) => {
                 try {
                   let completion = await make_request(provider, body)
-
-                  if (completion === 'rate_limit') {
+                  if (completion == 'rate_limit') {
                     vscode.window.showWarningMessage(
                       'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
                     )
-
                     const fallback_provider = built_in_providers.find(
-                      (p) => p.name === 'Gemini Flash'
+                      (p) => p.name == 'Gemini Flash'
                     )!
-
                     const fallback_body = {
                       ...body,
                       model: fallback_provider.model,
                       temperature: fallback_provider.temperature
                     }
-
                     completion = await make_request(
                       fallback_provider,
                       fallback_body
                     )
-
                     if (completion === null) return // Already handled error inside make_request
-
                     if (completion) {
                       await insert_completion(completion)
                     } else {
@@ -368,27 +313,27 @@ export function activate(context: vscode.ExtensionContext) {
                 } finally {
                   cursor_listener.dispose()
                 }
-
                 progress.report({ increment: 100 })
               }
             )
           }
         )
       }
-    }
-  )
+    })
+  }
+
+  const disposable_send_fim_request = registerCompletionRequestCommand('geminiCoder.sendCompletionRequestPrimary', 'primary')
+  const disposable_send_fim_request_secondary = registerCompletionRequestCommand('geminiCoder.sendCompletionRequestSecondary', 'secondary')
 
   let disposable_change_default_provider = vscode.commands.registerCommand(
     'geminiCoder.changeDefaultProvider',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
+      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: '',
           model: 'gemini-1.5-flash',
           temperature: 0,
@@ -396,8 +341,7 @@ export function activate(context: vscode.ExtensionContext) {
         },
         {
           name: 'Gemini Pro',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: '',
           model: 'gemini-1.5-pro',
           temperature: 0,
@@ -405,43 +349,52 @@ export function activate(context: vscode.ExtensionContext) {
         }
       ]
       const all_providers = [...built_in_providers, ...user_providers]
-
       if (!all_providers || all_providers.length == 0) {
         vscode.window.showErrorMessage(
           'No providers configured. Please add providers in the settings.'
         )
         return
       }
-
-      const selected_provider = await vscode.window.showQuickPick(
-        all_providers.map((p) => p.name),
-        { placeHolder: 'Select default provider for Gemini FIM' }
+      const is_primary = await vscode.window.showQuickPick(
+        ['Primary', 'Secondary'],
+        { placeHolder: 'Select provider type' }
       )
-
-      if (selected_provider) {
-        await config.update(
-          'geminiCoder.defaultProvider',
-          selected_provider,
-          vscode.ConfigurationTarget.Global
+      if (is_primary) {
+        const selected_provider = await vscode.window.showQuickPick(
+          all_providers.map((p) => p.name),
+          { placeHolder: 'Select default provider for Gemini FIM' }
         )
-        vscode.window.showInformationMessage(
-          `Default provider changed to: ${selected_provider}`
-        )
-        update_status_bar(status_bar_item)
+        if (selected_provider) {
+          await config.update(
+            `geminiCoder.${is_primary.toLowerCase()}Provider`,
+            selected_provider,
+            vscode.ConfigurationTarget.Global
+          )
+          vscode.window.showInformationMessage(
+            `Default ${is_primary.toLowerCase()} provider changed to: ${selected_provider}`
+          )
+          update_status_bar(status_bar_item)
+        }
       }
     }
   )
 
   context.subscriptions.push(disposable_send_fim_request)
+  context.subscriptions.push(disposable_send_fim_request_secondary)
   context.subscriptions.push(disposable_change_default_provider)
 }
 
 export function deactivate() {}
 
 async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
-  const default_provider_name = vscode.workspace
+  const primary_provider_name = vscode.workspace
     .getConfiguration()
-    .get<string>('geminiCoder.defaultProvider')
-  status_bar_item.text = `${default_provider_name || 'Select FIM provider'}`
+    .get<string>('geminiCoder.primaryProvider')
+  const secondary_provider_name = vscode.workspace
+    .getConfiguration()
+    .get<string>('geminiCoder.secondaryProvider')
+  status_bar_item.text = `${
+    primary_provider_name || 'Select Primary Provider'
+  } (${secondary_provider_name || 'Select Secondary Provider'})`
   status_bar_item.show()
 }
