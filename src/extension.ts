@@ -42,7 +42,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   let disposable_send_fim_request = vscode.commands.registerCommand(
-    'geminiCoder.sendFimRequest',
+    'geminiCoder.sendCompletionRequest',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers =
@@ -378,24 +378,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
   )
 
-  let disposable_insert_fim_tokens = vscode.commands.registerCommand(
-    'geminiCoder.insertFimTokens',
-    () => {
-      const editor = vscode.window.activeTextEditor
-      if (editor) {
-        const position = editor.selection.active
-        editor
-          .edit((edit_builder) => {
-            edit_builder.insert(position, '<fill missing code>')
-          })
-          .then(() => {
-            const new_position = position.translate(0, 5)
-            editor.selection = new vscode.Selection(new_position, new_position)
-          })
-      }
-    }
-  )
-
   let disposable_change_default_provider = vscode.commands.registerCommand(
     'geminiCoder.changeDefaultProvider',
     async () => {
@@ -451,7 +433,6 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(disposable_send_fim_request)
-  context.subscriptions.push(disposable_insert_fim_tokens)
   context.subscriptions.push(disposable_change_default_provider)
 }
 

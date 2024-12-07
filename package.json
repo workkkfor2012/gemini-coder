@@ -1,7 +1,7 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 1M context",
-  "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Extension attaches all selected folders and files as context so you can get the best code completions possible.",
+  "description": "Take advantage of 1 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Manually select all folders you want to attach in each request and get the best code completions possible.",
   "version": "1.0.18",
   "publisher": "robertpiosik",
   "repository": {
@@ -33,7 +33,7 @@
       "activitybar": [
         {
           "id": "geminiCoder",
-          "title": "Gemini FIM",
+          "title": "Gemini Coder",
           "icon": "resources/activity-bar-icon.svg"
         }
       ]
@@ -65,19 +65,15 @@
       },
       {
         "command": "geminiCoder.copyOpenFiles",
-        "title": "Gemini FIM: Copy Open Files"
+        "title": "Gemini Coder: Copy Context of Open Files"
       },
       {
-        "command": "geminiCoder.sendFimRequest",
-        "title": "Gemini FIM: Run"
-      },
-      {
-        "command": "geminiCoder.insertFimTokens",
-        "title": "Gemini FIM: Insert <FIM></FIM> tokens"
+        "command": "geminiCoder.sendCompletionRequest",
+        "title": "Gemini Coder: Autocomplete"
       },
       {
         "command": "geminiCoder.changeDefaultProvider",
-        "title": "Gemini FIM: Change Default Provider"
+        "title": "Gemini Coder: Change Default Provider"
       }
     ],
     "menus": {
@@ -95,7 +91,7 @@
       ],
       "editor/context": [
         {
-          "command": "geminiCoder.insertFimTokens",
+          "command": "geminiCoder.insertCompletionTokens",
           "when": "editorTextFocus && !editorReadonly",
           "group": "navigation@10"
         }
@@ -103,7 +99,7 @@
     },
     "configuration": {
       "type": "object",
-      "title": "Gemini FIM Settings",
+      "title": "Gemini Coder Settings",
       "properties": {
         "geminiCoder.defaultProvider": {
           "type": "string",
