@@ -40,19 +40,28 @@ export function activate(context: vscode.ExtensionContext) {
     })
   )
 
-  const registerCompletionRequestCommand = (command: string, providerType: 'primary' | 'secondary') => {
+  const registerCompletionRequestCommand = (
+    command: string,
+    providerType: 'primary' | 'secondary'
+  ) => {
     return vscode.commands.registerCommand(command, async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-      const provider_name = config.get<string>(`geminiCoder.${providerType}Provider`)
-      const global_instruction = config.get<string>('geminiCoder.globalInstruction')
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
+      const provider_name = config.get<string>(
+        `geminiCoder.${providerType}Provider`
+      )
+      const global_instruction = config.get<string>(
+        'geminiCoder.globalInstruction'
+      )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
-          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: gemini_api_key || '',
           model: 'gemini-1.5-flash',
           temperature: gemini_temperature,
@@ -60,7 +69,8 @@ export function activate(context: vscode.ExtensionContext) {
         },
         {
           name: 'Gemini Pro',
-          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: gemini_api_key || '',
           model: 'gemini-1.5-pro',
           temperature: gemini_temperature,
@@ -70,32 +80,45 @@ export function activate(context: vscode.ExtensionContext) {
 
       const all_providers = [...built_in_providers, ...user_providers]
 
-      if (!provider_name || !all_providers.some(p => p.name === provider_name)) {
-        vscode.window.showErrorMessage(`${providerType} provider is not set or invalid. Please set it in the settings.`)
+      if (
+        !provider_name ||
+        !all_providers.some((p) => p.name === provider_name)
+      ) {
+        vscode.window.showErrorMessage(
+          `${providerType} provider is not set or invalid. Please set it in the settings.`
+        )
         return
       }
 
-      const provider = all_providers.find(p => p.name === provider_name)!
+      const provider = all_providers.find((p) => p.name === provider_name)!
       const bearer_tokens = provider.bearerToken
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
       const instruction = provider.instruction || global_instruction
       const verbose = config.get<boolean>('geminiCoder.verbose')
-      const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
+      const attach_open_files = config.get<boolean>(
+        'geminiCoder.attachOpenFiles'
+      )
 
       if (!bearer_tokens) {
-        vscode.window.showErrorMessage('Bearer token is missing. Please add it in the settings.')
+        vscode.window.showErrorMessage(
+          'Bearer token is missing. Please add it in the settings.'
+        )
         return
       }
 
-      const tokens_array = bearer_tokens?.split(',').map((token: string) => token.trim()) || []
-      const bearer_token = tokens_array[Math.floor(Math.random() * tokens_array.length)]
+      const tokens_array =
+        bearer_tokens?.split(',').map((token: string) => token.trim()) || []
+      const bearer_token =
+        tokens_array[Math.floor(Math.random() * tokens_array.length)]
 
       const editor = vscode.window.activeTextEditor
       if (editor) {
         if (cancel_token_source) {
-          cancel_token_source.cancel('User moved the cursor, cancelling request.')
+          cancel_token_source.cancel(
+            'User moved the cursor, cancelling request.'
+          )
         }
         cancel_token_source = axios.CancelToken.source()
 
@@ -132,8 +155,8 @@ export function activate(context: vscode.ExtensionContext) {
             }
             if (attach_open_files) {
               const open_tabs = vscode.window.tabGroups.all
-                .flatMap(group => group.tabs)
-                .map(tab =>
+                .flatMap((group) => group.tabs)
+                .map((tab) =>
                   tab.input instanceof vscode.TabInputText
                     ? tab.input.uri
                     : null
@@ -219,6 +242,12 @@ export function activate(context: vscode.ExtensionContext) {
                   response.data.choices[0].message.content
                 )
                 let completion = response.data.choices[0].message.content.trim()
+                const regex = /^```(\w+)\n([\s\S]*?)\n```$/
+                const match = completion.match(regex)
+                if (match) {
+                  completion = match[2]
+                }
+
                 // Remove duplicated prefix
                 const prefix_match = text_before_cursor.match(/\b(\w+)\b$/)
                 if (prefix_match) {
@@ -322,18 +351,27 @@ export function activate(context: vscode.ExtensionContext) {
     })
   }
 
-  const disposable_send_fim_request = registerCompletionRequestCommand('geminiCoder.sendCompletionRequestPrimary', 'primary')
-  const disposable_send_fim_request_secondary = registerCompletionRequestCommand('geminiCoder.sendCompletionRequestSecondary', 'secondary')
+  const disposable_send_fim_request = registerCompletionRequestCommand(
+    'geminiCoder.sendCompletionRequestPrimary',
+    'primary'
+  )
+  const disposable_send_fim_request_secondary =
+    registerCompletionRequestCommand(
+      'geminiCoder.sendCompletionRequestSecondary',
+      'secondary'
+    )
 
   let disposable_change_default_provider = vscode.commands.registerCommand(
     'geminiCoder.changeDefaultProvider',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
       const built_in_providers: Provider[] = [
         {
           name: 'Gemini Flash',
-          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: '',
           model: 'gemini-1.5-flash',
           temperature: 0,
@@ -341,7 +379,8 @@ export function activate(context: vscode.ExtensionContext) {
         },
         {
           name: 'Gemini Pro',
-          endpointUrl: 'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+          endpointUrl:
+            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
           bearerToken: '',
           model: 'gemini-1.5-pro',
           temperature: 0,
