@@ -78,6 +78,10 @@
       {
         "command": "geminiCoder.changeDefaultProvider",
         "title": "Gemini Coder: Change Default Provider"
+      },
+      {
+        "command": "geminiCoder.refactorFile",
+        "title": "Gemini Coder: Refactor this file"
       }
     ],
     "menus": {
@@ -91,18 +95,6 @@
           "command": "geminiCoder.clearChecks",
           "when": "view == geminiCoderView",
           "group": "navigation@3"
-        }
-      ],
-      "editor/context": [
-        {
-          "command": "geminiCoder.sendCompletionRequestPrimary",
-          "when": "editorTextFocus && !editorReadonly",
-          "group": "navigation@10"
-        },
-        {
-          "command": "geminiCoder.sendCompletionRequestSecondary",
-          "when": "editorTextFocus && !editorReadonly",
-          "group": "navigation@11"
         }
       ]
     },
