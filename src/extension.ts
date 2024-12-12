@@ -27,6 +27,9 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
 
+  let lastRefactorInstruction =
+    context.globalState.get<string>('lastRefactorInstruction') || ''
+
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (
@@ -109,24 +112,27 @@ export function activate(context: vscode.ExtensionContext) {
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      // Get user's refactoring instruction
+      // Get user's refactoring instruction, using the last one as default
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
-        placeHolder: 'e.g., "Refactor this code to use async/await"'
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: lastRefactorInstruction
       })
 
       if (!instruction) {
         return // User cancelled
       }
+
+      lastRefactorInstruction = instruction
+      await context.globalState.update('lastRefactorInstruction', instruction)
+
       const providerType = 'primary'
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
       const provider_name = config.get<string>(
         `geminiCoder.${providerType}Provider`
       )
-      const global_instruction = config.get<string>(
-        'geminiCoder.globalInstruction'
-      )
+
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
       const built_in_providers: Provider[] = [
@@ -218,7 +224,7 @@ export function activate(context: vscode.ExtensionContext) {
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       // Construct the refactoring prompt
-      const refactor_instruction = `The following files are part of a git repository. User requested refactor for file "${current_file_path}". In your response send updated file only. ${instruction}`
+      const refactor_instruction = `The following files are part of a Git repository with code. User requested refactor for file "${current_file_path}". In your response send updated file only. ${instruction}`
 
       const payload = {
         before: `<instruction>${refactor_instruction}</instruction>\n<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
