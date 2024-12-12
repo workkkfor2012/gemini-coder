@@ -1,4 +1,3 @@
-// Credits: https://github.com/Thomas-McKanna/Files2Prompt/blob/main/src/fileTreeProvider.ts
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
@@ -13,7 +12,6 @@ export class FileTreeProvider
   readonly onDidChangeTreeData: vscode.Event<
     FileItem | undefined | null | void
   > = this._onDidChangeTreeData.event
-
   private workspaceRoot: string
   private checkedItems: Map<string, vscode.TreeItemCheckboxState> = new Map()
   private gitignore = ignore()
@@ -27,8 +25,7 @@ export class FileTreeProvider
 
     // Create a file system watcher
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
-
-    this.watcher.onDidCreate(this.onFileSystemChanged)
+    this.watcher.onDidCreate(() => this.handleFileCreate())
     this.watcher.onDidDelete(this.onFileSystemChanged)
     this.watcher.onDidChange(this.onFileSystemChanged)
 
@@ -49,7 +46,28 @@ export class FileTreeProvider
     this.refresh()
   }
 
-  refresh(): void {
+  private async handleFileCreate(): Promise<void> {
+    // Refresh the tree view
+    await this.refresh()
+
+    // If a new file is created within a checked directory, check it automatically
+    for (const [dirPath] of this.checkedItems) {
+      if (
+        this.checkedItems.get(dirPath) === vscode.TreeItemCheckboxState.Checked
+      ) {
+        const relativePath = path.relative(this.workspaceRoot, dirPath)
+        const isGitIgnored = this.isGitIgnored(relativePath)
+
+        await this.updateDirectoryCheckState(
+          dirPath,
+          vscode.TreeItemCheckboxState.Checked,
+          isGitIgnored
+        )
+      }
+    }
+  }
+
+  async refresh(): Promise<void> {
     this._onDidChangeTreeData.fire()
   }
 
@@ -71,7 +89,6 @@ export class FileTreeProvider
       vscode.window.showInformationMessage('No workspace folder found.')
       return []
     }
-
     const dirPath = element ? element.resourceUri.fsPath : this.workspaceRoot
     return this.getFilesAndDirectories(dirPath)
   }
@@ -95,7 +112,6 @@ export class FileTreeProvider
       const fullPath = path.join(dirPath, entry.name)
       const relativePath = path.relative(this.workspaceRoot, fullPath)
       const uri = vscode.Uri.file(fullPath)
-
       let isDirectory = entry.isDirectory()
       let isSymbolicLink = entry.isSymbolicLink()
       let isBrokenLink = false
@@ -118,14 +134,12 @@ export class FileTreeProvider
       const extension = path.extname(entry.name).toLowerCase().replace('.', '')
       const isIgnoredExtension = this.ignoredExtensions.has(extension)
       const isGitIgnored = this.isGitIgnored(relativePath)
-
       const key = fullPath
-      let checkboxState = this.checkedItems.get(key)
 
+      let checkboxState = this.checkedItems.get(key)
       if (checkboxState === undefined) {
         const parentPath = path.dirname(fullPath)
         const parentCheckboxState = this.checkedItems.get(parentPath)
-
         if (
           parentCheckboxState === vscode.TreeItemCheckboxState.Checked &&
           !isGitIgnored &&
@@ -149,10 +163,8 @@ export class FileTreeProvider
         isGitIgnored || isIgnoredExtension,
         isSymbolicLink
       )
-
       items.push(item)
     }
-
     return items
   }
 
@@ -162,7 +174,6 @@ export class FileTreeProvider
   ): Promise<void> {
     const key = item.resourceUri.fsPath
     this.checkedItems.set(key, state)
-
     if (item.isDirectory) {
       const relativePath = path.relative(this.workspaceRoot, key)
       const isGitIgnored = this.isGitIgnored(relativePath)
@@ -190,7 +201,6 @@ export class FileTreeProvider
     for (const entry of dirEntries) {
       const siblingPath = path.join(dirPath, entry.name)
       const relativePath = path.relative(this.workspaceRoot, siblingPath)
-
       const extension = path.extname(entry.name).toLowerCase().replace('.', '')
       const isIgnoredExtension = this.ignoredExtensions.has(extension)
 
@@ -199,7 +209,6 @@ export class FileTreeProvider
       }
 
       hasNonIgnoredChild = true
-
       const state =
         this.checkedItems.get(siblingPath) ??
         vscode.TreeItemCheckboxState.Unchecked
@@ -235,7 +244,6 @@ export class FileTreeProvider
       const fullPath = path.join(dirPath, entry.name)
       const relativePath = path.relative(this.workspaceRoot, fullPath)
       const isGitIgnored = this.isGitIgnored(relativePath)
-
       const extension = path.extname(entry.name).toLowerCase().replace('.', '')
       const isIgnoredExtension = this.ignoredExtensions.has(extension)
 
@@ -249,7 +257,6 @@ export class FileTreeProvider
       let isDirectory = entry.isDirectory()
       let isSymbolicLink = entry.isSymbolicLink()
       let isBrokenLink = false
-
       if (isSymbolicLink) {
         try {
           const stats = await fs.promises.stat(fullPath)
@@ -302,7 +309,6 @@ export class FileTreeProvider
 
   private loadGitignore() {
     const gitignorePath = path.join(this.workspaceRoot, '.gitignore')
-
     if (fs.existsSync(gitignorePath)) {
       const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8')
       this.gitignore = ignore().add(gitignoreContent)
@@ -316,7 +322,7 @@ export class FileTreeProvider
   }
 
   private loadIgnoredExtensions() {
-    const config = vscode.workspace.getConfiguration('files2prompt')
+    const config = vscode.workspace.getConfiguration('geminiCoder')
     const extensionsString = config.get<string>(
       'ignoredExtensions',
       'png,jpg,jpeg,gif,svg'
@@ -339,7 +345,6 @@ export class FileItem extends vscode.TreeItem {
     public isSymbolicLink: boolean = false
   ) {
     super(label, collapsibleState)
-
     this.tooltip = this.resourceUri.fsPath
     this.iconPath = new vscode.ThemeIcon(this.isDirectory ? 'folder' : 'file')
     this.checkboxState = checkboxState
