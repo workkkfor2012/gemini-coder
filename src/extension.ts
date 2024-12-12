@@ -224,7 +224,14 @@ export function activate(context: vscode.ExtensionContext) {
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       // Construct the refactoring prompt
-      const refactor_instruction = `The following files are part of a Git repository with code. User requested refactor for file "${current_file_path}". In your response send updated file only. ${instruction}`
+      const selection = editor.selection
+      const selected_text = editor.document.getText(selection)
+      let refactor_instruction = `The following files are part of a Git repository with code. User requested refactor of file "${current_file_path}". In your response send updated file only.`
+      if (selected_text) {
+        refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+      } else {
+        refactor_instruction += ` ${instruction}`
+      }
 
       const payload = {
         before: `<instruction>${refactor_instruction}</instruction>\n<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
