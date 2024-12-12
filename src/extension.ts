@@ -27,7 +27,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
 
-  let lastRefactorInstruction =
+  let last_refactor_instruction =
     context.globalState.get<string>('lastRefactorInstruction') || ''
 
   context.subscriptions.push(
@@ -116,23 +116,31 @@ export function activate(context: vscode.ExtensionContext) {
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: lastRefactorInstruction
+        value: last_refactor_instruction
       })
 
       if (!instruction) {
         return // User cancelled
       }
 
-      lastRefactorInstruction = instruction
+      last_refactor_instruction = instruction
       await context.globalState.update('lastRefactorInstruction', instruction)
 
-      const providerType = 'primary'
+      // Prompt user to select provider type
+      const provider_type = await vscode.window.showQuickPick(
+        ['Primary', 'Secondary'],
+        { placeHolder: 'Select provider type for refactoring' }
+      )
+
+      if (!provider_type) {
+        return // User cancelled
+      }
+
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
       const provider_name = config.get<string>(
-        `geminiCoder.${providerType}Provider`
+        `geminiCoder.${provider_type.toLowerCase()}Provider`
       )
-
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
       const built_in_providers: Provider[] = [
@@ -156,18 +164,19 @@ export function activate(context: vscode.ExtensionContext) {
         }
       ]
       const all_providers = [...built_in_providers, ...user_providers]
+
       if (
         !provider_name ||
         !all_providers.some((p) => p.name === provider_name)
       ) {
         vscode.window.showErrorMessage(
-          `${providerType} provider is not set or invalid. Please set it in the settings.`
+          `${provider_type} provider is not set or invalid. Please set it in the settings.`
         )
         return
       }
+
       const provider = all_providers.find((p) => p.name === provider_name)!
       const bearer_tokens = provider.bearerToken
-
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
@@ -187,6 +196,7 @@ export function activate(context: vscode.ExtensionContext) {
         bearer_tokens?.split(',').map((token: string) => token.trim()) || []
       provider.bearerToken =
         tokens_array[Math.floor(Math.random() * tokens_array.length)]
+
       // Prepare context from open files (similar to completion)
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {
@@ -689,6 +699,7 @@ async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
   const secondary_provider_name = vscode.workspace
     .getConfiguration()
     .get<string>('geminiCoder.secondaryProvider')
+
   status_bar_item.text = `${
     primary_provider_name || 'Select Primary Provider'
   } (${secondary_provider_name || 'Select Secondary Provider'})`
