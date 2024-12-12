@@ -231,9 +231,7 @@ export function activate(context: vscode.ExtensionContext) {
         after: `\n</file>\n</files>`
       }
 
-      let content = `${payload.before}${payload.after}`
-      // Remove emtpy lines
-      content = content.replace(/\n\s*\n/g, '\n')
+      const content = `${payload.before}${payload.after}`
 
       const messages = [
         ...(system_instructions
@@ -429,7 +427,6 @@ export function activate(context: vscode.ExtensionContext) {
 
             const document = editor.document
             const document_path = document.uri.fsPath
-            const document_text = document.getText()
             const position = editor.selection.active
             const text_before_cursor = document.getText(
               new vscode.Range(new vscode.Position(0, 0), position)
