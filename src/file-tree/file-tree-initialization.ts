@@ -87,10 +87,7 @@ export function initialize_file_tree(
           return
         }
 
-        const final_output = `<files>\n${xml_content.replace(
-          /\n\s*\n/g,
-          '\n'
-        )}\n</files>`
+        const final_output = `<files>\n${xml_content}\n</files>`
 
         await vscode.env.clipboard.writeText(final_output)
 

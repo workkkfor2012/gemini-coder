@@ -499,9 +499,7 @@ export function activate(context: vscode.ExtensionContext) {
               after: `${text_after_cursor}\n</file>\n</files>`
             }
 
-            let content = `${payload.before}<fill missing code>${payload.after}`
-            // Remove emtpy lines
-            content = content.replace(/\n\s*\n/g, '\n')
+            const content = `${payload.before}<fill missing code>${payload.after}`
 
             const messages = [
               ...(system_instructions
