@@ -68,10 +68,6 @@
         }
       },
       {
-        "command": "geminiCoder.copyOpenFiles",
-        "title": "Gemini Coder: Copy Context of Open Files"
-      },
-      {
         "command": "geminiCoder.sendCompletionRequestPrimary",
         "title": "Gemini Coder: Autocomplete with Primary Model"
       },

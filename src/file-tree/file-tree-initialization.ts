@@ -93,41 +93,6 @@ export function initialize_file_tree(
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()
         vscode.window.showInformationMessage('All checks have been cleared.')
-      }),
-      vscode.commands.registerCommand('geminiCoder.copyOpenFiles', async () => {
-        const tab_groups: ReadonlyArray<vscode.TabGroup> =
-          vscode.window.tabGroups.all
-
-        let xml_content = ''
-
-        for (const group of tab_groups) {
-          for (const tab of group.tabs) {
-            if (tab.input instanceof vscode.TabInputText) {
-              const fileUri = tab.input.uri
-              const filePath = fileUri.fsPath
-              if (fs.existsSync(filePath)) {
-                const content = fs.readFileSync(filePath, 'utf-8')
-                const file_path = path.relative(
-                  vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  filePath
-                )
-
-                xml_content += `<file path="${file_path}">\n${content}\n</file>`
-              }
-            }
-          }
-        }
-
-        if (xml_content === '') {
-          vscode.window.showWarningMessage('No open files to copy.')
-          return
-        }
-
-        const final_output = `<files>\n${xml_content}\n</files>`
-
-        await vscode.env.clipboard.writeText(final_output)
-
-        vscode.window.showInformationMessage('Open files copied to clipboard.')
       })
     )
 

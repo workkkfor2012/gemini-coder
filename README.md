@@ -12,13 +12,13 @@ Extension also lets you copy context to clipboard so you can comfortably switch 
 
 ## Features
 
-- 100% free.
+- Lightweight, 100% free, MIT licensed.
 - Autocomplete on cursor position.
 - Refactor current file.
-- Primary and secondary models gives better control over cost.
-- Manually add experimenal models or other OpenAI compatible providers.
+- Manually set context for all requests.
 - Copy context and continue your work in AI Studio.
 - Rate limited Gemini Pro requests fallback to Gemini Flash.
+- Manually add experimenal models or other OpenAI compatible providers.
 
 ## How to Use
 
@@ -27,12 +27,6 @@ Extension also lets you copy context to clipboard so you can comfortably switch 
 3. Open the Command Palette (`Ctrl+Shift+P`).
 4. Run the command `Gemini Coder: Autocomplete ...`.
 5. Bind the command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g. Ctrl+P for Primary Model and Alt+P for Secondary Model.
-
-## Author
-
-Robert Piosik
-
-Check out my open source browser extension for bookmarking and AI assistance while browsing the Web: https://chromewebstore.google.com/detail/taaabs-zero-knowledge-boo/mfpmbjjgeklnhjmpahigldafhcdoaona
 
 ## License
 
