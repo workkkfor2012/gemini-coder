@@ -2,6 +2,8 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { FileTreeProvider } from './file-tree-provider'
+import openai_token_counter from 'openai-gpt-token-counter'
+import { FileItem } from './file-tree-provider'
 
 export function initialize_file_tree(
   context: vscode.ExtensionContext
@@ -9,18 +11,35 @@ export function initialize_file_tree(
   const workspace_folders = vscode.workspace.workspaceFolders
 
   let file_tree_provider: FileTreeProvider | undefined
+  let gemini_coder_view: vscode.TreeView<FileItem>
 
   if (workspace_folders) {
     const workspace_root = workspace_folders[0].uri.fsPath
     file_tree_provider = new FileTreeProvider(workspace_root)
 
-    const tree_view = vscode.window.createTreeView('geminiCoderView', {
+    gemini_coder_view = vscode.window.createTreeView('geminiCoderView', {
       treeDataProvider: file_tree_provider,
       manageCheckboxStateManually: true
     })
 
-    // Add fileTreeProvider to ensure proper disposal
-    context.subscriptions.push(file_tree_provider)
+    const update_activity_bar_badge_token_count = () => {
+      const checked_files = file_tree_provider!.getCheckedFiles()
+      let total_token_count = 0
+
+      for (const file_path of checked_files) {
+        const file_content = fs.readFileSync(file_path, 'utf-8')
+        total_token_count += openai_token_counter.text(file_content, 'gpt-4')
+      }
+
+      // Update the badge on the activity bar
+      gemini_coder_view.badge = {
+        value: total_token_count,
+        tooltip: `${total_token_count} tokens`
+      }
+    }
+
+    // Add fileTreeProvider and treeView to ensure proper disposal
+    context.subscriptions.push(file_tree_provider, gemini_coder_view)
 
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
@@ -29,7 +48,7 @@ export function initialize_file_tree(
         const checked_files = file_tree_provider!.getCheckedFiles()
 
         let xml_content = ''
-        const added_files = new Set<string>() // Keep track of added files
+        const added_files = new Set<string>()
 
         // Add checked files
         for (const filePath of checked_files) {
@@ -39,7 +58,7 @@ export function initialize_file_tree(
             filePath
           )
           xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
-          added_files.add(filePath) // Add to the set of added files
+          added_files.add(filePath)
         }
 
         // Add open files if attachOpenFiles is true
@@ -62,7 +81,7 @@ export function initialize_file_tree(
                   )
 
                   xml_content += `<file path="${file_path}">\n${content}\n</file>`
-                  added_files.add(filePath) // Add to the set of added files
+                  added_files.add(filePath)
                 }
               }
             }
@@ -82,6 +101,9 @@ export function initialize_file_tree(
         vscode.window.showInformationMessage(
           'File contents copied to clipboard.'
         )
+
+        // Update token count after copying context
+        update_activity_bar_badge_token_count()
       }),
       vscode.commands.registerCommand(
         'geminiCoder.copyContextCommand',
@@ -93,15 +115,24 @@ export function initialize_file_tree(
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()
         vscode.window.showInformationMessage('All checks have been cleared.')
+
+        // Update token count after clearing checks
+        update_activity_bar_badge_token_count()
       })
     )
 
     // Handle checkbox state changes asynchronously
-    tree_view.onDidChangeCheckboxState(async (e) => {
+    gemini_coder_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
         await file_tree_provider!.updateCheckState(item, state)
       }
+
+      // Update token count after checkbox changes
+      update_activity_bar_badge_token_count()
     })
+
+    // Initial update of the badge
+    update_activity_bar_badge_token_count()
   } else {
     vscode.window.showInformationMessage(
       'Please open a workspace folder to use this extension.'
