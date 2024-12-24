@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 2M context",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Manually select all folders you want to attach in each request and get the best code completions possible.",
-  "version": "1.0.35",
+  "version": "1.0.36",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -73,15 +73,15 @@
       },
       {
         "command": "geminiCoder.sendCompletionRequestPrimary",
-        "title": "Gemini Coder: Autocomplete with Primary Provider"
+        "title": "Gemini Coder: Autocomplete with Primary Model"
       },
       {
         "command": "geminiCoder.sendCompletionRequestSecondary",
-        "title": "Gemini Coder: Autocomplete with Secondary Provider"
+        "title": "Gemini Coder: Autocomplete with Secondary Model"
       },
       {
         "command": "geminiCoder.changeDefaultProvider",
-        "title": "Gemini Coder: Change Default Provider"
+        "title": "Gemini Coder: Change Default Models"
       },
       {
         "command": "geminiCoder.refactorFile",
@@ -178,7 +178,7 @@
         },
         "geminiCoder.globalInstruction": {
           "type": "string",
-          "description": "A global instruction used if a provider does not specify its own.",
+          "description": "",
           "default": "The following files are part of a Git repository with code. Somewhere in the repository you will encounter <fill missing code> symbol. Send nothing more than missing code. Format text in plain text."
         },
         "geminiCoder.ignoredExtensions": {

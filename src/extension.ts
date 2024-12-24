@@ -129,7 +129,7 @@ export function activate(context: vscode.ExtensionContext) {
       // Prompt user to select provider type
       const provider_type = await vscode.window.showQuickPick(
         ['Primary', 'Secondary'],
-        { placeHolder: 'Select provider type for refactoring' }
+        { placeHolder: 'Select type for refactoring' }
       )
 
       if (!provider_type) {
@@ -657,13 +657,13 @@ export function activate(context: vscode.ExtensionContext) {
 
       const is_primary = await vscode.window.showQuickPick(
         ['Primary', 'Secondary'],
-        { placeHolder: 'Select provider type' }
+        { placeHolder: 'Select type' }
       )
 
       if (is_primary) {
         const selected_provider = await vscode.window.showQuickPick(
           all_providers.map((p) => p.name),
-          { placeHolder: 'Select default provider for Gemini Coder' }
+          { placeHolder: 'Select default model for Gemini Coder' }
         )
 
         if (selected_provider) {
@@ -699,7 +699,7 @@ async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
     .get<string>('geminiCoder.secondaryProvider')
 
   status_bar_item.text = `${
-    primary_provider_name || 'Select Primary Provider'
-  } (${secondary_provider_name || 'Select Secondary Provider'})`
+    primary_provider_name || 'Select Primary Model'
+  } (${secondary_provider_name || 'Select Secondary Model'})`
   status_bar_item.show()
 }
