@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder: Autocomplete with 2M context",
-  "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Manually select all folders you want to attach in each request and get the best code completions possible.",
-  "version": "1.0.37",
+  "displayName": "Gemini Coder: Autocomplete and refactor with 2M context",
+  "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
+  "version": "1.0.38",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -15,13 +15,16 @@
     "Other"
   ],
   "keywords": [
-    "gemini",
+    "Google",
+    "Gemini",
+    "Gemini Flash",
+    "Gemini Pro",
     "ai",
     "Autocomplete",
     "Fill-in-the-middle",
     "FIM",
-    "Coding assistant",
-    "OpenAI API"
+    "Refactoring",
+    "Coding assistant"
   ],
   "activationEvents": [
     "onView.geminiCoderView"
