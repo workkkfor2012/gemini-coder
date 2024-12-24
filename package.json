@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete with 2M context",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle coding assistant. Manually select all folders you want to attach in each request and get the best code completions possible.",
-  "version": "1.0.34",
+  "version": "1.0.35",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -54,6 +54,10 @@
           "light": "resources/light/copy.svg",
           "dark": "resources/dark/copy.svg"
         }
+      },
+      {
+        "command": "geminiCoder.copyContextCommand",
+        "title": "Gemini Coder: Copy Context"
       },
       {
         "command": "geminiCoder.clearChecks",

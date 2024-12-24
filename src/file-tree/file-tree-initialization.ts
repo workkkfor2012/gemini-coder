@@ -24,25 +24,54 @@ export function initialize_file_tree(
 
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
+        const config = vscode.workspace.getConfiguration('geminiCoder')
+        const attach_open_files = config.get<boolean>('attachOpenFiles')
         const checked_files = file_tree_provider!.getCheckedFiles()
 
-        if (checked_files.length === 0) {
-          vscode.window.showWarningMessage('No files selected.')
-          return
-        }
-
         let xml_content = ''
+        const added_files = new Set<string>() // Keep track of added files
 
+        // Add checked files
         for (const filePath of checked_files) {
           const content = fs.readFileSync(filePath, 'utf-8')
-          // Escape any ']]>' sequences in file content
-
           const file_name = path.relative(
             vscode.workspace.workspaceFolders![0].uri.fsPath,
             filePath
           )
-
           xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
+          added_files.add(filePath) // Add to the set of added files
+        }
+
+        // Add open files if attachOpenFiles is true
+        if (attach_open_files) {
+          const tab_groups: ReadonlyArray<vscode.TabGroup> =
+            vscode.window.tabGroups.all
+
+          for (const group of tab_groups) {
+            for (const tab of group.tabs) {
+              if (tab.input instanceof vscode.TabInputText) {
+                const fileUri = tab.input.uri
+                const filePath = fileUri.fsPath
+
+                // Avoid duplicates (if an open file is also checked)
+                if (fs.existsSync(filePath) && !added_files.has(filePath)) {
+                  const content = fs.readFileSync(filePath, 'utf-8')
+                  const file_path = path.relative(
+                    vscode.workspace.workspaceFolders![0].uri.fsPath,
+                    filePath
+                  )
+
+                  xml_content += `<file path="${file_path}">\n${content}\n</file>`
+                  added_files.add(filePath) // Add to the set of added files
+                }
+              }
+            }
+          }
+        }
+
+        if (xml_content === '') {
+          vscode.window.showWarningMessage('No files selected or open.')
+          return
         }
 
         let final_output = `<files>\n${xml_content}\n</files>`
@@ -54,6 +83,13 @@ export function initialize_file_tree(
           'File contents copied to clipboard.'
         )
       }),
+      vscode.commands.registerCommand(
+        'geminiCoder.copyContextCommand',
+        async () => {
+          // Re-use the copy context logic
+          await vscode.commands.executeCommand('geminiCoder.copyContext')
+        }
+      ),
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()
         vscode.window.showInformationMessage('All checks have been cleared.')
