@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete and refactor with 2M context",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.38",
+  "version": "1.0.39",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -79,12 +79,20 @@
         "title": "Gemini Coder: Autocomplete with Secondary Model"
       },
       {
+        "command": "geminiCoder.copyAutocompletePrompt",
+        "title": "Gemini Coder: Copy Autocompletion Prompt to Clipboard"
+      },
+      {
         "command": "geminiCoder.changeDefaultProvider",
         "title": "Gemini Coder: Change Default Models"
       },
       {
         "command": "geminiCoder.refactorFile",
         "title": "Gemini Coder: Refactor this file"
+      },
+      {
+        "command": "geminiCoder.copyRefactorPrompt",
+        "title": "Gemini Coder: Copy File Refactoring Prompt to Clipboard"
       }
     ],
     "menus": {

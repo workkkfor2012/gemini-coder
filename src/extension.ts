@@ -620,6 +620,185 @@ export function activate(context: vscode.ExtensionContext) {
       'secondary'
     )
 
+  const disposable_copy_autocomplete_prompt = vscode.commands.registerCommand(
+    'geminiCoder.copyAutocompletePrompt',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const global_instruction = config.get<string>(
+        'geminiCoder.globalInstruction'
+      )
+      const attach_open_files = config.get<boolean>(
+        'geminiCoder.attachOpenFiles'
+      )
+
+      const editor = vscode.window.activeTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor found.')
+        return
+      }
+
+      const document = editor.document
+      const document_path = document.uri.fsPath
+      const position = editor.selection.active
+
+      const text_before_cursor = document.getText(
+        new vscode.Range(new vscode.Position(0, 0), position)
+      )
+      const text_after_cursor = document.getText(
+        new vscode.Range(
+          position,
+          document.positionAt(document.getText().length)
+        )
+      )
+
+      // Prepare context from open files
+      let file_paths_to_be_attached: Set<string> = new Set()
+      if (file_tree_provider) {
+        const selected_files_paths = file_tree_provider.getCheckedFiles()
+        for (const file_path of selected_files_paths) {
+          if (file_path != document_path) {
+            file_paths_to_be_attached.add(file_path)
+          }
+        }
+      }
+
+      if (attach_open_files) {
+        const open_tabs = vscode.window.tabGroups.all
+          .flatMap((group) => group.tabs)
+          .map((tab) =>
+            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
+          )
+          .filter((uri): uri is vscode.Uri => uri !== null)
+        for (const open_file_uri of open_tabs) {
+          if (open_file_uri.fsPath != document_path) {
+            file_paths_to_be_attached.add(open_file_uri.fsPath)
+          }
+        }
+      }
+
+      let context_text = ''
+      for (const path_to_be_attached of file_paths_to_be_attached) {
+        let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
+        const relative_path = path.relative(
+          vscode.workspace.workspaceFolders![0].uri.fsPath,
+          path_to_be_attached
+        )
+        context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+      }
+
+      const payload = {
+        before: `<instruction>${global_instruction}</instruction>\n<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
+          document.uri
+        )}">\n${text_before_cursor}`,
+        after: `${text_after_cursor}\n</file>\n</files>`
+      }
+
+      const content = `${payload.before}<fill missing code>${payload.after}`
+
+      // Copy the prompt to the clipboard
+      await vscode.env.clipboard.writeText(content)
+      vscode.window.showInformationMessage(
+        'Autocomplete prompt copied to clipboard!'
+      )
+    }
+  )
+
+  // Add the new command to the subscriptions
+  context.subscriptions.push(disposable_copy_autocomplete_prompt)
+
+  const disposable_copy_refactor_prompt = vscode.commands.registerCommand(
+    'geminiCoder.copyRefactorPrompt',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const attach_open_files = config.get<boolean>(
+        'geminiCoder.attachOpenFiles'
+      )
+
+      const editor = vscode.window.activeTextEditor
+      if (!editor) {
+        vscode.window.showErrorMessage('No active editor found.')
+        return
+      }
+
+      const document = editor.document
+      const document_path = document.uri.fsPath
+      const document_text = document.getText()
+
+      // Get user's refactoring instruction
+      const instruction = await vscode.window.showInputBox({
+        prompt: 'Enter your refactoring instruction',
+        placeHolder: 'e.g., "Refactor this code to use async/await"'
+      })
+
+      if (!instruction) {
+        return // User cancelled
+      }
+
+      // Prepare context from open files
+      let file_paths_to_be_attached: Set<string> = new Set()
+      if (file_tree_provider) {
+        const selected_files_paths = file_tree_provider.getCheckedFiles()
+        for (const file_path of selected_files_paths) {
+          if (file_path != document_path) {
+            file_paths_to_be_attached.add(file_path)
+          }
+        }
+      }
+
+      if (attach_open_files) {
+        const open_tabs = vscode.window.tabGroups.all
+          .flatMap((group) => group.tabs)
+          .map((tab) =>
+            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
+          )
+          .filter((uri): uri is vscode.Uri => uri !== null)
+        for (const open_file_uri of open_tabs) {
+          if (open_file_uri.fsPath != document_path) {
+            file_paths_to_be_attached.add(open_file_uri.fsPath)
+          }
+        }
+      }
+
+      let context_text = ''
+      for (const path_to_be_attached of file_paths_to_be_attached) {
+        let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
+        const relative_path = path.relative(
+          vscode.workspace.workspaceFolders![0].uri.fsPath,
+          path_to_be_attached
+        )
+        context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+      }
+
+      const current_file_path = vscode.workspace.asRelativePath(document.uri)
+
+      // Construct the refactoring prompt
+      const selection = editor.selection
+      const selected_text = editor.document.getText(selection)
+      let refactor_instruction = `The following files are part of a Git repository with code. User requested refactor of file "${current_file_path}". In your response send updated file only.`
+      if (selected_text) {
+        refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+      } else {
+        refactor_instruction += ` ${instruction}`
+      }
+
+      const payload = {
+        before: `<instruction>${refactor_instruction}</instruction>\n<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
+        after: `\n</file>\n</files>`
+      }
+
+      const content = `${payload.before}${payload.after}`
+
+      // Copy the prompt to the clipboard
+      await vscode.env.clipboard.writeText(content)
+      vscode.window.showInformationMessage(
+        'Refactoring prompt copied to clipboard!'
+      )
+    }
+  )
+
+  // Add the new command to the subscriptions
+  context.subscriptions.push(disposable_copy_refactor_prompt)
+
   let disposable_change_default_provider = vscode.commands.registerCommand(
     'geminiCoder.changeDefaultProvider',
     async () => {
@@ -698,8 +877,8 @@ async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
     .getConfiguration()
     .get<string>('geminiCoder.secondaryProvider')
 
-  status_bar_item.text = `${
-    primary_provider_name || 'Select Primary Model'
-  } (${secondary_provider_name || 'Select Secondary Model'})`
+  status_bar_item.text = `${primary_provider_name || 'Select Primary Model'} (${
+    secondary_provider_name || 'Select Secondary Model'
+  })`
   status_bar_item.show()
 }

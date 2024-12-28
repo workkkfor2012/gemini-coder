@@ -99,7 +99,7 @@ export function initialize_file_tree(
         await vscode.env.clipboard.writeText(final_output)
 
         vscode.window.showInformationMessage(
-          'File contents copied to clipboard.'
+          'Context copied to clipboard.'
         )
 
         // Update token count after copying context
