@@ -2,7 +2,7 @@
 
 ## Description
 
-Gemini Coder lets you use Gemini (but not limited to) for Autocompletion (Fill in the middle <FIM>) and file refactoring.
+Gemini Coder lets you use Gemini (in fact, all OpenAI API compatible providers, DeepSeek, Claude, ChatGPT, etc.) for Autocompletion (Fill in the middle <FIM>) and file refactoring.
 
 **You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each completion/refactoring request.
 
@@ -52,10 +52,10 @@ The extension also allows you to copy the context, autocompletion and file refac
 ```json
   "geminiCoder.providers": [
     {
-      "name": "Mistral Large Latest",
-      "endpointUrl": "https://api.mistral.ai/v1/chat/completions",
+      "name": "DeepSeek",
+      "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
       "bearerToken": "[API KEY]",
-      "model": "mistral-large-latest",
+      "model": "deepseek-chat",
       "temperature": 0,
       "instruction": ""
     },
