@@ -66,7 +66,7 @@ export function activate(context: vscode.ExtensionContext) {
       let content = response.data.choices[0].message.content.trim()
 
       // Handle code blocks in markdown
-      const regex = /^```(\w+)\n([\s\S]*?)\n```$/
+      const regex = /^```(\w+)?\n([\s\S]*?)\n```$/
       const match = content.match(regex)
       if (match) {
         content = match[2]
