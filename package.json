@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: Autocomplete and refactor with 2M context",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.43",
+  "version": "1.0.44",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -187,7 +187,7 @@
         "geminiCoder.globalInstruction": {
           "type": "string",
           "description": "",
-          "default": "The following files are part of a Git repository with code. Somewhere in the repository you will encounter <fill missing code> symbol. Send nothing more than missing code. Format text in plain text."
+          "default": "The following files are part of a Git repository with code. Somewhere in the repository you will encounter <fill missing code> symbol. Send the missing code and nothing more."
         },
         "geminiCoder.ignoredExtensions": {
           "type": "string",
