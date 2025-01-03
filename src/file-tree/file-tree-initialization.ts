@@ -94,10 +94,26 @@ export function initialize_file_tree(
 
         let final_output = `<files>\n${xml_content}\n</files>`
 
+        // Calculate token count here:
+        let total_token_count = 0
+        for (const filePath of added_files) {
+          // Use added_files to avoid double-counting
+          if (fs.existsSync(filePath)) {
+            // Check if file exists before reading
+            const file_content = fs.readFileSync(filePath, 'utf-8')
+            total_token_count += file_content.length / 4 // 4 chars per token
+          }
+        }
+
         // Copy to clipboard
         await vscode.env.clipboard.writeText(final_output)
 
-        vscode.window.showInformationMessage('Context copied to clipboard.')
+        // Display token count in the information message:
+        vscode.window.showInformationMessage(
+          `Context copied to clipboard (~${Math.round(
+            total_token_count
+          )} tokens).`
+        )
 
         // Update token count after copying context
         update_activity_bar_badge_token_count()
