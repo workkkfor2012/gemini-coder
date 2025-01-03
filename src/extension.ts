@@ -265,7 +265,7 @@ export function activate(context: vscode.ExtensionContext) {
         temperature
       }
 
-      const estimated_token_count = content.length / 4
+      const estimated_token_count = Math.floor(content.length / 4)
 
       if (verbose) {
         console.log('[Gemini Coder] Refactor Prompt:', content)
@@ -516,7 +516,7 @@ export function activate(context: vscode.ExtensionContext) {
               temperature
             }
 
-            const estimated_token_count = content.length / 4
+            const estimated_token_count = Math.floor(content.length / 4)
 
             if (verbose) {
               console.log('[Gemini Coder] Prompt:', content)

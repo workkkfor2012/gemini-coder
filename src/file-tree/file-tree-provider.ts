@@ -247,8 +247,10 @@ export class FileTreeProvider
       const extension = path.extname(entry.name).toLowerCase().replace('.', '')
       const isIgnoredExtension = this.ignoredExtensions.has(extension)
 
-      if (!parentIsGitIgnored && (isGitIgnored || isIgnoredExtension)) {
-        // Skip gitignored items and ignored extensions when parent is not gitignored
+      if (
+        !parentIsGitIgnored &&
+        (isGitIgnored || isIgnoredExtension)
+      ) {
         continue
       }
 
@@ -276,10 +278,14 @@ export class FileTreeProvider
   getCheckedFiles(): string[] {
     return Array.from(this.checkedItems.entries())
       .filter(
-        ([path, state]) =>
+        ([filePath, state]) =>
           state === vscode.TreeItemCheckboxState.Checked &&
-          fs.existsSync(path) &&
-          (fs.lstatSync(path).isFile() || fs.lstatSync(path).isSymbolicLink())
+          fs.existsSync(filePath) &&
+          (fs.lstatSync(filePath).isFile() ||
+            fs.lstatSync(filePath).isSymbolicLink()) &&
+          !this.isExcluded(
+            path.relative(this.workspaceRoot, filePath)
+          )
       )
       .map(([path, _]) => path)
   }
@@ -315,6 +321,16 @@ export class FileTreeProvider
     } else {
       this.gitignore = ignore()
     }
+  }
+
+  private isExcluded(relativePath: string): boolean {
+    return (
+      this.isGitIgnored(relativePath) ||
+      relativePath.startsWith('node_modules') || // Exclude node_modules
+      this.ignoredExtensions.has(
+        path.extname(relativePath).toLowerCase().replace('.', '')
+      )
+    )
   }
 
   private isGitIgnored(relativePath: string): boolean {

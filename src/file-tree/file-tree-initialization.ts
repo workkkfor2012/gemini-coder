@@ -27,7 +27,7 @@ export function initialize_file_tree(
 
       for (const file_path of checked_files) {
         const file_content = fs.readFileSync(file_path, 'utf-8')
-        total_token_count += file_content.length / 4 // 4 chars per token
+        total_token_count += Math.floor(file_content.length / 4) // 4 chars per token
       }
 
       // Update the badge on the activity bar
@@ -101,7 +101,7 @@ export function initialize_file_tree(
           if (fs.existsSync(filePath)) {
             // Check if file exists before reading
             const file_content = fs.readFileSync(filePath, 'utf-8')
-            total_token_count += file_content.length / 4 // 4 chars per token
+            total_token_count += Math.floor(file_content.length / 4) // 4 chars per token
           }
         }
 
