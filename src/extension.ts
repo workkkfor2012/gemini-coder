@@ -32,8 +32,8 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
       if (
-        e.affectsConfiguration('geminiCoder.primaryProvider') ||
-        e.affectsConfiguration('geminiCoder.secondaryProvider') ||
+        e.affectsConfiguration('geminiCoder.primaryModel') ||
+        e.affectsConfiguration('geminiCoder.secondaryModel') ||
         e.affectsConfiguration('geminiCoder.apiKey') ||
         e.affectsConfiguration('geminiCoder.temperature')
       ) {
@@ -868,10 +868,10 @@ export function deactivate() {}
 async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
   const primary_provider_name = vscode.workspace
     .getConfiguration()
-    .get<string>('geminiCoder.primaryProvider')
+    .get<string>('geminiCoder.primaryModel')
   const secondary_provider_name = vscode.workspace
     .getConfiguration()
-    .get<string>('geminiCoder.secondaryProvider')
+    .get<string>('geminiCoder.secondaryModel')
 
   status_bar_item.text = `${primary_provider_name || 'Select Primary Model'} (${
     secondary_provider_name || 'Select Secondary Model'

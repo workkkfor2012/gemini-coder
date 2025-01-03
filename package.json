@@ -114,12 +114,12 @@
       "type": "object",
       "title": "Gemini Coder Settings",
       "properties": {
-        "geminiCoder.primaryProvider": {
+        "geminiCoder.primaryModel": {
           "type": "string",
           "description": "The primary model to use.",
           "default": "Gemini Flash"
         },
-        "geminiCoder.secondaryProvider": {
+        "geminiCoder.secondaryModel": {
           "type": "string",
           "description": "The secondary model to use.",
           "default": "Gemini Pro"
