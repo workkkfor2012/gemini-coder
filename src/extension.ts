@@ -138,7 +138,7 @@ export function activate(context: vscode.ExtensionContext) {
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
       const provider_name = config.get<string>(
-        `geminiCoder.${provider_type.toLowerCase()}Provider`
+        `geminiCoder.${provider_type.toLowerCase()}Model`
       )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
@@ -359,7 +359,7 @@ export function activate(context: vscode.ExtensionContext) {
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
       const provider_name = config.get<string>(
-        `geminiCoder.${providerType}Provider`
+        `geminiCoder.${providerType}Model`
       )
       const global_instruction = config.get<string>(
         'geminiCoder.globalInstruction'
@@ -843,7 +843,7 @@ export function activate(context: vscode.ExtensionContext) {
 
         if (selected_provider) {
           await config.update(
-            `geminiCoder.${is_primary.toLowerCase()}Provider`,
+            `geminiCoder.${is_primary.toLowerCase()}Model`,
             selected_provider,
             vscode.ConfigurationTarget.Global
           )
