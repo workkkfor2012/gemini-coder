@@ -26,8 +26,9 @@ export function initialize_file_tree(
       let total_token_count = 0
 
       for (const file_path of checked_files) {
+        // No need for try-catch here, getCheckedFiles now only returns files
         const file_content = fs.readFileSync(file_path, 'utf-8')
-        total_token_count += Math.floor(file_content.length / 4) // 4 chars per token
+        total_token_count += Math.floor(file_content.length / 4)
       }
 
       // Update the badge on the activity bar
@@ -51,13 +52,16 @@ export function initialize_file_tree(
 
         // Add checked files
         for (const filePath of checked_files) {
-          const content = fs.readFileSync(filePath, 'utf-8')
-          const file_name = path.relative(
-            vscode.workspace.workspaceFolders![0].uri.fsPath,
-            filePath
-          )
-          xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
-          added_files.add(filePath)
+          // Only add if it's a file
+          if (fs.statSync(filePath).isFile()) {
+            const content = fs.readFileSync(filePath, 'utf-8')
+            const file_name = path.relative(
+              vscode.workspace.workspaceFolders![0].uri.fsPath,
+              filePath
+            )
+            xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
+            added_files.add(filePath)
+          }
         }
 
         // Add open files if attachOpenFiles is true

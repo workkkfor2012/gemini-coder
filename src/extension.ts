@@ -281,7 +281,7 @@ export function activate(context: vscode.ExtensionContext) {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: `Refactoring file... (~${estimated_token_count} tokens)`,
+          title: `Refactoring file... (Sent ~${estimated_token_count} tokens)`,
           cancellable: true // Allow user to cancel
         },
         async (progress, token) => {
