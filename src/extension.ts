@@ -3,7 +3,6 @@ import axios from 'axios'
 import { CancelTokenSource } from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
-import openai_token_counter from 'openai-gpt-token-counter'
 import { initialize_file_tree } from './file-tree/file-tree-initialization'
 
 interface Provider {
@@ -266,7 +265,7 @@ export function activate(context: vscode.ExtensionContext) {
         temperature
       }
 
-      const estimated_token_count = openai_token_counter.chat(messages, 'gpt-4')
+      const estimated_token_count = content.length / 4
 
       if (verbose) {
         console.log('[Gemini Coder] Refactor Prompt:', content)
@@ -517,10 +516,7 @@ export function activate(context: vscode.ExtensionContext) {
               temperature
             }
 
-            const estimated_token_count = openai_token_counter.chat(
-              messages,
-              'gpt-4'
-            )
+            const estimated_token_count = content.length / 4
 
             if (verbose) {
               console.log('[Gemini Coder] Prompt:', content)

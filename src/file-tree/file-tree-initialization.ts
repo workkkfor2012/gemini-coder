@@ -2,7 +2,6 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { FileTreeProvider } from './file-tree-provider'
-import openai_token_counter from 'openai-gpt-token-counter'
 import { FileItem } from './file-tree-provider'
 
 export function initialize_file_tree(
@@ -28,7 +27,7 @@ export function initialize_file_tree(
 
       for (const file_path of checked_files) {
         const file_content = fs.readFileSync(file_path, 'utf-8')
-        total_token_count += openai_token_counter.text(file_content, 'gpt-4')
+        total_token_count += file_content.length / 4 // 4 chars per token
       }
 
       // Update the badge on the activity bar
@@ -98,9 +97,7 @@ export function initialize_file_tree(
         // Copy to clipboard
         await vscode.env.clipboard.writeText(final_output)
 
-        vscode.window.showInformationMessage(
-          'Context copied to clipboard.'
-        )
+        vscode.window.showInformationMessage('Context copied to clipboard.')
 
         // Update token count after copying context
         update_activity_bar_badge_token_count()

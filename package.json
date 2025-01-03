@@ -1,6 +1,6 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder: Autocomplete and refactor with 2M context",
+  "displayName": "Gemini Coder: FIM autocomplete with 2M context!",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
   "version": "1.0.44",
   "publisher": "robertpiosik",
@@ -208,7 +208,6 @@
   },
   "dependencies": {
     "axios": "^1.7.7",
-    "ignore": "^6.0.2",
-    "openai-gpt-token-counter": "^1.1.1"
+    "ignore": "^6.0.2"
   }
 }
