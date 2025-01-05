@@ -49,7 +49,7 @@
           "name": "Context"
         },
         {
-          "id": "chatView",
+          "id": "geminiCoderViewChat",
           "name": "Chat"
         }
       ]
