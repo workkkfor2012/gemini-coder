@@ -554,7 +554,7 @@ export function activate(context: vscode.ExtensionContext) {
             vscode.window.withProgress(
               {
                 location: vscode.ProgressLocation.Window,
-                title: `Waiting for code completion response... (~${estimated_token_count} tokens)`
+                title: `Waiting for code completion response... (Sent ~${estimated_token_count} tokens)`
               },
               async (progress) => {
                 try {

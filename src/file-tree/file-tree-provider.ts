@@ -6,41 +6,41 @@ import ignore from 'ignore'
 export class FileTreeProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
 {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+  private _on_did_change_tree_data: vscode.EventEmitter<
     FileItem | undefined | null | void
   > = new vscode.EventEmitter<FileItem | undefined | null | void>()
   readonly onDidChangeTreeData: vscode.Event<
     FileItem | undefined | null | void
-  > = this._onDidChangeTreeData.event
-  private workspaceRoot: string
-  private checkedItems: Map<string, vscode.TreeItemCheckboxState> = new Map()
-  private combinedGitignore = ignore() // To hold all .gitignore rules
-  private ignoredExtensions: Set<string> = new Set()
+  > = this._on_did_change_tree_data.event
+  private workspace_root: string
+  private checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
+  private combined_gitignore = ignore() // To hold all .gitignore rules
+  private ignored_extensions: Set<string> = new Set()
   private watcher: vscode.FileSystemWatcher
-  private gitignoreWatcher: vscode.FileSystemWatcher
+  private gitignore_watcher: vscode.FileSystemWatcher
 
-  constructor(workspaceRoot: string) {
-    this.workspaceRoot = workspaceRoot
-    this.loadAllGitignoreFiles() // Load all .gitignore files on initialization
-    this.loadIgnoredExtensions()
+  constructor(workspace_root: string) {
+    this.workspace_root = workspace_root
+    this.load_all_gitignore_files() // Load all .gitignore files on initialization
+    this.load_ignored_extensions()
 
     // Create a file system watcher for general file changes
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
-    this.watcher.onDidCreate(() => this.handleFileCreate())
-    this.watcher.onDidDelete(this.onFileSystemChanged)
-    this.watcher.onDidChange(this.onFileSystemChanged)
+    this.watcher.onDidCreate(() => this.handle_file_create())
+    this.watcher.onDidDelete(this.on_file_system_changed)
+    this.watcher.onDidChange(this.on_file_system_changed)
 
     // Watch for .gitignore changes specifically
-    this.gitignoreWatcher =
+    this.gitignore_watcher =
       vscode.workspace.createFileSystemWatcher('**/.gitignore')
-    this.gitignoreWatcher.onDidCreate(() => this.loadAllGitignoreFiles())
-    this.gitignoreWatcher.onDidChange(() => this.loadAllGitignoreFiles())
-    this.gitignoreWatcher.onDidDelete(() => this.loadAllGitignoreFiles())
+    this.gitignore_watcher.onDidCreate(() => this.load_all_gitignore_files())
+    this.gitignore_watcher.onDidChange(() => this.load_all_gitignore_files())
+    this.gitignore_watcher.onDidDelete(() => this.load_all_gitignore_files())
 
     // Listen for configuration changes
     vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
-        this.loadIgnoredExtensions()
+        this.load_ignored_extensions()
         this.refresh()
       }
     })
@@ -48,101 +48,104 @@ export class FileTreeProvider
 
   public dispose(): void {
     this.watcher.dispose()
-    this.gitignoreWatcher.dispose()
+    this.gitignore_watcher.dispose()
   }
 
-  private onFileSystemChanged(): void {
+  private on_file_system_changed(): void {
     this.refresh()
   }
 
-  private async handleFileCreate(): Promise<void> {
+  private async handle_file_create(): Promise<void> {
     // Refresh the tree view
     await this.refresh()
 
     // If a new file is created within a checked directory, check it automatically
-    for (const [dirPath] of this.checkedItems) {
+    for (const [dir_path] of this.checked_items) {
       if (
-        this.checkedItems.get(dirPath) === vscode.TreeItemCheckboxState.Checked
+        this.checked_items.get(dir_path) ===
+        vscode.TreeItemCheckboxState.Checked
       ) {
-        const relativePath = path.relative(this.workspaceRoot, dirPath)
-        const isExcluded = this.isExcluded(relativePath)
+        const relative_path = path.relative(this.workspace_root, dir_path)
+        const is_excluded = this.is_excluded(relative_path)
 
-        await this.updateDirectoryCheckState(
-          dirPath,
+        await this.update_directory_check_state(
+          dir_path,
           vscode.TreeItemCheckboxState.Checked,
-          isExcluded
+          is_excluded
         )
       }
     }
   }
 
   async refresh(): Promise<void> {
-    this._onDidChangeTreeData.fire()
+    this._on_did_change_tree_data.fire()
   }
 
   clearChecks(): void {
-    this.checkedItems.clear()
+    this.checked_items.clear()
     this.refresh()
   }
 
   getTreeItem(element: FileItem): vscode.TreeItem {
     const key = element.resourceUri.fsPath
-    const checkboxState =
-      this.checkedItems.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
-    element.checkboxState = checkboxState
+    const checkbox_state =
+      this.checked_items.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
+    element.checkboxState = checkbox_state
     return element
   }
 
   async getChildren(element?: FileItem): Promise<FileItem[]> {
-    if (!this.workspaceRoot) {
+    if (!this.workspace_root) {
       vscode.window.showInformationMessage('No workspace folder found.')
       return []
     }
-    const dirPath = element ? element.resourceUri.fsPath : this.workspaceRoot
-    return this.getFilesAndDirectories(dirPath)
+    const dir_path = element ? element.resourceUri.fsPath : this.workspace_root
+    return this.get_files_and_directories(dir_path)
   }
 
-  private async getFilesAndDirectories(dirPath: string): Promise<FileItem[]> {
+  private async get_files_and_directories(
+    dir_path: string
+  ): Promise<FileItem[]> {
     const items: FileItem[] = []
     try {
-      const dirEntries = await fs.promises.readdir(dirPath, {
+      const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
 
       // Sort directories above files and alphabetically
-      dirEntries.sort((a, b) => {
-        const aIsDir = a.isDirectory() || a.isSymbolicLink()
-        const bIsDir = b.isDirectory() || b.isSymbolicLink()
-        if (aIsDir && !bIsDir) return -1
-        if (!aIsDir && bIsDir) return 1
+      dir_entries.sort((a, b) => {
+        const a_is_dir = a.isDirectory() || a.isSymbolicLink()
+        const b_is_dir = b.isDirectory() || b.isSymbolicLink()
+        if (a_is_dir && !b_is_dir) return -1
+        if (!a_is_dir && b_is_dir) return 1
         return a.name.localeCompare(b.name)
       })
 
-      for (const entry of dirEntries) {
-        const fullPath = path.join(dirPath, entry.name)
-        const relativePath = path.relative(this.workspaceRoot, fullPath)
-        const uri = vscode.Uri.file(fullPath)
-        let isDirectory = entry.isDirectory()
-        let isSymbolicLink = entry.isSymbolicLink()
-        let isBrokenLink = false
+      for (const entry of dir_entries) {
+        const full_path = path.join(dir_path, entry.name)
+        const relative_path = path.relative(this.workspace_root, full_path)
+        const uri = vscode.Uri.file(full_path)
+        let is_directory = entry.isDirectory()
+        let is_symbolic_link = entry.isSymbolicLink()
+        let is_broken_link = false
 
-        if (isSymbolicLink) {
+        if (is_symbolic_link) {
           try {
-            const stats = await fs.promises.stat(fullPath)
-            isDirectory = stats.isDirectory()
+            const stats = await fs.promises.stat(full_path)
+            is_directory = stats.isDirectory()
           } catch (err) {
             // The symlink is broken
-            isBrokenLink = true
+            is_broken_link = true
           }
         }
 
         // Skip broken symlinks
-        if (isBrokenLink) {
+        if (is_broken_link) {
           continue
         }
 
         // Skip if excluded by .gitignore or other rules
-        if (this.isExcluded(relativePath)) {
+        if (this.is_excluded(relative_path)) {
           continue
         }
 
@@ -150,39 +153,39 @@ export class FileTreeProvider
           .extname(entry.name)
           .toLowerCase()
           .replace('.', '')
-        const isIgnoredExtension = this.ignoredExtensions.has(extension)
-        const key = fullPath
+        const is_ignored_extension = this.ignored_extensions.has(extension)
+        const key = full_path
 
-        let checkboxState = this.checkedItems.get(key)
-        if (checkboxState === undefined) {
-          const parentPath = path.dirname(fullPath)
-          const parentCheckboxState = this.checkedItems.get(parentPath)
+        let checkbox_state = this.checked_items.get(key)
+        if (checkbox_state === undefined) {
+          const parent_path = path.dirname(full_path)
+          const parent_checkbox_state = this.checked_items.get(parent_path)
           if (
-            parentCheckboxState === vscode.TreeItemCheckboxState.Checked &&
-            !isIgnoredExtension
+            parent_checkbox_state === vscode.TreeItemCheckboxState.Checked &&
+            !is_ignored_extension
           ) {
-            checkboxState = vscode.TreeItemCheckboxState.Checked
-            this.checkedItems.set(fullPath, checkboxState)
+            checkbox_state = vscode.TreeItemCheckboxState.Checked
+            this.checked_items.set(full_path, checkbox_state)
           } else {
-            checkboxState = vscode.TreeItemCheckboxState.Unchecked
+            checkbox_state = vscode.TreeItemCheckboxState.Unchecked
           }
         }
 
         const item = new FileItem(
           entry.name,
           uri,
-          isDirectory
+          is_directory
             ? vscode.TreeItemCollapsibleState.Collapsed
             : vscode.TreeItemCollapsibleState.None,
-          isDirectory,
-          checkboxState,
+          is_directory,
+          checkbox_state,
           false, // isGitIgnored is no longer used directly for filtering
-          isSymbolicLink
+          is_symbolic_link
         )
         items.push(item)
       }
     } catch (error) {
-      console.error(`Error reading directory ${dirPath}:`, error)
+      console.error(`Error reading directory ${dir_path}:`, error)
     }
     return items
   }
@@ -192,158 +195,161 @@ export class FileTreeProvider
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
     const key = item.resourceUri.fsPath
-    this.checkedItems.set(key, state)
+    this.checked_items.set(key, state)
     if (item.isDirectory) {
-      const relativePath = path.relative(this.workspaceRoot, key)
-      const isExcluded = this.isExcluded(relativePath)
-      await this.updateDirectoryCheckState(key, state, isExcluded)
+      const relative_path = path.relative(this.workspace_root, key)
+      const is_excluded = this.is_excluded(relative_path)
+      await this.update_directory_check_state(key, state, is_excluded)
     }
 
     // Update parent directories' states
-    let dirPath = path.dirname(key)
-    while (dirPath.startsWith(this.workspaceRoot)) {
-      await this.updateParentState(dirPath)
-      dirPath = path.dirname(dirPath)
+    let dir_path = path.dirname(key)
+    while (dir_path.startsWith(this.workspace_root)) {
+      await this.update_parent_state(dir_path)
+      dir_path = path.dirname(dir_path)
     }
 
     this.refresh()
   }
 
-  private async updateParentState(dirPath: string): Promise<void> {
+  private async update_parent_state(dir_path: string): Promise<void> {
     try {
-      const dirEntries = await fs.promises.readdir(dirPath, {
+      const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
 
-      let allChecked = true
-      let hasNonIgnoredChild = false
+      let all_checked = true
+      let has_non_ignored_child = false
 
-      for (const entry of dirEntries) {
-        const siblingPath = path.join(dirPath, entry.name)
-        const relativePath = path.relative(this.workspaceRoot, siblingPath)
+      for (const entry of dir_entries) {
+        const sibling_path = path.join(dir_path, entry.name)
+        const relative_path = path.relative(this.workspace_root, sibling_path)
         const extension = path
           .extname(entry.name)
           .toLowerCase()
           .replace('.', '')
-        const isIgnoredExtension = this.ignoredExtensions.has(extension)
+        const is_ignored_extension = this.ignored_extensions.has(extension)
 
         // Check if the child is excluded
-        if (this.isExcluded(relativePath) || isIgnoredExtension) {
+        if (this.is_excluded(relative_path) || is_ignored_extension) {
           continue
         }
 
-        hasNonIgnoredChild = true
+        has_non_ignored_child = true
         const state =
-          this.checkedItems.get(siblingPath) ??
+          this.checked_items.get(sibling_path) ??
           vscode.TreeItemCheckboxState.Unchecked
 
         if (state !== vscode.TreeItemCheckboxState.Checked) {
-          allChecked = false
+          all_checked = false
           break
         }
       }
 
-      if (hasNonIgnoredChild) {
-        if (allChecked) {
-          this.checkedItems.set(dirPath, vscode.TreeItemCheckboxState.Checked)
+      if (has_non_ignored_child) {
+        if (all_checked) {
+          this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Checked)
         } else {
-          this.checkedItems.set(dirPath, vscode.TreeItemCheckboxState.Unchecked)
+          this.checked_items.set(
+            dir_path,
+            vscode.TreeItemCheckboxState.Unchecked
+          )
         }
       } else {
         // If no non-ignored children, set parent to unchecked
-        this.checkedItems.set(dirPath, vscode.TreeItemCheckboxState.Unchecked)
+        this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Unchecked)
       }
     } catch (error) {
-      console.error(`Error updating parent state for ${dirPath}:`, error)
+      console.error(`Error updating parent state for ${dir_path}:`, error)
     }
   }
 
-  private async updateDirectoryCheckState(
-    dirPath: string,
+  private async update_directory_check_state(
+    dir_path: string,
     state: vscode.TreeItemCheckboxState,
-    parentIsExcluded: boolean
+    parent_is_excluded: boolean
   ): Promise<void> {
     try {
-      const dirEntries = await fs.promises.readdir(dirPath, {
+      const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
 
-      for (const entry of dirEntries) {
-        const fullPath = path.join(dirPath, entry.name)
-        const relativePath = path.relative(this.workspaceRoot, fullPath)
+      for (const entry of dir_entries) {
+        const full_path = path.join(dir_path, entry.name)
+        const relative_path = path.relative(this.workspace_root, full_path)
         const extension = path
           .extname(entry.name)
           .toLowerCase()
           .replace('.', '')
-        const isIgnoredExtension = this.ignoredExtensions.has(extension)
+        const is_ignored_extension = this.ignored_extensions.has(extension)
 
         // Skip if parent is excluded or if the item itself is excluded
         if (
-          parentIsExcluded ||
-          this.isExcluded(relativePath) ||
-          isIgnoredExtension
+          parent_is_excluded ||
+          this.is_excluded(relative_path) ||
+          is_ignored_extension
         ) {
           continue
         }
 
-        this.checkedItems.set(fullPath, state)
+        this.checked_items.set(full_path, state)
 
-        let isDirectory = entry.isDirectory()
-        let isSymbolicLink = entry.isSymbolicLink()
-        let isBrokenLink = false
+        let is_directory = entry.isDirectory()
+        let is_symbolic_link = entry.isSymbolicLink()
+        let is_broken_link = false
 
-        if (isSymbolicLink) {
+        if (is_symbolic_link) {
           try {
-            const stats = await fs.promises.stat(fullPath)
-            isDirectory = stats.isDirectory()
+            const stats = await fs.promises.stat(full_path)
+            is_directory = stats.isDirectory()
           } catch (err) {
             // The symlink is broken
-            isBrokenLink = true
+            is_broken_link = true
           }
         }
 
-        if (isDirectory && !isBrokenLink) {
-          await this.updateDirectoryCheckState(fullPath, state, false) // false because the child is not excluded if we reached here
+        if (is_directory && !is_broken_link) {
+          await this.update_directory_check_state(full_path, state, false) // false because the child is not excluded if we reached here
         }
       }
     } catch (error) {
       console.error(
-        `Error updating directory check state for ${dirPath}:`,
+        `Error updating directory check state for ${dir_path}:`,
         error
       )
     }
   }
 
   getCheckedFiles(): string[] {
-    return Array.from(this.checkedItems.entries())
+    return Array.from(this.checked_items.entries())
       .filter(
-        ([filePath, state]) =>
+        ([file_path, state]) =>
           state === vscode.TreeItemCheckboxState.Checked &&
-          fs.existsSync(filePath) &&
-          (fs.lstatSync(filePath).isFile() ||
-            fs.lstatSync(filePath).isSymbolicLink()) &&
-          !this.isExcluded(path.relative(this.workspaceRoot, filePath))
+          fs.existsSync(file_path) &&
+          (fs.lstatSync(file_path).isFile() ||
+            fs.lstatSync(file_path).isSymbolicLink()) &&
+          !this.is_excluded(path.relative(this.workspace_root, file_path))
       )
       .map(([path, _]) => path)
   }
 
-  public async setCheckedFiles(filePaths: string[]): Promise<void> {
+  public async setCheckedFiles(file_paths: string[]): Promise<void> {
     // Clear existing checks
-    this.checkedItems.clear()
+    this.checked_items.clear()
 
     // For each file in filePaths, set its checkboxState to Checked
-    for (const filePath of filePaths) {
-      if (fs.existsSync(filePath)) {
-        this.checkedItems.set(filePath, vscode.TreeItemCheckboxState.Checked)
+    for (const file_path of file_paths) {
+      if (fs.existsSync(file_path)) {
+        this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
       }
     }
 
     // Update parent directories' checkbox states
-    for (const filePath of filePaths) {
-      let dirPath = path.dirname(filePath)
-      while (dirPath.startsWith(this.workspaceRoot)) {
-        await this.updateParentState(dirPath)
-        dirPath = path.dirname(dirPath)
+    for (const file_path of file_paths) {
+      let dir_path = path.dirname(file_path)
+      while (dir_path.startsWith(this.workspace_root)) {
+        await this.update_parent_state(dir_path)
+        dir_path = path.dirname(dir_path)
       }
     }
 
@@ -351,63 +357,65 @@ export class FileTreeProvider
   }
 
   // Load .gitignore from all levels of the workspace
-  private async loadAllGitignoreFiles(): Promise<void> {
-    const gitignoreFiles = await vscode.workspace.findFiles('**/.gitignore')
-    this.combinedGitignore = ignore() // Reset
+  private async load_all_gitignore_files(): Promise<void> {
+    const gitignore_files = await vscode.workspace.findFiles('**/.gitignore')
+    this.combined_gitignore = ignore() // Reset
 
-    for (const fileUri of gitignoreFiles) {
-      const gitignorePath = fileUri.fsPath
-      const relativeGitignorePath = path.relative(
-        this.workspaceRoot,
-        path.dirname(gitignorePath)
+    for (const file_uri of gitignore_files) {
+      const gitignore_path = file_uri.fsPath
+      const relative_gitignore_path = path.relative(
+        this.workspace_root,
+        path.dirname(gitignore_path)
       )
 
       try {
-        const gitignoreContent = fs.readFileSync(gitignorePath, 'utf-8')
-        const rulesWithPrefix = gitignoreContent
+        const gitignore_content = fs.readFileSync(gitignore_path, 'utf-8')
+        const rules_with_prefix = gitignore_content
           .split('\n')
           .map((rule) => rule.trim())
           .filter((rule) => rule && !rule.startsWith('#'))
           .map((rule) =>
-            relativeGitignorePath === ''
+            relative_gitignore_path === ''
               ? rule
-              : `${relativeGitignorePath}/${rule}`
-          ) // Prefix rules with relative path
+              : `${relative_gitignore_path}${
+                  rule.startsWith('/') ? rule : `/${rule}`
+                }`
+          )
 
-        this.combinedGitignore.add(rulesWithPrefix)
+        this.combined_gitignore.add(rules_with_prefix)
       } catch (error) {
         console.error(
-          `Error reading .gitignore file at ${gitignorePath}:`,
+          `Error reading .gitignore file at ${gitignore_path}:`,
           error
         )
       }
     }
 
     // Add default exclusions (e.g., node_modules at the root)
-    this.combinedGitignore.add(['node_modules/'])
+    this.combined_gitignore.add(['node_modules/'])
 
     this.refresh()
   }
 
-  private isExcluded(relativePath: string): boolean {
+  private is_excluded(relative_path: string): boolean {
     return (
-      this.combinedGitignore.ignores(relativePath) ||
-      this.ignoredExtensions.has(
-        path.extname(relativePath).toLowerCase().replace('.', '')
+      this.combined_gitignore.ignores(relative_path) ||
+      this.ignored_extensions.has(
+        path.extname(relative_path).toLowerCase().replace('.', '')
       )
     )
   }
 
-  private loadIgnoredExtensions() {
+  private load_ignored_extensions() {
     const config = vscode.workspace.getConfiguration('geminiCoder')
-    const extensionsString = config.get<string>(
+    const extensions_string = config.get<string>(
       'ignoredExtensions',
       'png,jpg,jpeg,gif,svg'
     )
-    const extensionsArray = extensionsString
+    const extensions_array = extensions_string
       .split(',')
       .map((ext) => ext.trim().toLowerCase())
-    this.ignoredExtensions = new Set(extensionsArray)
+    this.ignored_extensions = new Set(extensions_array)
   }
 }
 

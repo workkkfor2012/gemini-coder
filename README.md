@@ -2,7 +2,7 @@
 
 ## Description
 
-Gemini Coder lets you use Gemini (in fact, all OpenAI API compatible providers, DeepSeek, Claude, ChatGPT, etc.) for autocompletion (Fill in the middle <FIM>) and file refactoring.
+Gemini Coder lets you use Gemini (in fact, all OpenAI API compatible providers, DeepSeek, Claude, ChatGPT, etc.) for autocompletion (Fill-in-the-middle) and whole file refactoring.
 
 **You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each completion/refactoring request.
 
