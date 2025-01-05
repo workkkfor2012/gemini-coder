@@ -1,10 +1,11 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import { FileTreeProvider } from './file-tree/file-tree-provider'
-import { FileItem } from './file-tree/file-tree-provider'
+import { FileTreeProvider } from './file-tree-provider'
+import { FileItem } from './file-tree-provider'
+import { ChatProvider } from '../chat/chat-provider'
 
-export function activity_bar_panel_initialization(
+export function file_tree_initialization(
   context: vscode.ExtensionContext
 ): FileTreeProvider | undefined {
   const workspace_folders = vscode.workspace.workspaceFolders

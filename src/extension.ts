@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { activity_bar_panel_initialization } from './activity-bar-panel-initialization'
+import { file_tree_initialization } from './file-tree/file-tree-initialization'
 import { refactor_file_command } from './commands/refactor-file-command'
 import { completion_request_command } from './commands/completion-request-command'
 import { copy_autocomplete_prompt_command } from './commands/copy-autocomplete-prompt-command'
@@ -7,7 +7,7 @@ import { copy_refactor_prompt_command } from './commands/copy-refactor-prompt-co
 import { change_default_provider_command } from './commands/change-default-provider-command'
 
 export function activate(context: vscode.ExtensionContext) {
-  const file_tree_provider = activity_bar_panel_initialization(context)
+  const file_tree_provider = file_tree_initialization(context)
   const status_bar_item = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
     100
