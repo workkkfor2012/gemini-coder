@@ -5,6 +5,7 @@ import { completion_request_command } from './commands/completion-request-comman
 import { copy_autocomplete_prompt_command } from './commands/copy-autocomplete-prompt-command'
 import { copy_refactor_prompt_command } from './commands/copy-refactor-prompt-command'
 import { change_default_provider_command } from './commands/change-default-provider-command'
+import { ChatViewProvider } from './chat-view'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -15,6 +16,10 @@ export function activate(context: vscode.ExtensionContext) {
   status_bar_item.command = 'geminiCoder.changeDefaultProvider'
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
+
+  // Chat View
+  const chatViewProvider = new ChatViewProvider();
+  vscode.window.registerTreeDataProvider('geminiCoderViewChat', chatViewProvider);
 
   context.subscriptions.push(
     refactor_file_command(context, file_tree_provider, status_bar_item),
