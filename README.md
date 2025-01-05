@@ -12,15 +12,13 @@ The extension also allows you to copy the context, autocompletion and file refac
 
 ## Features
 
-- Lightweight, 100% free, MIT licensed.
+- Provider agnostic, use any OpenAI API compatible provider.
+- Manually set context for all requests.
 - Autocomplete at the cursor position.
 - Refactor the current file.
-- Manually set context for all requests.
-- Copy context, autocompletion or file refactoring prompts to clipboard.
-- Rate-limited Gemini Pro requests fall back to Gemini Flash.
-- Use experimental models or other OpenAI-compatible providers.
-- Copy autocompletion and refactoring prompts to the clipboard.
-- Change default models via status bar.
+- Copy context, autocompletion or file refactoring generated prompts to clipboard.
+- Lightweight, 100% free, MIT licensed.
+- Set up primary and secondary models for lightweight and specialized tasks.
 
 ## How to Use
 
@@ -47,18 +45,11 @@ The extension also allows you to copy the context, autocompletion and file refac
 - `Gemini Coder: Refactor this file`: Refactors the current file based on the provided instruction.
 - `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
 
-## Set up custom models
+## Set up custom providers
 
 ```json
   "geminiCoder.providers": [
-    {
-      "name": "DeepSeek",
-      "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
-      "bearerToken": "[API KEY]",
-      "model": "deepseek-chat",
-      "temperature": 0,
-      "instruction": ""
-    },
+    // Experimental Gemini
     {
       "name": "Gemini Flash 2.0 Exp",
       "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
@@ -72,6 +63,23 @@ The extension also allows you to copy the context, autocompletion and file refac
       "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
       "bearerToken": "[API KEY]",
       "model": "gemini-exp-1206",
+      "temperature": 0,
+      "instruction": ""
+    },
+    // Others
+    {
+      "name": "DeepSeek",
+      "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
+      "bearerToken": "[API KEY]",
+      "model": "deepseek-chat",
+      "temperature": 0,
+      "instruction": ""
+    },
+    {
+      "name": "Mistral Large Latest",
+      "endpointUrl": "https://api.mistral.ai/v1/chat/completions",
+      "bearerToken": "[API KEY]",
+      "model": "mistral-large-latest",
       "temperature": 0,
       "instruction": ""
     },

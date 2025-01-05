@@ -45,8 +45,12 @@
     "views": {
       "geminiCoder": [
         {
-          "id": "geminiCoderView",
+          "id": "geminiCoderContextView",
           "name": "Context"
+        },
+        {
+          "id": "geminiCoderChatView",
+          "name": "Chat"
         }
       ]
     },
@@ -100,12 +104,12 @@
       "view/title": [
         {
           "command": "geminiCoder.copyContext",
-          "when": "view == geminiCoderView",
+          "when": "view == geminiCoderContextView",
           "group": "navigation@1"
         },
         {
           "command": "geminiCoder.clearChecks",
-          "when": "view == geminiCoderView",
+          "when": "view == geminiCoderContextView",
           "group": "navigation@3"
         }
       ]
