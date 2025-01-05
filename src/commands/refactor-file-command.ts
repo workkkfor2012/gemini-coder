@@ -154,7 +154,7 @@ export function refactor_file_command(context: vscode.ExtensionContext, file_tre
         vscode.window.withProgress(
             {
                 location: vscode.ProgressLocation.Window,
-                title: `Refactoring file... (Sent ~${estimated_token_count} tokens)`,
+                title: `Refactoring file...`,
                 cancellable: true
             },
             async (progress, token) => {

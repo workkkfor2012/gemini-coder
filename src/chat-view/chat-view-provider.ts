@@ -1,30 +1,51 @@
 import * as vscode from 'vscode'
 
-export class ChatViewProvider
-  implements vscode.TreeDataProvider<vscode.TreeItem>
-{
-  private _onDidChangeTreeData: vscode.EventEmitter<
-    vscode.TreeItem | undefined | null | void
-  > = new vscode.EventEmitter<vscode.TreeItem | undefined | null | void>()
-  readonly onDidChangeTreeData: vscode.Event<
-    vscode.TreeItem | undefined | null | void
-  > = this._onDidChangeTreeData.event
+export class ChatViewProvider implements vscode.WebviewViewProvider {
+  // show simple input field
+  constructor(private readonly _extensionUri: vscode.Uri) {}
 
-  getTreeItem(element: vscode.TreeItem): vscode.TreeItem {
-    return element
-  }
-
-  getChildren(element?: vscode.TreeItem): Thenable<vscode.TreeItem[]> {
-    if (!element) {
-      // Return the placeholder item when there's no root element
-      const placeholderItem = new vscode.TreeItem('Chat feature coming soon!')
-      placeholderItem.tooltip = 'This feature is under development.'
-      return Promise.resolve([placeholderItem])
+  resolveWebviewView(
+    webviewView: vscode.WebviewView,
+    context: vscode.WebviewViewResolveContext,
+    _token: vscode.CancellationToken
+  ) {
+    webviewView.webview.options = {
+      enableScripts: true,
+      localResourceRoots: [this._extensionUri]
     }
-    return Promise.resolve([]) // No children for the placeholder
+
+    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
   }
 
-  refresh(): void {
-    this._onDidChangeTreeData.fire()
+  private _getHtmlForWebview(webview: vscode.Webview) {
+    const scriptUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'chat.js')
+    )
+    const styleUri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extensionUri, 'media', 'chat.css')
+    )
+
+    return `
+      <!DOCTYPE html>
+      <html lang="en">
+      <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Chat</title>
+        <link href="${styleUri}" rel="stylesheet">
+      </head>
+      <body>
+        <div class="chat-container">
+          <div class="chat-messages" id="chat-messages">
+          </div>
+          <div class="input-area">
+            <input type="text" id="chat-input" placeholder="Type your message here...">
+            <button id="send-button">Send</button>
+          </div>
+        </div>
+        <script src="${scriptUri}"></script>
+      </body>
+      </html>
+    `
   }
 }
