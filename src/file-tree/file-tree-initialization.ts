@@ -16,7 +16,7 @@ export function initialize_file_tree(
     const workspace_root = workspace_folders[0].uri.fsPath
     file_tree_provider = new FileTreeProvider(workspace_root)
 
-    gemini_coder_view = vscode.window.createTreeView('geminiCoderView', {
+    gemini_coder_view = vscode.window.createTreeView('geminiCoderViewContext', {
       treeDataProvider: file_tree_provider,
       manageCheckboxStateManually: true
     })
