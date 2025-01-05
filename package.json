@@ -187,7 +187,7 @@
         "geminiCoder.attachOpenFiles": {
           "type": "boolean",
           "default": true,
-          "description": "Attach all open files to the request."
+          "description": "Attach open files to the context."
         },
         "geminiCoder.globalInstruction": {
           "type": "string",
@@ -196,8 +196,17 @@
         },
         "geminiCoder.ignoredExtensions": {
           "type": "string",
-          "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'",
+          "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
           "default": "png,jpg,jpeg,gif,svg"
+        },
+        "geminiCoder.externalChat": {
+          "type": "string",
+          "description": "External chat to use (requires browser extension).",
+          "enum": [
+            "AI Studio",
+            "DeepSeek"
+          ],
+          "default": "AI Studio"
         }
       }
     }

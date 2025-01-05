@@ -4,85 +4,100 @@ import * as path from 'path'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   constructor(
-    private readonly _extensionUri: vscode.Uri,
-    private readonly fileTreeProvider: any
+    private readonly _extension_uri: vscode.Uri,
+    private readonly file_tree_provider: any
   ) {}
 
   resolveWebviewView(
-    webviewView: vscode.WebviewView,
+    webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
-    webviewView.webview.options = {
+    webview_view.webview.options = {
       enableScripts: true,
-      localResourceRoots: [this._extensionUri]
+      localResourceRoots: [this._extension_uri]
     }
 
-    webviewView.webview.html = this._getHtmlForWebview(webviewView.webview)
+    webview_view.webview.html = this._get_html_for_webview(webview_view.webview)
 
     // Handle messages from the webview
-    webviewView.webview.onDidReceiveMessage(async (message) => {
+    webview_view.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
         case 'copyToClipboard':
           const { instruction } = message
 
           // Get context from selected files
-          let contextText = ''
-          const addedFiles = new Set<string>()
+          let context_text = ''
+          const added_files = new Set<string>()
 
           // Add selected files from the file tree
-          if (this.fileTreeProvider) {
-            const selectedFilesPaths = this.fileTreeProvider.getCheckedFiles()
-            for (const filePath of selectedFilesPaths) {
+          if (this.file_tree_provider) {
+            const selected_files_paths =
+              this.file_tree_provider.getCheckedFiles()
+            for (const file_path of selected_files_paths) {
               try {
-                const fileContent = fs.readFileSync(filePath, 'utf8')
-                const relativePath = path.relative(
+                const file_content = fs.readFileSync(file_path, 'utf8')
+                const relative_path = path.relative(
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  filePath
+                  file_path
                 )
-                contextText += `\n<file path="${relativePath}">\n${fileContent}\n</file>`
-                addedFiles.add(filePath)
+                context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+                added_files.add(file_path)
               } catch (error) {
-                console.error(`Error reading file ${filePath}:`, error)
+                console.error(`Error reading file ${file_path}:`, error)
               }
             }
           }
 
           // Add currently open files
-          const openTabs = vscode.window.tabGroups.all
+          const open_tabs = vscode.window.tabGroups.all
             .flatMap((group) => group.tabs)
             .map((tab) =>
               tab.input instanceof vscode.TabInputText ? tab.input.uri : null
             )
             .filter((uri): uri is vscode.Uri => uri !== null)
 
-          for (const openFileUri of openTabs) {
-            const filePath = openFileUri.fsPath
-            if (!addedFiles.has(filePath)) {
+          for (const open_file_uri of open_tabs) {
+            const file_path = open_file_uri.fsPath
+            if (!added_files.has(file_path)) {
               try {
-                const fileContent = fs.readFileSync(filePath, 'utf8')
-                const relativePath = path.relative(
+                const file_content = fs.readFileSync(file_path, 'utf8')
+                const relative_path = path.relative(
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  filePath
+                  file_path
                 )
-                contextText += `\n<file path="${relativePath}">\n${fileContent}\n</file>`
-                addedFiles.add(filePath)
+                context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+                added_files.add(file_path)
               } catch (error) {
-                console.error(`Error reading open file ${filePath}:`, error)
+                console.error(`Error reading open file ${file_path}:`, error)
               }
             }
           }
 
-          const finalText = `<instruction>${instruction}</instruction>\n<files>${contextText}\n</files>`
+          const final_text = `gemini-vscode:<instruction>${instruction}</instruction>\n<files>${context_text}\n</files>`
 
-          // Copy to clipboard
-          await vscode.env.clipboard.writeText(finalText)
+          await vscode.env.clipboard.writeText(final_text)
 
-          // Notify the user
-          vscode.window.showInformationMessage(
-            'Instruction with context copied to clipboard!'
-          )
+          // Open the corresponding URL based on the default chat UI provider
+          const chat_ui_provider = vscode.workspace
+            .getConfiguration()
+            .get<string>('geminiCoder.externalChat')
+
+          let url = ''
+          switch (chat_ui_provider) {
+            case 'AI Studio':
+              url = 'https://aistudio.google.com/app/prompts/new_chat'
+              break
+            case 'DeepSeek':
+              url = 'https://chat.deepseek.com'
+              break
+            default:
+              url = 'https://aistudio.google.com/app/prompts/new_chat' // Fallback to AI Studio
+          }
+
+          vscode.env.openExternal(vscode.Uri.parse(url))
           break
+
         case 'showError':
           vscode.window.showErrorMessage(message.message)
           break
@@ -90,12 +105,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     })
   }
 
-  private _getHtmlForWebview(webview: vscode.Webview) {
-    const scriptUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'out', 'chat.js')
+  private _get_html_for_webview(webview: vscode.Webview) {
+    const script_uri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extension_uri, 'out', 'chat.js')
     )
-    const styleUri = webview.asWebviewUri(
-      vscode.Uri.joinPath(this._extensionUri, 'media', 'chat.css')
+    const style_uri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extension_uri, 'media', 'chat.css')
     )
 
     return `
@@ -105,14 +120,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Chat</title>
-        <link href="${styleUri}" rel="stylesheet">
+        <link href="${style_uri}" rel="stylesheet">
       </head>
       <body>
           <div class="input-area">
             <input type="text" id="instruction-input" placeholder="Enter instruction...">
             <button id="send-button">Proceed</button>
           </div>
-        <script src="${scriptUri}"></script>
+        <script src="${script_uri}"></script>
       </body>
       </html>
     `
