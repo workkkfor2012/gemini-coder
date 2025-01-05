@@ -18,7 +18,10 @@ export function activate(context: vscode.ExtensionContext) {
   update_status_bar(status_bar_item)
 
   // Chat View
-  const chat_view_provider = new ChatViewProvider(context.extensionUri)
+  const chat_view_provider = new ChatViewProvider(
+    context.extensionUri,
+    file_tree_provider
+  )
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'geminiCoderViewChat',
