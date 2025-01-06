@@ -8,7 +8,7 @@ Gemini Coder lets you use Gemini 2.0 for code completion (FIM) and file refactor
 
 The extension also bridges VS Code and AI Studio, giving you a unique way to comfortably chat about your code right from your favorite web browser.
 
-Install a simple **Gemini Coder Connector browser extension** now:
+Get browser integraion now:
 
 - [Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
