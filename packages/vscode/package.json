@@ -212,7 +212,7 @@
     }
   },
   "scripts": {
-    "build": "vsce package",
+    "build": "vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
     "compile": "webpack --config ./webpack.config.js"
   },
