@@ -2,11 +2,11 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: FIM Autocomplete with 2M context!",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.54",
+  "version": "1.0.55",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
-    "url": "https://github.com/robertpiosik/gemini-coder"
+    "url": "https://github.com/robertpiosik/gemini-coder/tree/master/packages/vscode"
   },
   "engines": {
     "vscode": "^1.92.0"
@@ -19,13 +19,14 @@
     "Gemini",
     "Gemini Flash",
     "Gemini Pro",
-    "DeepSeek",
     "ai",
     "Autocomplete",
+    "Code completion",
     "Fill-in-the-middle",
     "FIM",
     "Refactoring",
-    "Coding assistant"
+    "Coding assistant",
+    "Chat"
   ],
   "activationEvents": [
     "onView.geminiCoderViewContext"
