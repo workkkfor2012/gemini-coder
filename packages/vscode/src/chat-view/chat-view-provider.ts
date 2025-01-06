@@ -74,7 +74,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
           }
 
-          const final_text = `gemini-coder:<instruction>${instruction}</instruction>\n<files>${context_text}\n</files>`
+          const final_text = `gemini-coder:<instruction>\n${instruction}\n</instruction>\n<files>${context_text}\n</files>`
 
           await vscode.env.clipboard.writeText(final_text)
 
@@ -92,7 +92,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               url = 'https://chat.deepseek.com'
               break
             default:
-              url = 'https://aistudio.google.com/app/prompts/new_chat' // Fallback to AI Studio
+              url = 'https://aistudio.google.com/app/prompts/new_chat'
           }
 
           vscode.env.openExternal(vscode.Uri.parse(url))

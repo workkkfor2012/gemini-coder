@@ -8,7 +8,7 @@ Gemini Coder lets you use Gemini (in fact, all OpenAI API compatible providers, 
 
 The extension also allows you to copy the context, autocompletion and file refactoring prompts to the clipboard, so you can comfortably switch between the editor and your favourite AI tool, like Gemini or AI Studio.
 
-[![ScreenShot](resources/preview.png)]()
+[![ScreenShot](preview.png)]()
 
 ## Features
 
