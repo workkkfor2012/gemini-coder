@@ -2,23 +2,29 @@
 
 ## Description
 
-Gemini Coder lets you use Gemini (in fact, all OpenAI API compatible providers, DeepSeek, Claude, ChatGPT, etc.) for autocompletion (Fill-in-the-middle) and whole file refactoring.
+Gemini Coder lets you use Gemini 2.0 for code completion (FIM) and file refactoring.
 
 **You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each completion/refactoring request.
 
-The extension also allows you to copy the context, autocompletion and file refactoring prompts to the clipboard, so you can comfortably switch between the editor and your favourite AI tool, like Gemini or AI Studio.
+The extension also bridges VS Code and AI Studio, giving you a unique way to comfortably chat about your code right from your favorite web browser.
+
+Install a simple **Gemini Coder Connector browser extension** now:
+
+- [Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
+- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
 
 [![ScreenShot](preview.png)]()
 
 ## Features
 
-- Provider agnostic, use any OpenAI API compatible provider.
+- Lightweight, 100% free, MIT licensed.
 - Manually set context for all requests.
 - Autocomplete at the cursor position.
+- Chat about your code directly in AI Studio.
 - Refactor the current file.
-- Copy context, autocompletion or file refactoring generated prompts to clipboard.
-- Lightweight, 100% free, MIT licensed.
-- Set up primary and secondary models for lightweight and specialized tasks.
+- Copy context, autocompletion, or file refactoring generated prompts to clipboard.
+- Set up primary and secondary models for lightweight or specialized tasks.
+- Provider agnostic, use any OpenAI API compatible provider or choose from many web chats (AI Studio, DeepSeek, and more).
 
 ## How to Use
 
@@ -34,6 +40,7 @@ The extension also allows you to copy the context, autocompletion and file refac
     - `Gemini Coder: Copy File Refactoring Prompt to Clipboard`
 6.  Change default models with command `Gemini Coder: Change Default Models`.
 7.  Bind the commands to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for the Primary Model and `Alt+P` for the Secondary Model.
+8.  Use the Chat panel to send custom instructions to the external chat (AI Studio, DeepSeek).
 
 ## Commands
 

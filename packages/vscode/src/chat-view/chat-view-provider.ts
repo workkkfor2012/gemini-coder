@@ -86,13 +86,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           let url = ''
           switch (chat_ui_provider) {
             case 'AI Studio':
-              url = 'https://aistudio.google.com/app/prompts/new_chat'
+              url = 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
               break
             case 'DeepSeek':
-              url = 'https://chat.deepseek.com'
+              url = 'https://chat.deepseek.com/#gemini-coder'
               break
             default:
-              url = 'https://aistudio.google.com/app/prompts/new_chat'
+              url = 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
           }
 
           vscode.env.openExternal(vscode.Uri.parse(url))
@@ -125,7 +125,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       <body>
           <div class="input-area">
             <input type="text" id="instruction-input" placeholder="Enter instruction...">
-            <button id="send-button">Proceed</button>
+            <button id="send-button">Continue</button>
           </div>
         <script src="${script_uri}"></script>
       </body>
