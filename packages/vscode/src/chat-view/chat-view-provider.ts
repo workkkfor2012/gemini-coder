@@ -41,7 +41,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
                   file_path
                 )
-                context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+                context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
                 added_files.add(file_path)
               } catch (error) {
                 console.error(`Error reading file ${file_path}:`, error)

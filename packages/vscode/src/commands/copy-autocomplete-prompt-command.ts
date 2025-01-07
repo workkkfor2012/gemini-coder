@@ -65,7 +65,7 @@ export function copy_autocomplete_prompt_command(file_tree_provider: any) {
           vscode.workspace.workspaceFolders![0].uri.fsPath,
           path_to_be_attached
         )
-        context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+        context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
       }
 
       const payload = {

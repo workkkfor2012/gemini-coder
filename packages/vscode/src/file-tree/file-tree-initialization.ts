@@ -59,7 +59,7 @@ export function file_tree_initialization(
               vscode.workspace.workspaceFolders![0].uri.fsPath,
               filePath
             )
-            xml_content += `<file path="${file_name}">\n${content}\n</file>\n`
+            xml_content += `<file path="${file_name}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
             added_files.add(filePath)
           }
         }

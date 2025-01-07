@@ -140,7 +140,7 @@ export function refactor_file_command(
           vscode.workspace.workspaceFolders![0].uri.fsPath,
           path_to_be_attached
         )
-        context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+        context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
       }
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
