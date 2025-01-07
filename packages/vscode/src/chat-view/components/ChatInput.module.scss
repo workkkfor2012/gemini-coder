@@ -1,10 +1,13 @@
-.chat {
+// @type
+
+.chat-input {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  padding: 10px;
 }
 
-.chat > input {
+.chat-input > input {
   flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
@@ -12,7 +15,7 @@
   min-width: 0;
 }
 
-#continue {
+.chat-input > button {
   padding: 8px 16px;
   background-color: #007acc;
   color: white;
@@ -21,6 +24,6 @@
   cursor: pointer;
 }
 
-#continue:hover {
+.chat-input > button:hover {
   background-color: #0062a3;
 }

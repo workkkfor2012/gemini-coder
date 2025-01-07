@@ -3,10 +3,10 @@ const path = require('path')
 /**@type {import('webpack').Configuration}*/
 const config = {
   mode: 'production',
-  target: 'node', // Main extension target
+  target: 'node',
   entry: {
-    extension: './src/extension.ts', // Main extension entry point
-    chat: './src/chat-view/chat.ts' // Webview script entry point
+    extension: './src/extension.ts',
+    chat: './src/chat-view/chat.tsx'
   },
   output: {
     path: path.resolve(__dirname, 'out'),
@@ -19,16 +19,35 @@ const config = {
     vscode: 'commonjs vscode'
   },
   resolve: {
-    extensions: ['.ts', '.js']
+    extensions: ['.ts', '.tsx', '.js']
   },
   module: {
     rules: [
       {
-        test: /\.ts$/,
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
+      },
+      {
+        test: /\.s[ac]ss$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          'sass-loader'
+        ]
+      },
+      {
+        test: /\.(ts|tsx)$/,
         exclude: /node_modules/,
         use: [
           {
-            loader: 'ts-loader'
+            loader: 'babel-loader',
+            options: {
+              presets: [
+                '@babel/preset-env',
+                '@babel/preset-react',
+                '@babel/preset-typescript'
+              ]
+            }
           }
         ]
       }

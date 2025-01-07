@@ -131,10 +131,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         <link href="${style_uri}" rel="stylesheet">
       </head>
       <body>
-          <div class="chat">
-            <input type="text" placeholder="Enter instruction...">
-            <button id="continue">Continue</button>
-          </div>
+          <div id="root"></div>
         <script src="${script_uri}"></script>
       </body>
       </html>
