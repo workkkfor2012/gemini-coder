@@ -1,12 +1,13 @@
 ;(function () {
   const vscode = acquireVsCodeApi()
 
-  const instructionInput = document.getElementById(
-    'instruction-input'
+  const instructionInput = document.querySelector(
+    '.chat > input'
   ) as HTMLInputElement
-  const sendButton = document.getElementById('send-button') as HTMLButtonElement
+  const sendButton = document.getElementById('continue') as HTMLButtonElement
 
-  sendButton.addEventListener('click', () => {
+  // Function to handle sending the message
+  const sendMessage = () => {
     const instruction = instructionInput.value.trim()
 
     if (!instruction) {
@@ -19,8 +20,19 @@
 
     // Send the instruction to the extension
     vscode.postMessage({
-      command: 'copyToClipboard',
+      command: 'processChatInstruction',
       instruction
     })
+  }
+
+  // Event listener for the send button click
+  sendButton.addEventListener('click', sendMessage)
+
+  // Event listener for the 'Enter' key press
+  instructionInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      sendMessage()
+      event.preventDefault() // Prevent the default action
+    }
   })
 })()

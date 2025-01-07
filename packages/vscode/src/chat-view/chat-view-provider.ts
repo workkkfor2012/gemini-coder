@@ -23,7 +23,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
-        case 'copyToClipboard':
+        case 'processChatInstruction':
           const { instruction } = message
 
           // Get context from selected files
@@ -131,9 +131,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         <link href="${style_uri}" rel="stylesheet">
       </head>
       <body>
-          <div class="input-area">
-            <input type="text" id="instruction-input" placeholder="Enter instruction...">
-            <button id="send-button">Continue</button>
+          <div class="chat">
+            <input type="text" placeholder="Enter instruction...">
+            <button id="continue">Continue</button>
           </div>
         <script src="${script_uri}"></script>
       </body>
