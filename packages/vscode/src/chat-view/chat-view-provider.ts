@@ -80,7 +80,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             .get<string>('geminiCoder.chatPromptIntro', '')
 
           // Construct the final text
-          const final_text = `gemini-coder:${chat_prompt_intro}\n<instruction>\n${instruction}\n</instruction>\n<files>${context_text}</files>`
+          const final_text = `gemini-coder:${chat_prompt_intro}\n<instruction>\n${instruction}\n</instruction>\n<files>${context_text}\n</files>`
 
           await vscode.env.clipboard.writeText(final_text)
 
