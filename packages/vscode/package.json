@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: FIM Autocomplete with 2M context!",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.56",
+  "version": "1.0.58",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -190,10 +190,15 @@
           "default": true,
           "description": "Attach open files to the context."
         },
-        "geminiCoder.globalInstruction": {
+        "geminiCoder.autocompleteInstruction": {
           "type": "string",
           "description": "",
           "default": "The following files are part of a Git repository with code. Somewhere in the repository you will encounter <fill missing code> symbol. Send the missing code and nothing more."
+        },
+        "geminiCoder.chatPromptIntro": {
+          "type": "string",
+          "description": "Introduction for chat prompt.",
+          "default": "You are a helpful coding assistant. Never use diff format."
         },
         "geminiCoder.ignoredExtensions": {
           "type": "string",
