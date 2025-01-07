@@ -88,7 +88,6 @@ export function refactor_file_command(
       }
 
       const provider = all_providers.find((p) => p.name === provider_name)!
-      const bearer_tokens = provider.bearerToken
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
@@ -97,17 +96,12 @@ export function refactor_file_command(
         'geminiCoder.attachOpenFiles'
       )
 
-      if (!bearer_tokens) {
+      if (!provider.bearerToken) {
         vscode.window.showErrorMessage(
           'Bearer token is missing. Please add it in the settings.'
         )
         return
       }
-
-      const tokens_array =
-        bearer_tokens?.split(',').map((token: string) => token.trim()) || []
-      provider.bearerToken =
-        tokens_array[Math.floor(Math.random() * tokens_array.length)]
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {

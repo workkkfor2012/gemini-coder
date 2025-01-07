@@ -55,7 +55,6 @@ export function completion_request_command(
     }
 
     const provider = all_providers.find((p) => p.name === provider_name)!
-    const bearer_tokens = provider.bearerToken
     const model = provider.model
     const temperature = provider.temperature
     const system_instructions = provider.systemInstructions
@@ -63,17 +62,12 @@ export function completion_request_command(
     const verbose = config.get<boolean>('geminiCoder.verbose')
     const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
 
-    if (!bearer_tokens) {
+    if (!provider.bearerToken) {
       vscode.window.showErrorMessage(
         'Bearer token is missing. Please add it in the settings.'
       )
       return
     }
-
-    const tokens_array =
-      bearer_tokens?.split(',').map((token: string) => token.trim()) || []
-    provider.bearerToken =
-      tokens_array[Math.floor(Math.random() * tokens_array.length)]
 
     const editor = vscode.window.activeTextEditor
     if (editor) {
@@ -131,7 +125,7 @@ export function completion_request_command(
               vscode.workspace.workspaceFolders![0].uri.fsPath,
               path_to_be_attached
             )
-            context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+            context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
           }
 
           const payload = {
