@@ -1,5 +1,3 @@
-const CLIPBOARD_VALUE_PREFIX = 'gemini-coder:'
-
 const is_ai_studio =
   window.location.href ==
   'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
@@ -96,11 +94,9 @@ const handle_firefox = async () => {
   const handle_paste_on_click = async () => {
     try {
       const text = await navigator.clipboard.readText()
-      if (text.startsWith(CLIPBOARD_VALUE_PREFIX)) {
-        await navigator.clipboard.writeText('')
-        const prompt = text.substring(CLIPBOARD_VALUE_PREFIX.length)
+      if (text.startsWith('<instruction>')) {
         const input_element = get_input_element()
-        fill_input_and_send(input_element, prompt)
+        fill_input_and_send(input_element, text)
       }
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err)
@@ -149,9 +145,7 @@ const handle_chrome = async () => {
   }
 
   const text = await navigator.clipboard.readText()
-  if (text.startsWith(CLIPBOARD_VALUE_PREFIX)) {
-    await navigator.clipboard.writeText('')
-    const prompt = text.substring(CLIPBOARD_VALUE_PREFIX.length)
+  if (text.startsWith('<instruction>')) {
     // Quirks mitigaion
     if (is_ai_studio) {
       await new Promise(async (resolve) => {
@@ -173,7 +167,7 @@ const handle_chrome = async () => {
       }
     }
 
-    fill_input_and_send(get_input_element(), prompt)
+    fill_input_and_send(get_input_element(), text)
   }
 }
 

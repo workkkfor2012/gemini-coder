@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder: FIM Autocomplete with 2M context!",
+  "displayName": "Gemini Coder: FIM completions with 2M context!",
   "description": "Take advantage of 2 million token context window and use Gemini as your Fill-in-the-middle, refactoring coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.65",
+  "version": "1.0.66",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -195,7 +195,7 @@
           "description": "",
           "default": "The following files are part of a Git repository. Somewhere in the repository you will encounter <fill missing code> symbol. Send the missing code and nothing more."
         },
-        "geminiCoder.chatInstrucionPreamble": {
+        "geminiCoder.chatInstructionPreamble": {
           "type": "string",
           "description": "Preamble for a chat instruction.",
           "default": "The following files are part of a Git repository."
@@ -205,9 +205,9 @@
           "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
           "default": "png,jpg,jpeg,gif,svg"
         },
-        "geminiCoder.externalChat": {
+        "geminiCoder.webChat": {
           "type": "string",
-          "description": "External chat to use (requires browser extension).",
+          "description": "Web chat to use.",
           "enum": [
             "AI Studio",
             "DeepSeek"

@@ -77,17 +77,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           // Get the chat prompt intro from the configuration
           const chat_instruction_preamble = vscode.workspace
             .getConfiguration()
-            .get<string>('geminiCoder.chatInstrucionPreamble', '')
+            .get<string>('geminiCoder.chatInstructionPreamble', '')
 
           // Construct the final text
-          const final_text = `gemini-coder:<instruction>\n${chat_instruction_preamble} ${instruction}\n</instruction>\n<files>${context_text}\n</files>`
+          const final_text = `<instruction>\n${chat_instruction_preamble} ${instruction}\n</instruction>\n<files>${context_text}\n</files>`
 
           await vscode.env.clipboard.writeText(final_text)
 
           // Open the corresponding URL based on the default chat UI provider
           const chat_ui_provider = vscode.workspace
             .getConfiguration()
-            .get<string>('geminiCoder.externalChat')
+            .get<string>('geminiCoder.webChat')
 
           let url = ''
           switch (chat_ui_provider) {
