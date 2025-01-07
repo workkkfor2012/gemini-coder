@@ -207,7 +207,7 @@
         },
         "geminiCoder.webChat": {
           "type": "string",
-          "description": "Web chat to use.",
+          "description": "Web chat to use. VS Code will open the selected website in a default browser so you can paste generated prompt from clipboard. Consider installing our browser extension \"Gemini Coder Connector\" to do it on your behalf.",
           "enum": [
             "AI Studio",
             "DeepSeek"
