@@ -15,35 +15,39 @@ export function open_web_chat_with_instruction_command(
         'geminiCoder.attachOpenFiles'
       )
 
-      // Retrieve the last used instruction from global state
-      let last_instruction =
+      let last_chat_instruction =
         context.globalState.get<string>('lastChatInstruction') || ''
 
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your instruction',
         placeHolder: 'e.g., "Our task is to..."',
-        value: last_instruction
+        value: last_chat_instruction
       })
 
       if (!instruction) {
         return
       }
 
-      // Store the new instruction in global state
       await context.globalState.update('lastChatInstruction', instruction)
 
-      const editor = vscode.window.activeTextEditor
-      const document = editor?.document
-      const document_path = document?.uri.fsPath
-
-      let file_paths_to_be_attached: Set<string> = new Set()
+      // Get context from selected files
+      let context_text = ''
+      const added_files = new Set<string>()
 
       // Add selected files from the file tree
       if (file_tree_provider) {
         const selected_files_paths = file_tree_provider.getCheckedFiles()
         for (const file_path of selected_files_paths) {
-          if (file_path !== document_path) {
-            file_paths_to_be_attached.add(file_path)
+          try {
+            const file_content = fs.readFileSync(file_path, 'utf8')
+            const relative_path = path.relative(
+              vscode.workspace.workspaceFolders![0].uri.fsPath,
+              file_path
+            )
+            context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+            added_files.add(file_path)
+          } catch (error) {
+            console.error(`Error reading file ${file_path}:`, error)
           }
         }
       }
@@ -58,23 +62,20 @@ export function open_web_chat_with_instruction_command(
           .filter((uri): uri is vscode.Uri => uri !== null)
 
         for (const open_file_uri of open_tabs) {
-          if (open_file_uri.fsPath !== document_path) {
-            file_paths_to_be_attached.add(open_file_uri.fsPath)
+          const file_path = open_file_uri.fsPath
+          if (!added_files.has(file_path)) {
+            try {
+              const file_content = fs.readFileSync(file_path, 'utf8')
+              const relative_path = path.relative(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                file_path
+              )
+              context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+              added_files.add(file_path)
+            } catch (error) {
+              console.error(`Error reading open file ${file_path}:`, error)
+            }
           }
-        }
-      }
-
-      let context_text = ''
-      for (const path_to_be_attached of file_paths_to_be_attached) {
-        try {
-          const file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-          const relative_path = path.relative(
-            vscode.workspace.workspaceFolders![0].uri.fsPath,
-            path_to_be_attached
-          )
-          context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
-        } catch (error) {
-          console.error(`Error reading file ${path_to_be_attached}:`, error)
         }
       }
 
