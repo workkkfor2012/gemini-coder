@@ -104,6 +104,10 @@
       {
         "command": "geminiCoder.openWebChatWithAutocompletionPrompt",
         "title": "Gemini Coder: Open Web Chat with Autocompletion Prompt"
+      },
+      {
+        "command": "geminiCoder.openWebChatWithRefactorPrompt",
+        "title": "Gemini Coder: Open Web Chat with File Refactoring Prompt"
       }
     ],
     "menus": {

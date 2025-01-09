@@ -170,8 +170,6 @@ export function refactor_file_command(
         temperature
       }
 
-      const estimated_token_count = Math.floor(content.length / 4)
-
       if (verbose) {
         console.log('[Gemini Coder] Refactor Prompt:', content)
       }
