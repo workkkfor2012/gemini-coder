@@ -4,6 +4,7 @@ import * as path from 'path'
 import { get_chat_url } from '../helpers/get-chat-url'
 
 export function open_web_chat_with_instruction_command(
+  context: vscode.ExtensionContext, // Add context parameter
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
@@ -14,14 +15,22 @@ export function open_web_chat_with_instruction_command(
         'geminiCoder.attachOpenFiles'
       )
 
+      // Retrieve the last used instruction from global state
+      let last_instruction =
+        context.globalState.get<string>('lastChatInstruction') || ''
+
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your instruction',
-        placeHolder: 'e.g., "Our task is to..."'
+        placeHolder: 'e.g., "Our task is to..."',
+        value: last_instruction
       })
 
       if (!instruction) {
         return
       }
+
+      // Store the new instruction in global state
+      await context.globalState.update('lastChatInstruction', instruction)
 
       const editor = vscode.window.activeTextEditor
       const document = editor?.document

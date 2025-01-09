@@ -9,7 +9,7 @@ const manifest = JSON.parse(fs.readFileSync(manifest_path, 'utf8'))
 const firefox_manifest = { ...manifest }
 delete firefox_manifest.manifest_version
 firefox_manifest.manifest_version = 2
-firefox_manifest.permissions = ["clipboardRead", "clipboardWrite"]
+firefox_manifest.permissions = ["clipboardRead"]
 
 // Create dist-firefox directory if it doesn't exist
 const firefox_dist_dir = path.join(__dirname, 'dist-firefox')
