@@ -112,6 +112,10 @@
       {
         "command": "geminiCoder.openWebChatWithInstruction",
         "title": "Gemini Coder: Open Web Chat with instruction..."
+      },
+      {
+        "command": "geminiCoder.changeWebChat",
+        "title": "Gemini Coder: Change Web Chat"
       }
     ],
     "menus": {
@@ -224,10 +228,31 @@
             "AI Studio",
             "DeepSeek"
           ],
-          "default": "AI Studio"
+          "default": "AI Studio",
+          "configuration": {
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "default": [
+                "AI Studio",
+                "DeepSeek"
+              ]
+            }
+          }
         }
       }
-    }
+    },
+    "statusBar": [
+      {
+        "id": "geminiCoder.webChatStatusBar",
+        "alignment": "right",
+        "text": "$(comment-discussion) AI Studio",
+        "command": "geminiCoder.changeWebChat",
+        "priority": 99
+      }
+    ]
   },
   "scripts": {
     "build": "vsce package --no-dependencies",

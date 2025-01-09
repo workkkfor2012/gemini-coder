@@ -77,5 +77,6 @@ async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
   status_bar_item.text = `${primary_provider_name || 'Select Primary Model'} (${
     secondary_provider_name || 'Select Secondary Model'
   })`
+  status_bar_item.tooltip = `Change default model`
   status_bar_item.show()
 }
