@@ -1,20 +1,29 @@
-import React, { useState, useCallback } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
 
-interface ChatInputProps {
-  onSendMessage: (message: string) => void
+type Props = {
+  on_send_message: (message: string) => void
+  initial_instruction: string
 }
 
-const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
-  const [instruction, setInstruction] = useState('')
+const ChatInput: React.FC<Props> = (props) => {
+  const [instruction, setInstruction] = useState(props.initial_instruction)
+  const input_ref = useRef<HTMLInputElement>(null)
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (input_ref.current) {
+      input_ref.current.focus()
+      input_ref.current.select()
+    }
+  }, [])
+
+  const handle_input_change = (e: React.ChangeEvent<HTMLInputElement>) => {
     setInstruction(e.target.value)
   }
 
-  const handleSendMessage = () => {
+  const handle_send_message = () => {
     if (instruction.trim()) {
-      onSendMessage(instruction)
+      props.on_send_message(instruction)
     } else {
       window.postMessage({
         command: 'showError',
@@ -23,26 +32,31 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage }) => {
     }
   }
 
-  const handleKeyDown = useCallback(
-    (e: React.KeyboardEvent<HTMLInputElement>) => {
-      if (e.key === 'Enter') {
-        handleSendMessage()
-        e.preventDefault()
-      }
-    },
-    [handleSendMessage]
-  )
+  const handle_key_down = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key == 'Enter') {
+      handle_send_message()
+      e.preventDefault()
+    }
+  }
+
+  const handle_focus = () => {
+    if (input_ref.current) {
+      input_ref.current.select()
+    }
+  }
 
   return (
     <div className={styles['chat-input']}>
       <input
+        ref={input_ref}
         type="text"
         placeholder="Enter instruction..."
         value={instruction}
-        onChange={handleInputChange}
-        onKeyDown={handleKeyDown}
+        onChange={handle_input_change}
+        onKeyDown={handle_key_down}
+        onFocus={handle_focus}
       />
-      <button onClick={handleSendMessage}>Continue</button>
+      <button onClick={handle_send_message}>Continue</button>
     </div>
   )
 }

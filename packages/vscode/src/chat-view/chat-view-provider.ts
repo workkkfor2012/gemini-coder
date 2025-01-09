@@ -4,12 +4,15 @@ import * as path from 'path'
 import { get_chat_url } from '../helpers/get-chat-url'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
+  public static readonly viewType = 'geminiCoderViewChat'
+
   constructor(
     private readonly _extension_uri: vscode.Uri,
-    private readonly file_tree_provider: any
+    private readonly file_tree_provider: any,
+    private readonly _context: vscode.ExtensionContext
   ) {}
 
-  resolveWebviewView(
+  public resolveWebviewView(
     webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
@@ -24,6 +27,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
       switch (message.command) {
+        case 'getLastChatInstruction':
+          const last_instruction =
+            this._context.globalState.get<string>('lastChatInstruction') || ''
+          webview_view.webview.postMessage({
+            command: 'initialInstruction',
+            instruction: last_instruction
+          })
+          break
+
         case 'processChatInstruction':
           const { instruction } = message
 

@@ -35,7 +35,8 @@ export function activate(context: vscode.ExtensionContext) {
   // Chat View
   const chat_view_provider = new ChatViewProvider(
     context.extensionUri,
-    file_tree_provider
+    file_tree_provider,
+    context
   )
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(

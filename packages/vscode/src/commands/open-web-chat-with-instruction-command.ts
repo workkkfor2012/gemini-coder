@@ -4,7 +4,7 @@ import * as path from 'path'
 import { get_chat_url } from '../helpers/get-chat-url'
 
 export function open_web_chat_with_instruction_command(
-  context: vscode.ExtensionContext, // Add context parameter
+  context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
