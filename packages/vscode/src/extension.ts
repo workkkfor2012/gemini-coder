@@ -8,6 +8,7 @@ import { change_default_provider_command } from './commands/change-default-provi
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import { open_web_chat_with_autocompletion_prompt_command } from './commands/open-web-chat-with-autocompletion-prompt-command'
 import { open_web_chat_with_refactor_prompt_command } from './commands/open-web-chat-with-refactor-prompt-command'
+import { open_web_chat_with_instruction_command } from './commands/open-web-chat-with-instruction-command'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -49,7 +50,8 @@ export function activate(context: vscode.ExtensionContext) {
     copy_refactor_prompt_command(file_tree_provider),
     change_default_provider_command(status_bar_item),
     open_web_chat_with_autocompletion_prompt_command(file_tree_provider),
-    open_web_chat_with_refactor_prompt_command(file_tree_provider)
+    open_web_chat_with_refactor_prompt_command(file_tree_provider),
+    open_web_chat_with_instruction_command(file_tree_provider)
   )
 }
 
