@@ -13,7 +13,7 @@ Get browser integraion now:
 - [Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
 
-[![ScreenShot](preview.png)]()
+[![ScreenShot](resources/preview.png)]()
 
 ## Features
 
