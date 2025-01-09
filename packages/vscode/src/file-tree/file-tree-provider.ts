@@ -399,9 +399,9 @@ export class FileTreeProvider
   }
 
   private is_excluded(relative_path: string): boolean {
-    // Exclude dot-prefixed folders
-    if (relative_path.split(path.sep).some(part => part.startsWith('.'))) {
-      return true;
+    // .git is never gitignored, should be excluded manually
+    if (relative_path.split(path.sep).some((part) => part == '.git')) {
+      return true
     }
 
     return (
