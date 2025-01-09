@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { get_chat_url } from '../helpers/get-chat-url'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   constructor(
@@ -89,19 +90,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             .getConfiguration()
             .get<string>('geminiCoder.webChat')
 
-          let url = ''
-          switch (chat_ui_provider) {
-            case 'AI Studio':
-              url =
-                'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
-              break
-            case 'DeepSeek':
-              url = 'https://chat.deepseek.com/#gemini-coder'
-              break
-            default:
-              url =
-                'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
-          }
+          const url = get_chat_url(chat_ui_provider)
 
           vscode.env.openExternal(vscode.Uri.parse(url))
           break

@@ -51,6 +51,7 @@ Get browser integraion now:
 - `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models.
 - `Gemini Coder: Refactor this file`: Refactors the current file based on the provided instruction.
 - `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
+- `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
 
 ## Set up custom providers
 

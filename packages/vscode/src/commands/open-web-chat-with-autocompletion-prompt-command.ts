@@ -1,10 +1,13 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { get_chat_url } from '../helpers/get-chat-url'
 
-export function copy_autocomplete_prompt_command(file_tree_provider: any) {
+export function open_web_chat_with_autocompletion_prompt_command(
+  file_tree_provider: any
+) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyAutocompletePrompt',
+    'geminiCoder.openWebChatWithAutocompletionPrompt',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const autocomplete_instruction = config.get<string>(
@@ -78,9 +81,14 @@ export function copy_autocomplete_prompt_command(file_tree_provider: any) {
       const content = `${payload.before}<fill missing code>${payload.after}`
 
       await vscode.env.clipboard.writeText(content)
-      vscode.window.showInformationMessage(
-        'Autocomplete prompt copied to clipboard!'
-      )
+
+      const chat_ui_provider = vscode.workspace
+        .getConfiguration()
+        .get<string>('geminiCoder.webChat')
+
+      const url = get_chat_url(chat_ui_provider)
+
+      vscode.env.openExternal(vscode.Uri.parse(url))
     }
   )
 }
