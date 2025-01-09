@@ -124,6 +124,7 @@ export class FileTreeProvider
       for (const entry of dir_entries) {
         const full_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(this.workspace_root, full_path)
+
         const uri = vscode.Uri.file(full_path)
         let is_directory = entry.isDirectory()
         let is_symbolic_link = entry.isSymbolicLink()
@@ -398,6 +399,11 @@ export class FileTreeProvider
   }
 
   private is_excluded(relative_path: string): boolean {
+    // Exclude dot-prefixed folders
+    if (relative_path.split(path.sep).some(part => part.startsWith('.'))) {
+      return true;
+    }
+
     return (
       this.combined_gitignore.ignores(relative_path) ||
       this.ignored_extensions.has(
