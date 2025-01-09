@@ -4,6 +4,7 @@ import * as path from 'path'
 import { get_chat_url } from '../helpers/get-chat-url'
 
 export function open_web_chat_with_refactor_prompt_command(
+  context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
@@ -24,14 +25,20 @@ export function open_web_chat_with_refactor_prompt_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
+      let last_refactor_instruction =
+        context.globalState.get<string>('lastRefactorInstruction') || ''
+
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
-        placeHolder: 'e.g., "Refactor this code to use async/await"'
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: last_refactor_instruction
       })
 
       if (!instruction) {
         return
       }
+
+      await context.globalState.update('lastRefactorInstruction', instruction)
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {
