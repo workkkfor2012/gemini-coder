@@ -58,17 +58,45 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   return (
-    <div className={styles['chat-input']}>
-      <textarea
-        ref={textarea_ref}
-        placeholder="Enter instruction..."
-        value={instruction}
-        onChange={handle_input_change}
-        onKeyDown={handle_key_down}
-        onFocus={handle_focus}
-        autoFocus
-      />
-      <button onClick={handle_send_message}>{get_button_label()}</button>
+    <div className={styles.container}>
+      <div className={styles['chat-input']}>
+        <textarea
+          ref={textarea_ref}
+          placeholder="Enter instruction..."
+          value={instruction}
+          onChange={handle_input_change}
+          onKeyDown={handle_key_down}
+          onFocus={handle_focus}
+          autoFocus
+        />
+        <button onClick={handle_send_message}>{get_button_label()}</button>
+      </div>
+      <div className={styles['browser-extension-message']}>
+        <p>
+          For a seamless experience, consider installing the Gemini Coder
+          Connector browser extension:
+        </p>
+        <ul>
+          <li>
+            <a
+              href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Install for Chrome
+            </a>
+          </li>
+          <li>
+            <a
+              href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Install for Firefox
+            </a>
+          </li>
+        </ul>
+      </div>
     </div>
   )
 }

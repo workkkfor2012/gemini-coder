@@ -1,28 +1,62 @@
 // @type
+.container {
+  padding: 5px 0 10px 0;
+}
 
 .chat-input {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  > textarea {
+    padding: 8px;
+    border-radius: 2px;
+    font-family: system-ui, sans-serif;
+    height: 35px;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: none;
+    &:focus {
+      outline-color: var(--vscode-focusBorder);
+      outline-offset: -1px;
+      outline-style: solid;
+      outline-width: 1px;
+    }
+  }
+  > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    font-size: 13px;
+    padding: 4px 16px;
+    font-family: system-ui, sans-serif;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+    &:hover {
+      background-color: var(--vscode-button-hoverBackground);
+    }
+  }
 }
 
-.chat-input > textarea {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  font-family: unset;
-  height: 35px;
-}
-
-.chat-input > button {
-  padding: 8px 16px;
-  background-color: #007acc;
-  color: white;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-.chat-input > button:hover {
-  background-color: #0062a3;
+.browser-extension-message {
+  margin: 10px 0;
+  font-size: 0.9em;
+  color: var(--vscode-descriptionForeground);
+  ul {
+    margin: 5px 0 0 20px;
+    padding: 0;
+    li {
+      margin-bottom: 5px;
+    }
+  }
+  a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
 }

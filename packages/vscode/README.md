@@ -2,16 +2,16 @@
 
 ## Description
 
-Gemini Coder lets you use Gemini 2.0 for code completion (FIM) and file refactoring.
+Meet Gemini Coder, a must have AI toolkit with first-class support for Gemini.
 
-**You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each completion/refactoring request.
+**You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each request, having 2M context window at your disposal!
 
 The extension also bridges VS Code and AI Studio, giving you a unique way to comfortably chat about your code right from your favorite web browser.
 
-Get browser integraion now:
+For seamless developer experience, install our integraion for your favourite browser:
 
-- [Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
-- [Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
+- [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
+- [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
 
 [![ScreenShot](resources/preview.png)]()
 
