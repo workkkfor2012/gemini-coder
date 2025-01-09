@@ -5,14 +5,21 @@ const vscode = acquireVsCodeApi()
 
 function Chat() {
   const [initial_instruction, set_initial_instruction] = useState<string>()
+  const [web_chat_name, set_web_chat_name] = useState<string>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
+    vscode.postMessage({ command: 'getWebChatName' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
-      if (message.command === 'initialInstruction') {
-        set_initial_instruction(message.instruction)
+      switch (message.command) {
+        case 'initialInstruction':
+          set_initial_instruction(message.instruction)
+          break
+        case 'webChatName':
+          set_web_chat_name(message.name)
+          break
       }
     }
 
@@ -30,7 +37,7 @@ function Chat() {
     })
   }
 
-  if (initial_instruction === undefined) {
+  if (initial_instruction === undefined || web_chat_name === undefined) {
     return null
   }
 
@@ -38,6 +45,7 @@ function Chat() {
     <ChatInput
       on_send_message={handle_send_message}
       initial_instruction={initial_instruction}
+      web_chat_name={web_chat_name}
     />
   )
 }

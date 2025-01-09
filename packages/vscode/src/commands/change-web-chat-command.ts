@@ -1,7 +1,8 @@
 import * as vscode from 'vscode'
 
 export function changeWebChatCommand(
-  web_chat_status_bar_item: vscode.StatusBarItem
+  web_chat_status_bar_item: vscode.StatusBarItem,
+  chat_view_provider: any
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.changeWebChat',
@@ -33,6 +34,8 @@ export function changeWebChatCommand(
         vscode.window.showInformationMessage(
           `Web chat changed to: ${selected_web_chat}`
         )
+
+        chat_view_provider.update_web_chat_name(selected_web_chat)
       }
     }
   )

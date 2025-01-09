@@ -4,16 +4,17 @@ import styles from './ChatInput.module.scss'
 type Props = {
   on_send_message: (message: string) => void
   initial_instruction: string
+  web_chat_name: string
 }
 
 const ChatInput: React.FC<Props> = (props) => {
   const [instruction, setInstruction] = useState(props.initial_instruction)
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const textarea_ref = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.focus()
-      textareaRef.current.select()
+    if (textarea_ref.current) {
+      textarea_ref.current.focus()
+      textarea_ref.current.select()
     }
   }, [])
 
@@ -40,21 +41,34 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_focus = () => {
-    if (textareaRef.current) {
-      textareaRef.current.select()
+    if (textarea_ref.current) {
+      textarea_ref.current.select()
+    }
+  }
+
+  const get_button_label = () => {
+    switch (props.web_chat_name) {
+      case 'AI Studio':
+        return 'Continue in AI Studio'
+      case 'DeepSeek':
+        return 'Continue in DeepSeek'
+      default:
+        return 'Continue'
     }
   }
 
   return (
     <div className={styles['chat-input']}>
       <textarea
+        ref={textarea_ref}
         placeholder="Enter instruction..."
         value={instruction}
         onChange={handle_input_change}
         onKeyDown={handle_key_down}
         onFocus={handle_focus}
+        autoFocus
       />
-      <button onClick={handle_send_message}>Continue</button>
+      <button onClick={handle_send_message}>{get_button_label()}</button>
     </div>
   )
 }

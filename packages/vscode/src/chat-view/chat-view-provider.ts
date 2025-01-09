@@ -5,6 +5,7 @@ import { get_chat_url } from '../helpers/get-chat-url'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
+  private _webview_view: vscode.WebviewView | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -17,6 +18,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
+    this._webview_view = webview_view
+
     webview_view.webview.options = {
       enableScripts: true,
       localResourceRoots: [this._extension_uri]
@@ -33,6 +36,16 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           webview_view.webview.postMessage({
             command: 'initialInstruction',
             instruction: last_instruction
+          })
+          break
+
+        case 'getWebChatName':
+          const web_chat_name = vscode.workspace
+            .getConfiguration()
+            .get<string>('geminiCoder.webChat')
+          webview_view.webview.postMessage({
+            command: 'webChatName',
+            name: web_chat_name
           })
           break
 
@@ -112,6 +125,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           break
       }
     })
+  }
+
+  public update_web_chat_name(web_chat_name: string) {
+    if (this._webview_view) {
+      this._webview_view.webview.postMessage({
+        command: 'webChatName',
+        name: web_chat_name
+      })
+    }
   }
 
   private _get_html_for_webview(webview: vscode.Webview) {

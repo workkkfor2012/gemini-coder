@@ -65,7 +65,7 @@ export function activate(context: vscode.ExtensionContext) {
     open_web_chat_with_autocompletion_prompt_command(file_tree_provider),
     open_web_chat_with_refactor_prompt_command(file_tree_provider),
     open_web_chat_with_instruction_command(context, file_tree_provider),
-    changeWebChatCommand(web_chat_status_bar_item)
+    changeWebChatCommand(web_chat_status_bar_item, chat_view_provider)
   )
 }
 
