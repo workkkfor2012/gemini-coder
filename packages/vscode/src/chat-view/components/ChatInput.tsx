@@ -8,16 +8,16 @@ type Props = {
 
 const ChatInput: React.FC<Props> = (props) => {
   const [instruction, setInstruction] = useState(props.initial_instruction)
-  const input_ref = useRef<HTMLInputElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
-    if (input_ref.current) {
-      input_ref.current.focus()
-      input_ref.current.select()
+    if (textareaRef.current) {
+      textareaRef.current.focus()
+      textareaRef.current.select()
     }
   }, [])
 
-  const handle_input_change = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInstruction(e.target.value)
   }
 
@@ -32,24 +32,22 @@ const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_key_down = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key == 'Enter') {
-      handle_send_message()
+  const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
+      handle_send_message()
     }
   }
 
   const handle_focus = () => {
-    if (input_ref.current) {
-      input_ref.current.select()
+    if (textareaRef.current) {
+      textareaRef.current.select()
     }
   }
 
   return (
     <div className={styles['chat-input']}>
-      <input
-        ref={input_ref}
-        type="text"
+      <textarea
         placeholder="Enter instruction..."
         value={instruction}
         onChange={handle_input_change}
