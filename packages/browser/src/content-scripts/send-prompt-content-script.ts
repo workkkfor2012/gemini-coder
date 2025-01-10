@@ -94,7 +94,7 @@ const handle_firefox = async () => {
   const handle_paste_on_click = async () => {
     try {
       const text = await navigator.clipboard.readText()
-      if (text.startsWith('<instruction>')) {
+      if (text.startsWith('<files>')) {
         const input_element = get_input_element()
         fill_input_and_send(input_element, text)
       }
@@ -145,7 +145,7 @@ const handle_chrome = async () => {
   }
 
   const text = await navigator.clipboard.readText()
-  if (text.startsWith('<instruction>')) {
+  if (text.startsWith('<files>')) {
     // Quirks mitigaion
     if (is_ai_studio) {
       await new Promise(async (resolve) => {
