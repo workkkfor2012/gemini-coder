@@ -78,7 +78,7 @@ export function open_web_chat_with_refactor_prompt_command(
 
       const selection = editor.selection
       const selected_text = editor.document.getText(selection)
-      let refactor_instruction = `The following files are part of a Git repository with code. User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
+      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
       if (selected_text) {
         refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
       } else {
@@ -86,11 +86,11 @@ export function open_web_chat_with_refactor_prompt_command(
       }
 
       const payload = {
-        before: `<instruction>${refactor_instruction}</instruction>\n<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
         after: `\n</file>\n</files>`
       }
 
-      const content = `${payload.before}${payload.after}`
+      const content = `${payload.before}${payload.after}\n${refactor_instruction}`
 
       await vscode.env.clipboard.writeText(content)
 
