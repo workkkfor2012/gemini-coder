@@ -100,13 +100,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
           }
 
-          // Get the chat prompt intro from the configuration
-          const chat_instruction_preamble = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.chatInstructionPreamble', '')
-
           // Construct the final text
-          const final_text = `<files>${context_text}\n</files>\n${chat_instruction_preamble} ${instruction}`
+          const final_text = `<files>${context_text}\n</files>\n${instruction}`
 
           await vscode.env.clipboard.writeText(final_text)
 

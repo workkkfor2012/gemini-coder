@@ -72,13 +72,13 @@ export function open_web_chat_with_autocompletion_prompt_command(
       }
 
       const payload = {
-        before: `<instruction>${autocomplete_instruction}</instruction>\n<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
+        before: `<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
           document.uri
         )}">\n${text_before_cursor}`,
         after: `${text_after_cursor}\n</file>\n</files>`
       }
 
-      const content = `${payload.before}<fill missing code>${payload.after}`
+      const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 
       await vscode.env.clipboard.writeText(content)
 

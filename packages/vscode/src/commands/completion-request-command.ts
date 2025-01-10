@@ -129,13 +129,13 @@ export function completion_request_command(
           }
 
           const payload = {
-            before: `<instruction>${instruction}</instruction>\n<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
+            before: `<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
               document.uri
             )}">\n${text_before_cursor}`,
             after: `${text_after_cursor}\n</file>\n</files>`
           }
 
-          const content = `${payload.before}<fill missing code>${payload.after}`
+          const content = `${payload.before}<fill missing code>${payload.after}\n${instruction}`
 
           const messages = [
             ...(system_instructions
