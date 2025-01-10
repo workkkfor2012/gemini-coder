@@ -52,6 +52,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         case 'processChatInstruction':
           const { instruction } = message
 
+          await this._context.globalState.update(
+            'lastChatInstruction',
+            instruction
+          )
+
           // Get context from selected files
           let context_text = ''
           const added_files = new Set<string>()
