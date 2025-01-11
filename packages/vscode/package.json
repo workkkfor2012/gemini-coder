@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder: FIM completions with 2M context!",
   "description": "Take advantage of 2 million token context window and use Gemini as your coding assistant. Manually select scope of your repository to be attached in each request and get the best coding assistance possible.",
-  "version": "1.0.83",
+  "version": "1.0.84",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
