@@ -10,7 +10,7 @@ Use big models for FIM autocomplete, refactor any file or chat about your code.
 
 The extension's chat panel bridges VS Code and AI Studio. Select context, compose your prompt and continue in the browser with just one click!
 
-For seamless developer experience, install our browser integration for hands-free prompt pasting into AI Studio.
+For a seamless developer experience, install our browser integration for hands-free prompt pasting into AI Studio.
 
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)

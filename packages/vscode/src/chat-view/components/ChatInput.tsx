@@ -18,11 +18,11 @@ const ChatInput: React.FC<Props> = (props) => {
     }
   }, [])
 
-  const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInstruction(e.target.value)
   }
 
-  const handle_send_message = () => {
+  const handleSendMessage = () => {
     if (instruction.trim()) {
       props.on_send_message(instruction)
     } else {
@@ -33,27 +33,16 @@ const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handle_send_message()
+      handleSendMessage()
     }
   }
 
-  const handle_focus = () => {
+  const handleFocus = () => {
     if (textarea_ref.current) {
       textarea_ref.current.select()
-    }
-  }
-
-  const get_button_label = () => {
-    switch (props.web_chat_name) {
-      case 'AI Studio':
-        return 'Continue in AI Studio'
-      case 'DeepSeek':
-        return 'Continue in DeepSeek'
-      default:
-        return 'Continue'
     }
   }
 
@@ -64,47 +53,45 @@ const ChatInput: React.FC<Props> = (props) => {
           ref={textarea_ref}
           placeholder="Enter instruction..."
           value={instruction}
-          onChange={handle_input_change}
-          onKeyDown={handle_key_down}
-          onFocus={handle_focus}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
           autoFocus
         />
-        <button onClick={handle_send_message}>{get_button_label()}</button>
+        <button onClick={handleSendMessage}>
+          Continue in {props.web_chat_name}
+        </button>
       </div>
       <div className={styles['browser-extension-message']}>
         <p>
-          For a seamless experience, consider installing the Gemini Coder
-          Connector browser extension:
+          Your default browser will load with {props.web_chat_name} page. Paste
+          your clipboard manually or for a seamless experience, consider
+          automating chat initialization by installing the Gemini Coder
+          Connector:
         </p>
         <ul>
           <li>
-            <a
-              href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
               Install for Chrome
             </a>
           </li>
           <li>
-            <a
-              href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
               Install for Firefox
             </a>
           </li>
         </ul>
-        <p>
-          <a
-            href="https://github.com/robertpiosik/gemini-coder/discussions"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Send feedback
-          </a>
-        </p>
+      </div>
+      <div className={styles.footer}>
+        <a href="https://github.com/robertpiosik/gemini-coder">
+          Star on GitHub
+        </a>
+        <span>·</span>
+        <a href="https://buymeacoffee.com/robertpiosik">Buy me a coffee</a>
+        <span>·</span>
+        <a href="https://github.com/robertpiosik/gemini-coder/discussions">
+          Send feedback
+        </a>
       </div>
     </div>
   )
