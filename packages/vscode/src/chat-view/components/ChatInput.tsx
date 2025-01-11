@@ -83,15 +83,24 @@ const ChatInput: React.FC<Props> = (props) => {
         </ul>
       </div>
       <div className={styles.footer}>
-        <a href="https://github.com/robertpiosik/gemini-coder">
-          Star on GitHub
-        </a>
-        <span>·</span>
-        <a href="https://buymeacoffee.com/robertpiosik">Buy me a coffee</a>
-        <span>·</span>
-        <a href="https://github.com/robertpiosik/gemini-coder/discussions">
-          Send feedback
-        </a>
+        <div>
+          <a href="https://github.com/robertpiosik/gemini-coder">
+            Star on GitHub
+          </a>
+        </div>
+        <div>
+          <a href="https://buymeacoffee.com/robertpiosik">Buy me a coffee</a>
+        </div>
+        <div>
+          <a href="https://github.com/robertpiosik/gemini-coder/discussions">
+            Send feedback
+          </a>
+        </div>
+
+        <br />
+        <div>
+          &copy; Robert Piosik, <a href="https://x.com/robertpiosik">follow on X</a>.
+        </div>
       </div>
     </div>
   )

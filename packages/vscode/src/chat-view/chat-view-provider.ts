@@ -61,6 +61,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           let context_text = ''
           const added_files = new Set<string>()
 
+          const focused_file =
+            vscode.window.activeTextEditor?.document.uri.fsPath
+
+          const set_focused_attribute = vscode.workspace
+            .getConfiguration()
+            .get<boolean>('geminiCoder.setFocusedAttribute', true)
+
           // Add selected files from the file tree
           if (this.file_tree_provider) {
             const selected_files_paths =
@@ -72,7 +79,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
                   file_path
                 )
-                context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+
+                const focused_attr =
+                  set_focused_attribute && file_path == focused_file
+                    ? ' focused="true"'
+                    : ''
+                context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
                 added_files.add(file_path)
               } catch (error) {
                 console.error(`Error reading file ${file_path}:`, error)
@@ -97,7 +109,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   vscode.workspace.workspaceFolders![0].uri.fsPath,
                   file_path
                 )
-                context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+
+                const focused_attr =
+                  set_focused_attribute && file_path == focused_file
+                    ? ' focused="true"'
+                    : ''
+                context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
                 added_files.add(file_path)
               } catch (error) {
                 console.error(`Error reading open file ${file_path}:`, error)

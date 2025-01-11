@@ -94,3 +94,7 @@ For a seamless developer experience, install our browser integration for hands-f
 MIT
 
 This is not an official Google product.
+
+## Author
+
+Robert Piosik, [follow on X](https://x.com/robertpiosik).

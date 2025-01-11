@@ -14,6 +14,10 @@ export function open_web_chat_with_instruction_command(
       const attach_open_files = config.get<boolean>(
         'geminiCoder.attachOpenFiles'
       )
+      const set_focused_attribute = config.get<boolean>(
+        'geminiCoder.setFocusedAttribute',
+        true
+      )
 
       let last_chat_instruction =
         context.globalState.get<string>('lastChatInstruction') || ''
@@ -30,6 +34,8 @@ export function open_web_chat_with_instruction_command(
 
       await context.globalState.update('lastChatInstruction', instruction)
 
+      const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
+
       // Get context from selected files
       let context_text = ''
       const added_files = new Set<string>()
@@ -44,7 +50,12 @@ export function open_web_chat_with_instruction_command(
               vscode.workspace.workspaceFolders![0].uri.fsPath,
               file_path
             )
-            context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+
+            const focused_attr =
+              set_focused_attribute && file_path == focused_file
+                ? ' focused="true"'
+                : ''
+            context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
             added_files.add(file_path)
           } catch (error) {
             console.error(`Error reading file ${file_path}:`, error)
@@ -70,7 +81,12 @@ export function open_web_chat_with_instruction_command(
                 vscode.workspace.workspaceFolders![0].uri.fsPath,
                 file_path
               )
-              context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+
+              const focused_attr =
+                set_focused_attribute && file_path == focused_file
+                  ? ' focused="true"'
+                  : ''
+              context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
               added_files.add(file_path)
             } catch (error) {
               console.error(`Error reading open file ${file_path}:`, error)

@@ -45,22 +45,32 @@ export function file_tree_initialization(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
         const config = vscode.workspace.getConfiguration('geminiCoder')
         const attach_open_files = config.get<boolean>('attachOpenFiles')
+        const set_focused_attribute = config.get<boolean>(
+          'setFocusedAttribute',
+          true
+        )
         const checked_files = file_tree_provider!.getCheckedFiles()
 
         let xml_content = ''
         const added_files = new Set<string>()
 
-        // Add checked files
-        for (const filePath of checked_files) {
-          // Only add if it's a file
-          if (fs.statSync(filePath).isFile()) {
-            const content = fs.readFileSync(filePath, 'utf-8')
+        const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
+
+        for (const file_path of checked_files) {
+          if (fs.statSync(file_path).isFile()) {
+            const content = fs.readFileSync(file_path, 'utf-8')
             const file_name = path.relative(
               vscode.workspace.workspaceFolders![0].uri.fsPath,
-              filePath
+              file_path
             )
-            xml_content += `<file path="${file_name}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
-            added_files.add(filePath)
+
+            // Add the focused attribute if this is the currently focused file and the setting is enabled
+            const focused_attr =
+              set_focused_attribute && file_path == focused_file
+                ? ' focused="true"'
+                : ''
+            xml_content += `<file path="${file_name}"${focused_attr}>\n<![CDATA[\n${content}\n]]>\n</file>\n`
+            added_files.add(file_path)
           }
         }
 
@@ -72,26 +82,31 @@ export function file_tree_initialization(
           for (const group of tab_groups) {
             for (const tab of group.tabs) {
               if (tab.input instanceof vscode.TabInputText) {
-                const fileUri = tab.input.uri
-                const filePath = fileUri.fsPath
+                const file_uri = tab.input.uri
+                const file_path = file_uri.fsPath
 
                 // Avoid duplicates (if an open file is also checked)
-                if (fs.existsSync(filePath) && !added_files.has(filePath)) {
-                  const content = fs.readFileSync(filePath, 'utf-8')
-                  const file_path = path.relative(
+                if (fs.existsSync(file_path) && !added_files.has(file_path)) {
+                  const content = fs.readFileSync(file_path, 'utf-8')
+                  const relative_path = path.relative(
                     vscode.workspace.workspaceFolders![0].uri.fsPath,
-                    filePath
+                    file_path
                   )
 
-                  xml_content += `<file path="${file_path}">\n${content}\n</file>`
-                  added_files.add(filePath)
+                  // Add the focused attribute if this is the currently focused file and the setting is enabled
+                  const focused_attr =
+                    set_focused_attribute && file_path == focused_file
+                      ? ' focused="true"'
+                      : ''
+                  xml_content += `<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${content}\n]]>\n</file>\n`
+                  added_files.add(file_path)
                 }
               }
             }
           }
         }
 
-        if (xml_content === '') {
+        if (xml_content == '') {
           vscode.window.showWarningMessage('No files selected or open.')
           return
         }

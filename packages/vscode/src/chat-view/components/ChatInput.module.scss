@@ -62,12 +62,10 @@
 }
 
 .footer {
-  display: flex;
-  gap: 5px;
   margin-top: 10px;
   font-size: 0.9em;
   color: var(--vscode-disabledForeground);
-  > a {
+  a {
     color: var(--vscode-disabledForeground);
     text-decoration: none;
     &:hover {

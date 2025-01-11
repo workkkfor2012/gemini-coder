@@ -236,6 +236,11 @@
               ]
             }
           }
+        },
+        "geminiCoder.setFocusedAttribute": {
+          "type": "boolean",
+          "default": true,
+          "description": "Set focused attribute (<file path=\"\" focused=\"true\">) in the context of the currently focused file."
         }
       }
     },
