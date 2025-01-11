@@ -50,14 +50,12 @@ export function activate(context: vscode.ExtensionContext) {
     completion_request_command(
       'geminiCoder.sendCompletionRequestPrimary',
       'primary',
-      file_tree_provider,
-      status_bar_item
+      file_tree_provider
     ),
     completion_request_command(
       'geminiCoder.sendCompletionRequestSecondary',
       'secondary',
-      file_tree_provider,
-      status_bar_item
+      file_tree_provider
     ),
     copy_autocomplete_prompt_command(file_tree_provider),
     copy_refactor_prompt_command(file_tree_provider),

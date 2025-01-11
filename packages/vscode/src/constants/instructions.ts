@@ -1,0 +1,1 @@
+export const autocomplete_instruction = "Somewhere in files you encountered <fill missing code> symbol. Send the missing code and nothing more."

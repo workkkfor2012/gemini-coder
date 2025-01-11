@@ -96,10 +96,9 @@ const ChatInput: React.FC<Props> = (props) => {
             Send feedback
           </a>
         </div>
-
         <br />
         <div>
-          &copy; Robert Piosik, <a href="https://x.com/robertpiosik">follow on X</a>.
+          <a href="https://x.com/robertpiosik">Follow on X for updates</a>
         </div>
       </div>
     </div>

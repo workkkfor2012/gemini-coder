@@ -4,20 +4,17 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
+import { autocomplete_instruction } from '../constants/instructions'
 
 export function completion_request_command(
   command: string,
   providerType: 'primary' | 'secondary',
   file_tree_provider: any,
-  status_bar_item: vscode.StatusBarItem
 ) {
   return vscode.commands.registerCommand(command, async () => {
     const config = vscode.workspace.getConfiguration()
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const provider_name = config.get<string>(`geminiCoder.${providerType}Model`)
-    const autocomplete_instruction = config.get<string>(
-      'geminiCoder.autocompleteInstruction'
-    )
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -58,7 +55,6 @@ export function completion_request_command(
     const model = provider.model
     const temperature = provider.temperature
     const system_instructions = provider.systemInstructions
-    const instruction = provider.instruction || autocomplete_instruction
     const verbose = config.get<boolean>('geminiCoder.verbose')
     const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
 
@@ -135,7 +131,7 @@ export function completion_request_command(
             after: `${text_after_cursor}\n</file>\n</files>`
           }
 
-          const content = `${payload.before}<fill missing code>${payload.after}\n${instruction}`
+          const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 
           const messages = [
             ...(system_instructions

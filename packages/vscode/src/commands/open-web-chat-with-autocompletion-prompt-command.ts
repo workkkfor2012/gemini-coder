@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { get_chat_url } from '../helpers/get-chat-url'
+import { autocomplete_instruction } from '../constants/instructions'
 
 export function open_web_chat_with_autocompletion_prompt_command(
   file_tree_provider: any
@@ -10,9 +11,6 @@ export function open_web_chat_with_autocompletion_prompt_command(
     'geminiCoder.openWebChatWithAutocompletionPrompt',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const autocomplete_instruction = config.get<string>(
-        'geminiCoder.autocompleteInstruction'
-      )
       const attach_open_files = config.get<boolean>(
         'geminiCoder.attachOpenFiles'
       )

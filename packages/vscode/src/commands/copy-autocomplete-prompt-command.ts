@@ -1,15 +1,13 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { autocomplete_instruction } from '../constants/instructions'
 
 export function copy_autocomplete_prompt_command(file_tree_provider: any) {
   return vscode.commands.registerCommand(
     'geminiCoder.copyAutocompletePrompt',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const autocomplete_instruction = config.get<string>(
-        'geminiCoder.autocompleteInstruction'
-      )
       const attach_open_files = config.get<boolean>(
         'geminiCoder.attachOpenFiles'
       )
