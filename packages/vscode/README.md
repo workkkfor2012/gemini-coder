@@ -2,13 +2,15 @@
 
 ## Description
 
-Meet Gemini Coder, a must have AI toolkit with first-class support for Gemini.
+Meet Gemini Coder, many useful AI commands for your Command Palette with first-class support for Gemini.
 
-**You decide what is sent to the model.** With a dedicated Context Panel, you can granularly select the context attached to each request, having 2M context window at your disposal!
+Use big models for FIM autocomplete, refactor any file or chat about your code.
 
-The extension also bridges VS Code and AI Studio, giving you a unique way to comfortably chat about your code right from your favorite web browser.
+**You decide what is sent to the model.** In a context panel, you can granularly select folders and files attached to each request. You have whole 2M context window at your disposal!
 
-For seamless developer experience, install our integraion for your favourite browser:
+The extension's chat panel bridges VS Code and AI Studio. Select context, compose your prompt and continue in the browser with just one click!
+
+For seamless developer experience, install our browser integration for hands-free prompt pasting into AI Studio.
 
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
@@ -18,29 +20,20 @@ For seamless developer experience, install our integraion for your favourite bro
 ## Features
 
 - Lightweight, 100% free, MIT licensed.
-- Manually set context for all requests.
+- Granularly set context for all requests.
 - Autocomplete at the cursor position.
-- Chat about your code directly in AI Studio.
-- Refactor the current file.
-- Copy context, autocompletion, or file refactoring generated prompts to clipboard.
-- Set up primary and secondary models for lightweight or specialized tasks.
-- Provider agnostic, use any OpenAI API compatible provider or choose from many web chats (AI Studio, DeepSeek, and more).
+- Chat about your code in AI Studio.
+- Refactor files.
+- Rate limited Gemini Pro requests fallback to Gemini Flash.
+- Provider agnostic - use any OpenAI API compatible LLM provider and choose from many web chats (AI Studio, DeepSeek, and more).
 
-## How to Use
+## How to use FIM autocompletion
 
-1.  Open the Context View and select all relevant folders/files you want to attach as context in each completion request.
+1.  Open the Context View and select all relevant folders/files you want to attach as context in each request.
 2.  Place the cursor where you want to insert code completion.
 3.  Open the Command Palette (`Ctrl+Shift+P`).
-4.  Run one of the following commands:
-    - `Gemini Coder: Autocomplete with Primary Model`
-    - `Gemini Coder: Autocomplete with Secondary Model`
-    - `Gemini Coder: Refactor this file`
-5.  You can also copy the prompt to the clipboard using:
-    - `Gemini Coder: Copy Autocompletion Prompt to Clipboard`
-    - `Gemini Coder: Copy File Refactoring Prompt to Clipboard`
-6.  Change default models with command `Gemini Coder: Change Default Models`.
-7.  Bind the commands to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for the Primary Model and `Alt+P` for the Secondary Model.
-8.  Use the Chat panel to send custom instructions to the external chat (AI Studio, DeepSeek).
+4.  Run one of the following commands (listed below).
+5.  Bind commands to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Autocomplete with Primary Model` and `Alt+P` for `Gemini Coder: Autocomplete with Secondary Model`.
 
 ## Commands
 
@@ -59,7 +52,7 @@ For seamless developer experience, install our integraion for your favourite bro
 
 ```json
   "geminiCoder.providers": [
-    // Experimental Gemini
+    // Gemini Experimental
     {
       "name": "Gemini Flash 2.0 Exp",
       "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",

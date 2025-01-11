@@ -96,6 +96,15 @@ const ChatInput: React.FC<Props> = (props) => {
             </a>
           </li>
         </ul>
+        <p>
+          <a
+            href="https://github.com/robertpiosik/gemini-coder/discussions"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Send feedback
+          </a>
+        </p>
       </div>
     </div>
   )

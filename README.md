@@ -1,8 +1,8 @@
 ## Gemini Coder
 
-Free and open-source, focused on simplicity Copilot alternative with first-class support for Gemini 2.0.
+Free and open-source AI coding toolkit with first-class support for Gemini.
 
-Explore the following packages:
+Explore packages:
 
 VS Code extension: [packages/vscode](https://github.com/robertpiosik/gemini-coder/tree/master/packages/vscode)
 
