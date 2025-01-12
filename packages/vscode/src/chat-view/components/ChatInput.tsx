@@ -2,13 +2,14 @@ import React, { useState, useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
 
 type Props = {
-  on_send_message: (message: string) => void
+  on_submit: (instruction: string) => void
+  on_instruction_change: (instruction: string) => void
   initial_instruction: string
   web_chat_name: string
 }
 
 const ChatInput: React.FC<Props> = (props) => {
-  const [instruction, setInstruction] = useState(props.initial_instruction)
+  const [instruction, set_instruction] = useState(props.initial_instruction)
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
 
   useEffect(() => {
@@ -18,29 +19,23 @@ const ChatInput: React.FC<Props> = (props) => {
     }
   }, [])
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInstruction(e.target.value)
+  const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    set_instruction(e.target.value)
+    props.on_instruction_change(e.target.value)
   }
 
-  const handleSendMessage = () => {
-    if (instruction.trim()) {
-      props.on_send_message(instruction)
-    } else {
-      window.postMessage({
-        command: 'showError',
-        message: 'Please enter an instruction.'
-      })
-    }
+  const handle_submit = () => {
+    props.on_submit(instruction)
   }
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+  const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key == 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handleSendMessage()
+      handle_submit()
     }
   }
 
-  const handleFocus = () => {
+  const handle_focus = () => {
     if (textarea_ref.current) {
       textarea_ref.current.select()
     }
@@ -53,12 +48,12 @@ const ChatInput: React.FC<Props> = (props) => {
           ref={textarea_ref}
           placeholder="Enter instruction..."
           value={instruction}
-          onChange={handleInputChange}
-          onKeyDown={handleKeyDown}
-          onFocus={handleFocus}
+          onChange={handle_input_change}
+          onKeyDown={handle_key_down}
+          onFocus={handle_focus}
           autoFocus
         />
-        <button onClick={handleSendMessage}>
+        <button onClick={handle_submit}>
           Continue in {props.web_chat_name}
         </button>
       </div>

@@ -49,14 +49,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
           break
 
-        case 'processChatInstruction':
-          const { instruction } = message
-
-          await this._context.globalState.update(
+        case 'saveChatInstruction':
+          this._context.globalState.update(
             'lastChatInstruction',
-            instruction
+            message.instruction
           )
+          break
 
+        case 'processChatInstruction':
           // Get context from selected files
           let context_text = ''
           const added_files = new Set<string>()
@@ -123,7 +123,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           }
 
           // Construct the final text
-          const final_text = `<files>${context_text}\n</files>\n${instruction}`
+          const final_text = `<files>${context_text}\n</files>\n${message.instruction}`
 
           await vscode.env.clipboard.writeText(final_text)
 

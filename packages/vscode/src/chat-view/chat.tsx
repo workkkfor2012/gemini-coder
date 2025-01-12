@@ -37,15 +37,23 @@ function Chat() {
     })
   }
 
+  const handle_instruction_change = (instruction: string) => {
+    vscode.postMessage({
+      command: 'saveChatInstruction',
+      instruction
+    })
+  }
+
   if (initial_instruction === undefined || web_chat_name === undefined) {
     return null
   }
 
   return (
     <ChatInput
-      on_send_message={handle_send_message}
       initial_instruction={initial_instruction}
       web_chat_name={web_chat_name}
+      on_submit={handle_send_message}
+      on_instruction_change={handle_instruction_change}
     />
   )
 }
