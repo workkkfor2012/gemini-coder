@@ -15,7 +15,7 @@ For a seamless developer experience, install our browser integration for hands-f
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
 
-[![ScreenShot](resources/preview.png)]()
+[![ScreenShot](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/vscode/resources/preview.png)]()
 
 ## Features
 
