@@ -2,13 +2,13 @@
 
 ## Description
 
-Meet Gemini Coder, many useful AI commands for your Command Palette with first-class support for Gemini.
+Meet Gemini Coder - many useful AI commands for your Command Palette with first-class support for Gemini.
 
-Use big models for FIM autocomplete, refactor any file or chat about your code.
+Use the best big models for fill-in-the-middle (FIM) completions or chat right in AI Studio.
 
 **You decide what is sent to the model.** In a context panel, you can granularly select folders and files attached to each request. You have whole 2M context window at your disposal!
 
-The extension's chat panel bridges VS Code and AI Studio. Select context, compose your prompt and continue in the browser with just one click!
+The extension's chat panel bridges VS Code and AI Studio. Select context, write what needs to be done and continue in the browser with your chat initializing hands-free!
 
 For a seamless developer experience, install our browser integration for hands-free prompt pasting into AI Studio.
 

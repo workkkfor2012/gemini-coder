@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder: FIM Autocomplete & AI Studio bridge",
+  "displayName": "Gemini Coder: Hands-free AI Studio bridge & FIM Autocomplete with Gemini models",
   "description": "Open automatically initialized AI Studio chat with your custom instruction and hand-picked context, up to 2M tokens! You can use the same context for Fill-in-the-middle code completions, whenever you need something context aware!",
-  "version": "1.0.88",
+  "version": "1.0.89",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
