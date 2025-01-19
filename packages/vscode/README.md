@@ -2,15 +2,15 @@
 
 ## Description
 
-Meet Gemini Coder - many useful AI commands for your Command Palette with first-class support for Gemini.
+This unofficial extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
 
-Use the best big models for fill-in-the-middle (FIM) completions or chat right in AI Studio.
+With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of available commands for 
 
-**You decide what is sent to the model.** In a context panel, you can granularly select folders and files attached to each request. You have whole 2M context window at your disposal!
+- FIM completions
+- chat (AI Studio)
+- file refactoring
 
-The extension's chat panel bridges VS Code and AI Studio. Select context, write what needs to be done and continue in the browser with your chat initializing hands-free!
-
-For a seamless developer experience, install our browser integration for hands-free prompt pasting into AI Studio.
+For a seamless developer experience, install dedicated browser extension for hands-free chat initialization.
 
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
@@ -19,13 +19,13 @@ For a seamless developer experience, install our browser integration for hands-f
 
 ## Features
 
-- Lightweight, 100% free, MIT licensed.
-- Granularly set context for all requests.
+- Light & fast.
+- File tree for context selection.
 - Autocomplete at the cursor position.
-- Chat about your code in AI Studio.
-- Refactor files.
+- Automatically initialized chats in AI Studio.
+- File refactoring.
 - Rate limited Gemini Pro requests fallback to Gemini Flash.
-- Provider agnostic - use any OpenAI API compatible LLM provider and choose from many web chats (AI Studio, DeepSeek, and more).
+- Provider agnostic, use all the features with models and web chats of your choice.
 
 ## How to use FIM autocompletion
 
