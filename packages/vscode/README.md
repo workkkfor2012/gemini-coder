@@ -4,11 +4,11 @@
 
 This unofficial extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
 
-With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of available commands for 
+With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of available commands for
 
-- FIM completions
-- chat (AI Studio)
-- file refactoring
+- FIM completions,
+- web chat in AI Studio,
+- file refactoring.
 
 For a seamless developer experience, install dedicated browser extension for hands-free chat initialization.
 
@@ -19,13 +19,13 @@ For a seamless developer experience, install dedicated browser extension for han
 
 ## Features
 
-- Light & fast.
+- Free, use your own API key.
 - File tree for context selection.
 - Autocomplete at the cursor position.
 - Automatically initialized chats in AI Studio.
 - File refactoring.
-- Rate limited Gemini Pro requests fallback to Gemini Flash.
-- Provider agnostic, use all the features with models and web chats of your choice.
+- Rate limited Gemini Pro requests fall back to Gemini Flash.
+- Provider agnostic, read more "Set up custom providers" section below.
 
 ## How to use FIM autocompletion
 
@@ -50,9 +50,10 @@ For a seamless developer experience, install dedicated browser extension for han
 
 ## Set up custom providers
 
+The extension supports any OpenAI API compatible providers for FIM completions and file refactoring.
+
 ```json
   "geminiCoder.providers": [
-    // Gemini Experimental
     {
       "name": "Gemini Flash 2.0 Exp",
       "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
@@ -69,7 +70,6 @@ For a seamless developer experience, install dedicated browser extension for han
       "temperature": 0,
       "instruction": ""
     },
-    // Others
     {
       "name": "DeepSeek",
       "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
