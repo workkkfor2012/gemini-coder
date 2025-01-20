@@ -49,7 +49,7 @@ For a seamless developer experience, install dedicated browser extension for han
 - `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
 - `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
 
-#### File refactor
+#### File refactoring
 
 - `Gemini Coder: Refactor This File`: Refactors the current file based on the provided instruction.
 - `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
