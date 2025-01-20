@@ -2,7 +2,7 @@
 
 ## Description
 
-This unofficial extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
+This extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
 
 With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of the available commands for
 
@@ -37,16 +37,27 @@ For a seamless developer experience, install dedicated browser extension for han
 
 ## Commands
 
-- `Gemini Coder: Copy Context`: Copies the selected files' content to the clipboard.
+#### Autocomplete
+
 - `Gemini Coder: Autocomplete with Primary Model`: Uses the primary model to autocomplete code at the cursor position.
 - `Gemini Coder: Autocomplete with Secondary Model`: Uses the secondary model to autocomplete code at the cursor position.
 - `Gemini Coder: Copy Autocompletion Prompt to Clipboard`: Copies the current autocompletion prompt to the clipboard.
-- `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models.
-- `Gemini Coder: Refactor this file`: Refactors the current file based on the provided instruction.
-- `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
-- `Gemini Coder: Open Web Chat with instruction...`: Copies the instruction with context to the clipboard and opens the selected web chat.
+
+#### Chat
+
+- `Gemini Coder: Open Web Chat with Instruction`: Copies the instruction with context to the clipboard and opens the selected web chat.
 - `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
-- `Gemini Coder: Open Web Chat with file refactoring prompt...`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
+- `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
+
+#### File refactor
+
+- `Gemini Coder: Refactor This File`: Refactors the current file based on the provided instruction.
+- `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
+
+#### Other
+
+- `Gemini Coder: Copy Context`: Copies current context to the clipboard.
+- `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models for autocompletion and file refactor commands.
 
 ## Set up custom providers
 
@@ -97,4 +108,4 @@ This is not an official Google product.
 
 ## Author
 
-Robert Piosik, [follow on X](https://x.com/robertpiosik).
+[Robert Piosik](https://x.com/robertpiosik)

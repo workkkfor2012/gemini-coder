@@ -53,15 +53,13 @@ const ChatInput: React.FC<Props> = (props) => {
           onFocus={handle_focus}
           autoFocus
         />
-        <button onClick={handle_submit}>
-          Continue in {props.web_chat_name}
-        </button>
+        <button onClick={handle_submit}>Continue</button>
       </div>
       <div className={styles['browser-extension-message']}>
         <p>
-          Your default browser will load with {props.web_chat_name} page. Paste
-          your clipboard manually or for a seamless experience, consider
-          automating chat initialization by installing the Gemini Coder
+          Clicking <i>Continue</i> will open {props.web_chat_name} in your
+          browser. Paste your clipboard manually or for a seamless experience,
+          consider automating chat initialization by installing the Gemini Coder
           Connector:
         </p>
         <ul>
@@ -78,14 +76,6 @@ const ChatInput: React.FC<Props> = (props) => {
         </ul>
       </div>
       <div className={styles.footer}>
-        <div>
-          <a href="https://github.com/robertpiosik/gemini-coder">
-            Star on GitHub
-          </a>
-        </div>
-        <div>
-          <a href="https://buymeacoffee.com/robertpiosik">Buy me a coffee</a>
-        </div>
         <div>
           <a href="https://github.com/robertpiosik/gemini-coder/discussions">
             Send feedback
