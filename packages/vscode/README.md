@@ -4,7 +4,7 @@
 
 This unofficial extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
 
-With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of available commands for
+With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of the available commands for
 
 - FIM completions,
 - web chat in AI Studio,
