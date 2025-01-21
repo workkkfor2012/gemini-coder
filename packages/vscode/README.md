@@ -1,13 +1,15 @@
 # Gemini Coder
 
-**NEW:** Supports other web chats like DeepSeek! Use the newest R1, V3 models for free with our automatic chat initialization.
+---
 
-This extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
+**NEW:** Now supports DeepSeek web chat! Use the newest R1, V3 models for free with hands-free chat initialization.
 
-With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of the available commands for
+---
+
+With dedicated context panel you can manually select related folders and files to your task at hand, then use one of the available commands for:
 
 - FIM completions,
-- web chat in AI Studio,
+- web chat in AI Studio/DeepSeek,
 - file refactoring.
 
 For a seamless developer experience, install dedicated browser extension for hands-free chat initialization.
@@ -19,12 +21,11 @@ For a seamless developer experience, install dedicated browser extension for han
 
 ## Features
 
-- Free, use your own API key.
-- File tree for context selection.
+- Handy workspace explorer tree for context selection.
 - Autocomplete at the cursor position.
-- Automatically initialized chats in AI Studio.
+- Automatically initialized chats in AI Studio or DeepSeek (no API key needed).
 - File refactoring.
-- Rate limited Gemini Pro requests fall back to Gemini Flash.
+- Rate limited FIM completions Gemini Pro requests fall back to Gemini Flash.
 - Provider agnostic, read more "Set up custom providers" section below.
 
 ## How to use FIM autocompletion
@@ -42,17 +43,19 @@ For a seamless developer experience, install dedicated browser extension for han
 - `Gemini Coder: Autocomplete with Primary Model`: Uses the primary model to autocomplete code at the cursor position.
 - `Gemini Coder: Autocomplete with Secondary Model`: Uses the secondary model to autocomplete code at the cursor position.
 - `Gemini Coder: Copy Autocompletion Prompt to Clipboard`: Copies the current autocompletion prompt to the clipboard.
+- `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
+
+#### File refactoring
+
+- `Gemini Coder: Refactor This File`: Refactors the current file based on the provided instruction.
+- `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
+- `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
 
 #### Chat
 
 - `Gemini Coder: Open Web Chat with Instruction`: Copies the instruction with context to the clipboard and opens the selected web chat.
 - `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
 - `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
-
-#### File refactoring
-
-- `Gemini Coder: Refactor This File`: Refactors the current file based on the provided instruction.
-- `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
 
 #### Other
 
