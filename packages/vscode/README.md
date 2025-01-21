@@ -1,5 +1,7 @@
 # Gemini Coder
 
+**NEW:** Supports other web chats like DeepSeek! Use the newest R1, V3 models for free with our automatic chat initialization.
+
 This extension allows you to use Gemini Pro and Gemini Flash models inside VS Code.
 
 With dedicated context panel you can select related folders and files, up to 2M tokens, then use one of the available commands for

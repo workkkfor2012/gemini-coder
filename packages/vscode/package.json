@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder for VS Code",
+  "displayName": "Gemini Coder, now with DeepSeek",
   "description": "Open automatically initialized AI Studio chat with your custom instruction and hand-picked context, up to 2M tokens! Use the same big context for code completions, whenever you need something context aware!",
-  "version": "1.0.92",
+  "version": "1.0.93",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
