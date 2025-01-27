@@ -28,17 +28,14 @@ export function completion_request_command(
       ...user_providers
     ]
 
-    if (
-      !provider_name ||
-      !all_providers.some((p) => p.name === provider_name)
-    ) {
+    if (!provider_name || !all_providers.some((p) => p.name == provider_name)) {
       vscode.window.showErrorMessage(
         `${providerType} provider is not set or invalid. Please set it in the settings.`
       )
       return
     }
 
-    const provider = all_providers.find((p) => p.name === provider_name)!
+    const provider = all_providers.find((p) => p.name == provider_name)!
     const model = provider.model
     const temperature = provider.temperature
     const system_instructions = provider.systemInstructions
@@ -157,7 +154,7 @@ export function completion_request_command(
                 const lines = completion.split('\n')
                 const new_line = position.line + lines.length - 1
                 const new_char =
-                  lines.length === 1
+                  lines.length == 1
                     ? position.character + lines[0].length
                     : lines[lines.length - 1].length
                 const new_position = new vscode.Position(new_line, new_char)
@@ -183,39 +180,53 @@ export function completion_request_command(
                 )
 
                 if (completion == 'rate_limit') {
-                  vscode.window.showWarningMessage(
-                    'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
+                  const available_providers = all_providers.filter(
+                    (p) => p.name != provider_name
                   )
-                  const fallback_provider = all_providers.find(
-                    (p) => p.name == 'Gemini Flash'
+
+                  const selected_provider_name =
+                    await vscode.window.showQuickPick(
+                      available_providers.map((p) => p.name),
+                      {
+                        placeHolder:
+                          'Rate limit reached, retry with another provider'
+                      }
+                    )
+
+                  if (!selected_provider_name) {
+                    vscode.window.showErrorMessage(
+                      'No provider selected. Request cancelled.'
+                    )
+                    return
+                  }
+
+                  const selected_provider = all_providers.find(
+                    (p) => p.name == selected_provider_name
                   )!
                   const fallback_body = {
                     ...body,
-                    model: fallback_provider.model,
-                    temperature: fallback_provider.temperature
+                    model: selected_provider.model,
+                    temperature: selected_provider.temperature
                   }
                   completion = await make_api_request(
-                    fallback_provider,
+                    selected_provider,
                     fallback_body,
                     cancel_token_source.token
                   )
+                }
 
-                  if (completion === null) return
-
-                  if (completion) {
-                    await insert_completion(completion)
-                  } else {
-                    vscode.window.showErrorMessage(
-                      'Fallback with Gemini Flash also failed. Please try again later.'
-                    )
-                  }
-                } else if (completion) {
+                if (completion) {
                   await insert_completion(completion)
                 }
+              } catch (error) {
+                console.error('Completion error:', error)
+                vscode.window.showErrorMessage(
+                  'An error occurred during completion. See console for details.'
+                )
               } finally {
                 cursor_listener.dispose()
+                progress.report({ increment: 100 })
               }
-              progress.report({ increment: 100 })
             }
           )
         }

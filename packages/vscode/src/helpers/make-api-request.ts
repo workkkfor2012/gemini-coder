@@ -35,14 +35,7 @@ export async function make_api_request(
       console.log('Request canceled:', error.message)
       return null
     } else if (axios.isAxiosError(error) && error.response?.status === 429) {
-      if (provider.name === 'Gemini Pro') {
-        return 'rate_limit'
-      } else {
-        vscode.window.showErrorMessage(
-          "You've reached the rate limit! Please try again later or switch to a different model."
-        )
-        return null
-      }
+      return 'rate_limit'
     } else {
       console.error('API request failed:', error)
       vscode.window.showErrorMessage(

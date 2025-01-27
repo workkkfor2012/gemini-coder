@@ -76,7 +76,7 @@ export function refactor_file_command(
         return
       }
 
-      const provider = all_providers.find((p) => p.name === provider_name)!
+      let provider = all_providers.find((p) => p.name === provider_name)!
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
@@ -153,7 +153,7 @@ export function refactor_file_command(
         }
       ]
 
-      const body = {
+      let body = {
         messages,
         model,
         temperature
@@ -183,33 +183,49 @@ export function refactor_file_command(
               cancel_token_source.token
             )
 
-            if (refactored_content === 'rate_limit') {
-              vscode.window.showWarningMessage(
-                'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
-              )
-              const fallback_provider = all_providers.find(
-                (p) => p.name == 'Gemini Flash'
-              )!
-              const fallback_body = {
-                ...body,
-                model: fallback_provider.model,
-                temperature: fallback_provider.temperature
-              }
-              refactored_content = await make_api_request(
-                fallback_provider,
-                fallback_body,
-                cancel_token_source.token
+            if (refactored_content == 'rate_limit') {
+              const available_providers = all_providers.filter(
+                (p) => p.name != provider_name
               )
 
-              if (refactored_content === null) return
+              const selected_provider_name = await vscode.window.showQuickPick(
+                available_providers.map((p) => p.name),
+                {
+                  placeHolder:
+                    'Rate limit reached, retry with another provider'
+                }
+              )
 
-              if (!refactored_content) {
+              if (!selected_provider_name) {
                 vscode.window.showErrorMessage(
-                  'Fallback with Gemini Flash also failed. Please try again later.'
+                  'No provider selected. Refactoring cancelled.'
                 )
                 return
               }
-            } else if (!refactored_content) {
+
+              provider = all_providers.find(
+                (p) => p.name == selected_provider_name
+              )!
+
+              body = {
+                messages,
+                model: provider.model,
+                temperature: provider.temperature
+              }
+
+              refactored_content = await make_api_request(
+                provider,
+                body,
+                cancel_token_source.token
+              )
+            }
+
+            if (refactored_content == null) return
+
+            if (!refactored_content) {
+              vscode.window.showErrorMessage(
+                'Refactoring failed. Please try again later.'
+              )
               return
             }
 
@@ -221,7 +237,9 @@ export function refactor_file_command(
               editBuilder.replace(fullRange, refactored_content!)
             })
 
-            vscode.window.showInformationMessage('File refactored!')
+            vscode.window.showInformationMessage(
+              `File refactored with ${provider.name}!`
+            )
           } catch (error) {
             console.error('Refactoring error:', error)
             vscode.window.showErrorMessage(
