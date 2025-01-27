@@ -84,8 +84,11 @@
 }
 
 .footer {
-  margin-top: 15px;
+  margin-top: 18px;
   font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
   a {
     color: var(--vscode-textLink-foreground);
     text-decoration: none;

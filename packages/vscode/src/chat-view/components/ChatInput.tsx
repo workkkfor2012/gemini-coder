@@ -70,7 +70,7 @@ const ChatInput: React.FC<Props> = (props) => {
       <div className={styles['chat-input']}>
         <textarea
           ref={textarea_ref}
-          placeholder="Enter instruction..."
+          placeholder="Type something"
           value={instruction}
           onChange={handle_input_change}
           onKeyDown={handle_key_down}
@@ -82,9 +82,7 @@ const ChatInput: React.FC<Props> = (props) => {
       <div className={styles['browser-extension-message']}>
         <p>
           Clicking <i>Continue</i> will open {props.web_chat_name} in your
-          browser. Paste your clipboard manually or for a seamless experience,
-          consider automating chat initialization by installing the Gemini Coder
-          Connector:
+          browser. Paste clipboard manually or automate chat initialization with Gemini Coder Connector.
         </p>
         <ul>
           <li>
@@ -100,6 +98,12 @@ const ChatInput: React.FC<Props> = (props) => {
         </ul>
       </div>
       <div className={styles.footer}>
+        <div>
+          <a href="https://buymeacoffee.com/robertpiosik">
+            If you find Gemini Coder useful, a coffee would be a wonderful
+            gesture... Thank you.
+          </a>
+        </div>
         <div>
           <a href="https://github.com/robertpiosik/gemini-coder/discussions">
             Send feedback
