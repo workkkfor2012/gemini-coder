@@ -229,18 +229,20 @@ const handle_chrome = async () => {
   fill_input_and_send(get_input_element(), text)
 }
 
-const main = () => {
+const main = async () => {
   if (window.location.hash != '#gemini-coder') return
+
+  if (navigator.userAgent.includes('Firefox')) {
+    await handle_firefox()
+  } else {
+    await handle_chrome()
+  }
+
   window.history.replaceState(
     null,
     '',
     window.location.href.replace('#gemini-coder', '')
   )
-  if (navigator.userAgent.includes('Firefox')) {
-    handle_firefox()
-  } else {
-    handle_chrome()
-  }
 }
 
 main()
