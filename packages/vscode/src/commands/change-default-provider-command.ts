@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { Provider } from '../types/provider'
+import { BUILT_IN_PROVIDERS } from '../constants/providers'
 
 export function change_default_provider_command(
   status_bar_item: vscode.StatusBarItem
@@ -10,27 +11,7 @@ export function change_default_provider_command(
       const config = vscode.workspace.getConfiguration()
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const built_in_providers: Provider[] = [
-        {
-          name: 'Gemini Flash',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
-          bearerToken: '',
-          model: 'gemini-1.5-flash',
-          temperature: 0,
-          instruction: ''
-        },
-        {
-          name: 'Gemini Pro',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
-          bearerToken: '',
-          model: 'gemini-1.5-pro',
-          temperature: 0,
-          instruction: ''
-        }
-      ]
-      const all_providers = [...built_in_providers, ...user_providers]
+      const all_providers = [...BUILT_IN_PROVIDERS, ...user_providers]
 
       if (!all_providers || all_providers.length == 0) {
         vscode.window.showErrorMessage(

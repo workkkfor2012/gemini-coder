@@ -4,6 +4,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
+import { BUILT_IN_PROVIDERS } from '../constants/providers'
 
 export function refactor_file_command(
   context: vscode.ExtensionContext,
@@ -55,27 +56,15 @@ export function refactor_file_command(
       )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
-      const built_in_providers: Provider[] = [
-        {
-          name: 'Gemini Flash',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+
+      const all_providers = [
+        ...BUILT_IN_PROVIDERS.map((provider) => ({
+          ...provider,
           bearerToken: gemini_api_key || '',
-          model: 'gemini-1.5-flash',
-          temperature: gemini_temperature,
-          instruction: ''
-        },
-        {
-          name: 'Gemini Pro',
-          endpointUrl:
-            'https://generativelanguage.googleapis.com/v1beta/chat/completions',
-          bearerToken: gemini_api_key || '',
-          model: 'gemini-1.5-pro',
-          temperature: gemini_temperature,
-          instruction: ''
-        }
+          temperature: gemini_temperature
+        })),
+        ...user_providers
       ]
-      const all_providers = [...built_in_providers, ...user_providers]
 
       if (
         !provider_name ||
@@ -198,7 +187,7 @@ export function refactor_file_command(
               vscode.window.showWarningMessage(
                 'Gemini Pro has hit the rate limit. Retrying with Gemini Flash...'
               )
-              const fallback_provider = built_in_providers.find(
+              const fallback_provider = all_providers.find(
                 (p) => p.name == 'Gemini Flash'
               )!
               const fallback_body = {

@@ -69,22 +69,6 @@ The extension supports any OpenAI API compatible providers for FIM completions a
 ```json
   "geminiCoder.providers": [
     {
-      "name": "Gemini Flash 2.0 Exp",
-      "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
-      "bearerToken": "[API KEY]",
-      "model": "gemini-2.0-flash-exp",
-      "temperature": 0,
-      "instruction": ""
-    },
-    {
-      "name": "Gemini Exp 1206",
-      "endpointUrl": "https://generativelanguage.googleapis.com/v1beta/chat/completions",
-      "bearerToken": "[API KEY]",
-      "model": "gemini-exp-1206",
-      "temperature": 0,
-      "instruction": ""
-    },
-    {
       "name": "DeepSeek",
       "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
       "bearerToken": "[API KEY]",
