@@ -79,6 +79,48 @@ const fill_input_and_send = (
   }
 }
 
+const enter_system_instructions = async (system_instructions: string) => {
+  if (is_ai_studio) {
+    const system_instructions_selector =
+      'textarea[aria-label="System instructions"]'
+    const system_instructions_element = document.querySelector(
+      system_instructions_selector
+    ) as HTMLTextAreaElement
+    if (system_instructions_element) {
+      system_instructions_element.value = system_instructions
+      system_instructions_element.dispatchEvent(
+        new Event('input', { bubbles: true })
+      )
+      system_instructions_element.dispatchEvent(
+        new Event('change', { bubbles: true })
+      )
+    } else {
+      // click on button aria-label="Collapse all System Instructions" then proceed as above
+      const collapse_button = document.querySelector(
+        'button[aria-label="Collapse all System Instructions"]'
+      ) as HTMLElement
+      if (collapse_button) {
+        collapse_button.click()
+        // wait for animation frame, inline with resolve
+        await new Promise((r) => requestAnimationFrame(r))
+
+        const system_instructions_element = document.querySelector(
+          system_instructions_selector
+        ) as HTMLTextAreaElement
+        if (system_instructions_element) {
+          system_instructions_element.value = system_instructions
+          system_instructions_element.dispatchEvent(
+            new Event('input', { bubbles: true })
+          )
+          system_instructions_element.dispatchEvent(
+            new Event('change', { bubbles: true })
+          )
+        }
+      }
+    }
+  }
+}
+
 const handle_firefox = async () => {
   const button = document.createElement('button')
   button.innerText = 'Continue from VS Code'
@@ -93,11 +135,18 @@ const handle_firefox = async () => {
 
   const handle_paste_on_click = async () => {
     try {
-      const text = await navigator.clipboard.readText()
-      if (text.startsWith('<files>')) {
-        const input_element = get_input_element()
-        fill_input_and_send(input_element, text)
+      let text = await navigator.clipboard.readText()
+      let system_instructions = ''
+      if (text.startsWith('<system>')) {
+        system_instructions = text.split('<system>')[1].split('</system>')[0]
+        text = text.split('</system>')[1].trim()
+        await navigator.clipboard.writeText(text)
       }
+      if (system_instructions) {
+        await enter_system_instructions(system_instructions)
+      }
+      const input_element = get_input_element()
+      fill_input_and_send(input_element, text)
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err)
     }
@@ -144,35 +193,49 @@ const handle_chrome = async () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
-  const text = await navigator.clipboard.readText()
-  if (text.startsWith('<files>')) {
-    // Quirks mitigaion
-    if (is_ai_studio) {
-      await new Promise(async (resolve) => {
-        while (!document.querySelector('.title-container')) {
-          await new Promise((resolve) => {
-            setTimeout(() => {
-              resolve(true)
-            }, 100)
-          })
-        }
-        resolve(null)
-      })
-      if (should_wait_additional_time) {
+  let text = await navigator.clipboard.readText()
+  let system_instructions = ''
+  if (text.startsWith('<system>')) {
+    system_instructions = text.split('<system>')[1].split('</system>')[0]
+    text = text.split('</system>')[1].trim()
+    await navigator.clipboard.writeText(text)
+  }
+
+  // Quirks mitigaion
+  if (is_ai_studio) {
+    await new Promise(async (resolve) => {
+      while (!document.querySelector('.title-container')) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
-          }, 500)
+          }, 100)
         })
       }
+      resolve(null)
+    })
+    if (should_wait_additional_time) {
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 500)
+      })
     }
-
-    fill_input_and_send(get_input_element(), text)
   }
+
+  if (system_instructions) {
+    await enter_system_instructions(system_instructions)
+  }
+
+  fill_input_and_send(get_input_element(), text)
 }
 
 const main = () => {
   if (window.location.hash != '#gemini-coder') return
+  window.history.replaceState(
+    null,
+    '',
+    window.location.href.replace('#gemini-coder', '')
+  )
   if (navigator.userAgent.includes('Firefox')) {
     handle_firefox()
   } else {
