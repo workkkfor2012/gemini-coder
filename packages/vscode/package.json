@@ -244,6 +244,14 @@
           "items": {
             "type": "string"
           }
+        },
+        "geminiCoder.promptPrefixes": {
+          "type": "array",
+          "default": [],
+          "description": "Prompt prefixes.",
+          "items": {
+            "type": "string"
+          }
         }
       }
     },

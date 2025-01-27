@@ -9,6 +9,9 @@ type Props = {
   system_instructions: string[]
   selected_system_instruction?: string
   on_system_instruction_change: (instruction: string) => void
+  prompt_prefixes: string[]
+  selected_prompt_prefix?: string
+  on_prompt_prefix_change: (prefix: string) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -50,6 +53,12 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_system_instruction_change(e.target.value)
   }
 
+  const handle_prompt_prefix_change = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    props.on_prompt_prefix_change(e.target.value)
+  }
+
   return (
     <div className={styles.container}>
       {props.web_chat_name == 'AI Studio' && (
@@ -61,7 +70,7 @@ const ChatInput: React.FC<Props> = (props) => {
           >
             <option value="">
               {!props.system_instructions.length
-                ? 'Set up in settings'
+                ? 'Set up system instructions in settings'
                 : 'Select system instructions...'}
             </option>
             {props.system_instructions.map((instruction, index) => (
@@ -72,10 +81,28 @@ const ChatInput: React.FC<Props> = (props) => {
           </select>
         </div>
       )}
+      <div className={styles['prefix-suffix']}>
+        <select
+          value={props.selected_prompt_prefix || ''}
+          onChange={handle_prompt_prefix_change}
+          disabled={!props.prompt_prefixes.length}
+        >
+          <option value="">
+            {!props.prompt_prefixes.length
+              ? 'Set up prompt prefixes in settings'
+              : 'Select prompt prefix...'}
+          </option>
+          {props.prompt_prefixes.map((prefix, index) => (
+            <option key={index} value={prefix}>
+              {prefix}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className={styles['chat-input']}>
         <textarea
           ref={textarea_ref}
-          placeholder="Type something"
+          placeholder="Enter a prompt"
           value={instruction}
           onChange={handle_input_change}
           onKeyDown={handle_key_down}

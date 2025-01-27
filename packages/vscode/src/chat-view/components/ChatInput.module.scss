@@ -25,6 +25,25 @@
   }
 }
 
+.prefix-suffix {
+  margin-bottom: 8px;
+  select {
+    width: 100%;
+    padding: 4px 4px;
+    border-radius: 2px;
+    font-family: system-ui, sans-serif;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: none;
+    &:focus {
+      outline-color: var(--vscode-focusBorder);
+      outline-offset: -1px;
+      outline-style: solid;
+      outline-width: 1px;
+    }
+  }
+}
+
 .chat-input {
   display: flex;
   flex-direction: column;

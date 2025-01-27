@@ -3,6 +3,7 @@ declare const styles: {
   readonly "chat-input": string;
   readonly "container": string;
   readonly "footer": string;
+  readonly "prefix-suffix": string;
   readonly "system-instructions": string;
 };
 export = styles;

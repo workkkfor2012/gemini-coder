@@ -9,12 +9,17 @@ function Chat() {
   const [system_instructions, set_system_instructions] = useState<string[]>()
   const [selected_system_instruction, set_selected_system_instruction] =
     useState<string>()
+  const [prompt_prefixes, set_prompt_prefixes] = useState<string[]>()
+  const [selected_prompt_prefix, set_selected_prompt_prefix] =
+    useState<string>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
     vscode.postMessage({ command: 'getWebChatName' })
     vscode.postMessage({ command: 'getSystemInstructions' })
     vscode.postMessage({ command: 'getLastSystemInstruction' })
+    vscode.postMessage({ command: 'getPromptPrefixes' })
+    vscode.postMessage({ command: 'getLastPromptPrefix' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -31,6 +36,12 @@ function Chat() {
         case 'initialSystemInstruction':
           set_selected_system_instruction(message.instruction)
           break
+        case 'promptPrefixes':
+          set_prompt_prefixes(message.prefixes)
+          break
+        case 'initialPromptPrefix':
+          set_selected_prompt_prefix(message.prefix)
+          break
       }
     }
 
@@ -45,7 +56,8 @@ function Chat() {
     vscode.postMessage({
       command: 'processChatInstruction',
       instruction,
-      system_instruction: selected_system_instruction // Pass selected instruction
+      system_instruction: selected_system_instruction,
+      prompt_prefix: selected_prompt_prefix
     })
   }
 
@@ -64,10 +76,19 @@ function Chat() {
     })
   }
 
+  const handle_prompt_prefix_change = (prefix: string) => {
+    set_selected_prompt_prefix(prefix)
+    vscode.postMessage({
+      command: 'savePromptPrefix',
+      prefix
+    })
+  }
+
   if (
     initial_instruction === undefined ||
     web_chat_name === undefined ||
-    system_instructions === undefined
+    system_instructions === undefined ||
+    prompt_prefixes === undefined
   ) {
     return null
   }
@@ -81,6 +102,9 @@ function Chat() {
       on_system_instruction_change={handle_system_instruction_change}
       on_submit={handle_send_message}
       on_instruction_change={handle_instruction_change}
+      prompt_prefixes={prompt_prefixes}
+      selected_prompt_prefix={selected_prompt_prefix}
+      on_prompt_prefix_change={handle_prompt_prefix_change}
     />
   )
 }
