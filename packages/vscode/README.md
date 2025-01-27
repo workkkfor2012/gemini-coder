@@ -24,11 +24,11 @@ For a seamless developer experience, install dedicated browser extension for han
 - Handy workspace explorer tree for context selection.
 - Autocomplete at the cursor position.
 - Automatically initialized chats in AI Studio or DeepSeek (no API key needed).
-- File refactoring.
+- File refactoring, useful for applying suggested code changes.
 - Rate limited FIM completions Gemini Pro requests fall back to Gemini Flash.
 - Provider agnostic, read more "Set up custom providers" section below.
 
-## How to use FIM autocompletion
+## How to use Autocomplete
 
 1.  Open the Context View and select all relevant folders/files you want to attach as context in each request.
 2.  Place the cursor where you want to insert code completion.
@@ -60,7 +60,7 @@ For a seamless developer experience, install dedicated browser extension for han
 #### Other
 
 - `Gemini Coder: Copy Context`: Copies current context to the clipboard.
-- `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models for autocompletion and file refactor commands.
+- `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models for autocompletion and file refactoring commands.
 
 ## Set up custom providers
 

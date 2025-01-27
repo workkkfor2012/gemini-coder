@@ -147,20 +147,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           }
 
           // Construct the final text
-          let clipboard_prompt_value = `${
+          let clipboard_text = `${
             context ? `<files>${context}\n</files>\n` : ''
           }${message.instruction}`
+
+          // Get AI Studio temperature setting
+          const ai_studio_temperature = vscode.workspace
+            .getConfiguration()
+            .get<number>('geminiCoder.aiStudioTemperature')
 
           // Add system instruction if using AI Studio
           const chat_ui_provider = vscode.workspace
             .getConfiguration()
             .get<string>('geminiCoder.webChat')
 
-          if (chat_ui_provider == 'AI Studio' && system_instruction) {
-            clipboard_prompt_value = `<system>${system_instruction}</system>${clipboard_prompt_value}`
+          if (chat_ui_provider == 'AI Studio') {
+            clipboard_text = `<temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+            if (system_instruction) {
+              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
+            }
           }
 
-          await vscode.env.clipboard.writeText(clipboard_prompt_value)
+          await vscode.env.clipboard.writeText(clipboard_text)
 
           // Open the corresponding URL based on the default chat UI provider
           const url = get_chat_url(chat_ui_provider)
