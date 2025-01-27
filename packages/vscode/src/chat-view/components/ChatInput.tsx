@@ -54,11 +54,16 @@ const ChatInput: React.FC<Props> = (props) => {
     <div className={styles.container}>
       {props.web_chat_name == 'AI Studio' && (
         <div className={styles['system-instructions']}>
-          <span>System instructions</span>
           <select
-            value={props.selected_system_instruction}
+            value={props.selected_system_instruction || ''}
             onChange={handle_system_instruction_change}
+            disabled={!props.system_instructions.length}
           >
+            <option value="">
+              {!props.system_instructions.length
+                ? 'Set up in settings'
+                : 'Select system instructions...'}
+            </option>
             {props.system_instructions.map((instruction, index) => (
               <option key={index} value={instruction}>
                 {instruction}
@@ -82,7 +87,8 @@ const ChatInput: React.FC<Props> = (props) => {
       <div className={styles['browser-extension-message']}>
         <p>
           Clicking <i>Continue</i> will open {props.web_chat_name} in your
-          browser. Paste clipboard manually or automate chat initialization with Gemini Coder Connector.
+          browser. Paste clipboard manually or automate chat initialization with
+          Gemini Coder Connector.
         </p>
         <ul>
           <li>

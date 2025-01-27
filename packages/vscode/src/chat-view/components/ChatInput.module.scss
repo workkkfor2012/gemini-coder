@@ -4,18 +4,18 @@
 }
 
 .system-instructions {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--vscode-focusBorder);
   select {
     width: 100%;
-    padding: 8px;
+    padding: 4px 4px;
     border-radius: 2px;
     font-family: system-ui, sans-serif;
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
     border: none;
+    font-size: 0.9em;
     &:focus {
       outline-color: var(--vscode-focusBorder);
       outline-offset: -1px;
@@ -33,7 +33,7 @@
     padding: 8px;
     border-radius: 2px;
     font-family: system-ui, sans-serif;
-    height: 35px;
+    height: 48px;
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
     border: none;
