@@ -12,6 +12,9 @@ function Chat() {
   const [prompt_prefixes, set_prompt_prefixes] = useState<string[]>()
   const [selected_prompt_prefix, set_selected_prompt_prefix] =
     useState<string>()
+  const [prompt_suffixes, set_prompt_suffixes] = useState<string[]>()
+  const [selected_prompt_suffix, set_selected_prompt_suffix] =
+    useState<string>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
@@ -20,6 +23,8 @@ function Chat() {
     vscode.postMessage({ command: 'getLastSystemInstruction' })
     vscode.postMessage({ command: 'getPromptPrefixes' })
     vscode.postMessage({ command: 'getLastPromptPrefix' })
+    vscode.postMessage({ command: 'getPromptSuffixes' })
+    vscode.postMessage({ command: 'getLastPromptSuffix' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -42,6 +47,12 @@ function Chat() {
         case 'initialPromptPrefix':
           set_selected_prompt_prefix(message.prefix)
           break
+        case 'promptSuffixes':
+          set_prompt_suffixes(message.suffixes)
+          break
+        case 'initialPromptSuffix':
+          set_selected_prompt_suffix(message.suffix)
+          break
       }
     }
 
@@ -57,7 +68,8 @@ function Chat() {
       command: 'processChatInstruction',
       instruction,
       system_instruction: selected_system_instruction,
-      prompt_prefix: selected_prompt_prefix
+      prompt_prefix: selected_prompt_prefix,
+      prompt_suffix: selected_prompt_suffix
     })
   }
 
@@ -84,11 +96,20 @@ function Chat() {
     })
   }
 
+  const handle_prompt_suffix_change = (suffix: string) => {
+    set_selected_prompt_suffix(suffix)
+    vscode.postMessage({
+      command: 'savePromptSuffix',
+      suffix
+    })
+  }
+
   if (
     initial_instruction === undefined ||
     web_chat_name === undefined ||
     system_instructions === undefined ||
-    prompt_prefixes === undefined
+    prompt_prefixes === undefined ||
+    prompt_suffixes === undefined
   ) {
     return null
   }
@@ -105,6 +126,9 @@ function Chat() {
       prompt_prefixes={prompt_prefixes}
       selected_prompt_prefix={selected_prompt_prefix}
       on_prompt_prefix_change={handle_prompt_prefix_change}
+      prompt_suffixes={prompt_suffixes}
+      selected_prompt_suffix={selected_prompt_suffix}
+      on_prompt_suffix_change={handle_prompt_suffix_change}
     />
   )
 }

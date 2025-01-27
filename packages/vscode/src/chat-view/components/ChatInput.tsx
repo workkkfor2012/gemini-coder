@@ -12,6 +12,9 @@ type Props = {
   prompt_prefixes: string[]
   selected_prompt_prefix?: string
   on_prompt_prefix_change: (prefix: string) => void
+  prompt_suffixes: string[]
+  selected_prompt_suffix?: string
+  on_prompt_suffix_change: (suffix: string) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -59,6 +62,12 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_prompt_prefix_change(e.target.value)
   }
 
+  const handle_prompt_suffix_change = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    props.on_prompt_suffix_change(e.target.value)
+  }
+
   return (
     <div className={styles.container}>
       {props.web_chat_name == 'AI Studio' && (
@@ -71,7 +80,7 @@ const ChatInput: React.FC<Props> = (props) => {
             <option value="">
               {!props.system_instructions.length
                 ? 'Set up system instructions in settings'
-                : 'Select system instructions...'}
+                : 'System instructions'}
             </option>
             {props.system_instructions.map((instruction, index) => (
               <option key={index} value={instruction}>
@@ -90,7 +99,7 @@ const ChatInput: React.FC<Props> = (props) => {
           <option value="">
             {!props.prompt_prefixes.length
               ? 'Set up prompt prefixes in settings'
-              : 'Select prompt prefix...'}
+              : 'Prompt prefix'}
           </option>
           {props.prompt_prefixes.map((prefix, index) => (
             <option key={index} value={prefix}>
@@ -109,14 +118,33 @@ const ChatInput: React.FC<Props> = (props) => {
           onFocus={handle_focus}
           autoFocus
         />
-        <button onClick={handle_submit}>Continue</button>
       </div>
+      <div className={styles['prefix-suffix']}>
+        <select
+          value={props.selected_prompt_suffix || ''}
+          onChange={handle_prompt_suffix_change}
+          disabled={!props.prompt_suffixes.length}
+        >
+          <option value="">
+            {!props.prompt_suffixes.length
+              ? 'Set up prompt suffixes in settings'
+              : 'Prompt suffix'}
+          </option>
+          {props.prompt_suffixes.map((suffix, index) => (
+            <option key={index} value={suffix}>
+              {suffix}
+            </option>
+          ))}
+        </select>
+      </div>
+      <button className={styles.continue} onClick={handle_submit}>
+        Continue
+      </button>
       <div className={styles['browser-extension-message']}>
-        <p>
-          Clicking <i>Continue</i> will open {props.web_chat_name} in your
-          browser. Paste clipboard manually or automate chat initialization with
-          Gemini Coder Connector.
-        </p>
+        <span>
+          {props.web_chat_name} will open in your browser. Paste clipboard
+          manually or automate chat initialization with Gemini Coder Connector.
+        </span>
         <ul>
           <li>
             <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">

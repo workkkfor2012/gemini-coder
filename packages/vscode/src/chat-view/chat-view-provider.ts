@@ -133,10 +133,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           // Get selected system instruction from webview state
           const system_instruction = message.system_instruction
           const prompt_prefix = message.prompt_prefix
+          const prompt_suffix = message.prompt_suffix
           if (prompt_prefix) {
             message.instruction = `${prompt_prefix.trim()} ${
               message.instruction
             }`
+          }
+
+          if (prompt_suffix) {
+            message.instruction = `${
+              message.instruction
+            } ${prompt_suffix.trim()}`
           }
 
           // Construct the final text
@@ -197,6 +204,26 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           break
         case 'savePromptPrefix':
           this._context.globalState.update('lastPromptPrefix', message.prefix)
+          break
+        case 'getPromptSuffixes':
+          const prompt_suffixes = vscode.workspace
+            .getConfiguration()
+            .get<string[]>('geminiCoder.promptSuffixes', [])
+          webview_view.webview.postMessage({
+            command: 'promptSuffixes',
+            suffixes: prompt_suffixes
+          })
+          break
+        case 'getLastPromptSuffix':
+          const last_prompt_suffix =
+            this._context.globalState.get<string>('lastPromptSuffix') || ''
+          webview_view.webview.postMessage({
+            command: 'initialPromptSuffix',
+            suffix: last_prompt_suffix
+          })
+          break
+        case 'savePromptSuffix':
+          this._context.globalState.update('lastPromptSuffix', message.suffix)
           break
       }
     })
