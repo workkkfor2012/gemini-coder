@@ -6,6 +6,9 @@ type Props = {
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
   web_chat_name: string
+  system_instructions: string[]
+  selected_system_instruction?: string
+  on_system_instruction_change: (instruction: string) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -41,8 +44,29 @@ const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
+  const handle_system_instruction_change = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    props.on_system_instruction_change(e.target.value)
+  }
+
   return (
     <div className={styles.container}>
+      {props.web_chat_name == 'AI Studio' && (
+        <div className={styles['system-instructions']}>
+          <span>System instructions</span>
+          <select
+            value={props.selected_system_instruction}
+            onChange={handle_system_instruction_change}
+          >
+            {props.system_instructions.map((instruction, index) => (
+              <option key={index} value={instruction}>
+                {instruction}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
       <div className={styles['chat-input']}>
         <textarea
           ref={textarea_ref}
