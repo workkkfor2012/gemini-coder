@@ -121,6 +121,20 @@ const enter_system_instructions = async (system_instructions: string) => {
   }
 }
 
+// temperature should be set in document.querySelector('.settings-item:nth-of-type(4) input[type=number]')
+const set_temperature = async (temperature: string) => {
+  if (is_ai_studio) {
+    const temperature_selector =
+      '.settings-item:nth-of-type(4) input[type=number]'
+    const temperature_element = document.querySelector(
+      temperature_selector
+    ) as HTMLInputElement
+    temperature_element.value = temperature
+    temperature_element.dispatchEvent(new Event('input', { bubbles: true }))
+    temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
+  }
+}
+
 const handle_firefox = async () => {
   const button = document.createElement('button')
   button.innerText = 'Continue from VS Code'
@@ -195,9 +209,18 @@ const handle_chrome = async () => {
 
   let text = await navigator.clipboard.readText()
   let system_instructions = ''
-  if (text.startsWith('<system>')) {
-    system_instructions = text.split('<system>')[1].split('</system>')[0]
-    text = text.split('</system>')[1].trim()
+  if (/<system>[\s\S]*?<\/system>(?![\s\S]*?<files>)/.test(text)) {
+    system_instructions = text.match(/<system>([\s\S]*?)<\/system>/)![1]
+    text = text.replace(/<system>[\s\S]*?<\/system>/, '').trim()
+
+    await navigator.clipboard.writeText(text)
+  }
+
+  let temperature = ''
+  if (/<temperature>[\s\S]*?<\/temperature>(?![\s\S]*?<files>)/.test(text)) {
+    temperature = text.match(/<temperature>([\s\S]*?)<\/temperature>/)![1]
+    text = text.replace(/<temperature>[\s\S]*?<\/temperature>/, '').trim()
+
     await navigator.clipboard.writeText(text)
   }
 
@@ -224,6 +247,10 @@ const handle_chrome = async () => {
 
   if (system_instructions) {
     await enter_system_instructions(system_instructions)
+  }
+
+  if (temperature) {
+    await set_temperature(temperature)
   }
 
   fill_input_and_send(get_input_element(), text)
