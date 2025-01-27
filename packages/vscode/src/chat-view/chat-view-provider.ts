@@ -55,10 +55,18 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             message.instruction
           )
           break
-
+        case 'getSystemInstructions':
+          const system_instructions = vscode.workspace
+            .getConfiguration()
+            .get<string[]>('geminiCoder.systemInstructions', [])
+          webview_view.webview.postMessage({
+            command: 'systemInstructions',
+            instructions: system_instructions
+          })
+          break
         case 'processChatInstruction':
           // Get context from selected files
-          let context_text = ''
+          let context = ''
           const added_files = new Set<string>()
 
           const focused_file =
@@ -84,7 +92,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   set_focused_attribute && file_path == focused_file
                     ? ' focused="true"'
                     : ''
-                context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
+                context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
                 added_files.add(file_path)
               } catch (error) {
                 console.error(`Error reading file ${file_path}:`, error)
@@ -114,7 +122,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   set_focused_attribute && file_path == focused_file
                     ? ' focused="true"'
                     : ''
-                context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
+                context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
                 added_files.add(file_path)
               } catch (error) {
                 console.error(`Error reading open file ${file_path}:`, error)
@@ -122,16 +130,26 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
           }
 
+          // Get selected system instruction from webview state
+          const system_instruction = message.system_instruction
+
           // Construct the final text
-          const final_text = `<files>${context_text}\n</files>\n${message.instruction}`
+          let clipboard_prompt_value = `${
+            context ? `<files>${context}\n</files>\n` : ''
+          }${message.instruction}`
 
-          await vscode.env.clipboard.writeText(final_text)
-
-          // Open the corresponding URL based on the default chat UI provider
+          // Add system instruction if using AI Studio
           const chat_ui_provider = vscode.workspace
             .getConfiguration()
             .get<string>('geminiCoder.webChat')
 
+          if (chat_ui_provider == 'AI Studio' && system_instruction) {
+            clipboard_prompt_value = `<system>${system_instruction}</system>${clipboard_prompt_value}`
+          }
+
+          await vscode.env.clipboard.writeText(clipboard_prompt_value)
+
+          // Open the corresponding URL based on the default chat UI provider
           const url = get_chat_url(chat_ui_provider)
 
           vscode.env.openExternal(vscode.Uri.parse(url))
@@ -139,6 +157,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
         case 'showError':
           vscode.window.showErrorMessage(message.message)
+          break
+        case 'getLastSystemInstruction':
+          const last_system_instruction =
+            this._context.globalState.get<string>('lastSystemInstruction') || ''
+          webview_view.webview.postMessage({
+            command: 'initialSystemInstruction',
+            instruction: last_system_instruction
+          })
+          break
+        case 'saveSystemInstruction':
+          this._context.globalState.update(
+            'lastSystemInstruction',
+            message.instruction
+          )
           break
       }
     })
