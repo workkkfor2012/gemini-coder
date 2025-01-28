@@ -235,7 +235,7 @@
         "geminiCoder.setFocusedAttribute": {
           "type": "boolean",
           "default": true,
-          "description": "Set focused attribute (<file path=\"\" focused=\"true\">) in the context of the currently focused file."
+          "description": "Set focused attribute <file path=\"...\" focused=\"true\"> of the currently focused file in the context."
         },
         "geminiCoder.systemInstructions": {
           "type": "array",
