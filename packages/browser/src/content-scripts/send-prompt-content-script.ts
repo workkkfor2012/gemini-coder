@@ -121,7 +121,6 @@ const enter_system_instructions = async (system_instructions: string) => {
   }
 }
 
-// temperature should be set in document.querySelector('.settings-item:nth-of-type(4) input[type=number]')
 const set_temperature = async (temperature: string) => {
   if (is_ai_studio) {
     const temperature_selector =
@@ -135,7 +134,57 @@ const set_temperature = async (temperature: string) => {
   }
 }
 
-const handle_firefox = async () => {
+const process_clipboard_text = (
+  text: string
+): {
+  system_instructions: string
+  temperature: string
+  text: string
+} => {
+  let system_instructions = ''
+  let temperature = ''
+  const files_index = text.indexOf('<files>')
+
+  // Extract <system> if present and before <files>
+  const system_match = text.match(/<system>([\s\S]*?)<\/system>/)
+  if (system_match) {
+    const system_index = text.indexOf(system_match[0])
+    if (files_index == -1 || system_index < files_index) {
+      system_instructions = system_match[1]
+      text = text.replace(/<system>[\s\S]*?<\/system>/, '').trim()
+    }
+  }
+
+  // Extract <temperature> if present and before <files>
+  const temperature_match = text.match(/<temperature>([\s\S]*?)<\/temperature>/)
+  if (temperature_match) {
+    const temperature_index = text.indexOf(temperature_match[0])
+    if (files_index == -1 || temperature_index < files_index) {
+      temperature = temperature_match[1]
+      text = text.replace(/<temperature>[\s\S]*?<\/temperature>/, '').trim()
+    }
+  }
+
+  return { system_instructions, temperature, text }
+}
+
+const apply_settings_and_fill = async (params: {
+  system_instructions: string
+  temperature: string
+  text: string
+}) => {
+  if (params.system_instructions) {
+    await enter_system_instructions(params.system_instructions)
+  }
+
+  if (params.temperature) {
+    await set_temperature(params.temperature)
+  }
+
+  fill_input_and_send(get_input_element(), params.text)
+}
+
+const handle_firefox = async (r: any) => {
   const button = document.createElement('button')
   button.innerText = 'Continue from VS Code'
   button.style.margin = '20px auto'
@@ -148,19 +197,17 @@ const handle_firefox = async () => {
   button.style.fontWeight = '600'
 
   const handle_paste_on_click = async () => {
+    button.style.display = 'none'
     try {
-      let text = await navigator.clipboard.readText()
-      let system_instructions = ''
-      if (text.startsWith('<system>')) {
-        system_instructions = text.split('<system>')[1].split('</system>')[0]
-        text = text.split('</system>')[1].trim()
-        await navigator.clipboard.writeText(text)
-      }
-      if (system_instructions) {
-        await enter_system_instructions(system_instructions)
-      }
-      const input_element = get_input_element()
-      fill_input_and_send(input_element, text)
+      const original_text = await navigator.clipboard.readText()
+      const processed = process_clipboard_text(original_text)
+      await navigator.clipboard.writeText(processed.text)
+      await apply_settings_and_fill({
+        system_instructions: processed.system_instructions,
+        temperature: processed.temperature,
+        text: processed.text
+      })
+      r(null)
     } catch (err) {
       console.error('Failed to read clipboard contents: ', err)
     }
@@ -207,22 +254,9 @@ const handle_chrome = async () => {
     await new Promise((resolve) => setTimeout(resolve, 100))
   }
 
-  let text = await navigator.clipboard.readText()
-  let system_instructions = ''
-  if (/<system>[\s\S]*?<\/system>(?![\s\S]*?<files>)/.test(text)) {
-    system_instructions = text.match(/<system>([\s\S]*?)<\/system>/)![1]
-    text = text.replace(/<system>[\s\S]*?<\/system>/, '').trim()
-
-    await navigator.clipboard.writeText(text)
-  }
-
-  let temperature = ''
-  if (/<temperature>[\s\S]*?<\/temperature>(?![\s\S]*?<files>)/.test(text)) {
-    temperature = text.match(/<temperature>([\s\S]*?)<\/temperature>/)![1]
-    text = text.replace(/<temperature>[\s\S]*?<\/temperature>/, '').trim()
-
-    await navigator.clipboard.writeText(text)
-  }
+  const original_text = await navigator.clipboard.readText()
+  const processed = process_clipboard_text(original_text)
+  await navigator.clipboard.writeText(processed.text)
 
   // Quirks mitigaion
   if (is_ai_studio) {
@@ -245,22 +279,18 @@ const handle_chrome = async () => {
     }
   }
 
-  if (system_instructions) {
-    await enter_system_instructions(system_instructions)
-  }
-
-  if (temperature) {
-    await set_temperature(temperature)
-  }
-
-  fill_input_and_send(get_input_element(), text)
+  await apply_settings_and_fill({
+    system_instructions: processed.system_instructions,
+    temperature: processed.temperature,
+    text: processed.text
+  })
 }
 
 const main = async () => {
   if (window.location.hash != '#gemini-coder') return
 
   if (navigator.userAgent.includes('Firefox')) {
-    await handle_firefox()
+    await new Promise((r) => handle_firefox(r))
   } else {
     await handle_chrome()
   }

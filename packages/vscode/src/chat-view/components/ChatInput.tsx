@@ -79,8 +79,8 @@ const ChatInput: React.FC<Props> = (props) => {
           >
             <option value="">
               {!props.system_instructions.length
-                ? 'Set up system instructions in settings'
-                : 'System instructions'}
+                ? 'Add system instructions in settings'
+                : 'Select system instructions'}
             </option>
             {props.system_instructions.map((instruction, index) => (
               <option key={index} value={instruction}>
@@ -98,8 +98,8 @@ const ChatInput: React.FC<Props> = (props) => {
         >
           <option value="">
             {!props.prompt_prefixes.length
-              ? 'Set up prompt prefixes in settings'
-              : 'Prompt prefix'}
+              ? 'Add prompt prefixes in settings'
+              : 'Select prompt prefix'}
           </option>
           {props.prompt_prefixes.map((prefix, index) => (
             <option key={index} value={prefix}>
@@ -127,8 +127,8 @@ const ChatInput: React.FC<Props> = (props) => {
         >
           <option value="">
             {!props.prompt_suffixes.length
-              ? 'Set up prompt suffixes in settings'
-              : 'Prompt suffix'}
+              ? 'Add prompt suffixes in settings'
+              : 'Select prompt suffix'}
           </option>
           {props.prompt_suffixes.map((suffix, index) => (
             <option key={index} value={suffix}>
