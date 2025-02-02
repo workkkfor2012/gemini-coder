@@ -54,7 +54,6 @@ export function request_fim_completion(
       {
         label: default_model_name,
         description: 'Currently set as default',
-        detail: provider.model
       },
       ...last_used_models
         .map((model_name) => {
@@ -62,7 +61,6 @@ export function request_fim_completion(
           if (model_provider) {
             return {
               label: model_name,
-              detail: model_provider.model
             }
           }
           return null
@@ -75,7 +73,6 @@ export function request_fim_completion(
         )
         .map((p) => ({
           label: p.name,
-          detail: p.model
         }))
     ]
 

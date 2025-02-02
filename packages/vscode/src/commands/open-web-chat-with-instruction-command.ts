@@ -64,7 +64,7 @@ export function open_web_chat_with_instruction_command(
         context.globalState.get<string>('lastChatInstruction') || ''
 
       const instruction = await vscode.window.showInputBox({
-        prompt: 'Enter your instruction',
+        prompt: 'Enter a prompt',
         placeHolder: 'e.g., "Our task is to..."',
         value: last_chat_instruction
       })
@@ -232,15 +232,67 @@ export function open_web_chat_with_instruction_command(
 
       if (selected_chat) {
         if (selected_chat.label == 'AI Studio') {
+          const ai_studio_models = [
+            {
+              name: 'gemini-1.5-pro',
+              label: 'Gemini 1.5 Pro'
+            },
+            {
+              name: 'gemini-1.5-flash',
+              label: 'Gemini 1.5 Flash'
+            },
+            {
+              name: 'gemini-exp-1206',
+              label: 'Gemini Experimental 1206'
+            },
+            {
+              name: 'gemini-2.0-flash-exp',
+              label: 'Gemini 2.0 Flash Experimental'
+            },
+            {
+              name: 'gemini-2.0-flash-thinking-exp-01-21',
+              label: 'Gemini 2.0 Flash Thinking Experimental 01-21'
+            }
+          ]
+
+          const current_ai_studio_model = config.get<string>(
+            'geminiCoder.aiStudioModel'
+          )
+
+          const model_quick_pick_items = ai_studio_models.map((model) => ({
+            label: model.label,
+            description:
+              model.name == current_ai_studio_model ? 'Currently selected' : '',
+            name: model.name
+          }))
+
+          // Sort to show the currently selected model first
+          model_quick_pick_items.sort((a, b) => {
+            if (a.description == 'Currently selected') {
+              return -1
+            }
+            if (b.description == 'Currently selected') {
+              return 1
+            }
+            return 0
+          })
+
+          const ai_studio_model = await vscode.window.showQuickPick(
+            model_quick_pick_items,
+            {
+              placeHolder: 'Select AI Studio model'
+            }
+          )
+
+          if (!ai_studio_model) {
+            return // User cancelled
+          }
+
           const ai_studio_temperature = vscode.workspace
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
 
-          const ai_studio_model = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.aiStudioModel')
-
-          final_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
+          final_text = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
 
           const last_system_instruction =
             context.globalState.get<string>('lastSystemInstruction') || ''
