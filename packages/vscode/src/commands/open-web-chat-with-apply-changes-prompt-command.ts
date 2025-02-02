@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
 
 export function open_web_chat_with_apply_changes_prompt_command(
   context: vscode.ExtensionContext,
@@ -140,23 +141,63 @@ export function open_web_chat_with_apply_changes_prompt_command(
           : ai_studio
 
       if (selected_chat) {
-        // Add <temperature> tag if AI Studio is selected
         if (selected_chat.label == 'AI Studio') {
+          const current_ai_studio_model = config.get<string>(
+            'geminiCoder.aiStudioModel'
+          )
+
+          const model_quick_pick_items = AI_STUDIO_MODELS.map((model) => ({
+            label: model.label,
+            description:
+              model.name == current_ai_studio_model ? 'Last used' : '',
+            name: model.name
+          }))
+
+          // Sort to show the last used model first
+          model_quick_pick_items.sort((a, b) => {
+            if (a.description == 'Last used') {
+              return -1
+            }
+            if (b.description == 'Last used') {
+              return 1
+            }
+            return 0
+          })
+
+          const ai_studio_model = await vscode.window.showQuickPick(
+            model_quick_pick_items,
+            {
+              placeHolder: 'Select AI Studio model'
+            }
+          )
+
+          if (!ai_studio_model) {
+            return // User cancelled
+          }
+
+          await vscode.workspace
+            .getConfiguration()
+            .update(
+              'geminiCoder.aiStudioModel',
+              ai_studio_model.name,
+              vscode.ConfigurationTarget.Global
+            )
+
           const ai_studio_temperature = vscode.workspace
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
-          content = `<temperature>${ai_studio_temperature}</temperature>${content}`
+
+          content = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${content}`
         }
 
         await vscode.env.clipboard.writeText(content)
-
         vscode.env.openExternal(vscode.Uri.parse(selected_chat.url))
 
         // Update the last used web chats in global state
         last_used_web_chats = [
           selected_chat.label,
           ...last_used_web_chats.filter(
-            (chat_name) => chat_name != selected_chat.label
+            (chat_name) => chat_name !== selected_chat.label
           )
         ]
         context.globalState.update('lastUsedWebChats', last_used_web_chats)

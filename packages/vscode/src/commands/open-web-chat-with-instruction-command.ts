@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
 
 export function open_web_chat_with_instruction_command(
   context: vscode.ExtensionContext,
@@ -232,46 +233,23 @@ export function open_web_chat_with_instruction_command(
 
       if (selected_chat) {
         if (selected_chat.label == 'AI Studio') {
-          const ai_studio_models = [
-            {
-              name: 'gemini-1.5-pro',
-              label: 'Gemini 1.5 Pro'
-            },
-            {
-              name: 'gemini-1.5-flash',
-              label: 'Gemini 1.5 Flash'
-            },
-            {
-              name: 'gemini-exp-1206',
-              label: 'Gemini Experimental 1206'
-            },
-            {
-              name: 'gemini-2.0-flash-exp',
-              label: 'Gemini 2.0 Flash Experimental'
-            },
-            {
-              name: 'gemini-2.0-flash-thinking-exp-01-21',
-              label: 'Gemini 2.0 Flash Thinking Experimental 01-21'
-            }
-          ]
-
           const current_ai_studio_model = config.get<string>(
             'geminiCoder.aiStudioModel'
           )
 
-          const model_quick_pick_items = ai_studio_models.map((model) => ({
+          const model_quick_pick_items = AI_STUDIO_MODELS.map((model) => ({
             label: model.label,
             description:
-              model.name == current_ai_studio_model ? 'Currently selected' : '',
+              model.name == current_ai_studio_model ? 'Last used' : '',
             name: model.name
           }))
 
-          // Sort to show the currently selected model first
+          // Sort to show the last used model first
           model_quick_pick_items.sort((a, b) => {
-            if (a.description == 'Currently selected') {
+            if (a.description == 'Last used') {
               return -1
             }
-            if (b.description == 'Currently selected') {
+            if (b.description == 'Last used') {
               return 1
             }
             return 0
@@ -287,6 +265,14 @@ export function open_web_chat_with_instruction_command(
           if (!ai_studio_model) {
             return // User cancelled
           }
+
+          await vscode.workspace
+            .getConfiguration()
+            .update(
+              'geminiCoder.aiStudioModel',
+              ai_studio_model.name,
+              vscode.ConfigurationTarget.Global
+            )
 
           const ai_studio_temperature = vscode.workspace
             .getConfiguration()

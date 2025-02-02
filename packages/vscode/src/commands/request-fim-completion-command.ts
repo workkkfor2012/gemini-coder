@@ -5,7 +5,7 @@ import * as path from 'path'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
-import { BUILT_IN_PROVIDERS } from '../constants/providers'
+import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
 export function request_fim_completion(
   command: string,

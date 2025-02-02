@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { Provider } from '../types/provider'
-import { BUILT_IN_PROVIDERS } from '../constants/providers'
+import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
 export function change_default_model_command(
   status_bar_item: vscode.StatusBarItem
