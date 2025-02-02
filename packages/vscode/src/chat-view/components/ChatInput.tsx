@@ -5,7 +5,6 @@ type Props = {
   on_submit: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
-  web_chat_name: string
   system_instructions: string[]
   selected_system_instruction?: string
   on_system_instruction_change: (instruction: string) => void
@@ -88,41 +87,37 @@ const ChatInput: React.FC<Props> = (props) => {
 
   return (
     <div className={styles.container}>
-      {props.web_chat_name == 'AI Studio' && (
-        <>
-          <div className={styles['small-select']}>
-            <select
-              value={props.selected_ai_studio_model || ''}
-              onChange={handle_ai_studio_model_change}
-              disabled={!props.ai_studio_models.length}
-            >
-              {props.ai_studio_models.map((model, index) => (
-                <option key={index} value={model}>
-                  {model_readable_names[model] || model}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className={styles['small-select']}>
-            <select
-              value={props.selected_system_instruction || ''}
-              onChange={handle_system_instruction_change}
-              disabled={!props.system_instructions.length}
-            >
-              <option value="">
-                {!props.system_instructions.length
-                  ? 'Add system instructions in settings'
-                  : 'Select system instructions'}
-              </option>
-              {props.system_instructions.map((instruction, index) => (
-                <option key={index} value={instruction}>
-                  {instruction}
-                </option>
-              ))}
-            </select>
-          </div>
-        </>
-      )}
+      <div className={styles['small-select']}>
+        <select
+          value={props.selected_ai_studio_model || ''}
+          onChange={handle_ai_studio_model_change}
+          disabled={!props.ai_studio_models.length}
+        >
+          {props.ai_studio_models.map((model, index) => (
+            <option key={index} value={model}>
+              {model_readable_names[model] || model}
+            </option>
+          ))}
+        </select>
+      </div>
+      <div className={styles['small-select']}>
+        <select
+          value={props.selected_system_instruction || ''}
+          onChange={handle_system_instruction_change}
+          disabled={!props.system_instructions.length}
+        >
+          <option value="">
+            {!props.system_instructions.length
+              ? 'Add system instructions in settings'
+              : 'Select system instructions'}
+          </option>
+          {props.system_instructions.map((instruction, index) => (
+            <option key={index} value={instruction}>
+              {instruction}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className={styles['prefix-suffix']}>
         <select
           value={props.selected_prompt_prefix || ''}
@@ -171,12 +166,12 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <button className={styles.continue} onClick={handle_submit}>
-        Continue in {props.web_chat_name}
+        Continue in AI Studio
       </button>
       <div className={styles['browser-extension-message']}>
         <span>
-          {props.web_chat_name} will open in your default browser. Paste clipboard
-          manually or automate chat initialization with Gemini Coder Connector.
+          AI Studio will open in your default browser. Paste clipboard manually
+          or automate chat initialization with Gemini Coder Connector.
         </span>
         <ul>
           <li>

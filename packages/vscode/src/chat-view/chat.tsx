@@ -5,7 +5,6 @@ const vscode = acquireVsCodeApi()
 
 function Chat() {
   const [initial_instruction, set_initial_instruction] = useState<string>()
-  const [web_chat_name, set_web_chat_name] = useState<string>()
   const [system_instructions, set_system_instructions] = useState<string[]>()
   const [selected_system_instruction, set_selected_system_instruction] =
     useState<string>()
@@ -21,7 +20,6 @@ function Chat() {
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
-    vscode.postMessage({ command: 'getWebChatName' })
     vscode.postMessage({ command: 'getSystemInstructions' })
     vscode.postMessage({ command: 'getLastSystemInstruction' })
     vscode.postMessage({ command: 'getPromptPrefixes' })
@@ -36,9 +34,6 @@ function Chat() {
       switch (message.command) {
         case 'initialInstruction':
           set_initial_instruction(message.instruction)
-          break
-        case 'webChatName':
-          set_web_chat_name(message.name)
           break
         case 'systemInstructions':
           set_system_instructions(message.instructions)
@@ -125,7 +120,6 @@ function Chat() {
 
   if (
     initial_instruction === undefined ||
-    web_chat_name === undefined ||
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
     prompt_suffixes === undefined ||
@@ -137,7 +131,6 @@ function Chat() {
   return (
     <ChatInput
       initial_instruction={initial_instruction}
-      web_chat_name={web_chat_name}
       system_instructions={system_instructions}
       selected_system_instruction={selected_system_instruction}
       on_system_instruction_change={handle_system_instruction_change}

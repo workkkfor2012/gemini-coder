@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import { get_chat_url } from '../helpers/get-chat-url'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
@@ -36,16 +35,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           webview_view.webview.postMessage({
             command: 'initialInstruction',
             instruction: last_instruction
-          })
-          break
-
-        case 'getWebChatName':
-          const web_chat_name = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.webChat')
-          webview_view.webview.postMessage({
-            command: 'webChatName',
-            name: web_chat_name
           })
           break
 
@@ -146,37 +135,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             } ${prompt_suffix.trim()}`
           }
 
+          const ai_studio_temperature = vscode.workspace
+            .getConfiguration()
+            .get<number>('geminiCoder.aiStudioTemperature')
+
+          const ai_studio_model = vscode.workspace
+            .getConfiguration()
+            .get<string>('geminiCoder.aiStudioModel')
+
           // Construct the final text
           let clipboard_text = `${
             context ? `<files>${context}\n</files>\n` : ''
           }${message.instruction}`
 
-          // Get AI Studio temperature setting
-          const ai_studio_temperature = vscode.workspace
-            .getConfiguration()
-            .get<number>('geminiCoder.aiStudioTemperature')
-
-          // Get AI Studio model setting
-          const ai_studio_model = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.aiStudioModel')
-
-          // Add system instruction if using AI Studio
-          const chat_ui_provider = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.webChat')
-
-          if (chat_ui_provider == 'AI Studio') {
-            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-            if (system_instruction) {
-              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
-            }
+          clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+          if (system_instruction) {
+            clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
           }
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          // Open the corresponding URL based on the default chat UI provider
-          const url = get_chat_url(chat_ui_provider)
+          const url =
+            'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
 
           vscode.env.openExternal(vscode.Uri.parse(url))
           break
@@ -270,15 +250,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           break
       }
     })
-  }
-
-  public update_web_chat_name(web_chat_name: string) {
-    if (this._webview_view) {
-      this._webview_view.webview.postMessage({
-        command: 'webChatName',
-        name: web_chat_name
-      })
-    }
   }
 
   private _get_html_for_webview(webview: vscode.Webview) {

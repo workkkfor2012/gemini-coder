@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import { get_chat_url } from '../helpers/get-chat-url'
 
 export function open_web_chat_with_instruction_command(
   context: vscode.ExtensionContext,
@@ -100,13 +99,7 @@ export function open_web_chat_with_instruction_command(
 
       await vscode.env.clipboard.writeText(final_text)
 
-      // Open the corresponding URL based on the default chat UI provider
-      const chat_ui_provider = vscode.workspace
-        .getConfiguration()
-        .get<string>('geminiCoder.webChat')
-
-      const url = get_chat_url(chat_ui_provider)
-
+      const url = 'https://aistudio.google.com/app/prompts/new_chat'
       vscode.env.openExternal(vscode.Uri.parse(url))
     }
   )

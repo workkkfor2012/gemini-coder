@@ -202,27 +202,6 @@
           "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
           "default": "png,jpg,jpeg,gif,svg"
         },
-        "geminiCoder.webChat": {
-          "type": "string",
-          "description": "Web chat to use. VS Code will open the selected website in a default browser so you can paste generated prompt from clipboard. Consider installing our browser extension \"Gemini Coder Connector\" to do it on your behalf.",
-          "enum": [
-            "AI Studio",
-            "DeepSeek"
-          ],
-          "default": "AI Studio",
-          "configuration": {
-            "options": {
-              "type": "array",
-              "items": {
-                "type": "string"
-              },
-              "default": [
-                "AI Studio",
-                "DeepSeek"
-              ]
-            }
-          }
-        },
         "geminiCoder.setFocusedAttribute": {
           "type": "boolean",
           "default": true,
@@ -271,18 +250,27 @@
           ],
           "default": "gemini-exp-1206",
           "description": "The model to use with AI Studio Web Chat."
+        },
+        "geminiCoder.additionalWebChats": {
+          "type": "array",
+          "default": [],
+          "description": "Configure additional web chats.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name for the web chat."
+              },
+              "url": {
+                "type": "string",
+                "description": "Web chat URL."
+              }
+            }
+          }
         }
       }
-    },
-    "statusBar": [
-      {
-        "id": "geminiCoder.webChatStatusBar",
-        "alignment": "right",
-        "text": "$(comment-discussion) AI Studio",
-        "command": "geminiCoder.changeWebChat",
-        "priority": 99
-      }
-    ]
+    }
   },
   "scripts": {
     "build": "vsce package --no-dependencies",
