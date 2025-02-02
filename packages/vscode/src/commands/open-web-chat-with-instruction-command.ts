@@ -56,9 +56,8 @@ export function open_web_chat_with_instruction_command(
 
       const prompt_prefix =
         selected_prefix.label != 'None' ? selected_prefix.label : ''
-      if (prompt_prefix) {
-        await context.globalState.update('lastPromptPrefix', prompt_prefix)
-      }
+
+      await context.globalState.update('lastPromptPrefix', prompt_prefix)
 
       // Main Instruction Input
       let last_chat_instruction =
@@ -115,9 +114,7 @@ export function open_web_chat_with_instruction_command(
 
       const prompt_suffix =
         selected_suffix.label !== 'None' ? selected_suffix.label : ''
-      if (prompt_suffix) {
-        await context.globalState.update('lastPromptSuffix', prompt_suffix)
-      }
+      await context.globalState.update('lastPromptSuffix', prompt_suffix)
 
       // Context Building (Same as before)
       const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
