@@ -6,10 +6,9 @@ import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/providers'
 
-export function refactor_file_command(
+export function apply_changes_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
-  status_bar_item: vscode.StatusBarItem
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.applyChanges',

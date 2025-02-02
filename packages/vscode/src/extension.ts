@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { file_tree_initialization } from './file-tree/file-tree-initialization'
-import { refactor_file_command } from './commands/refactor-file-command'
+import { apply_changes_command } from './commands/apply-changes-command'
 import { request_fim_completion } from './commands/request-fim-completion-command'
 import { copy_fim_completion_prompt_command } from './commands/copy-fim-completion-prompt-command'
 import { change_default_model_command } from './commands/change-default-model-command'
@@ -35,7 +35,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    refactor_file_command(context, file_tree_provider, status_bar_item),
+    apply_changes_command(context, file_tree_provider),
     request_fim_completion(
       'geminiCoder.requestFimCompletion',
       file_tree_provider,
