@@ -134,14 +134,41 @@ const set_temperature = async (temperature: string) => {
   }
 }
 
+const set_model = async (model: string) => {
+  if (is_ai_studio) {
+    const model_selector_trigger = document.querySelector(
+      'ms-model-selector mat-form-field > div'
+    ) as HTMLElement
+    console.log(model_selector_trigger)
+    model_selector_trigger.click()
+
+    await new Promise((r) => requestAnimationFrame(r))
+
+    const model_options = Array.from(document.querySelectorAll('mat-option'))
+    for (const option of model_options) {
+      const model_name_element = option.querySelector(
+        'ms-model-option > div:last-child'
+      ) as HTMLElement
+      if (model_name_element?.textContent?.trim() == model) {
+        ;(option as HTMLElement).click()
+        break
+      }
+    }
+
+    await new Promise((r) => requestAnimationFrame(r))
+  }
+}
+
 const process_clipboard_text = (
   text: string
 ): {
   system_instructions: string
   temperature: string
+  model: string
   text: string
 } => {
   let system_instructions = ''
+  let model = ''
   let temperature = ''
   const files_index = text.indexOf('<files>')
 
@@ -165,12 +192,23 @@ const process_clipboard_text = (
     }
   }
 
-  return { system_instructions, temperature, text }
+  // Extract <model> if present and before <files>
+  const model_match = text.match(/<model>([\s\S]*?)<\/model>/)
+  if (model_match) {
+    const model_index = text.indexOf(model_match[0])
+    if (files_index == -1 || model_index < files_index) {
+      model = model_match[1]
+      text = text.replace(/<model>[\s\S]*?<\/model>/, '').trim()
+    }
+  }
+
+  return { system_instructions, temperature, model, text }
 }
 
 const apply_settings_and_fill = async (params: {
   system_instructions: string
   temperature: string
+  model: string
   text: string
 }) => {
   if (params.system_instructions) {
@@ -179,6 +217,10 @@ const apply_settings_and_fill = async (params: {
 
   if (params.temperature) {
     await set_temperature(params.temperature)
+  }
+
+  if (params.model) {
+    await set_model(params.model)
   }
 
   fill_input_and_send(get_input_element(), params.text)
@@ -205,6 +247,7 @@ const handle_firefox = async (r: any) => {
       await apply_settings_and_fill({
         system_instructions: processed.system_instructions,
         temperature: processed.temperature,
+        model: processed.model,
         text: processed.text
       })
       r(null)
@@ -282,6 +325,7 @@ const handle_chrome = async () => {
   await apply_settings_and_fill({
     system_instructions: processed.system_instructions,
     temperature: processed.temperature,
+    model: processed.model,
     text: processed.text
   })
 }
