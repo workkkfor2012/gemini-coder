@@ -80,82 +80,74 @@ const fill_input_and_send = (
 }
 
 const enter_system_instructions = async (system_instructions: string) => {
-  if (is_ai_studio) {
-    const system_instructions_selector =
-      'textarea[aria-label="System instructions"]'
-    const system_instructions_element = document.querySelector(
-      system_instructions_selector
-    ) as HTMLTextAreaElement
-    if (system_instructions_element) {
-      system_instructions_element.value = system_instructions
-      system_instructions_element.dispatchEvent(
-        new Event('input', { bubbles: true })
-      )
-      system_instructions_element.dispatchEvent(
-        new Event('change', { bubbles: true })
-      )
-    } else {
-      // click on button aria-label="Collapse all System Instructions" then proceed as above
-      const collapse_button = document.querySelector(
-        'button[aria-label="Collapse all System Instructions"]'
-      ) as HTMLElement
-      if (collapse_button) {
-        collapse_button.click()
-        // wait for animation frame, inline with resolve
-        await new Promise((r) => requestAnimationFrame(r))
+  const system_instructions_selector =
+    'textarea[aria-label="System instructions"]'
+  const system_instructions_element = document.querySelector(
+    system_instructions_selector
+  ) as HTMLTextAreaElement
+  if (system_instructions_element) {
+    system_instructions_element.value = system_instructions
+    system_instructions_element.dispatchEvent(
+      new Event('input', { bubbles: true })
+    )
+    system_instructions_element.dispatchEvent(
+      new Event('change', { bubbles: true })
+    )
+  } else {
+    // click on button aria-label="Collapse all System Instructions" then proceed as above
+    const collapse_button = document.querySelector(
+      'button[aria-label="Collapse all System Instructions"]'
+    ) as HTMLElement
+    if (collapse_button) {
+      collapse_button.click()
+      // wait for animation frame, inline with resolve
+      await new Promise((r) => requestAnimationFrame(r))
 
-        const system_instructions_element = document.querySelector(
-          system_instructions_selector
-        ) as HTMLTextAreaElement
-        if (system_instructions_element) {
-          system_instructions_element.value = system_instructions
-          system_instructions_element.dispatchEvent(
-            new Event('input', { bubbles: true })
-          )
-          system_instructions_element.dispatchEvent(
-            new Event('change', { bubbles: true })
-          )
-        }
+      const system_instructions_element = document.querySelector(
+        system_instructions_selector
+      ) as HTMLTextAreaElement
+      if (system_instructions_element) {
+        system_instructions_element.value = system_instructions
+        system_instructions_element.dispatchEvent(
+          new Event('input', { bubbles: true })
+        )
+        system_instructions_element.dispatchEvent(
+          new Event('change', { bubbles: true })
+        )
       }
     }
   }
 }
 
 const set_temperature = async (temperature: string) => {
-  if (is_ai_studio) {
-    const temperature_selector =
-      '.settings-item:nth-of-type(4) input[type=number]'
-    const temperature_element = document.querySelector(
-      temperature_selector
-    ) as HTMLInputElement
-    temperature_element.value = temperature
-    temperature_element.dispatchEvent(new Event('input', { bubbles: true }))
-    temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
-  }
+  const temperature_selector =
+    '.settings-item:nth-of-type(4) input[type=number]'
+  const temperature_element = document.querySelector(
+    temperature_selector
+  ) as HTMLInputElement
+  temperature_element.value = temperature
+  temperature_element.dispatchEvent(new Event('input', { bubbles: true }))
+  temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
 }
 
 const set_model = async (model: string) => {
-  if (is_ai_studio) {
-    const model_selector_trigger = document.querySelector(
-      'ms-model-selector mat-form-field > div'
+  const model_selector_trigger = document.querySelector(
+    'ms-model-selector mat-form-field > div'
+  ) as HTMLElement
+  console.log(model_selector_trigger)
+  model_selector_trigger.click()
+
+  await new Promise((r) => requestAnimationFrame(r))
+
+  const model_options = Array.from(document.querySelectorAll('mat-option'))
+  for (const option of model_options) {
+    const model_name_element = option.querySelector(
+      'ms-model-option > div:last-child'
     ) as HTMLElement
-    console.log(model_selector_trigger)
-    model_selector_trigger.click()
-
-    await new Promise((r) => requestAnimationFrame(r))
-
-    const model_options = Array.from(document.querySelectorAll('mat-option'))
-    for (const option of model_options) {
-      const model_name_element = option.querySelector(
-        'ms-model-option > div:last-child'
-      ) as HTMLElement
-      if (model_name_element?.textContent?.trim() == model) {
-        ;(option as HTMLElement).click()
-        break
-      }
+    if (model_name_element?.textContent?.trim() == model) {
+      ;(option as HTMLElement).click()
+      break
     }
-
-    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -207,20 +199,22 @@ const process_clipboard_text = (
 
 const apply_settings_and_fill = async (params: {
   system_instructions: string
-  temperature: string
   model: string
+  temperature: string
   text: string
 }) => {
-  if (params.system_instructions) {
-    await enter_system_instructions(params.system_instructions)
-  }
+  if (is_ai_studio) {
+    if (params.system_instructions) {
+      await enter_system_instructions(params.system_instructions)
+    }
 
-  if (params.temperature) {
-    await set_temperature(params.temperature)
-  }
+    if (params.model) {
+      await set_model(params.model)
+    }
 
-  if (params.model) {
-    await set_model(params.model)
+    if (params.temperature) {
+      await set_temperature(params.temperature)
+    }
   }
 
   fill_input_and_send(get_input_element(), params.text)
