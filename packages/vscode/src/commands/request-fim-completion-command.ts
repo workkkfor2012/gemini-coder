@@ -7,15 +7,14 @@ import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/providers'
 
-export function completion_request_command(
+export function request_fim_completion(
   command: string,
-  providerType: 'primary' | 'secondary',
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(command, async () => {
     const config = vscode.workspace.getConfiguration()
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const provider_name = config.get<string>(`geminiCoder.${providerType}Model`)
+    const default_model_name = config.get<string>(`geminiCoder.defaultModel`)
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -28,14 +27,15 @@ export function completion_request_command(
       ...user_providers
     ]
 
-    if (!provider_name || !all_providers.some((p) => p.name == provider_name)) {
-      vscode.window.showErrorMessage(
-        `${providerType} provider is not set or invalid. Please set it in the settings.`
-      )
+    if (
+      !default_model_name ||
+      !all_providers.some((p) => p.name == default_model_name)
+    ) {
+      vscode.window.showErrorMessage('Default model is not set or valid.')
       return
     }
 
-    const provider = all_providers.find((p) => p.name == provider_name)!
+    const provider = all_providers.find((p) => p.name == default_model_name)!
     const model = provider.model
     const temperature = provider.temperature
     const system_instructions = provider.systemInstructions
@@ -181,7 +181,7 @@ export function completion_request_command(
 
                 if (completion == 'rate_limit') {
                   const available_providers = all_providers.filter(
-                    (p) => p.name != provider_name
+                    (p) => p.name != default_model_name
                   )
 
                   const selected_provider_name =
@@ -189,13 +189,13 @@ export function completion_request_command(
                       available_providers.map((p) => p.name),
                       {
                         placeHolder:
-                          'Rate limit reached, retry with another provider'
+                          'Rate limit reached, retry with another model'
                       }
                     )
 
                   if (!selected_provider_name) {
                     vscode.window.showErrorMessage(
-                      'No provider selected. Request cancelled.'
+                      'No model selected. Request cancelled.'
                     )
                     return
                   }

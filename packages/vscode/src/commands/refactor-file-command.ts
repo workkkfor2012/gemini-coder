@@ -12,7 +12,7 @@ export function refactor_file_command(
   status_bar_item: vscode.StatusBarItem
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.refactorFile',
+    'geminiCoder.applyChanges',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const editor = vscode.window.activeTextEditor
@@ -41,19 +41,9 @@ export function refactor_file_command(
       last_refactor_instruction = instruction
       await context.globalState.update('lastRefactorInstruction', instruction)
 
-      const provider_type = await vscode.window.showQuickPick(
-        ['Primary', 'Secondary'],
-        { placeHolder: 'Select type for refactoring' }
-      )
-      if (!provider_type) {
-        return
-      }
-
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const provider_name = config.get<string>(
-        `geminiCoder.${provider_type.toLowerCase()}Model`
-      )
+      const default_model_name = config.get<string>('geminiCoder.defaultModel')
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -67,16 +57,16 @@ export function refactor_file_command(
       ]
 
       if (
-        !provider_name ||
-        !all_providers.some((p) => p.name === provider_name)
+        !default_model_name ||
+        !all_providers.some((p) => p.name == default_model_name)
       ) {
         vscode.window.showErrorMessage(
-          `${provider_type} provider is not set or invalid. Please set it in the settings.`
+          `Default model is not set or invalid. Please set it in the settings.`
         )
         return
       }
 
-      let provider = all_providers.find((p) => p.name === provider_name)!
+      let provider = all_providers.find((p) => p.name === default_model_name)!
       const model = provider.model
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
@@ -185,20 +175,19 @@ export function refactor_file_command(
 
             if (refactored_content == 'rate_limit') {
               const available_providers = all_providers.filter(
-                (p) => p.name != provider_name
+                (p) => p.name != default_model_name
               )
 
               const selected_provider_name = await vscode.window.showQuickPick(
                 available_providers.map((p) => p.name),
                 {
-                  placeHolder:
-                    'Rate limit reached, retry with another provider'
+                  placeHolder: 'Rate limit reached, retry with another model'
                 }
               )
 
               if (!selected_provider_name) {
                 vscode.window.showErrorMessage(
-                  'No provider selected. Refactoring cancelled.'
+                  'No model selected. Request cancelled.'
                 )
                 return
               }

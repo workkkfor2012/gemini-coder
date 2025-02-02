@@ -51,7 +51,7 @@
         },
         {
           "id": "geminiCoderViewChat",
-          "name": "Chat",
+          "name": "Web Chat",
           "type": "webview"
         }
       ]
@@ -78,40 +78,36 @@
         }
       },
       {
-        "command": "geminiCoder.sendCompletionRequestPrimary",
-        "title": "Gemini Coder: Autocomplete with Primary Model"
+        "command": "geminiCoder.requestFimCompletion",
+        "title": "Gemini Coder: Request FIM completion"
       },
       {
-        "command": "geminiCoder.sendCompletionRequestSecondary",
-        "title": "Gemini Coder: Autocomplete with Secondary Model"
+        "command": "geminiCoder.copyFimCompletionPrompt",
+        "title": "Gemini Coder: Copy FIM Completion Prompt to Clipboard"
       },
       {
-        "command": "geminiCoder.copyAutocompletePrompt",
-        "title": "Gemini Coder: Copy Autocompletion Prompt to Clipboard"
-      },
-      {
-        "command": "geminiCoder.changeDefaultProvider",
+        "command": "geminiCoder.changeDefaultModel",
         "title": "Gemini Coder: Change Default Models"
       },
       {
-        "command": "geminiCoder.refactorFile",
-        "title": "Gemini Coder: Refactor This File"
+        "command": "geminiCoder.applyChanges",
+        "title": "Gemini Coder: Apply Changes to this File"
       },
       {
-        "command": "geminiCoder.copyRefactorPrompt",
-        "title": "Gemini Coder: Copy File Refactoring Prompt to Clipboard"
+        "command": "geminiCoder.copyApplyChangesPrompt",
+        "title": "Gemini Coder: Copy Apply Changes Prompt to Clipboard"
       },
       {
-        "command": "geminiCoder.openWebChatWithAutocompletionPrompt",
-        "title": "Gemini Coder: Open Web Chat with Autocompletion Prompt"
+        "command": "geminiCoder.openWebChatWithFimCompletionPrompt",
+        "title": "Gemini Coder: Open Web Chat with FIM Completion Prompt"
       },
       {
-        "command": "geminiCoder.openWebChatWithRefactorPrompt",
-        "title": "Gemini Coder: Open Web Chat with File Refactoring Prompt"
+        "command": "geminiCoder.openWebChatWithApplyChangesPrompt",
+        "title": "Gemini Coder: Open Web Chat with Apply Changes Prompt"
       },
       {
         "command": "geminiCoder.openWebChatWithInstruction",
-        "title": "Gemini Coder: Open Web Chat with Instruction"
+        "title": "Gemini Coder: Open Web Chat with instruction..."
       },
       {
         "command": "geminiCoder.changeWebChat",
@@ -136,15 +132,10 @@
       "type": "object",
       "title": "Gemini Coder Settings",
       "properties": {
-        "geminiCoder.primaryModel": {
+        "geminiCoder.defaultModel": {
           "type": "string",
-          "description": "The primary model to use.",
-          "default": "Gemini Flash"
-        },
-        "geminiCoder.secondaryModel": {
-          "type": "string",
-          "description": "The secondary model to use.",
-          "default": "Gemini Pro"
+          "description": "The default model to use.",
+          "default": ""
         },
         "geminiCoder.apiKey": {
           "type": "string",

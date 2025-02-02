@@ -171,11 +171,11 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <button className={styles.continue} onClick={handle_submit}>
-        Continue
+        Continue in {props.web_chat_name}
       </button>
       <div className={styles['browser-extension-message']}>
         <span>
-          {props.web_chat_name} will open in your browser. Paste clipboard
+          {props.web_chat_name} will open in your default browser. Paste clipboard
           manually or automate chat initialization with Gemini Coder Connector.
         </span>
         <ul>

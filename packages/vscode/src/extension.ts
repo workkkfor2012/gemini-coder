@@ -1,15 +1,15 @@
 import * as vscode from 'vscode'
 import { file_tree_initialization } from './file-tree/file-tree-initialization'
 import { refactor_file_command } from './commands/refactor-file-command'
-import { completion_request_command } from './commands/completion-request-command'
-import { copy_autocomplete_prompt_command } from './commands/copy-autocomplete-prompt-command'
-import { copy_refactor_prompt_command } from './commands/copy-refactor-prompt-command'
-import { change_default_provider_command } from './commands/change-default-provider-command'
+import { request_fim_completion } from './commands/request-fim-completion-command'
+import { copy_fim_completion_prompt_command } from './commands/copy-fim-completion-prompt-command'
+import { change_default_model_command } from './commands/change-default-model-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
-import { open_web_chat_with_autocompletion_prompt_command } from './commands/open-web-chat-with-autocompletion-prompt-command'
-import { open_web_chat_with_refactor_prompt_command } from './commands/open-web-chat-with-refactor-prompt-command'
+import { open_web_chat_with_fim_completion_prompt_command } from './commands/open-web-chat-with-fim-completion-prompt-command'
+import { open_web_chat_with_apply_changes_prompt_command } from './commands/open-web-chat-with-apply-changes-prompt-command'
 import { open_web_chat_with_instruction_command } from './commands/open-web-chat-with-instruction-command'
 import { changeWebChatCommand } from './commands/change-web-chat-command'
+import { copy_apply_changes_prompt_command } from './commands/copy-appy-changes-prompt-command'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -18,7 +18,7 @@ export function activate(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Right,
     100
   )
-  status_bar_item.command = 'geminiCoder.changeDefaultProvider'
+  status_bar_item.command = 'geminiCoder.changeDefaultModel'
   context.subscriptions.push(status_bar_item)
   update_status_bar(status_bar_item)
 
@@ -47,21 +47,18 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     refactor_file_command(context, file_tree_provider, status_bar_item),
-    completion_request_command(
-      'geminiCoder.sendCompletionRequestPrimary',
-      'primary',
+    request_fim_completion(
+      'geminiCoder.requestFimCompletion',
       file_tree_provider
     ),
-    completion_request_command(
-      'geminiCoder.sendCompletionRequestSecondary',
-      'secondary',
+    copy_fim_completion_prompt_command(file_tree_provider),
+    copy_apply_changes_prompt_command(file_tree_provider),
+    change_default_model_command(status_bar_item),
+    open_web_chat_with_fim_completion_prompt_command(file_tree_provider),
+    open_web_chat_with_apply_changes_prompt_command(
+      context,
       file_tree_provider
     ),
-    copy_autocomplete_prompt_command(file_tree_provider),
-    copy_refactor_prompt_command(file_tree_provider),
-    change_default_provider_command(status_bar_item),
-    open_web_chat_with_autocompletion_prompt_command(file_tree_provider),
-    open_web_chat_with_refactor_prompt_command(context, file_tree_provider),
     open_web_chat_with_instruction_command(context, file_tree_provider),
     changeWebChatCommand(web_chat_status_bar_item, chat_view_provider)
   )
@@ -70,23 +67,18 @@ export function activate(context: vscode.ExtensionContext) {
 export function deactivate() {}
 
 async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
-  const primary_provider_name = vscode.workspace
+  const default_model_name = vscode.workspace
     .getConfiguration()
-    .get<string>('geminiCoder.primaryModel')
-  const secondary_provider_name = vscode.workspace
-    .getConfiguration()
-    .get<string>('geminiCoder.secondaryModel')
+    .get<string>('geminiCoder.defaultModel')
 
-  status_bar_item.text = `${primary_provider_name || 'Select Primary Model'} (${
-    secondary_provider_name || 'Select Secondary Model'
-  })`
+  status_bar_item.text = `${default_model_name || 'Select Model'}`
   status_bar_item.show()
 }
 
 function updateWebChatStatusBar(webChatStatusBarItem: vscode.StatusBarItem) {
   const config = vscode.workspace.getConfiguration('geminiCoder')
-  const currentWebChat = config.get<string>('webChat', 'AI Studio')
-  webChatStatusBarItem.text = `$(comment-discussion) ${currentWebChat}`
+  const current_web_chat = config.get<string>('webChat', 'AI Studio')
+  webChatStatusBarItem.text = `$(comment-discussion) ${current_web_chat}`
   webChatStatusBarItem.tooltip = 'Change web chat'
   webChatStatusBarItem.show()
 }
