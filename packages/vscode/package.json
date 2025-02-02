@@ -268,6 +268,18 @@
           "default": 0.5,
           "minimum": 0,
           "maximum": 1
+        },
+        "geminiCoder.aiStudioModel": {
+          "type": "string",
+          "enum": [
+            "gemini-1.5-pro",
+            "gemini-1.5-flash",
+            "gemini-exp-1206",
+            "gemini-2.0-flash-exp",
+            "gemini-2.0-flash-thinking-exp-01-21"
+          ],
+          "default": "gemini-exp-1206",
+          "description": "The model to use with AI Studio Web Chat."
         }
       }
     },

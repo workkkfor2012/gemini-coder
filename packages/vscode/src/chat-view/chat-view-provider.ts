@@ -156,13 +156,18 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
 
+          // Get AI Studio model setting
+          const ai_studio_model = vscode.workspace
+            .getConfiguration()
+            .get<string>('geminiCoder.aiStudioModel')
+
           // Add system instruction if using AI Studio
           const chat_ui_provider = vscode.workspace
             .getConfiguration()
             .get<string>('geminiCoder.webChat')
 
           if (chat_ui_provider == 'AI Studio') {
-            clipboard_text = `<temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
             if (system_instruction) {
               clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
             }
@@ -232,6 +237,36 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           break
         case 'savePromptSuffix':
           this._context.globalState.update('lastPromptSuffix', message.suffix)
+          break
+        case 'getAiStudioModels':
+          webview_view.webview.postMessage({
+            command: 'aiStudioModels',
+            models: [
+              'gemini-1.5-pro',
+              'gemini-1.5-flash',
+              'gemini-exp-1206',
+              'gemini-2.0-flash-exp',
+              'gemini-2.0-flash-thinking-exp-01-21'
+            ]
+          })
+          break
+        case 'updateAiStudioModel':
+          await vscode.workspace
+            .getConfiguration()
+            .update(
+              'geminiCoder.aiStudioModel',
+              message.model,
+              vscode.ConfigurationTarget.Global
+            )
+          break
+        case 'getCurrentAiStudioModel':
+          const currentModel = vscode.workspace
+            .getConfiguration()
+            .get('geminiCoder.aiStudioModel')
+          webview_view.webview.postMessage({
+            command: 'currentAiStudioModel',
+            model: currentModel
+          })
           break
       }
     })

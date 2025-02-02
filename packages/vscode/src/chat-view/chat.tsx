@@ -15,6 +15,9 @@ function Chat() {
   const [prompt_suffixes, set_prompt_suffixes] = useState<string[]>()
   const [selected_prompt_suffix, set_selected_prompt_suffix] =
     useState<string>()
+  const [ai_studio_models, set_ai_studio_models] = useState<string[]>([])
+  const [selected_ai_studio_model, set_selected_ai_studio_model] =
+    useState<string>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
@@ -25,6 +28,8 @@ function Chat() {
     vscode.postMessage({ command: 'getLastPromptPrefix' })
     vscode.postMessage({ command: 'getPromptSuffixes' })
     vscode.postMessage({ command: 'getLastPromptSuffix' })
+    vscode.postMessage({ command: 'getAiStudioModels' })
+    vscode.postMessage({ command: 'getCurrentAiStudioModel' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -52,6 +57,12 @@ function Chat() {
           break
         case 'initialPromptSuffix':
           set_selected_prompt_suffix(message.suffix)
+          break
+        case 'aiStudioModels':
+          set_ai_studio_models(message.models)
+          break
+        case 'currentAiStudioModel':
+          set_selected_ai_studio_model(message.model)
           break
       }
     }
@@ -104,12 +115,21 @@ function Chat() {
     })
   }
 
+  const handle_ai_studio_model_change = (model: string) => {
+    set_selected_ai_studio_model(model)
+    vscode.postMessage({
+      command: 'updateAiStudioModel',
+      model
+    })
+  }
+
   if (
     initial_instruction === undefined ||
     web_chat_name === undefined ||
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
-    prompt_suffixes === undefined
+    prompt_suffixes === undefined ||
+    ai_studio_models === undefined
   ) {
     return null
   }
@@ -129,6 +149,9 @@ function Chat() {
       prompt_suffixes={prompt_suffixes}
       selected_prompt_suffix={selected_prompt_suffix}
       on_prompt_suffix_change={handle_prompt_suffix_change}
+      ai_studio_models={ai_studio_models}
+      selected_ai_studio_model={selected_ai_studio_model}
+      on_ai_studio_model_change={handle_ai_studio_model_change}
     />
   )
 }

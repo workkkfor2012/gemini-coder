@@ -15,6 +15,9 @@ type Props = {
   prompt_suffixes: string[]
   selected_prompt_suffix?: string
   on_prompt_suffix_change: (suffix: string) => void
+  ai_studio_models: string[]
+  selected_ai_studio_model?: string
+  on_ai_studio_model_change: (model: string) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -68,27 +71,57 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_prompt_suffix_change(e.target.value)
   }
 
+  const handle_ai_studio_model_change = (
+    e: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    props.on_ai_studio_model_change(e.target.value)
+  }
+
+  const model_readable_names: { [key: string]: string } = {
+    'gemini-1.5-pro': 'Gemini 1.5 Pro',
+    'gemini-1.5-flash': 'Gemini 1.5 Flash',
+    'gemini-exp-1206': 'Gemini Experimental 1206',
+    'gemini-2.0-flash-exp': 'Gemini 2.0 Flash Experimental',
+    'gemini-2.0-flash-thinking-exp-01-21':
+      'Gemini 2.0 Flash Thinking Experimental 01-21'
+  }
+
   return (
     <div className={styles.container}>
       {props.web_chat_name == 'AI Studio' && (
-        <div className={styles['system-instructions']}>
-          <select
-            value={props.selected_system_instruction || ''}
-            onChange={handle_system_instruction_change}
-            disabled={!props.system_instructions.length}
-          >
-            <option value="">
-              {!props.system_instructions.length
-                ? 'Add system instructions in settings'
-                : 'Select system instructions'}
-            </option>
-            {props.system_instructions.map((instruction, index) => (
-              <option key={index} value={instruction}>
-                {instruction}
+        <>
+          <div className={styles['small-select']}>
+            <select
+              value={props.selected_ai_studio_model || ''}
+              onChange={handle_ai_studio_model_change}
+              disabled={!props.ai_studio_models.length}
+            >
+              {props.ai_studio_models.map((model, index) => (
+                <option key={index} value={model}>
+                  {model_readable_names[model] || model}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles['small-select']}>
+            <select
+              value={props.selected_system_instruction || ''}
+              onChange={handle_system_instruction_change}
+              disabled={!props.system_instructions.length}
+            >
+              <option value="">
+                {!props.system_instructions.length
+                  ? 'Add system instructions in settings'
+                  : 'Select system instructions'}
               </option>
-            ))}
-          </select>
-        </div>
+              {props.system_instructions.map((instruction, index) => (
+                <option key={index} value={instruction}>
+                  {instruction}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
       )}
       <div className={styles['prefix-suffix']}>
         <select
@@ -160,10 +193,7 @@ const ChatInput: React.FC<Props> = (props) => {
       </div>
       <div className={styles.footer}>
         <div>
-          <a href="https://buymeacoffee.com/robertpiosik">
-            If you find Gemini Coder useful, a coffee would be a wonderful
-            gesture... Thank you.
-          </a>
+          <a href="https://buymeacoffee.com/robertpiosik">Support author</a>
         </div>
         <div>
           <a href="https://github.com/robertpiosik/gemini-coder/discussions">

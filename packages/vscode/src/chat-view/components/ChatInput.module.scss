@@ -6,9 +6,7 @@
   gap: 8px;
 }
 
-.system-instructions {
-  padding-bottom: 8px;
-  border-bottom: 1px solid var(--vscode-focusBorder);
+.small-select {
   select {
     width: 100%;
     padding: 4px 4px;
@@ -65,6 +63,8 @@
     }
   }
 }
+
+
 
 .continue {
   display: flex;
