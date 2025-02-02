@@ -155,10 +155,38 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          const url =
-            'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+          // Handle web chat selection
+          const additional_web_chats = vscode.workspace
+            .getConfiguration()
+            .get<any[]>('geminiCoder.additionalWebChats', [])
 
-          vscode.env.openExternal(vscode.Uri.parse(url))
+          const ai_studio = {
+            label: 'AI Studio',
+            url: 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+          }
+
+          const quick_pick_items = [
+            ai_studio,
+            ...additional_web_chats.map((chat) => ({
+              label: chat.name,
+              url: `${chat.url}#gemini-coder`
+            }))
+          ]
+
+          let selected_chat =
+            additional_web_chats.length > 0
+              ? await vscode.window.showQuickPick(quick_pick_items, {
+                  placeHolder: 'Select web chat to open'
+                })
+              : ai_studio
+
+          if (selected_chat) {
+            vscode.env.openExternal(vscode.Uri.parse(selected_chat.url))
+          } else {
+            // If no chat is selected, do nothing
+            return
+          }
+
           break
 
         case 'showError':
