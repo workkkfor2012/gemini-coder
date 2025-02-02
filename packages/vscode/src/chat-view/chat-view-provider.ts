@@ -28,6 +28,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
+      const additional_web_chats = vscode.workspace
+        .getConfiguration()
+        .get<any[]>('geminiCoder.additionalWebChats', [])
+
       switch (message.command) {
         case 'getLastChatInstruction':
           const last_instruction =
@@ -155,11 +159,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          // Handle web chat selection
-          const additional_web_chats = vscode.workspace
-            .getConfiguration()
-            .get<any[]>('geminiCoder.additionalWebChats', [])
-
           const ai_studio = {
             label: 'AI Studio',
             url: 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
@@ -274,6 +273,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           webview_view.webview.postMessage({
             command: 'currentAiStudioModel',
             model: currentModel
+          })
+          break
+        case 'getAdditionalWebChats':
+          webview_view.webview.postMessage({
+            command: 'additionalWebChats',
+            webChats: additional_web_chats
           })
           break
       }

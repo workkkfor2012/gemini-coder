@@ -135,7 +135,7 @@
         "geminiCoder.defaultModel": {
           "type": "string",
           "description": "The default model to use.",
-          "default": ""
+          "default": "Gemini 2.0 Flash Experimental"
         },
         "geminiCoder.apiKey": {
           "type": "string",

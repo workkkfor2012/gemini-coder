@@ -17,6 +17,7 @@ type Props = {
   ai_studio_models: string[]
   selected_ai_studio_model?: string
   on_ai_studio_model_change: (model: string) => void
+  additional_web_chats: any[]
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -84,6 +85,8 @@ const ChatInput: React.FC<Props> = (props) => {
     'gemini-2.0-flash-thinking-exp-01-21':
       'Gemini 2.0 Flash Thinking Experimental 01-21'
   }
+
+  const has_additional_chats = props.additional_web_chats.length > 0
 
   return (
     <div className={styles.container}>
@@ -166,7 +169,7 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <button className={styles.continue} onClick={handle_submit}>
-        Continue in AI Studio
+        {has_additional_chats ? 'Continue in...' : 'Continue in AI Studio'}
       </button>
       <div className={styles['browser-extension-message']}>
         <span>

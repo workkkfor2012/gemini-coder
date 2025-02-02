@@ -17,6 +17,7 @@ function Chat() {
   const [ai_studio_models, set_ai_studio_models] = useState<string[]>([])
   const [selected_ai_studio_model, set_selected_ai_studio_model] =
     useState<string>()
+  const [additional_web_chats, set_additional_web_chats] = useState<any[]>([])
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastChatInstruction' })
@@ -28,6 +29,7 @@ function Chat() {
     vscode.postMessage({ command: 'getLastPromptSuffix' })
     vscode.postMessage({ command: 'getAiStudioModels' })
     vscode.postMessage({ command: 'getCurrentAiStudioModel' })
+    vscode.postMessage({ command: 'getAdditionalWebChats' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -58,6 +60,9 @@ function Chat() {
           break
         case 'currentAiStudioModel':
           set_selected_ai_studio_model(message.model)
+          break
+        case 'additionalWebChats':
+          set_additional_web_chats(message.webChats)
           break
       }
     }
@@ -123,7 +128,8 @@ function Chat() {
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
     prompt_suffixes === undefined ||
-    ai_studio_models === undefined
+    ai_studio_models === undefined ||
+    additional_web_chats === undefined
   ) {
     return null
   }
@@ -145,6 +151,7 @@ function Chat() {
       ai_studio_models={ai_studio_models}
       selected_ai_studio_model={selected_ai_studio_model}
       on_ai_studio_model_change={handle_ai_studio_model_change}
+      additional_web_chats={additional_web_chats}
     />
   )
 }
