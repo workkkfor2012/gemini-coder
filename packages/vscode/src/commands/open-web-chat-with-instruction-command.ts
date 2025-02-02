@@ -18,6 +18,49 @@ export function open_web_chat_with_instruction_command(
         true
       )
 
+      // Prompt Prefix Selection
+      const prompt_prefixes = config.get<string[]>(
+        'geminiCoder.promptPrefixes',
+        []
+      )
+      const last_prompt_prefix =
+        context.globalState.get<string>('lastPromptPrefix') || ''
+
+      const prefix_quick_pick_items = [
+        ...(last_prompt_prefix
+          ? [
+              {
+                label: last_prompt_prefix,
+                description: 'Last used'
+              }
+            ]
+          : []),
+        { label: 'None', description: "Don't use prompt prefix" },
+        ...prompt_prefixes
+          .filter((prefix) => prefix != last_prompt_prefix)
+          .map((prefix) => ({
+            label: prefix
+          }))
+      ]
+
+      const selected_prefix = await vscode.window.showQuickPick(
+        prefix_quick_pick_items,
+        {
+          placeHolder: 'Select a prompt prefix (optional)'
+        }
+      )
+
+      if (!selected_prefix) {
+        return // User cancelled
+      }
+
+      const prompt_prefix =
+        selected_prefix.label != 'None' ? selected_prefix.label : ''
+      if (prompt_prefix) {
+        await context.globalState.update('lastPromptPrefix', prompt_prefix)
+      }
+
+      // Main Instruction Input
       let last_chat_instruction =
         context.globalState.get<string>('lastChatInstruction') || ''
 
@@ -28,18 +71,59 @@ export function open_web_chat_with_instruction_command(
       })
 
       if (!instruction) {
-        return
+        return // User cancelled
       }
 
       await context.globalState.update('lastChatInstruction', instruction)
 
-      const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
+      // Prompt Suffix Selection
+      const prompt_suffixes = config.get<string[]>(
+        'geminiCoder.promptSuffixes',
+        []
+      )
 
-      // Get context from selected files
+      const last_prompt_suffix =
+        context.globalState.get<string>('lastPromptSuffix') || ''
+
+      const suffix_quick_pick_items = [
+        ...(last_prompt_suffix
+          ? [
+              {
+                label: last_prompt_suffix,
+                description: 'Last used'
+              }
+            ]
+          : []),
+        { label: 'None', description: "Don't use prompt suffix" },
+        ...prompt_suffixes
+          .filter((suffix) => suffix !== last_prompt_suffix)
+          .map((suffix) => ({
+            label: suffix
+          }))
+      ]
+
+      const selected_suffix = await vscode.window.showQuickPick(
+        suffix_quick_pick_items,
+        {
+          placeHolder: 'Select a prompt suffix (optional)'
+        }
+      )
+
+      if (!selected_suffix) {
+        return // User cancelled
+      }
+
+      const prompt_suffix =
+        selected_suffix.label !== 'None' ? selected_suffix.label : ''
+      if (prompt_suffix) {
+        await context.globalState.update('lastPromptSuffix', prompt_suffix)
+      }
+
+      // Context Building (Same as before)
+      const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
       let context_text = ''
       const added_files = new Set<string>()
 
-      // Add selected files from the file tree
       if (file_tree_provider) {
         const selected_files_paths = file_tree_provider.getCheckedFiles()
         for (const file_path of selected_files_paths) {
@@ -49,7 +133,6 @@ export function open_web_chat_with_instruction_command(
               vscode.workspace.workspaceFolders![0].uri.fsPath,
               file_path
             )
-
             const focused_attr =
               set_focused_attribute && file_path == focused_file
                 ? ' focused="true"'
@@ -62,7 +145,6 @@ export function open_web_chat_with_instruction_command(
         }
       }
 
-      // Add currently open files
       if (attach_open_files) {
         const open_tabs = vscode.window.tabGroups.all
           .flatMap((group) => group.tabs)
@@ -80,7 +162,6 @@ export function open_web_chat_with_instruction_command(
                 vscode.workspace.workspaceFolders![0].uri.fsPath,
                 file_path
               )
-
               const focused_attr =
                 set_focused_attribute && file_path == focused_file
                   ? ' focused="true"'
@@ -94,13 +175,97 @@ export function open_web_chat_with_instruction_command(
         }
       }
 
-      // Construct the final text
-      const final_text = `<files>${context_text}\n</files>\n${instruction}`
+      let final_instruction = instruction
+      if (prompt_prefix) {
+        final_instruction = `${prompt_prefix.trim()} ${final_instruction}`
+      }
+      if (prompt_suffix) {
+        final_instruction = `${final_instruction} ${prompt_suffix.trim()}`
+      }
 
-      await vscode.env.clipboard.writeText(final_text)
+      let final_text = `${
+        context_text ? `<files>${context_text}\n</files>\n` : ''
+      }${final_instruction}`
 
-      const url = 'https://aistudio.google.com/app/prompts/new_chat'
-      vscode.env.openExternal(vscode.Uri.parse(url))
+      // Web Chat Selection
+      const additional_web_chats = config.get<any[]>(
+        'geminiCoder.additionalWebChats',
+        []
+      )
+
+      const ai_studio = {
+        label: 'AI Studio',
+        url: 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+      }
+
+      const quick_pick_items = [
+        ai_studio,
+        ...additional_web_chats.map((chat) => ({
+          label: chat.name,
+          url: `${chat.url}#gemini-coder`
+        }))
+      ]
+
+      let last_used_web_chats = context.globalState.get<string[]>(
+        'lastUsedWebChats',
+        []
+      )
+
+      last_used_web_chats = last_used_web_chats.filter((chat_name) =>
+        quick_pick_items.some((item) => item.label == chat_name)
+      )
+
+      const prioritized_quick_pick_items = [
+        ...last_used_web_chats
+          .map((chat_name) =>
+            quick_pick_items.find((item) => item.label == chat_name)
+          )
+          .filter((item) => item !== undefined),
+        ...quick_pick_items.filter(
+          (item) => !last_used_web_chats.includes(item.label)
+        )
+      ]
+
+      let selected_chat =
+        additional_web_chats.length > 0
+          ? await vscode.window.showQuickPick(prioritized_quick_pick_items, {
+              placeHolder: 'Select web chat to open'
+            })
+          : ai_studio
+
+      if (selected_chat) {
+        if (selected_chat.label == 'AI Studio') {
+          const ai_studio_temperature = vscode.workspace
+            .getConfiguration()
+            .get<number>('geminiCoder.aiStudioTemperature')
+
+          const ai_studio_model = vscode.workspace
+            .getConfiguration()
+            .get<string>('geminiCoder.aiStudioModel')
+
+          final_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
+
+          const last_system_instruction =
+            context.globalState.get<string>('lastSystemInstruction') || ''
+
+          if (last_system_instruction) {
+            final_text = `<system>${last_system_instruction}</system>${final_text}`
+          }
+        }
+
+        await vscode.env.clipboard.writeText(final_text)
+        vscode.env.openExternal(vscode.Uri.parse(selected_chat.url))
+
+        last_used_web_chats = [
+          selected_chat.label,
+          ...last_used_web_chats.filter(
+            (chat_name) => chat_name !== selected_chat.label
+          )
+        ]
+        context.globalState.update('lastUsedWebChats', last_used_web_chats)
+      } else {
+        return // User cancelled
+      }
     }
   )
 }

@@ -172,15 +172,53 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }))
           ]
 
+          // Get the last used web chats from global state
+          let last_used_web_chats = this._context.globalState.get<string[]>(
+            'lastUsedWebChats',
+            []
+          )
+
+          // Filter out invalid web chat names
+          last_used_web_chats = last_used_web_chats.filter((chat_name) =>
+            quick_pick_items.some((item) => item.label == chat_name)
+          )
+
+          // Construct the quick pick items, prioritizing last used chats
+          const prioritized_quick_pick_items = [
+            ...last_used_web_chats
+              .map((chat_name) =>
+                quick_pick_items.find((item) => item.label == chat_name)
+              )
+              .filter((item) => item !== undefined), // Filter out undefined items
+            ...quick_pick_items.filter(
+              (item) => !last_used_web_chats.includes(item.label)
+            )
+          ]
+
           let selected_chat =
             additional_web_chats.length > 0
-              ? await vscode.window.showQuickPick(quick_pick_items, {
-                  placeHolder: 'Select web chat to open'
-                })
+              ? await vscode.window.showQuickPick(
+                  prioritized_quick_pick_items,
+                  {
+                    placeHolder: 'Select web chat to open'
+                  }
+                )
               : ai_studio
 
           if (selected_chat) {
             vscode.env.openExternal(vscode.Uri.parse(selected_chat.url))
+
+            // Update the last used web chats in global state
+            last_used_web_chats = [
+              selected_chat.label,
+              ...last_used_web_chats.filter(
+                (chat_name) => chat_name !== selected_chat.label
+              )
+            ]
+            this._context.globalState.update(
+              'lastUsedWebChats',
+              last_used_web_chats
+            )
           } else {
             // If no chat is selected, do nothing
             return

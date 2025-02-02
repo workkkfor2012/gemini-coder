@@ -44,12 +44,15 @@ export function activate(context: vscode.ExtensionContext) {
     copy_fim_completion_prompt_command(file_tree_provider),
     copy_apply_changes_prompt_command(file_tree_provider),
     change_default_model_command(status_bar_item),
-    open_web_chat_with_fim_completion_prompt_command(file_tree_provider),
+    open_web_chat_with_fim_completion_prompt_command(
+      context,
+      file_tree_provider
+    ),
     open_web_chat_with_apply_changes_prompt_command(
       context,
       file_tree_provider
     ),
-    open_web_chat_with_instruction_command(context, file_tree_provider),
+    open_web_chat_with_instruction_command(context, file_tree_provider)
   )
 }
 

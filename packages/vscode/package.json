@@ -217,7 +217,11 @@
         },
         "geminiCoder.promptPrefixes": {
           "type": "array",
-          "default": [],
+          "default": [
+            "I'm getting the following error:",
+            "There's a bug in this code. Can you find it?",
+            "What's the purpose of this code?"
+          ],
           "description": "Prompt prefixes.",
           "items": {
             "type": "string"
@@ -225,7 +229,10 @@
         },
         "geminiCoder.promptSuffixes": {
           "type": "array",
-          "default": [],
+          "default": [
+            "Be concise.",
+            "What needs to change?"
+          ],
           "description": "Prompt suffixes.",
           "items": {
             "type": "string"
