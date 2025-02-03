@@ -2,7 +2,7 @@
 
 With dedicated context panel you can manually select related folders and files to your task at hand, then use one of the available commands for:
 
-- automatically initialized chats in AI Studio,
+- automatically initialized chats in AI Studio (no API key needed),
 - FIM completions,
 - applying suggested changes to files.
 
@@ -16,12 +16,11 @@ For a seamless developer experience, install dedicated browser extension for han
 ## Features
 
 - Handy workspace explorer tree for context selection.
-- Autocomplete at the cursor position.
-- Automatically initialized chats in AI Studio or DeepSeek (no API key needed).
-- File refactoring, useful for applying suggested code changes.
-- Rate limited FIM completions Gemini Pro requests fall back to Gemini Flash.
+- FIM completions at the cursor position.
+- Automatically initialized chats in AI Studio.
+- Applying suggested code changes.
 - Provider agnostic, read more "Set up custom providers" section below.
-- Configure additional web chats, e.g. DeepSeek, in settings.
+- Web chat agnostic, read more "Configure additional web chats" section below.
 
 ## How to use Autocomplete
 
@@ -33,16 +32,17 @@ For a seamless developer experience, install dedicated browser extension for han
 
 ## Commands
 
-#### Autocomplete
+#### FIM completions
 
-- `Gemini Coder: Request FIM completion` - Get fill-in-the-middle completion using selected context
+- `Gemini Coder: Request FIM completion` - Get fill-in-the-middle completion using default model
+- `Gemini Coder: Request FIM completion with...` - Get fill-in-the-middle completion with model selection
 - `Gemini Coder: Copy FIM Completion Prompt to Clipboard` - Copy FIM prompt with context
 - `Gemini Coder: Open Web Chat with FIM Completion Prompt` - Open web chat with FIM prompt
 
-#### File Refactoring
+#### Applying changes
 
-- `Gemini Coder: Apply Changes to this File` - Refactor current file using AI
-- `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy refactoring prompt
+- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI
+- `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy apply changes prompt
 - `Gemini Coder: Open Web Chat with Apply Changes Prompt` - Open web chat with refactoring prompt
 
 #### Chat Interactions

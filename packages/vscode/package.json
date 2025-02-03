@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Open automatically initialized AI Studio web chat with your prompt and hand-picked context, up to 2M tokens! Use the same big context for code completions, whenever you need something context aware!",
-  "version": "1.0.105",
+  "version": "1.0.106",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -71,6 +71,10 @@
           "light": "resources/light/clear.svg",
           "dark": "resources/dark/clear.svg"
         }
+      },
+      {
+        "command": "geminiCoder.requestFimCompletionWith",
+        "title": "Gemini Coder: Request FIM Completion with..."
       },
       {
         "command": "geminiCoder.requestFimCompletion",

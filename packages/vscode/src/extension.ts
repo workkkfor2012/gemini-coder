@@ -37,11 +37,17 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     apply_changes_command(context, file_tree_provider),
-    request_fim_completion(
-      'geminiCoder.requestFimCompletion',
+    request_fim_completion({
+      command: 'geminiCoder.requestFimCompletionWith',
       file_tree_provider,
-      context
-    ),
+      context,
+    }),
+    request_fim_completion({
+      command: 'geminiCoder.requestFimCompletion',
+      file_tree_provider,
+      context,
+      use_default_model: true
+    }),
     copy_fim_completion_prompt_command(file_tree_provider),
     copy_apply_changes_prompt_command(file_tree_provider),
     change_default_model_command(status_bar_item),

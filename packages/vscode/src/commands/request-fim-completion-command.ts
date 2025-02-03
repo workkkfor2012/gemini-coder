@@ -7,12 +7,13 @@ import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
-export function request_fim_completion(
-  command: string,
-  file_tree_provider: any,
+export function request_fim_completion(params: {
+  command: string
+  file_tree_provider: any
   context: vscode.ExtensionContext
-) {
-  return vscode.commands.registerCommand(command, async () => {
+  use_default_model?: boolean
+}) {
+  return vscode.commands.registerCommand(params.command, async () => {
     const config = vscode.workspace.getConfiguration()
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const default_model_name = config.get<string>(`geminiCoder.defaultModel`)
@@ -36,68 +37,80 @@ export function request_fim_completion(
       return
     }
 
-    let provider = all_providers.find((p) => p.name == default_model_name)!
+    let provider: Provider
+    if (params.use_default_model) {
+      provider = all_providers.find((p) => p.name == default_model_name)!
+    } else {
+      // Get the last used models from global state
+      let last_used_models = params.context.globalState.get<string[]>(
+        'lastUsedModels',
+        []
+      )
 
-    // Get the last used models from global state
-    let last_used_models = context.globalState.get<string[]>(
-      'lastUsedModels',
-      []
-    )
+      // Filter out the default model from last used models (it will be added at the beginning)
+      last_used_models = last_used_models.filter(
+        (model) => model != default_model_name
+      )
 
-    // Filter out the default model from last used models (it will be added at the beginning)
-    last_used_models = last_used_models.filter(
-      (model) => model != default_model_name
-    )
-
-    // Construct the QuickPick items, prioritizing the default model and last used models
-    const quick_pick_items: any[] = [
-      {
-        label: default_model_name,
-        description: 'Currently set as default',
-      },
-      ...last_used_models
-        .map((model_name) => {
-          const model_provider = all_providers.find((p) => p.name == model_name)
-          if (model_provider) {
-            return {
-              label: model_name,
+      // Construct the QuickPick items, prioritizing the default model and last used models
+      const quick_pick_items: any[] = [
+        ...(default_model_name
+          ? [
+              {
+                label: default_model_name,
+                description: 'Currently set as default'
+              }
+            ]
+          : []),
+        ...last_used_models
+          .map((model_name) => {
+            const model_provider = all_providers.find(
+              (p) => p.name == model_name
+            )
+            if (model_provider) {
+              return {
+                label: model_name
+              }
             }
-          }
-          return null
-        })
-        .filter((item) => item !== null),
-      ...all_providers
-        .filter(
-          (p) =>
-            p.name != default_model_name && !last_used_models.includes(p.name)
-        )
-        .map((p) => ({
-          label: p.name,
-        }))
-    ]
+            return null
+          })
+          .filter((item) => item !== null),
+        ...all_providers
+          .filter(
+            (p) =>
+              p.name != default_model_name && !last_used_models.includes(p.name)
+          )
+          .map((p) => ({
+            label: p.name
+          }))
+      ]
 
-    // Show the QuickPick selector
-    const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
-      placeHolder: 'Select a model for code completion'
-    })
+      // Show the QuickPick selector
+      const selected_item = await vscode.window.showQuickPick(
+        quick_pick_items,
+        {
+          placeHolder: 'Select a model for code completion'
+        }
+      )
 
-    if (!selected_item) {
-      return // User cancelled
+      if (!selected_item) {
+        return // User cancelled
+      }
+
+      // Update the selected provider based on user selection
+      const selected_model_name = selected_item.label.startsWith('$(star-full)')
+        ? default_model_name
+        : selected_item.label
+
+      provider = all_providers.find((p) => p.name == selected_model_name)!
+
+      // Update the last used models in global state
+      last_used_models = [
+        selected_model_name,
+        ...last_used_models.filter((model) => model != selected_model_name)
+      ]
+      params.context.globalState.update('lastUsedModels', last_used_models)
     }
-
-    // Update the selected provider based on user selection
-    const selected_model_name = selected_item.label.startsWith('$(star-full)')
-      ? default_model_name
-      : selected_item.label
-
-    provider = all_providers.find((p) => p.name == selected_model_name)!
-
-    // Update the last used models in global state
-    last_used_models = [
-      selected_model_name,
-      ...last_used_models.filter((model) => model != selected_model_name)
-    ]
-    context.globalState.update('lastUsedModels', last_used_models)
 
     const model = provider.model
     const temperature = provider.temperature
@@ -138,8 +151,9 @@ export function request_fim_completion(
           )
 
           let file_paths_to_be_attached: Set<string> = new Set()
-          if (file_tree_provider) {
-            const selected_files_paths = file_tree_provider.getCheckedFiles()
+          if (params.file_tree_provider) {
+            const selected_files_paths =
+              params.file_tree_provider.getCheckedFiles()
             for (const file_path of selected_files_paths) {
               if (file_path != document_path) {
                 file_paths_to_be_attached.add(file_path)
