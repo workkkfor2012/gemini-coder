@@ -237,6 +237,7 @@
         "geminiCoder.promptSuffixes": {
           "type": "array",
           "default": [
+            "Show only changed fragments.",
             "Keep your response concise.",
             "Summarize your understanding of the problem.",
             "Highlight what needs to change.",
