@@ -18,11 +18,14 @@ type Props = {
   selected_ai_studio_model?: string
   on_ai_studio_model_change: (model: string) => void
   additional_web_chats: any[]
+  last_used_web_chats: string[] // Add prop for last used web chats
+  on_web_chat_change: (webChat: string) => void // Add prop for web chat change handler
 }
 
 const ChatInput: React.FC<Props> = (props) => {
   const [instruction, set_instruction] = useState(props.initial_instruction)
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
+  const [selected_web_chat, set_selected_web_chat] = useState<string>()
 
   useEffect(() => {
     if (textarea_ref.current) {
@@ -30,6 +33,15 @@ const ChatInput: React.FC<Props> = (props) => {
       textarea_ref.current.select()
     }
   }, [])
+
+  useEffect(() => {
+    // Set initial selected web chat based on last used
+    if (props.last_used_web_chats.length > 0) {
+      set_selected_web_chat(props.last_used_web_chats[0])
+    } else {
+      set_selected_web_chat('AI Studio')
+    }
+  }, [props.last_used_web_chats])
 
   const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     set_instruction(e.target.value)
@@ -77,6 +89,11 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_ai_studio_model_change(e.target.value)
   }
 
+  const handle_web_chat_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    set_selected_web_chat(e.target.value)
+    props.on_web_chat_change(e.target.value)
+  }
+
   const model_readable_names: { [key: string]: string } = {
     'gemini-1.5-pro': 'Gemini 1.5 Pro',
     'gemini-1.5-flash': 'Gemini 1.5 Flash',
@@ -86,10 +103,41 @@ const ChatInput: React.FC<Props> = (props) => {
       'Gemini 2.0 Flash Thinking Experimental 01-21'
   }
 
-  const has_additional_chats = props.additional_web_chats.length > 0
+  // Construct web chat options
+  const web_chat_options = [
+    { label: 'AI Studio', value: 'AI Studio' },
+    ...props.additional_web_chats.map((chat) => ({
+      label: chat.name,
+      value: chat.name
+    }))
+  ]
+
+  // Sort web chat options by last used
+  const sorted_web_chat_options = [
+    ...props.last_used_web_chats
+      .map((chat_name) =>
+        web_chat_options.find((option) => option.value === chat_name)
+      )
+      .filter((option) => option !== undefined),
+    ...web_chat_options.filter(
+      (option) => !props.last_used_web_chats.includes(option.value)
+    )
+  ] as { label: string; value: string }[]
 
   return (
     <div className={styles.container}>
+      <div className={styles['small-select']}>
+        <select
+          value={selected_web_chat || ''}
+          onChange={handle_web_chat_change}
+        >
+          {sorted_web_chat_options.map((option, index) => (
+            <option key={index} value={option.value}>
+              {option.label}
+            </option>
+          ))}
+        </select>
+      </div>
       <div className={styles['small-select']}>
         <select
           value={props.selected_ai_studio_model || ''}
@@ -169,7 +217,7 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <button className={styles.continue} onClick={handle_submit}>
-        {has_additional_chats ? 'Continue in...' : 'Continue in AI Studio'}
+        Continue
       </button>
       <div className={styles['browser-extension-message']}>
         <span>

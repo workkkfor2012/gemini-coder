@@ -159,66 +159,41 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          const ai_studio = {
-            label: 'AI Studio',
-            url: 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
-          }
-
-          const quick_pick_items = [
-            ai_studio,
-            ...additional_web_chats.map((chat) => ({
-              label: chat.name,
-              url: `${chat.url}#gemini-coder`
-            }))
-          ]
-
-          // Get the last used web chats from global state
-          let last_used_web_chats = this._context.globalState.get<string[]>(
-            'lastUsedWebChats',
-            []
-          )
-
-          // Filter out invalid web chat names
-          last_used_web_chats = last_used_web_chats.filter((chat_name) =>
-            quick_pick_items.some((item) => item.label == chat_name)
-          )
-
-          // Construct the quick pick items, prioritizing last used chats
-          const prioritized_quick_pick_items = [
-            ...last_used_web_chats
-              .map((chat_name) =>
-                quick_pick_items.find((item) => item.label == chat_name)
-              )
-              .filter((item) => item !== undefined), // Filter out undefined items
-            ...quick_pick_items.filter(
-              (item) => !last_used_web_chats.includes(item.label)
-            )
-          ]
-
-          let selected_chat =
-            additional_web_chats.length > 0
-              ? await vscode.window.showQuickPick(
-                  prioritized_quick_pick_items,
-                  {
-                    placeHolder: 'Select web chat to open'
-                  }
-                )
-              : ai_studio
+          let selected_chat = message.selected_web_chat
 
           if (selected_chat) {
-            vscode.env.openExternal(vscode.Uri.parse(selected_chat.url))
+            const chat_url =
+              selected_chat === 'AI Studio'
+                ? 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+                : additional_web_chats.find(
+                    (chat) => chat.name === selected_chat
+                  )?.url
 
-            // Update the last used web chats in global state
-            last_used_web_chats = [
-              selected_chat.label,
-              ...last_used_web_chats.filter(
-                (chat_name) => chat_name !== selected_chat.label
+            if (chat_url) {
+              vscode.env.openExternal(
+                vscode.Uri.parse(`${chat_url}#gemini-coder`)
               )
-            ]
-            this._context.globalState.update(
-              'lastUsedWebChats',
-              last_used_web_chats
-            )
+
+              // Update the last used web chats in global state
+              let last_used_web_chats = this._context.globalState.get<string[]>(
+                'lastUsedWebChats',
+                []
+              )
+              last_used_web_chats = [
+                selected_chat,
+                ...last_used_web_chats.filter(
+                  (chat_name) => chat_name !== selected_chat
+                )
+              ]
+              this._context.globalState.update(
+                'lastUsedWebChats',
+                last_used_web_chats
+              )
+            } else {
+              vscode.window.showErrorMessage(
+                `URL not found for web chat: ${selected_chat}`
+              )
+            }
           } else {
             // If no chat is selected, do nothing
             return
@@ -317,6 +292,16 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           webview_view.webview.postMessage({
             command: 'additionalWebChats',
             webChats: additional_web_chats
+          })
+          break
+        case 'getLastUsedWebChats':
+          const last_used_web_chats = this._context.globalState.get<string[]>(
+            'lastUsedWebChats',
+            []
+          )
+          webview_view.webview.postMessage({
+            command: 'lastUsedWebChats',
+            webChats: last_used_web_chats
           })
           break
       }

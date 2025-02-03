@@ -18,6 +18,7 @@ function Chat() {
   const [selected_ai_studio_model, set_selected_ai_studio_model] =
     useState<string>()
   const [additional_web_chats, set_additional_web_chats] = useState<any[]>([])
+  const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>([])
 
   useEffect(() => {
     vscode.postMessage({ command: 'getlastChatPrompt' })
@@ -30,6 +31,7 @@ function Chat() {
     vscode.postMessage({ command: 'getAiStudioModels' })
     vscode.postMessage({ command: 'getCurrentAiStudioModel' })
     vscode.postMessage({ command: 'getAdditionalWebChats' })
+    vscode.postMessage({ command: 'getLastUsedWebChats' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -63,6 +65,9 @@ function Chat() {
           break
         case 'additionalWebChats':
           set_additional_web_chats(message.webChats)
+          break
+        case 'lastUsedWebChats':
+          set_last_used_web_chats(message.webChats)
           break
       }
     }
@@ -123,13 +128,25 @@ function Chat() {
     })
   }
 
+  const handle_web_chat_change = (web_chat: string) => {
+    vscode.postMessage({
+      command: 'processChatInstruction',
+      instruction: '', // Instruction can be empty or taken from a state if needed
+      system_instruction: selected_system_instruction,
+      prompt_prefix: selected_prompt_prefix,
+      prompt_suffix: selected_prompt_suffix,
+      selected_web_chat: web_chat
+    })
+  }
+
   if (
     initial_instruction === undefined ||
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
     prompt_suffixes === undefined ||
     ai_studio_models === undefined ||
-    additional_web_chats === undefined
+    additional_web_chats === undefined ||
+    last_used_web_chats === undefined
   ) {
     return null
   }
@@ -152,6 +169,8 @@ function Chat() {
       selected_ai_studio_model={selected_ai_studio_model}
       on_ai_studio_model_change={handle_ai_studio_model_change}
       additional_web_chats={additional_web_chats}
+      last_used_web_chats={last_used_web_chats}
+      on_web_chat_change={handle_web_chat_change}
     />
   )
 }

@@ -237,6 +237,7 @@
         "geminiCoder.promptSuffixes": {
           "type": "array",
           "default": [
+            "Think step by step.",
             "Show only changed fragments.",
             "Keep your response concise.",
             "Summarize your understanding of the problem.",
@@ -244,7 +245,7 @@
             "Detail the key considerations.",
             "Suggest any alternative approaches.",
             "Identify potential drawbacks.",
-            "Ask for clarification if needed before proceeding."
+            "Ask for clarifications if needed before proceeding."
           ],
           "description": "Prompt suffixes.",
           "items": {
