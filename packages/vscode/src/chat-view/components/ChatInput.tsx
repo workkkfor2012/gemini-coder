@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
 import { AI_STUDIO_MODELS } from '../../constants/ai-studio-models'
+import TextareaAutosize from 'react-autosize-textarea'
 
 type Props = {
   on_submit: (instruction: string) => void
@@ -163,7 +164,7 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <div className={styles['chat-input']}>
-        <textarea
+        <TextareaAutosize
           ref={textarea_ref}
           placeholder="Enter a prompt"
           value={instruction}
@@ -171,6 +172,8 @@ const ChatInput: React.FC<Props> = (props) => {
           onKeyDown={handle_key_down}
           onFocus={handle_focus}
           autoFocus
+          onPointerEnterCapture={() => {}}
+          onPointerLeaveCapture={() => {}}
         />
       </div>
       <div className={styles['prefix-suffix']}>
