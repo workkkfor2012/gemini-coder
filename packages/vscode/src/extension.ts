@@ -9,6 +9,7 @@ import { open_web_chat_with_fim_completion_prompt_command } from './commands/ope
 import { open_web_chat_with_apply_changes_prompt_command } from './commands/open-web-chat-with-apply-changes-prompt-command'
 import { open_web_chat_with_instruction_command } from './commands/open-web-chat-with-instruction-command'
 import { copy_apply_changes_prompt_command } from './commands/copy-appy-changes-prompt-command'
+import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -52,7 +53,8 @@ export function activate(context: vscode.ExtensionContext) {
       context,
       file_tree_provider
     ),
-    open_web_chat_with_instruction_command(context, file_tree_provider)
+    open_web_chat_with_instruction_command(context, file_tree_provider),
+    compose_chat_prompt_command(context, file_tree_provider)
   )
 }
 

@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Open automatically initialized AI Studio web chat with your prompt and hand-picked context, up to 2M tokens! Use the same big context for code completions, whenever you need something context aware!",
-  "version": "1.0.102",
+  "version": "1.0.103",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -110,8 +110,8 @@
         "title": "Gemini Coder: Open Web Chat with instruction..."
       },
       {
-        "command": "geminiCoder.changeWebChat",
-        "title": "Gemini Coder: Change Web Chat"
+        "command": "geminiCoder.composeChatPrompt",
+        "title": "Gemini Coder: Compose Chat Prompt to Clipboard"
       }
     ],
     "menus": {
@@ -209,7 +209,9 @@
         },
         "geminiCoder.systemInstructions": {
           "type": "array",
-          "default": [],
+          "default": [
+            "You are an AI coding assistant."
+          ],
           "description": "System instructions for AI Studio.",
           "items": {
             "type": "string"
@@ -218,9 +220,14 @@
         "geminiCoder.promptPrefixes": {
           "type": "array",
           "default": [
-            "I'm getting the following error:",
-            "There's a bug in this code. Can you find it?",
-            "What's the purpose of this code?"
+            "Describe the purpose of this code:",
+            "I need assistance troubleshooting this issue:",
+            "Help diagnose this error:",
+            "Outline the steps needed to achieve:",
+            "Draft a roadmap for accomplishing:",
+            "Propose various approaches for addressing:",
+            "Identify potential challenges in developing:",
+            "Write tests for:"
           ],
           "description": "Prompt prefixes.",
           "items": {
@@ -230,8 +237,13 @@
         "geminiCoder.promptSuffixes": {
           "type": "array",
           "default": [
-            "Be concise.",
-            "What needs to change?"
+            "Keep your response concise.",
+            "Summarize your understanding of the problem.",
+            "Highlight what needs to change.",
+            "Detail the key considerations.",
+            "Suggest any alternative approaches.",
+            "Identify potential drawbacks.",
+            "Ask for clarification if needed before proceeding."
           ],
           "description": "Prompt suffixes.",
           "items": {

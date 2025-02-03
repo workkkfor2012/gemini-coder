@@ -20,7 +20,7 @@ function Chat() {
   const [additional_web_chats, set_additional_web_chats] = useState<any[]>([])
 
   useEffect(() => {
-    vscode.postMessage({ command: 'getLastChatInstruction' })
+    vscode.postMessage({ command: 'getlastChatPrompt' })
     vscode.postMessage({ command: 'getSystemInstructions' })
     vscode.postMessage({ command: 'getLastSystemInstruction' })
     vscode.postMessage({ command: 'getPromptPrefixes' })

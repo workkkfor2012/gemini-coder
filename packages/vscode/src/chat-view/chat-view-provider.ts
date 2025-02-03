@@ -33,9 +33,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         .get<any[]>('geminiCoder.additionalWebChats', [])
 
       switch (message.command) {
-        case 'getLastChatInstruction':
+        case 'getlastChatPrompt':
           const last_instruction =
-            this._context.globalState.get<string>('lastChatInstruction') || ''
+            this._context.globalState.get<string>('lastChatPrompt') || ''
           webview_view.webview.postMessage({
             command: 'initialInstruction',
             instruction: last_instruction
@@ -44,7 +44,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
         case 'saveChatInstruction':
           this._context.globalState.update(
-            'lastChatInstruction',
+            'lastChatPrompt',
             message.instruction
           )
           break

@@ -1,16 +1,10 @@
 # Gemini Coder
 
----
-
-**NEW:** Now supports DeepSeek web chat! Use the newest R1, V3 models for free with hands-free chat initialization.
-
----
-
 With dedicated context panel you can manually select related folders and files to your task at hand, then use one of the available commands for:
 
+- automatically initialized chats in AI Studio,
 - FIM completions,
-- web chat in AI Studio/DeepSeek,
-- file refactoring.
+- applying suggested changes to files.
 
 For a seamless developer experience, install dedicated browser extension for hands-free chat initialization.
 
@@ -27,6 +21,7 @@ For a seamless developer experience, install dedicated browser extension for han
 - File refactoring, useful for applying suggested code changes.
 - Rate limited FIM completions Gemini Pro requests fall back to Gemini Flash.
 - Provider agnostic, read more "Set up custom providers" section below.
+- Configure additional web chats, e.g. DeepSeek, in settings.
 
 ## How to use Autocomplete
 
@@ -34,37 +29,36 @@ For a seamless developer experience, install dedicated browser extension for han
 2.  Place the cursor where you want to insert code completion.
 3.  Open the Command Palette (`Ctrl+Shift+P`).
 4.  Run one of the following commands (listed below).
-5.  Bind commands to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Autocomplete with Primary Model` and `Alt+P` for `Gemini Coder: Autocomplete with Secondary Model`.
+5.  Bind commands to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Request FIM completion`.
 
 ## Commands
 
 #### Autocomplete
 
-- `Gemini Coder: Autocomplete with Primary Model`: Uses the primary model to autocomplete code at the cursor position.
-- `Gemini Coder: Autocomplete with Secondary Model`: Uses the secondary model to autocomplete code at the cursor position.
-- `Gemini Coder: Copy Autocompletion Prompt to Clipboard`: Copies the current autocompletion prompt to the clipboard.
-- `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
+- `Gemini Coder: Request FIM completion` - Get fill-in-the-middle completion using selected context
+- `Gemini Coder: Copy FIM Completion Prompt to Clipboard` - Copy FIM prompt with context
+- `Gemini Coder: Open Web Chat with FIM Completion Prompt` - Open web chat with FIM prompt
 
-#### File refactoring
+#### File Refactoring
 
-- `Gemini Coder: Refactor This File`: Refactors the current file based on the provided instruction.
-- `Gemini Coder: Copy File Refactoring Prompt to Clipboard`: Copies the refactoring prompt to the clipboard.
-- `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
+- `Gemini Coder: Apply Changes to this File` - Refactor current file using AI
+- `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy refactoring prompt
+- `Gemini Coder: Open Web Chat with Apply Changes Prompt` - Open web chat with refactoring prompt
 
-#### Chat
+#### Chat Interactions
 
-- `Gemini Coder: Open Web Chat with Instruction`: Copies the instruction with context to the clipboard and opens the selected web chat.
-- `Gemini Coder: Open Web Chat with Autocompletion Prompt`: Copies the current autocompletion prompt to the clipboard and opens the selected web chat.
-- `Gemini Coder: Open Web Chat with File Refactoring Prompt`: Copies the refactoring prompt to the clipboard and opens the selected web chat.
+- `Gemini Coder: Open Web Chat with instruction...` - Compose custom prompt with context
+- `Gemini Coder: Compose Chat Prompt to Clipboard` - Create chat prompt with context/prefix/suffix
 
-#### Other
+#### Context Management
 
-- `Gemini Coder: Copy Context`: Copies current context to the clipboard.
-- `Gemini Coder: Change Default Models`: Allows you to change the default primary and secondary models for autocompletion and file refactoring commands.
+- `Gemini Coder: Copy Context` - Copy selected files as XML context
+- `Gemini Coder: Clear all checks` - Clear all file selections
+- `Gemini Coder: Change Default Model` - Change default AI model
 
 ## Set up custom providers
 
-The extension supports any OpenAI API compatible providers for FIM completions and file refactoring.
+The extension supports any OpenAI API compatible providers for FIM completions and applying changes to files.
 
 ```json
   "geminiCoder.providers": [
@@ -87,6 +81,16 @@ The extension supports any OpenAI API compatible providers for FIM completions a
   ],
 ```
 
+## Configure additional web chats
+
+You can configure additional web chats in settings, for example:
+
+```json
+"geminiCoder.additionalWebChats": [
+    { "name": "DeepSeek", "url": "https://chat.deepseek.com/" }
+  ],
+```
+
 ## License
 
 MIT
@@ -95,4 +99,4 @@ This is not an official Google product.
 
 ## Author
 
-[Robert Piosik](https://x.com/robertpiosik)
+[Robert Piosik](https://buymeacoffee.com/robertpiosik)
