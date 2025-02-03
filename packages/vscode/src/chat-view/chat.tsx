@@ -132,6 +132,15 @@ function Chat() {
 
   const handle_web_chat_change = (web_chat: string) => {
     set_selected_web_chat(web_chat)
+    const updated_last_used_web_chats = [
+      web_chat,
+      ...last_used_web_chats.filter((chat) => chat != web_chat)
+    ]
+    set_last_used_web_chats(updated_last_used_web_chats)
+    vscode.postMessage({
+      command: 'updateLastUsedWebChats',
+      webChats: updated_last_used_web_chats
+    })
   }
 
   if (

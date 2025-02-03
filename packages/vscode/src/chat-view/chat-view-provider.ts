@@ -304,6 +304,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             webChats: last_used_web_chats
           })
           break
+        case 'updateLastUsedWebChats':
+          this._context.globalState.update('lastUsedWebChats', message.webChats)
+          break
       }
     })
   }
