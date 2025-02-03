@@ -278,7 +278,8 @@ export function open_web_chat_with_instruction_command(
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
 
-          final_text = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
+          // final_text = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
+          final_text = `<model>${ai_studio_model.name}</model>${final_text}`
 
           const last_system_instruction =
             context.globalState.get<string>('lastSystemInstruction') || ''

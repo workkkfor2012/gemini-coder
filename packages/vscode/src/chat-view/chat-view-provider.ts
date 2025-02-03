@@ -171,7 +171,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             context ? `<files>${context}\n</files>\n` : ''
           }${message.instruction}`
 
-          clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+          // clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+          clipboard_text = `<model>${ai_studio_model}</model>${clipboard_text}`
           if (system_instruction) {
             clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
           }
