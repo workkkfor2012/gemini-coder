@@ -14,12 +14,9 @@ function Chat() {
   const [prompt_suffixes, set_prompt_suffixes] = useState<string[]>()
   const [selected_prompt_suffix, set_selected_prompt_suffix] =
     useState<string>()
-  const [ai_studio_models, set_ai_studio_models] = useState<string[]>([])
   const [selected_ai_studio_model, set_selected_ai_studio_model] =
     useState<string>()
-  const [additional_web_chats, set_additional_web_chats] = useState<any[]>([])
-  const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>([])
-  const [selected_web_chat, set_selected_web_chat] = useState<string>()
+  const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getlastChatPrompt' })
@@ -29,9 +26,7 @@ function Chat() {
     vscode.postMessage({ command: 'getLastPromptPrefix' })
     vscode.postMessage({ command: 'getPromptSuffixes' })
     vscode.postMessage({ command: 'getLastPromptSuffix' })
-    vscode.postMessage({ command: 'getAiStudioModels' })
     vscode.postMessage({ command: 'getCurrentAiStudioModel' })
-    vscode.postMessage({ command: 'getAdditionalWebChats' })
     vscode.postMessage({ command: 'getLastUsedWebChats' })
 
     const handle_message = (event: MessageEvent) => {
@@ -58,14 +53,8 @@ function Chat() {
         case 'initialPromptSuffix':
           set_selected_prompt_suffix(message.suffix)
           break
-        case 'aiStudioModels':
-          set_ai_studio_models(message.models)
-          break
         case 'currentAiStudioModel':
           set_selected_ai_studio_model(message.model)
-          break
-        case 'additionalWebChats':
-          set_additional_web_chats(message.webChats)
           break
         case 'lastUsedWebChats':
           set_last_used_web_chats(message.webChats)
@@ -87,7 +76,6 @@ function Chat() {
       system_instruction: selected_system_instruction,
       prompt_prefix: selected_prompt_prefix,
       prompt_suffix: selected_prompt_suffix,
-      selected_web_chat: selected_web_chat
     })
   }
 
@@ -130,16 +118,11 @@ function Chat() {
     })
   }
 
-  const handle_web_chat_change = (web_chat: string) => {
-    set_selected_web_chat(web_chat)
-    const updated_last_used_web_chats = [
-      web_chat,
-      ...last_used_web_chats.filter((chat) => chat != web_chat)
-    ]
-    set_last_used_web_chats(updated_last_used_web_chats)
+  const handle_web_chat_change = (web_chats: string[]) => {
+    set_last_used_web_chats(web_chats)
     vscode.postMessage({
       command: 'updateLastUsedWebChats',
-      webChats: updated_last_used_web_chats
+      webChats: web_chats
     })
   }
 
@@ -148,8 +131,6 @@ function Chat() {
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
     prompt_suffixes === undefined ||
-    ai_studio_models === undefined ||
-    additional_web_chats === undefined ||
     last_used_web_chats === undefined
   ) {
     return null
@@ -169,12 +150,9 @@ function Chat() {
       prompt_suffixes={prompt_suffixes}
       selected_prompt_suffix={selected_prompt_suffix}
       on_prompt_suffix_change={handle_prompt_suffix_change}
-      ai_studio_models={ai_studio_models}
       selected_ai_studio_model={selected_ai_studio_model}
       on_ai_studio_model_change={handle_ai_studio_model_change}
-      additional_web_chats={additional_web_chats}
       last_used_web_chats={last_used_web_chats}
-      selected_web_chat={selected_web_chat}
       on_web_chat_change={handle_web_chat_change}
     />
   )

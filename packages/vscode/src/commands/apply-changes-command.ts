@@ -224,12 +224,12 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: `Refactoring file with ${provider.name}...`,
+          title: `Applying changes...`,
           cancellable: true
         },
         async (progress, token) => {
           token.onCancellationRequested(() => {
-            cancel_token_source.cancel('Refactoring cancelled by user.')
+            cancel_token_source.cancel('Cancelled by user.')
           })
 
           try {
@@ -279,7 +279,7 @@ export function apply_changes_command(
 
             if (!refactored_content) {
               vscode.window.showErrorMessage(
-                'Refactoring failed. Please try again later.'
+                'Applyin changes failed. Please try again later.'
               )
               return
             }
@@ -293,7 +293,7 @@ export function apply_changes_command(
             })
 
             vscode.window.showInformationMessage(
-              `File refactored with ${provider.name}!`
+              `Changes have been applied!`
             )
           } catch (error) {
             console.error('Refactoring error:', error)

@@ -5,7 +5,7 @@ declare const styles: {
   readonly "continue": string;
   readonly "footer": string;
   readonly "prefix-suffix": string;
-  readonly "small-select": string;
+  readonly "small-selects": string;
 };
 export = styles;
 

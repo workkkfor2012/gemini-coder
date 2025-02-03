@@ -32,6 +32,25 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         .getConfiguration()
         .get<any[]>('geminiCoder.additionalWebChats', [])
 
+      let last_used_web_chats = this._context.globalState.get<string[]>(
+        'lastUsedWebChats',
+        []
+      )
+      if (!last_used_web_chats.includes('AI Studio')) {
+        last_used_web_chats.push('AI Studio')
+      }
+      last_used_web_chats = last_used_web_chats.filter(
+        (web_chat) =>
+          web_chat == 'AI Studio' ||
+          additional_web_chats.some((item) => item.name == web_chat)
+      )
+      additional_web_chats.forEach((chat) => {
+        if (!last_used_web_chats.includes(chat.name)) {
+          last_used_web_chats.push(chat.name)
+        }
+      })
+      this._context.globalState.update('lastUsedWebChats', last_used_web_chats)
+
       switch (message.command) {
         case 'getlastChatPrompt':
           const last_instruction =
@@ -159,35 +178,19 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          let selected_chat = message.selected_web_chat
+          let selected_chat = last_used_web_chats[0] || 'AI Studio'
 
           if (selected_chat) {
             const chat_url =
               selected_chat == 'AI Studio'
                 ? 'https://aistudio.google.com/app/prompts/new_chat'
                 : additional_web_chats.find(
-                    (chat) => chat.name === selected_chat
+                    (chat) => chat.name == selected_chat
                   )?.url
 
             if (chat_url) {
               vscode.env.openExternal(
                 vscode.Uri.parse(`${chat_url}#gemini-coder`)
-              )
-
-              // Update the last used web chats in global state
-              let last_used_web_chats = this._context.globalState.get<string[]>(
-                'lastUsedWebChats',
-                []
-              )
-              last_used_web_chats = [
-                selected_chat,
-                ...last_used_web_chats.filter(
-                  (chat_name) => chat_name !== selected_chat
-                )
-              ]
-              this._context.globalState.update(
-                'lastUsedWebChats',
-                last_used_web_chats
               )
             } else {
               vscode.window.showErrorMessage(
@@ -200,7 +203,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           }
 
           break
-
         case 'showError':
           vscode.window.showErrorMessage(message.message)
           break
@@ -258,18 +260,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         case 'savePromptSuffix':
           this._context.globalState.update('lastPromptSuffix', message.suffix)
           break
-        case 'getAiStudioModels':
-          webview_view.webview.postMessage({
-            command: 'aiStudioModels',
-            models: [
-              'gemini-1.5-pro',
-              'gemini-1.5-flash',
-              'gemini-exp-1206',
-              'gemini-2.0-flash-exp',
-              'gemini-2.0-flash-thinking-exp-01-21'
-            ]
-          })
-          break
         case 'updateAiStudioModel':
           await vscode.workspace
             .getConfiguration()
@@ -295,10 +285,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
           break
         case 'getLastUsedWebChats':
-          const last_used_web_chats = this._context.globalState.get<string[]>(
-            'lastUsedWebChats',
-            []
-          )
           webview_view.webview.postMessage({
             command: 'lastUsedWebChats',
             webChats: last_used_web_chats

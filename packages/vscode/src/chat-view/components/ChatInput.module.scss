@@ -6,13 +6,15 @@
   gap: 8px;
 }
 
-.small-select {
+.small-selects {
+  display: flex;
+  flex-direction: column;
   select {
     width: 100%;
     padding: 4px 4px;
     border-radius: 2px;
     font-family: system-ui, sans-serif;
-    background-color: var(--vscode-input-background);
+    background-color: var(--vscode-sideBar-background);
     color: var(--vscode-input-foreground);
     border: none;
     font-size: 0.9em;
@@ -63,8 +65,6 @@
     }
   }
 }
-
-
 
 .continue {
   display: flex;

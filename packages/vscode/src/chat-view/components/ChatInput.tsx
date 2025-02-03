@@ -15,13 +15,10 @@ type Props = {
   prompt_suffixes: string[]
   selected_prompt_suffix?: string
   on_prompt_suffix_change: (suffix: string) => void
-  ai_studio_models: string[]
   selected_ai_studio_model?: string
   on_ai_studio_model_change: (model: string) => void
-  additional_web_chats: any[]
   last_used_web_chats: string[]
-  selected_web_chat?: string
-  on_web_chat_change: (web_chat: string) => void
+  on_web_chat_change: (last_used_web_chats: string[]) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -34,15 +31,6 @@ const ChatInput: React.FC<Props> = (props) => {
       textarea_ref.current.select()
     }
   }, [])
-
-  useEffect(() => {
-    // Set initial selected web chat based on last used
-    if (props.last_used_web_chats.length > 0 && !props.selected_web_chat) {
-      props.on_web_chat_change(props.last_used_web_chats[0])
-    } else if (!props.selected_web_chat) {
-      props.on_web_chat_change('AI Studio')
-    }
-  }, [props.last_used_web_chats, props.selected_web_chat])
 
   const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     set_instruction(e.target.value)
@@ -91,82 +79,71 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_web_chat_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    props.on_web_chat_change(e.target.value)
+    const selected_web_chat = e.target.value
+    props.on_web_chat_change([
+      selected_web_chat,
+      ...props.last_used_web_chats.filter(
+        (chat_name) => chat_name != selected_web_chat
+      )
+    ])
   }
 
-  // Construct web chat options
-  const web_chat_options = [
-    { label: 'AI Studio', value: 'AI Studio' },
-    ...props.additional_web_chats.map((chat) => ({
-      label: chat.name,
-      value: chat.name
-    }))
-  ]
-
-  // Sort web chat options by last used
-  const sorted_web_chat_options = [
-    ...props.last_used_web_chats
-      .map((chat_name) =>
-        web_chat_options.find((option) => option.value == chat_name)
-      )
-      .filter((option) => option !== undefined),
-    ...web_chat_options.filter(
-      (option) => !props.last_used_web_chats.includes(option.value)
-    )
-  ] as { label: string; value: string }[]
+  const ai_studio_models = AI_STUDIO_MODELS.map((model) => model.name)
 
   return (
     <div className={styles.container}>
-      {props.additional_web_chats.length > 0 && (
-        <div className={styles['small-select']}>
-          <select
-            value={props.selected_web_chat || ''}
-            onChange={handle_web_chat_change}
-          >
-            {sorted_web_chat_options.map((option, index) => (
-              <option key={index} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      )}
-      {props.selected_web_chat == 'AI Studio' && (
-        <>
-          <div className={styles['small-select']}>
+      <div className={styles['small-selects']}>
+        {props.last_used_web_chats.length > 0 && (
+          <div>
             <select
-              value={props.selected_ai_studio_model || ''}
-              onChange={handle_ai_studio_model_change}
-              disabled={!props.ai_studio_models.length}
+              value={props.last_used_web_chats[0]}
+              onChange={handle_web_chat_change}
             >
-              {props.ai_studio_models.map((model, index) => (
-                <option key={index} value={model}>
-                  {AI_STUDIO_MODELS.find((m) => m.name == model)?.label ||
-                    model}
+              {props.last_used_web_chats.map((option, index) => (
+                <option key={index} value={option}>
+                  {option}
                 </option>
               ))}
             </select>
           </div>
-          <div className={styles['small-select']}>
-            <select
-              value={props.selected_system_instruction || ''}
-              onChange={handle_system_instruction_change}
-              disabled={!props.system_instructions.length}
-            >
-              <option value="">
-                {!props.system_instructions.length
-                  ? 'Add system instructions in settings'
-                  : 'Select system instructions'}
-              </option>
-              {props.system_instructions.map((instruction, index) => (
-                <option key={index} value={instruction}>
-                  {instruction}
+        )}
+        {props.last_used_web_chats[0] == 'AI Studio' && (
+          <>
+            <div>
+              <select
+                value={props.selected_ai_studio_model || ''}
+                onChange={handle_ai_studio_model_change}
+              >
+                {ai_studio_models.map((model, index) => (
+                  <option key={index} value={model}>
+                    {AI_STUDIO_MODELS.find((m) => m.name == model)?.label ||
+                      model}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <select
+                value={props.selected_system_instruction || ''}
+                onChange={handle_system_instruction_change}
+                disabled={!props.system_instructions.length}
+              >
+                <option value="">
+                  {!props.system_instructions.length
+                    ? 'Add system instructions in settings'
+                    : 'Select system instructions'}
                 </option>
-              ))}
-            </select>
-          </div>
-        </>
-      )}
+                {props.system_instructions.map((instruction, index) => (
+                  <option key={index} value={instruction}>
+                    {instruction}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </>
+        )}
+      </div>
+
       <div className={styles['prefix-suffix']}>
         <select
           value={props.selected_prompt_prefix || ''}
@@ -215,12 +192,13 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <button className={styles.continue} onClick={handle_submit}>
-        Continue
+        Continue in {props.last_used_web_chats[0]}
       </button>
       <div className={styles['browser-extension-message']}>
         <span>
-          AI Studio will open in your default browser. Paste clipboard manually
-          or automate chat initialization with Gemini Coder Connector.
+          {props.last_used_web_chats[0]} will open in your default browser.
+          Paste clipboard manually or automate chat initialization with Gemini
+          Coder Connector.
         </span>
         <ul>
           <li>

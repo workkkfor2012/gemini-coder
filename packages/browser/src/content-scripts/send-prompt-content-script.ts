@@ -134,7 +134,6 @@ const set_model = async (model: string) => {
   const model_selector_trigger = document.querySelector(
     'ms-model-selector mat-form-field > div'
   ) as HTMLElement
-  console.log(model_selector_trigger)
   model_selector_trigger.click()
 
   await new Promise((r) => requestAnimationFrame(r))
