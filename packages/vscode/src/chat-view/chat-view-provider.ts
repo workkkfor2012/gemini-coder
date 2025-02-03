@@ -163,8 +163,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           if (selected_chat) {
             const chat_url =
-              selected_chat === 'AI Studio'
-                ? 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+              selected_chat == 'AI Studio'
+                ? 'https://aistudio.google.com/app/prompts/new_chat'
                 : additional_web_chats.find(
                     (chat) => chat.name === selected_chat
                   )?.url

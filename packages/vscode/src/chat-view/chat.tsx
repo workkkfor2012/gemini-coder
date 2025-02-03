@@ -19,6 +19,7 @@ function Chat() {
     useState<string>()
   const [additional_web_chats, set_additional_web_chats] = useState<any[]>([])
   const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>([])
+  const [selected_web_chat, set_selected_web_chat] = useState<string>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getlastChatPrompt' })
@@ -85,7 +86,8 @@ function Chat() {
       instruction,
       system_instruction: selected_system_instruction,
       prompt_prefix: selected_prompt_prefix,
-      prompt_suffix: selected_prompt_suffix
+      prompt_suffix: selected_prompt_suffix,
+      selected_web_chat: selected_web_chat
     })
   }
 
@@ -129,14 +131,7 @@ function Chat() {
   }
 
   const handle_web_chat_change = (web_chat: string) => {
-    vscode.postMessage({
-      command: 'processChatInstruction',
-      instruction: '', // Instruction can be empty or taken from a state if needed
-      system_instruction: selected_system_instruction,
-      prompt_prefix: selected_prompt_prefix,
-      prompt_suffix: selected_prompt_suffix,
-      selected_web_chat: web_chat
-    })
+    set_selected_web_chat(web_chat)
   }
 
   if (
@@ -170,6 +165,7 @@ function Chat() {
       on_ai_studio_model_change={handle_ai_studio_model_change}
       additional_web_chats={additional_web_chats}
       last_used_web_chats={last_used_web_chats}
+      selected_web_chat={selected_web_chat}
       on_web_chat_change={handle_web_chat_change}
     />
   )

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
+import { AI_STUDIO_MODELS } from '../../constants/ai-studio-models'
 
 type Props = {
   on_submit: (instruction: string) => void
@@ -18,14 +19,14 @@ type Props = {
   selected_ai_studio_model?: string
   on_ai_studio_model_change: (model: string) => void
   additional_web_chats: any[]
-  last_used_web_chats: string[] // Add prop for last used web chats
-  on_web_chat_change: (webChat: string) => void // Add prop for web chat change handler
+  last_used_web_chats: string[]
+  selected_web_chat?: string
+  on_web_chat_change: (web_chat: string) => void
 }
 
 const ChatInput: React.FC<Props> = (props) => {
   const [instruction, set_instruction] = useState(props.initial_instruction)
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
-  const [selected_web_chat, set_selected_web_chat] = useState<string>()
 
   useEffect(() => {
     if (textarea_ref.current) {
@@ -36,12 +37,12 @@ const ChatInput: React.FC<Props> = (props) => {
 
   useEffect(() => {
     // Set initial selected web chat based on last used
-    if (props.last_used_web_chats.length > 0) {
-      set_selected_web_chat(props.last_used_web_chats[0])
-    } else {
-      set_selected_web_chat('AI Studio')
+    if (props.last_used_web_chats.length > 0 && !props.selected_web_chat) {
+      props.on_web_chat_change(props.last_used_web_chats[0])
+    } else if (!props.selected_web_chat) {
+      props.on_web_chat_change('AI Studio')
     }
-  }, [props.last_used_web_chats])
+  }, [props.last_used_web_chats, props.selected_web_chat])
 
   const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     set_instruction(e.target.value)
@@ -90,17 +91,7 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_web_chat_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    set_selected_web_chat(e.target.value)
     props.on_web_chat_change(e.target.value)
-  }
-
-  const model_readable_names: { [key: string]: string } = {
-    'gemini-1.5-pro': 'Gemini 1.5 Pro',
-    'gemini-1.5-flash': 'Gemini 1.5 Flash',
-    'gemini-exp-1206': 'Gemini Experimental 1206',
-    'gemini-2.0-flash-exp': 'Gemini 2.0 Flash Experimental',
-    'gemini-2.0-flash-thinking-exp-01-21':
-      'Gemini 2.0 Flash Thinking Experimental 01-21'
   }
 
   // Construct web chat options
@@ -116,7 +107,7 @@ const ChatInput: React.FC<Props> = (props) => {
   const sorted_web_chat_options = [
     ...props.last_used_web_chats
       .map((chat_name) =>
-        web_chat_options.find((option) => option.value === chat_name)
+        web_chat_options.find((option) => option.value == chat_name)
       )
       .filter((option) => option !== undefined),
     ...web_chat_options.filter(
@@ -126,49 +117,56 @@ const ChatInput: React.FC<Props> = (props) => {
 
   return (
     <div className={styles.container}>
-      <div className={styles['small-select']}>
-        <select
-          value={selected_web_chat || ''}
-          onChange={handle_web_chat_change}
-        >
-          {sorted_web_chat_options.map((option, index) => (
-            <option key={index} value={option.value}>
-              {option.label}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className={styles['small-select']}>
-        <select
-          value={props.selected_ai_studio_model || ''}
-          onChange={handle_ai_studio_model_change}
-          disabled={!props.ai_studio_models.length}
-        >
-          {props.ai_studio_models.map((model, index) => (
-            <option key={index} value={model}>
-              {model_readable_names[model] || model}
-            </option>
-          ))}
-        </select>
-      </div>
-      <div className={styles['small-select']}>
-        <select
-          value={props.selected_system_instruction || ''}
-          onChange={handle_system_instruction_change}
-          disabled={!props.system_instructions.length}
-        >
-          <option value="">
-            {!props.system_instructions.length
-              ? 'Add system instructions in settings'
-              : 'Select system instructions'}
-          </option>
-          {props.system_instructions.map((instruction, index) => (
-            <option key={index} value={instruction}>
-              {instruction}
-            </option>
-          ))}
-        </select>
-      </div>
+      {props.additional_web_chats.length > 0 && (
+        <div className={styles['small-select']}>
+          <select
+            value={props.selected_web_chat || ''}
+            onChange={handle_web_chat_change}
+          >
+            {sorted_web_chat_options.map((option, index) => (
+              <option key={index} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      {props.selected_web_chat == 'AI Studio' && (
+        <>
+          <div className={styles['small-select']}>
+            <select
+              value={props.selected_ai_studio_model || ''}
+              onChange={handle_ai_studio_model_change}
+              disabled={!props.ai_studio_models.length}
+            >
+              {props.ai_studio_models.map((model, index) => (
+                <option key={index} value={model}>
+                  {AI_STUDIO_MODELS.find((m) => m.name == model)?.label ||
+                    model}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className={styles['small-select']}>
+            <select
+              value={props.selected_system_instruction || ''}
+              onChange={handle_system_instruction_change}
+              disabled={!props.system_instructions.length}
+            >
+              <option value="">
+                {!props.system_instructions.length
+                  ? 'Add system instructions in settings'
+                  : 'Select system instructions'}
+              </option>
+              {props.system_instructions.map((instruction, index) => (
+                <option key={index} value={instruction}>
+                  {instruction}
+                </option>
+              ))}
+            </select>
+          </div>
+        </>
+      )}
       <div className={styles['prefix-suffix']}>
         <select
           value={props.selected_prompt_prefix || ''}
