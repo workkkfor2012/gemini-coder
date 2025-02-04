@@ -1,6 +1,6 @@
 # Gemini Coder
 
-Efortless one-click AI Studio chat initialization with hand-picked context.
+Effortless one-click AI Studio chat initialization with hand-picked context.
 
 Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will set model, system instructions, temperature and your context-filled prompt hands-free!
 
