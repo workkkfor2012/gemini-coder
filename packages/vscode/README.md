@@ -15,7 +15,7 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 - Automatically initialized chats in AI Studio.
 - FIM completions at the cursor position.
 - Applying suggested code changes.
-- Provider agnostic, read more in "Set up custom providers" section below.
+- API provider agnostic, read more in "Set up custom providers" section below.
 - Web chat agnostic, read more in "Configure additional web chats" section below.
 
 ## How to use FIM completions

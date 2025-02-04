@@ -26,7 +26,7 @@ export function create_apply_changes_status_bar_item(
         const selected_action = await vscode.window.showQuickPick([
           {
             label: 'Use API',
-            description: 'Edit file directly in the editor',
+            description: 'Update the active file',
             command: 'geminiCoder.applyChanges'
           },
           {
