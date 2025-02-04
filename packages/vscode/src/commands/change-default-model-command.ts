@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { Provider } from '../types/provider'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
+import { update_status_bar } from '../status-bar/create-default-model-status-bar-item'
 
 export function change_default_model_command(
   status_bar_item: vscode.StatusBarItem
@@ -38,13 +39,4 @@ export function change_default_model_command(
       }
     }
   )
-}
-
-async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
-  const default_model_name = vscode.workspace
-    .getConfiguration()
-    .get<string>('geminiCoder.defaultModel')
-  status_bar_item.text = `${default_model_name || 'Select Model'}` // Updated status bar text
-  status_bar_item.tooltip = `Change default model`
-  status_bar_item.show()
 }

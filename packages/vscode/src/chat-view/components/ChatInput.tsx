@@ -132,7 +132,7 @@ const ChatInput: React.FC<Props> = (props) => {
                 <option value="">
                   {!props.system_instructions.length
                     ? 'Add system instructions in settings'
-                    : 'Select system instructions'}
+                    : 'Without system instructions'}
                 </option>
                 {props.system_instructions.map((instruction, index) => (
                   <option key={index} value={instruction}>
@@ -154,7 +154,7 @@ const ChatInput: React.FC<Props> = (props) => {
           <option value="">
             {!props.prompt_prefixes.length
               ? 'Add prompt prefixes in settings'
-              : 'Select prompt prefix'}
+              : 'Without prompt prefix'}
           </option>
           {props.prompt_prefixes.map((prefix, index) => (
             <option key={index} value={prefix}>
@@ -166,7 +166,7 @@ const ChatInput: React.FC<Props> = (props) => {
       <div className={styles['chat-input']}>
         <TextareaAutosize
           ref={textarea_ref}
-          placeholder="Enter a prompt"
+          placeholder="Type something"
           value={instruction}
           onChange={handle_input_change}
           onKeyDown={handle_key_down}
@@ -185,7 +185,7 @@ const ChatInput: React.FC<Props> = (props) => {
           <option value="">
             {!props.prompt_suffixes.length
               ? 'Add prompt suffixes in settings'
-              : 'Select prompt suffix'}
+              : 'Without prompt suffix'}
           </option>
           {props.prompt_suffixes.map((suffix, index) => (
             <option key={index} value={suffix}>

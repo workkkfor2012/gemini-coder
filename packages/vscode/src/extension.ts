@@ -10,17 +10,16 @@ import { open_web_chat_with_apply_changes_prompt_command } from './commands/open
 import { open_web_chat_with_instruction_command } from './commands/open-web-chat-with-instruction-command'
 import { copy_apply_changes_prompt_command } from './commands/copy-appy-changes-prompt-command'
 import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
+import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
+import { create_default_model_status_bar_item } from './status-bar/create-default-model-status-bar-item' // Import
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
-  // Default models status bar item
-  const status_bar_item = vscode.window.createStatusBarItem(
-    vscode.StatusBarAlignment.Right,
-    100
-  )
-  status_bar_item.command = 'geminiCoder.changeDefaultModel'
-  context.subscriptions.push(status_bar_item)
-  update_status_bar(status_bar_item)
+
+  // Status bar
+  const default_model_status_bar_item =
+    create_default_model_status_bar_item(context)
+  create_apply_changes_status_bar_item(context)
 
   // Chat View
   const chat_view_provider = new ChatViewProvider(
@@ -40,7 +39,7 @@ export function activate(context: vscode.ExtensionContext) {
     request_fim_completion({
       command: 'geminiCoder.requestFimCompletionWith',
       file_tree_provider,
-      context,
+      context
     }),
     request_fim_completion({
       command: 'geminiCoder.requestFimCompletion',
@@ -50,7 +49,7 @@ export function activate(context: vscode.ExtensionContext) {
     }),
     copy_fim_completion_prompt_command(file_tree_provider),
     copy_apply_changes_prompt_command(file_tree_provider),
-    change_default_model_command(status_bar_item),
+    change_default_model_command(default_model_status_bar_item),
     open_web_chat_with_fim_completion_prompt_command(
       context,
       file_tree_provider
@@ -65,12 +64,3 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 export function deactivate() {}
-
-async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
-  const default_model_name = vscode.workspace
-    .getConfiguration()
-    .get<string>('geminiCoder.defaultModel')
-
-  status_bar_item.text = `${default_model_name || 'Select Model'}`
-  status_bar_item.show()
-}

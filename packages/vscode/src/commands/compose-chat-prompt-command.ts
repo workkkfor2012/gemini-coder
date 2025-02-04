@@ -64,7 +64,7 @@ export function compose_chat_prompt_command(
         context.globalState.get<string>('lastChatPrompt') || ''
 
       const instruction = await vscode.window.showInputBox({
-        prompt: 'Enter a prompt',
+        prompt: 'Type something',
         placeHolder: 'e.g., "Our task is to..."',
         value: last_chat_prompt
       })

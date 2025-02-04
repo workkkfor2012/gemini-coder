@@ -9,13 +9,14 @@
 .small-selects {
   display: flex;
   flex-direction: column;
+  gap: 2px;
   select {
     width: 100%;
-    padding: 2px 0;
+    padding: 2px;
     font-family: system-ui, sans-serif;
     background-color: var(--vscode-sideBar-background);
     color: var(--vscode-input-foreground);
-    border: none;
+    border: 1px solid var(--vscode-sideBarSectionHeader-border);
     font-size: 0.9em;
     &:focus {
       outline-color: var(--vscode-focusBorder);

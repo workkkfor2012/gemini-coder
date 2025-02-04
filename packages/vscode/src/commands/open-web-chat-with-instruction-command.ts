@@ -65,7 +65,7 @@ export function open_web_chat_with_instruction_command(
         context.globalState.get<string>('lastChatPrompt') || ''
 
       const instruction = await vscode.window.showInputBox({
-        prompt: 'Enter a prompt',
+        prompt: 'Type something',
         placeHolder: 'e.g., "Our task is to..."',
         value: last_chat_prompt
       })

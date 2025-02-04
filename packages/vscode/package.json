@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
-  "description": "Open automatically initialized AI Studio web chat with your prompt and hand-picked context, up to 2M tokens! Use the same big context for code completions, whenever you need something context aware!",
-  "version": "1.0.107",
+  "description": "Gemini Coder starts AI Studio chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions, whenever you need something context aware!",
+  "version": "1.0.109",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -86,7 +86,7 @@
       },
       {
         "command": "geminiCoder.changeDefaultModel",
-        "title": "Gemini Coder: Change Default Models"
+        "title": "Gemini Coder: Change Default Model"
       },
       {
         "command": "geminiCoder.applyChanges",
@@ -226,6 +226,7 @@
             "Describe the purpose of this code:",
             "I need assistance troubleshooting this issue:",
             "Help diagnose this error:",
+            "Generate commit message based on changes:",
             "Write tests for:"
           ],
           "description": "Prompt prefixes.",
