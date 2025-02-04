@@ -8,8 +8,9 @@ export function create_apply_changes_status_bar_item(
     99
   )
   apply_changes_status_bar_item.command = 'geminiCoder.pickApplyChangesAction'
-  apply_changes_status_bar_item.text = 'Apply Changes'
-  apply_changes_status_bar_item.tooltip = 'Apply changes to the current file'
+  apply_changes_status_bar_item.text = 'Apply changes'
+  apply_changes_status_bar_item.tooltip =
+    'Integrate AI suggested changes with the current file'
   apply_changes_status_bar_item.show()
   context.subscriptions.push(apply_changes_status_bar_item)
 
