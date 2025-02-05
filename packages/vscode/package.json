@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Gemini Coder initializes AI Studio chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions, whenever you need something context aware!",
-  "version": "1.0.111",
+  "version": "1.0.112",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -263,13 +263,20 @@
         "geminiCoder.aiStudioModel": {
           "type": "string",
           "enum": [
-            "gemini-1.5-pro",
-            "gemini-1.5-flash",
-            "gemini-exp-1206",
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-thinking-exp-01-21",
+            "gemini-2.0-pro-exp-02-05",
             "gemini-2.0-flash-exp",
-            "gemini-2.0-flash-thinking-exp-01-21"
+            "gemini-exp-1206"
           ],
-          "default": "gemini-exp-1206",
+          "enumDescriptions": [
+            "Gemini 2.0 Flash",
+            "Gemini 2.0 Flash Thinking Experimental 01-21",
+            "Gemini 2.0 Pro Experimental 02-05",
+            "Gemini 2.0 Flash Experimental",
+            "Gemini Experimental 1206"
+          ],
+          "default": "gemini-2.0-flash",
           "description": "The model to use with AI Studio Web Chat."
         },
         "geminiCoder.additionalWebChats": {

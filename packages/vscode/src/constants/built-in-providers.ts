@@ -2,20 +2,11 @@ import { Provider } from '../types/provider'
 
 export const BUILT_IN_PROVIDERS: Provider[] = [
   {
-    name: 'Gemini Flash 1.5',
-    endpointUrl:
-      'https://generativelanguage.googleapis.com/v1beta/chat/completions',
-    bearerToken: '', // Placeholder, will be replaced with user's API key
-    model: 'gemini-1.5-flash',
-    temperature: 0, // Placeholder, will be replaced with user's setting
-    instruction: ''
-  },
-  {
-    name: 'Gemini Pro 1.5',
+    name: 'Gemini 2.0 Flash',
     endpointUrl:
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',
     bearerToken: '',
-    model: 'gemini-1.5-pro',
+    model: 'gemini-2.0-flash',
     temperature: 0,
     instruction: ''
   },
@@ -25,6 +16,15 @@ export const BUILT_IN_PROVIDERS: Provider[] = [
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',
     bearerToken: '',
     model: 'gemini-2.0-flash-thinking-exp-01-21',
+    temperature: 0,
+    instruction: ''
+  },
+  {
+    name: 'Gemini 2.0 Pro Experimental 02-05',
+    endpointUrl:
+      'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+    bearerToken: '',
+    model: 'gemini-2.0-pro-exp-02-05',
     temperature: 0,
     instruction: ''
   },
