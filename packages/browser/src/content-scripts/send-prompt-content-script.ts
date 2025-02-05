@@ -121,7 +121,7 @@ const enter_system_instructions = async (system_instructions: string) => {
 
 const set_temperature = async (temperature: string) => {
   const temperature_selector =
-    '.settings-item:nth-of-type(4) input[type=number]'
+    'ms-prompt-run-settings input[type=number]'
   const temperature_element = document.querySelector(
     temperature_selector
   ) as HTMLInputElement
