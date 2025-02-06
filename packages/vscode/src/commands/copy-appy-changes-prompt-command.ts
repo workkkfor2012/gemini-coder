@@ -21,9 +21,12 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
+      const clipboard_text = await vscode.env.clipboard.readText()
+
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
-        placeHolder: 'e.g., "Refactor this code to use async/await"'
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: clipboard_text
       })
 
       if (!instruction) {
@@ -61,7 +64,8 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
           vscode.workspace.workspaceFolders![0].uri.fsPath,
           path_to_be_attached
         )
-        context_text += `\n<file path="${relative_path}">\n${file_content}\n</file>`
+        // Use CDATA for file content to handle special characters correctly
+        context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
       }
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
@@ -76,7 +80,7 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
       }
 
       const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>`, // Use CDATA here too
         after: `\n</file>\n</files>`
       }
 
@@ -84,7 +88,7 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
 
       await vscode.env.clipboard.writeText(content)
       vscode.window.showInformationMessage(
-        'Refactoring prompt copied to clipboard!'
+        'Apply changes prompt copied to clipboard!'
       )
     }
   )

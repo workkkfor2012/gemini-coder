@@ -25,20 +25,17 @@ export function apply_changes_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      let last_refactor_instruction =
-        context.globalState.get<string>('lastRefactorInstruction') || ''
+      const clipboard_text = await vscode.env.clipboard.readText()
+
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: last_refactor_instruction
+        value: clipboard_text
       })
 
       if (!instruction) {
-        return
+        return // User cancelled
       }
-
-      last_refactor_instruction = instruction
-      await context.globalState.update('lastRefactorInstruction', instruction)
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
@@ -292,9 +289,7 @@ export function apply_changes_command(
               editBuilder.replace(fullRange, refactored_content!)
             })
 
-            vscode.window.showInformationMessage(
-              `Changes have been applied!`
-            )
+            vscode.window.showInformationMessage(`Changes have been applied!`)
           } catch (error) {
             console.error('Refactoring error:', error)
             vscode.window.showErrorMessage(

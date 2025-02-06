@@ -25,20 +25,17 @@ export function open_web_chat_with_apply_changes_prompt_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      let last_refactor_instruction =
-        context.globalState.get<string>('lastRefactorInstruction') || ''
+      const clipboard_text = await vscode.env.clipboard.readText()
 
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: last_refactor_instruction
+        value: clipboard_text
       })
 
       if (!instruction) {
         return
       }
-
-      await context.globalState.update('lastRefactorInstruction', instruction)
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {
