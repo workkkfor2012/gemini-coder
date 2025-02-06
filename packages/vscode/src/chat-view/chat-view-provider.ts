@@ -158,30 +158,32 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             } ${prompt_suffix.trim()}`
           }
 
-          const ai_studio_temperature = vscode.workspace
-            .getConfiguration()
-            .get<number>('geminiCoder.aiStudioTemperature')
-
-          const ai_studio_model = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.aiStudioModel')
-
           // Construct the final text
           let clipboard_text = `${
             context ? `<files>${context}\n</files>\n` : ''
           }${message.instruction}`
 
-          // clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-          clipboard_text = `<model>${ai_studio_model}</model>${clipboard_text}`
-          if (system_instruction) {
-            clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
+          let selected_chat = last_used_web_chats[0] || 'AI Studio'
+
+          if (!message.clipboard_only && selected_chat == 'AI Studio') {
+            const ai_studio_temperature = vscode.workspace
+              .getConfiguration()
+              .get<number>('geminiCoder.aiStudioTemperature')
+
+            const ai_studio_model = vscode.workspace
+              .getConfiguration()
+              .get<string>('geminiCoder.aiStudioModel')
+
+            // clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+            clipboard_text = `<model>${ai_studio_model}</model>${clipboard_text}`
+            if (system_instruction) {
+              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
+            }
           }
 
           await vscode.env.clipboard.writeText(clipboard_text)
 
-          let selected_chat = last_used_web_chats[0] || 'AI Studio'
-
-          if (selected_chat) {
+          if (!message.clipboard_only) {
             const chat_url =
               selected_chat == 'AI Studio'
                 ? 'https://aistudio.google.com/app/prompts/new_chat'
@@ -198,9 +200,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 `URL not found for web chat: ${selected_chat}`
               )
             }
-          } else {
-            // If no chat is selected, do nothing
-            return
           }
 
           break

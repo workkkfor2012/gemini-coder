@@ -83,7 +83,7 @@ You can configure additional web chats in settings, for example:
 
 ```json
 "geminiCoder.additionalWebChats": [
-    { "name": "DeepSeek", "url": "https://chat.deepseek.com/" }
+    { "name": "Open WebUI", "url": "http://localhost:8080/" }
   ],
 ```
 

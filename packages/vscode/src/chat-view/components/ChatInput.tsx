@@ -4,7 +4,7 @@ import { AI_STUDIO_MODELS } from '../../constants/ai-studio-models'
 import TextareaAutosize from 'react-autosize-textarea'
 
 type Props = {
-  on_submit: (instruction: string) => void
+  on_submit: (params: { instruction: string; clipboard_only?: boolean }) => void
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
   system_instructions: string[]
@@ -39,7 +39,7 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_submit = () => {
-    props.on_submit(instruction)
+    props.on_submit({ instruction })
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -132,7 +132,7 @@ const ChatInput: React.FC<Props> = (props) => {
                 <option value="">
                   {!props.system_instructions.length
                     ? 'Add system instructions in settings'
-                    : 'Without system instructions'}
+                    : '—'}
                 </option>
                 {props.system_instructions.map((instruction, index) => (
                   <option key={index} value={instruction}>
@@ -154,7 +154,7 @@ const ChatInput: React.FC<Props> = (props) => {
           <option value="">
             {!props.prompt_prefixes.length
               ? 'Add prompt prefixes in settings'
-              : 'Without prompt prefix'}
+              : '—'}
           </option>
           {props.prompt_prefixes.map((prefix, index) => (
             <option key={index} value={prefix}>
@@ -185,7 +185,7 @@ const ChatInput: React.FC<Props> = (props) => {
           <option value="">
             {!props.prompt_suffixes.length
               ? 'Add prompt suffixes in settings'
-              : 'Without prompt suffix'}
+              : '—'}
           </option>
           {props.prompt_suffixes.map((suffix, index) => (
             <option key={index} value={suffix}>
@@ -194,15 +194,39 @@ const ChatInput: React.FC<Props> = (props) => {
           ))}
         </select>
       </div>
-      <button className={styles.continue} onClick={handle_submit}>
-        Continue in {props.last_used_web_chats[0]}
-      </button>
+      <div className={styles.buttons}>
+        <button className={styles.buttons__continue} onClick={handle_submit}>
+          Continue in {props.last_used_web_chats[0]}
+        </button>
+        <button
+          className={styles.buttons__copy}
+          onClick={() => {
+            props.on_submit({
+              instruction: instruction,
+              clipboard_only: true
+            })
+          }}
+        >
+          Copy
+        </button>
+      </div>
       <div className={styles['browser-extension-message']}>
-        <span>
-          {props.last_used_web_chats[0]} will open in your default browser.
-          Paste clipboard manually or automate chat initialization with Gemini
-          Coder Connector.
-        </span>
+        {props.last_used_web_chats[0] == 'AI Studio' ? (
+          <span>
+            Clicking "Continue in AI Studio" will open the web chat in your
+            default browser. You'll need the Gemini Coder Connector to
+            initialize the chat with the selected model, system instructions,
+            and temperature.
+          </span>
+        ) : (
+          <span>
+            Clicking "Continue in {props.last_used_web_chats[0]}" will open the
+            web chat in your default browser. Paste the clipboard contents
+            manually or automate chat initialization with the Gemini Coder
+            Connector.
+          </span>
+        )}
+
         <ul>
           <li>
             <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">

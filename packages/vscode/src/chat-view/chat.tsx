@@ -69,13 +69,17 @@ function Chat() {
     }
   }, [])
 
-  const handle_send_message = (instruction: string) => {
+  const handle_send_message = (params: {
+    instruction: string
+    clipboard_only?: boolean
+  }) => {
     vscode.postMessage({
       command: 'processChatInstruction',
-      instruction,
+      instruction: params.instruction,
       system_instruction: selected_system_instruction,
       prompt_prefix: selected_prompt_prefix,
       prompt_suffix: selected_prompt_suffix,
+      clipboard_only: params.clipboard_only
     })
   }
 

@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Gemini Coder initializes AI Studio chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions, whenever you need something context aware!",
-  "version": "1.0.114",
+  "version": "1.0.115",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -281,7 +281,12 @@
         },
         "geminiCoder.additionalWebChats": {
           "type": "array",
-          "default": [],
+          "default": [
+            {
+              "name": "DeepSeek",
+              "url": "https://chat.deepseek.com/"
+            }
+          ],
           "description": "Configure additional web chats.",
           "items": {
             "type": "object",

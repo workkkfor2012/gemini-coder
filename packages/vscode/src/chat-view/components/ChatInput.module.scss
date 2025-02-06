@@ -9,7 +9,9 @@
 .small-selects {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
+  padding-bottom: 8px;
   select {
     width: 100%;
     padding: 2px;
@@ -66,21 +68,35 @@
   }
 }
 
-.continue {
+.buttons {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 28px;
-  font-size: 13px;
-  padding: 4px 16px;
-  font-family: system-ui, sans-serif;
-  background-color: var(--vscode-button-background);
-  color: var(--vscode-button-foreground);
-  border: none;
-  border-radius: 2px;
-  cursor: pointer;
-  &:hover {
-    background-color: var(--vscode-button-hoverBackground);
+  gap: 8px;
+  > button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 28px;
+    font-size: 13px;
+    padding: 4px 16px;
+    font-family: system-ui, sans-serif;
+    border: none;
+    border-radius: 2px;
+    cursor: pointer;
+  }
+  &__continue {
+    flex: 1;
+    background-color: var(--vscode-button-background);
+    color: var(--vscode-button-foreground);
+    &:hover {
+      background-color: var(--vscode-button-hoverBackground);
+    }
+  }
+  &__copy {
+    background-color: var(--vscode-button-secondaryBackground);
+    color: var(--vscode-button-secondaryForeground);
+    &:hover {
+      background-color: var(--vscode-button-secondaryHoverBackground);
+    }
   }
 }
 
