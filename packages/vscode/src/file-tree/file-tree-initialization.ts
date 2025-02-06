@@ -22,25 +22,56 @@ export function file_tree_initialization(
     })
 
     const update_activity_bar_badge_token_count = () => {
+      const config = vscode.workspace.getConfiguration('geminiCoder')
+      const attach_open_files = config.get<boolean>('attachOpenFiles', true)
       const checked_files = file_tree_provider!.getCheckedFiles()
       let total_token_count = 0
+      const added_files = new Set<string>()
 
+      // Count tokens from checked files
       for (const file_path of checked_files) {
-        // No need for try-catch here, getCheckedFiles now only returns files
-        const file_content = fs.readFileSync(file_path, 'utf-8')
-        total_token_count += Math.floor(file_content.length / 4)
+        if (fs.existsSync(file_path)) {
+          const file_content = fs.readFileSync(file_path, 'utf-8')
+          total_token_count += Math.floor(file_content.length / 4)
+          added_files.add(file_path)
+        }
+      }
+
+      // Add open files if the setting is enabled
+      if (attach_open_files) {
+        const tab_groups: ReadonlyArray<vscode.TabGroup> =
+          vscode.window.tabGroups.all
+
+        for (const group of tab_groups) {
+          for (const tab of group.tabs) {
+            if (tab.input instanceof vscode.TabInputText) {
+              const file_uri = tab.input.uri
+              const file_path = file_uri.fsPath
+
+              // Only count if it's not already included in checked files
+              if (fs.existsSync(file_path) && !added_files.has(file_path)) {
+                const file_content = fs.readFileSync(file_path, 'utf-8')
+                total_token_count += Math.floor(file_content.length / 4)
+                added_files.add(file_path)
+              }
+            }
+          }
+        }
       }
 
       // Update the badge on the activity bar
       gemini_coder_view.badge = {
         value: total_token_count,
-        tooltip: `${total_token_count} tokens`
+        tooltip: `${total_token_count} tokens${
+          attach_open_files ? ' (including open files)' : ''
+        }`
       }
     }
 
     // Add fileTreeProvider and treeView to ensure proper disposal
     context.subscriptions.push(file_tree_provider, gemini_coder_view)
 
+    // Register the copy context command
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
         const config = vscode.workspace.getConfiguration('geminiCoder')
@@ -162,6 +193,22 @@ export function file_tree_initialization(
       // Update token count after checkbox changes
       update_activity_bar_badge_token_count()
     })
+
+    // Update badge when configuration changes
+    context.subscriptions.push(
+      vscode.workspace.onDidChangeConfiguration((event) => {
+        if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+          update_activity_bar_badge_token_count()
+        }
+      })
+    )
+
+    // Update badge when tabs change
+    context.subscriptions.push(
+      vscode.window.tabGroups.onDidChangeTabs(() => {
+        update_activity_bar_badge_token_count()
+      })
+    )
 
     // Initial update of the badge
     update_activity_bar_badge_token_count()
