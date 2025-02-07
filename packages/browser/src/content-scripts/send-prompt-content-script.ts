@@ -5,11 +5,15 @@ const is_ai_studio =
 const is_deepseek =
   window.location.href == 'https://chat.deepseek.com/#gemini-coder'
 
+const is_github_copilot =
+  window.location.href == 'https://github.com/copilot#gemini-coder'
+
 export const get_input_element = () => {
   const chatbot_selectors = {
     'https://aistudio.google.com/app/prompts/new_chat#gemini-coder':
       'footer textarea',
-    'https://chat.deepseek.com/#gemini-coder': 'textarea'
+    'https://chat.deepseek.com/#gemini-coder': 'textarea',
+    'https://github.com/copilot#gemini-coder': 'textarea#copilot-chat-textarea'
   } as any
 
   const selector = chatbot_selectors[window.location.href]
@@ -21,7 +25,7 @@ export const get_input_element = () => {
   return active_element
 }
 
-const fill_input_and_send = (
+const fill_input_and_send = async (
   input_element: HTMLElement | null,
   prompt: string
 ) => {
@@ -58,7 +62,7 @@ const fill_input_and_send = (
     input_element.dispatchEvent(new Event('change', { bubbles: true }))
 
     const form = input_element.closest('form')
-    if (form) {
+   if (form && !is_github_copilot) {
       requestAnimationFrame(() => {
         form.requestSubmit()
       })
@@ -277,6 +281,21 @@ const handle_firefox = async (r: any) => {
       resolve(null)
     })
     document.querySelector(title_container_selector)?.appendChild(button)
+  } else if (is_github_copilot) {
+    const container_selector = '.LegalDisclaimer-module__legalTextImmersive--l5tBL'
+    await new Promise(async (resolve) => {
+      while (!document.querySelector(container_selector)) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+    document
+      .querySelector(container_selector)
+      ?.parentElement?.appendChild(button)
   } else {
     document.body.appendChild(button)
   }
@@ -312,6 +331,19 @@ const handle_chrome = async () => {
         }, 500)
       })
     }
+  }
+  else if (is_github_copilot) {
+    await new Promise(async (resolve) => {
+      // Wait for model selector
+      while (!document.querySelector('button[aria-describedby=":r13:-loading-announcement"]')) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
   }
 
   await apply_settings_and_fill({

@@ -15,7 +15,8 @@
     {
       "matches": [
         "https://aistudio.google.com/app/prompts/new_chat",
-        "https://chat.deepseek.com/"
+        "https://chat.deepseek.com/",
+        "https://github.com/copilot"
       ],
       "js": ["send-prompt-content-script.js"]
     }
