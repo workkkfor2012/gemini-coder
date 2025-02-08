@@ -247,7 +247,7 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Applying changes',
+          title: 'Generating corrected file',
           cancellable: true
         },
         async (progress, token) => {
@@ -256,7 +256,7 @@ export function apply_changes_command(
           })
 
           try {
-            let refactored_content = await make_api_request(
+            const refactored_content = await make_api_request(
               provider,
               body,
               cancel_token_source.token,
@@ -273,59 +273,6 @@ export function apply_changes_command(
                 })
               }
             )
-
-            if (refactored_content == 'rate_limit') {
-              const available_providers = all_providers.filter(
-                (p) => p.name != default_model_name
-              )
-
-              const selected_provider_name = await vscode.window.showQuickPick(
-                available_providers.map((p) => p.name),
-                {
-                  placeHolder: 'Rate limit reached, retry with another model'
-                }
-              )
-
-              if (!selected_provider_name) {
-                vscode.window.showErrorMessage(
-                  'No model selected. Request cancelled.'
-                )
-                return
-              }
-
-              provider = all_providers.find(
-                (p) => p.name == selected_provider_name
-              )!
-
-              body = {
-                messages,
-                model: provider.model,
-                temperature: provider.temperature
-              }
-
-              // Reset counters for the retry
-              received_length = 0
-
-              refactored_content = await make_api_request(
-                provider,
-                body,
-                cancel_token_source.token,
-                (chunk: string) => {
-                  // Update progress on each chunk for retry
-                  received_length += chunk.length
-                  const percentage = Math.min(
-                    Math.round((received_length / total_length) * 100),
-                    100
-                  )
-                  progress.report({
-                    message: `${percentage}% completed...`,
-                    increment: (chunk.length / total_length) * 100
-                  })
-                }
-              )
-            }
-
-            if (refactored_content == null) return
 
             if (!refactored_content) {
               vscode.window.showErrorMessage(
