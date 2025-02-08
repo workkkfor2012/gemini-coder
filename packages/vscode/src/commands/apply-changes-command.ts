@@ -246,7 +246,7 @@ export function apply_changes_command(
 
       vscode.window.withProgress(
         {
-          location: vscode.ProgressLocation.Window,
+          location: vscode.ProgressLocation.Notification,
           title: 'Applying changes',
           cancellable: true
         },
