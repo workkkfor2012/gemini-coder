@@ -6,6 +6,28 @@ import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
+// Helper function to clean up the API response
+function cleanup_api_response(content: string): string {
+  // Remove CDATA sections and file tags
+  const cdata_regex = /<!\[CDATA\[([\s\S]*?)\]\]>/
+  const file_tag_regex = /<file[^>]*>([\s\S]*?)<\/file>/
+
+  // First try to extract content from CDATA if present
+  const cdata_match = content.match(cdata_regex)
+  if (cdata_match) {
+    content = cdata_match[1]
+  }
+
+  // Then try to extract content from file tags if present
+  const file_tag_match = content.match(file_tag_regex)
+  if (file_tag_match) {
+    content = file_tag_match[1]
+  }
+
+  // Trim any leading/trailing whitespace
+  return content.trim()
+}
+
 export function apply_changes_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
@@ -218,10 +240,14 @@ export function apply_changes_command(
 
       let cancel_token_source = axios.CancelToken.source()
 
+      // Track total length and received length for progress
+      const total_length = document_text.length
+      let received_length = 0
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: `Applying changes...`,
+          title: 'Applying changes',
           cancellable: true
         },
         async (progress, token) => {
@@ -233,7 +259,19 @@ export function apply_changes_command(
             let refactored_content = await make_api_request(
               provider,
               body,
-              cancel_token_source.token
+              cancel_token_source.token,
+              (chunk: string) => {
+                // Update progress on each chunk
+                received_length += chunk.length
+                const percentage = Math.min(
+                  Math.round((received_length / total_length) * 100),
+                  100
+                )
+                progress.report({
+                  message: `${percentage}% completed...`,
+                  increment: (chunk.length / total_length) * 100
+                })
+              }
             )
 
             if (refactored_content == 'rate_limit') {
@@ -265,10 +303,25 @@ export function apply_changes_command(
                 temperature: provider.temperature
               }
 
+              // Reset counters for the retry
+              received_length = 0
+
               refactored_content = await make_api_request(
                 provider,
                 body,
-                cancel_token_source.token
+                cancel_token_source.token,
+                (chunk: string) => {
+                  // Update progress on each chunk for retry
+                  received_length += chunk.length
+                  const percentage = Math.min(
+                    Math.round((received_length / total_length) * 100),
+                    100
+                  )
+                  progress.report({
+                    message: `${percentage}% completed...`,
+                    increment: (chunk.length / total_length) * 100
+                  })
+                }
               )
             }
 
@@ -276,17 +329,20 @@ export function apply_changes_command(
 
             if (!refactored_content) {
               vscode.window.showErrorMessage(
-                'Applyin changes failed. Please try again later.'
+                'Applying changes failed. Please try again later.'
               )
               return
             }
 
-            const fullRange = new vscode.Range(
+            // Clean up the API response before applying it to the editor
+            const cleaned_content = cleanup_api_response(refactored_content)
+
+            const full_range = new vscode.Range(
               document.positionAt(0),
               document.positionAt(document_text.length)
             )
-            await editor.edit((editBuilder) => {
-              editBuilder.replace(fullRange, refactored_content!)
+            await editor.edit((edit_builder) => {
+              edit_builder.replace(full_range, cleaned_content)
             })
 
             vscode.window.showInformationMessage(`Changes have been applied!`)
