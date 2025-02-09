@@ -8,6 +8,10 @@ const is_deepseek =
 const is_github_copilot =
   window.location.href == 'https://github.com/copilot#gemini-coder'
 
+const is_open_webui =
+  document.title.includes('Open WebUI') &&
+  window.location.href.endsWith('#gemini-coder')
+
 export const get_input_element = () => {
   const chatbot_selectors = {
     'https://aistudio.google.com/app/prompts/new_chat#gemini-coder':
@@ -15,13 +19,10 @@ export const get_input_element = () => {
     'https://chat.deepseek.com/#gemini-coder': 'textarea',
     'https://github.com/copilot#gemini-coder': 'textarea#copilot-chat-textarea'
   } as any
-
   const selector = chatbot_selectors[window.location.href]
-
   const active_element = selector
     ? (document.querySelector(selector) as HTMLElement)
     : (document.activeElement as HTMLElement)
-
   return active_element
 }
 
@@ -32,13 +33,10 @@ const fill_input_and_send = async (
   if (input_element && input_element.isContentEditable) {
     // Handle contenteditable element
     input_element.innerText = prompt
-
     // Dispatch input and change events
     input_element.dispatchEvent(new Event('input', { bubbles: true }))
     input_element.dispatchEvent(new Event('change', { bubbles: true }))
-
     const form = input_element.closest('form')
-
     if (form) {
       requestAnimationFrame(() => {
         form.requestSubmit()
@@ -56,13 +54,11 @@ const fill_input_and_send = async (
   } else if (input_element && input_element.tagName == 'TEXTAREA') {
     // Handle input or textarea element
     ;(input_element as HTMLTextAreaElement).value = prompt
-
     // Dispatch input and change events
     input_element.dispatchEvent(new Event('input', { bubbles: true }))
     input_element.dispatchEvent(new Event('change', { bubbles: true }))
-
     const form = input_element.closest('form')
-   if (form && !is_github_copilot) {
+    if (form && !is_github_copilot) {
       requestAnimationFrame(() => {
         form.requestSubmit()
       })
@@ -218,7 +214,6 @@ const apply_settings_and_fill = async (params: {
       await set_temperature(params.temperature)
     }
   }
-
   fill_input_and_send(get_input_element(), params.text)
 }
 
@@ -282,7 +277,8 @@ const handle_firefox = async (r: any) => {
     })
     document.querySelector(title_container_selector)?.appendChild(button)
   } else if (is_github_copilot) {
-    const container_selector = '.LegalDisclaimer-module__legalTextImmersive--l5tBL'
+    const container_selector =
+      '.LegalDisclaimer-module__legalTextImmersive--l5tBL'
     await new Promise(async (resolve) => {
       while (!document.querySelector(container_selector)) {
         await new Promise((resolve) => {
@@ -312,7 +308,7 @@ const handle_chrome = async () => {
   const processed = process_clipboard_text(original_text)
   await navigator.clipboard.writeText(processed.text)
 
-  // Quirks mitigaion
+  // Quirks mitigation
   if (is_ai_studio) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('.title-container')) {
@@ -331,11 +327,24 @@ const handle_chrome = async () => {
         }, 500)
       })
     }
-  }
-  else if (is_github_copilot) {
+  } else if (is_github_copilot) {
     await new Promise(async (resolve) => {
-      // Wait for model selector
-      while (!document.querySelector('button[aria-describedby=":r13:-loading-announcement"]')) {
+      while (
+        !document.querySelector(
+          'button[aria-describedby=":r13:-loading-announcement"]'
+        )
+      ) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+  } else if (is_open_webui) {
+    await new Promise(async (resolve) => {
+      while (!document.querySelector('img[src="/static/favicon.png"]')) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
