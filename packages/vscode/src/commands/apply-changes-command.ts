@@ -11,6 +11,7 @@ function cleanup_api_response(content: string): string {
   // Remove CDATA sections and file tags
   const cdata_regex = /<!\[CDATA\[([\s\S]*?)\]\]>/
   const file_tag_regex = /<file[^>]*>([\s\S]*?)<\/file>/
+  const markdown_code_regex = /^```[a-zA-Z0-9_+-]*\n([\s\S]*?)\n```$/
 
   // First try to extract content from CDATA if present
   const cdata_match = content.match(cdata_regex)
@@ -22,6 +23,12 @@ function cleanup_api_response(content: string): string {
   const file_tag_match = content.match(file_tag_regex)
   if (file_tag_match) {
     content = file_tag_match[1]
+  }
+
+  // Remove markdown code block delimiters if present
+  const markdown_match = content.match(markdown_code_regex)
+  if (markdown_match) {
+    content = markdown_match[1]
   }
 
   // Trim any leading/trailing whitespace
@@ -247,7 +254,7 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Generating corrected file',
+          title: 'Waiting for corrected file',
           cancellable: true
         },
         async (progress, token) => {
@@ -268,7 +275,7 @@ export function apply_changes_command(
                   100
                 )
                 progress.report({
-                  message: `${percentage}% completed...`,
+                  message: `${percentage}% received...`,
                   increment: (chunk.length / total_length) * 100
                 })
               }
