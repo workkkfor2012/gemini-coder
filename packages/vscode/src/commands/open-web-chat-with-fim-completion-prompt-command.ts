@@ -3,6 +3,8 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { autocomplete_instruction } from '../constants/instructions'
 import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
+// Import at the top of the file
+import { WEB_CHATS } from '../constants/web-chats'
 
 export function open_web_chat_with_fim_completion_prompt_command(
   context: vscode.ExtensionContext,
@@ -80,19 +82,17 @@ export function open_web_chat_with_fim_completion_prompt_command(
       let content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 
       // Web chat selection logic starts here:
-      const additional_web_chats = vscode.workspace
-        .getConfiguration()
-        .get<any[]>('geminiCoder.additionalWebChats', [])
-
-      const ai_studio = {
-        label: 'AI Studio',
-        url: 'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
-      }
-
+      // Replace additionalWebChats config usage with WEB_CHATS
+      // In the command handler:
+      const ai_studio = WEB_CHATS.find(chat => chat.label === 'AI Studio')!
+      const other_chats = WEB_CHATS.filter(chat => chat.label !== 'AI Studio')
       const quick_pick_items = [
-        ai_studio,
-        ...additional_web_chats.map((chat) => ({
-          label: chat.name,
+        {
+          label: ai_studio.label,
+          url: `${ai_studio.url}#gemini-coder`
+        },
+        ...other_chats.map(chat => ({
+          label: chat.label,
           url: `${chat.url}#gemini-coder`
         }))
       ]
@@ -120,12 +120,13 @@ export function open_web_chat_with_fim_completion_prompt_command(
         )
       ]
 
+      // Replace additionalWebChats config usage with WEB_CHATS
       let selected_chat =
-        additional_web_chats.length > 0
+        WEB_CHATS.length > 1
           ? await vscode.window.showQuickPick(prioritized_quick_pick_items, {
               placeHolder: 'Select web chat to open'
             })
-          : ai_studio
+          : { label: ai_studio.label, url: `${ai_studio.url}#gemini-coder` }
 
       if (selected_chat) {
         if (selected_chat.label == 'AI Studio') {

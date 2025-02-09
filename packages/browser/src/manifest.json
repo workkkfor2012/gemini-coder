@@ -4,7 +4,7 @@
   "name": "Gemini Coder Connector",
   "short_name": "gemini-coder-connector",
   "description": "Helper extension for Gemini Coder, a VS Code AI assistant.",
-  "version": "0.1.14",
+  "version": "0.1.15",
   "homepage_url": "https://github.com/robertpiosik/gemini-coder",
   "icons": {
     "16": "icons/icon16.png",
@@ -17,8 +17,10 @@
         "https://aistudio.google.com/app/prompts/new_chat",
         "https://chat.deepseek.com/",
         "https://github.com/copilot",
+        "https://chatgpt.com/",
+        "https://claude.ai/new",
         "http://localhost/*",
-        "http://openwebui"
+        "http://openwebui/"
       ],
       "js": ["send-prompt-content-script.js"]
     }

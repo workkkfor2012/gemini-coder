@@ -1,12 +1,18 @@
-const is_ai_studio =
-  window.location.href ==
+const ai_studio_url =
   'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
+const is_ai_studio = window.location.href == ai_studio_url
 
-const is_deepseek =
-  window.location.href == 'https://chat.deepseek.com/#gemini-coder'
+const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
+const is_deepseek = window.location.href == deepseek_url
 
-const is_github_copilot =
-  window.location.href == 'https://github.com/copilot#gemini-coder'
+const github_copilot_url = 'https://github.com/copilot#gemini-coder'
+const is_github_copilot = window.location.href == github_copilot_url
+
+const claude_url = 'https://claude.ai/new#gemini-coder'
+const is_claude = window.location.href == claude_url
+
+const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
+const is_chatgpt = window.location.href == chatgpt_url
 
 const is_open_webui =
   document.title.includes('Open WebUI') &&
@@ -14,10 +20,11 @@ const is_open_webui =
 
 export const get_input_element = () => {
   const chatbot_selectors = {
-    'https://aistudio.google.com/app/prompts/new_chat#gemini-coder':
-      'footer textarea',
-    'https://chat.deepseek.com/#gemini-coder': 'textarea',
-    'https://github.com/copilot#gemini-coder': 'textarea#copilot-chat-textarea'
+    [ai_studio_url]: 'footer textarea',
+    [deepseek_url]: 'textarea',
+    [github_copilot_url]: 'textarea#copilot-chat-textarea',
+    [claude_url]: 'div[contenteditable=true]',
+    [chatgpt_url]: 'div#prompt-textarea'
   } as any
   const selector = chatbot_selectors[window.location.href]
   const active_element = selector
@@ -37,7 +44,18 @@ const fill_input_and_send = async (
     input_element.dispatchEvent(new Event('input', { bubbles: true }))
     input_element.dispatchEvent(new Event('change', { bubbles: true }))
     const form = input_element.closest('form')
-    if (form) {
+    if (is_claude) {
+      await new Promise((resolve) => {
+        setTimeout(() => {
+          resolve(true)
+        }, 500)
+      })
+      ;(
+        document.querySelector(
+          'fieldset > div:first-child button'
+        ) as HTMLElement
+      ).click()
+    } else if (form) {
       requestAnimationFrame(() => {
         form.requestSubmit()
       })
@@ -292,8 +310,20 @@ const handle_firefox = async (r: any) => {
     document
       .querySelector(container_selector)
       ?.parentElement?.appendChild(button)
-  } else {
-    document.body.appendChild(button)
+  } else if (is_chatgpt) {
+    const model_selector =
+      'button[data-testid="model-switcher-dropdown-button"]'
+    await new Promise(async (resolve) => {
+      while (!document.querySelector(model_selector)) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+    document.querySelector('form')?.appendChild(button)
   }
 }
 
@@ -345,6 +375,21 @@ const handle_chrome = async () => {
   } else if (is_open_webui) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('img[src="/static/favicon.png"]')) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+  } else if (is_chatgpt) {
+    await new Promise(async (resolve) => {
+      while (
+        !document.querySelector(
+          'button[data-testid="model-switcher-dropdown-button"]'
+        )
+      ) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)

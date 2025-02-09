@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
+import { WEB_CHATS } from '../constants/web-chats'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
@@ -28,7 +29,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
-      const additional_web_chats = vscode.workspace
+      const additional_web_chats_config = vscode.workspace
         .getConfiguration()
         .get<any[]>('geminiCoder.additionalWebChats', [])
 
@@ -42,11 +43,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       last_used_web_chats = last_used_web_chats.filter(
         (web_chat) =>
           web_chat == 'AI Studio' ||
-          additional_web_chats.some((item) => item.name == web_chat)
+          WEB_CHATS.filter(chat => chat.label !== 'AI Studio').some((item) => item.label == web_chat)
       )
-      additional_web_chats.forEach((chat) => {
-        if (!last_used_web_chats.includes(chat.name)) {
-          last_used_web_chats.push(chat.name)
+      WEB_CHATS.filter(chat => chat.label !== 'AI Studio').forEach((chat) => {
+        if (!last_used_web_chats.includes(chat.label)) {
+          last_used_web_chats.push(chat.label)
         }
       })
       this._context.globalState.update('lastUsedWebChats', last_used_web_chats)
@@ -187,8 +188,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             const chat_url =
               selected_chat == 'AI Studio'
                 ? 'https://aistudio.google.com/app/prompts/new_chat'
-                : additional_web_chats.find(
-                    (chat) => chat.name == selected_chat
+                : WEB_CHATS.filter(chat => chat.label != 'AI Studio').find(
+                    (chat) => chat.label == selected_chat
                   )?.url
 
             if (chat_url) {
@@ -281,7 +282,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         case 'getAdditionalWebChats':
           webview_view.webview.postMessage({
             command: 'additionalWebChats',
-            webChats: additional_web_chats
+            webChats: WEB_CHATS.filter(chat => chat.label != 'AI Studio')
           })
           break
         case 'getLastUsedWebChats':
