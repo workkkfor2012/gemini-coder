@@ -16,7 +16,7 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 - FIM completions at the cursor position.
 - Applying suggested code changes.
 - API provider agnostic, read more in "Set up custom providers" section below.
-- Web chat agnostic, read more in "Configure additional web chats" section below.
+- Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted). 
 
 ## How to use FIM completions
 
@@ -77,15 +77,6 @@ The extension supports any OpenAI API compatible providers for FIM completions a
   ],
 ```
 
-## Configure additional web chats
-
-You can configure additional web chats in settings, for example:
-
-```json
-"geminiCoder.additionalWebChats": [
-    { "name": "Open WebUI", "url": "http://localhost:8080/" }
-  ],
-```
 
 ## License
 

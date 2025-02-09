@@ -254,7 +254,7 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Waiting for corrected file',
+          title: 'Waiting for the updated file',
           cancellable: true
         },
         async (progress, token) => {
