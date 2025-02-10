@@ -187,15 +187,15 @@ export function open_web_chat_with_instruction_command(
       }${final_instruction}`
 
       // Web Chat Selection
-      const ai_studio = WEB_CHATS.find(chat => chat.label === 'AI Studio')!
-      const other_chats = WEB_CHATS.filter(chat => chat.label !== 'AI Studio')
+      const ai_studio = WEB_CHATS.find((chat) => chat.label === 'AI Studio')!
+      const other_chats = WEB_CHATS.filter((chat) => chat.label !== 'AI Studio')
 
       const quick_pick_items = [
         {
           label: ai_studio.label,
           url: `${ai_studio.url}#gemini-coder`
         },
-        ...other_chats.map(chat => ({
+        ...other_chats.map((chat) => ({
           label: chat.label,
           url: `${chat.url}#gemini-coder`
         }))
@@ -275,8 +275,7 @@ export function open_web_chat_with_instruction_command(
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
 
-          // final_text = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
-          final_text = `<model>${ai_studio_model.name}</model>${final_text}`
+          final_text = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${final_text}`
 
           const last_system_instruction =
             context.globalState.get<string>('lastSystemInstruction') || ''

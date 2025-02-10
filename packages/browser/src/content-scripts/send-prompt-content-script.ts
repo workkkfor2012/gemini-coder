@@ -398,6 +398,10 @@ const handle_chrome = async () => {
       }
       resolve(null)
     })
+    const reason_button = document.querySelector('button[aria-label="Reason"]')
+    if (reason_button) {
+      ;(reason_button as HTMLButtonElement).click()
+    }
   }
 
   await apply_settings_and_fill({

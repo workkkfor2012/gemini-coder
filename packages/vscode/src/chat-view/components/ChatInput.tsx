@@ -16,8 +16,10 @@ type Props = {
   prompt_suffixes: string[]
   selected_prompt_suffix?: string
   on_prompt_suffix_change: (suffix: string) => void
-  selected_ai_studio_model?: string
+  selected_ai_studio_model: string
   on_ai_studio_model_change: (model: string) => void
+  selected_ai_studio_temperature: number
+  on_ai_studio_temperature_change: (temperature: number) => void
   last_used_web_chats: string[]
   on_web_chat_change: (last_used_web_chats: string[]) => void
 }
@@ -79,6 +81,13 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_ai_studio_model_change(e.target.value)
   }
 
+  const handle_ai_studio_temperature_change = (
+    e: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    const value = parseFloat(e.target.value)
+    props.on_ai_studio_temperature_change(value)
+  }
+
   const handle_web_chat_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected_web_chat = e.target.value
     props.on_web_chat_change([
@@ -122,6 +131,21 @@ const ChatInput: React.FC<Props> = (props) => {
                   </option>
                 ))}
               </select>
+            </div>
+            <div className={styles['temperature-control']}>
+              <input
+                type="range"
+                min="0"
+                max="1"
+                step="0.1"
+                value={props.selected_ai_studio_temperature}
+                title={`Current temperature: ${props.selected_ai_studio_temperature?.toFixed(
+                  2
+                )}`}
+                onChange={handle_ai_studio_temperature_change}
+                className={styles['temperature-slider']}
+              />
+              <span>{props.selected_ai_studio_temperature?.toFixed(2)}</span>
             </div>
             <div>
               <select

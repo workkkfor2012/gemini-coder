@@ -43,9 +43,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       last_used_web_chats = last_used_web_chats.filter(
         (web_chat) =>
           web_chat == 'AI Studio' ||
-          WEB_CHATS.filter(chat => chat.label !== 'AI Studio').some((item) => item.label == web_chat)
+          WEB_CHATS.filter((chat) => chat.label !== 'AI Studio').some(
+            (item) => item.label == web_chat
+          )
       )
-      WEB_CHATS.filter(chat => chat.label !== 'AI Studio').forEach((chat) => {
+      WEB_CHATS.filter((chat) => chat.label !== 'AI Studio').forEach((chat) => {
         if (!last_used_web_chats.includes(chat.label)) {
           last_used_web_chats.push(chat.label)
         }
@@ -175,8 +177,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               .getConfiguration()
               .get<string>('geminiCoder.aiStudioModel')
 
-            // clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-            clipboard_text = `<model>${ai_studio_model}</model>${clipboard_text}`
+            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
             if (system_instruction) {
               clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
             }
@@ -188,7 +189,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             const chat_url =
               selected_chat == 'AI Studio'
                 ? 'https://aistudio.google.com/app/prompts/new_chat'
-                : WEB_CHATS.filter(chat => chat.label != 'AI Studio').find(
+                : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
                     (chat) => chat.label == selected_chat
                   )?.url
 
@@ -282,7 +283,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         case 'getAdditionalWebChats':
           webview_view.webview.postMessage({
             command: 'additionalWebChats',
-            webChats: WEB_CHATS.filter(chat => chat.label != 'AI Studio')
+            webChats: WEB_CHATS.filter((chat) => chat.label != 'AI Studio')
           })
           break
         case 'getLastUsedWebChats':
@@ -293,6 +294,24 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           break
         case 'updateLastUsedWebChats':
           this._context.globalState.update('lastUsedWebChats', message.webChats)
+          break
+        case 'updateAiStudioTemperature':
+          await vscode.workspace
+            .getConfiguration()
+            .update(
+              'geminiCoder.aiStudioTemperature',
+              message.temperature,
+              vscode.ConfigurationTarget.Global
+            )
+          break
+        case 'getCurrentAiStudioTemperature':
+          const temperature = vscode.workspace
+            .getConfiguration()
+            .get<number>('geminiCoder.aiStudioTemperature', 0.5)
+          webview_view.webview.postMessage({
+            command: 'currentAiStudioTemperature',
+            temperature
+          })
           break
       }
     })

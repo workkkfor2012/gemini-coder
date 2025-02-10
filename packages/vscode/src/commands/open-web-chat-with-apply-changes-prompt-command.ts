@@ -182,8 +182,7 @@ export function open_web_chat_with_apply_changes_prompt_command(
             .getConfiguration()
             .get<number>('geminiCoder.aiStudioTemperature')
 
-          // content = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${content}`
-          content = `<model>${ai_studio_model.name}</model>${content}`
+          content = `<model>${ai_studio_model.name}</model><temperature>${ai_studio_temperature}</temperature>${content}`
         }
 
         await vscode.env.clipboard.writeText(content)

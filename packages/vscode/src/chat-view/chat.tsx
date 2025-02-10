@@ -16,6 +16,8 @@ function Chat() {
     useState<string>()
   const [selected_ai_studio_model, set_selected_ai_studio_model] =
     useState<string>()
+  const [selected_ai_studio_temperature, set_selected_ai_studio_temperature] =
+    useState<number>()
   const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>()
 
   useEffect(() => {
@@ -28,6 +30,7 @@ function Chat() {
     vscode.postMessage({ command: 'getLastPromptSuffix' })
     vscode.postMessage({ command: 'getCurrentAiStudioModel' })
     vscode.postMessage({ command: 'getLastUsedWebChats' })
+    vscode.postMessage({ command: 'getCurrentAiStudioTemperature' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -58,6 +61,9 @@ function Chat() {
           break
         case 'lastUsedWebChats':
           set_last_used_web_chats(message.webChats)
+          break
+        case 'currentAiStudioTemperature':
+          set_selected_ai_studio_temperature(message.temperature)
           break
       }
     }
@@ -122,6 +128,14 @@ function Chat() {
     })
   }
 
+  const handle_ai_studio_temperature_change = (temperature: number) => {
+    set_selected_ai_studio_temperature(temperature)
+    vscode.postMessage({
+      command: 'updateAiStudioTemperature',
+      temperature
+    })
+  }
+
   const handle_web_chat_change = (web_chats: string[]) => {
     set_last_used_web_chats(web_chats)
     vscode.postMessage({
@@ -135,7 +149,9 @@ function Chat() {
     system_instructions === undefined ||
     prompt_prefixes === undefined ||
     prompt_suffixes === undefined ||
-    last_used_web_chats === undefined
+    last_used_web_chats === undefined ||
+    selected_ai_studio_model === undefined ||
+    selected_ai_studio_temperature === undefined
   ) {
     return null
   }
@@ -156,6 +172,8 @@ function Chat() {
       on_prompt_suffix_change={handle_prompt_suffix_change}
       selected_ai_studio_model={selected_ai_studio_model}
       on_ai_studio_model_change={handle_ai_studio_model_change}
+      selected_ai_studio_temperature={selected_ai_studio_temperature}
+      on_ai_studio_temperature_change={handle_ai_studio_temperature_change}
       last_used_web_chats={last_used_web_chats}
       on_web_chat_change={handle_web_chat_change}
     />

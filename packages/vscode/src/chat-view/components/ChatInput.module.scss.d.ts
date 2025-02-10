@@ -8,6 +8,8 @@ declare const styles: {
   readonly "footer": string;
   readonly "prefix-suffix": string;
   readonly "small-selects": string;
+  readonly "temperature-control": string;
+  readonly "temperature-slider": string;
 };
 export = styles;
 
