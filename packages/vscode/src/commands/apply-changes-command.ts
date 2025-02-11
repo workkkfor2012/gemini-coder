@@ -8,34 +8,42 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
 // Helper function to clean up the API response
 function cleanup_api_response(content: string): string {
-  const markdown_code_regex = /^```[^\n]*\n([^`]*?)```\s*$/m
-  const file_tag_regex = /<file[^>]*>([^<]*?)<\/file>/
-  const open_file_tag_regex = /<file[^>]*>\s*\n/
-  const cdata_regex = /<!\[CDATA\[([\s\\S]*?)\]\]>/
+  try {
+    // Remove DOCTYPE declarations
+    content = content.replace(/^\s*<!DOCTYPE[^>]*>/i, '')
 
-  // First remove any opening file tags at the start (without proper closing)
-  content = content.replace(open_file_tag_regex, '')
+    // Extract CDATA content
+    const cdataRegex = /<!\[CDATA\[([\s\S]*?)\]\]>/
+    const cdataMatch = content.match(cdataRegex)
+    if (cdataMatch) {
+      content = cdataMatch[1]
+    }
 
-  // Then try to extract content from file tags if present
-  const file_tag_match = content.match(file_tag_regex)
-  if (file_tag_match) {
-    content = file_tag_match[1]
+    // Handle file tags with better nested content support
+    const fileTagRegex = /<file[^>]*>(?:\s*\n)?([\s\S]*?)<\/file>|<file[^>]*\/>/
+    const fileTagMatch = content.match(fileTagRegex)
+    if (fileTagMatch) {
+      content = fileTagMatch[1] || ''
+    }
+
+    // Handle markdown code blocks with better indentation support
+    const markdownRegex = /```[^\n]*\n([\s\S]*?)```/m
+    const markdownMatch = content.match(markdownRegex)
+    if (markdownMatch) {
+      content = markdownMatch[1]
+    }
+
+    // Preserve intentional whitespace while removing extra blank lines
+    return content
+      .split('\n')
+      .map((line) => line.trimEnd()) // Only trim right to preserve indentation
+      .join('\n')
+      .replace(/\n{3,}/g, '\n\n') // Replace multiple blank lines with double newline
+      .trim()
+  } catch (error) {
+    console.error('Error cleaning up API response:', error)
+    return content // Return original content on error
   }
-
-  // Extract content from CDATA if present
-  const cdata_match = content.match(cdata_regex)
-  if (cdata_match) {
-    content = cdata_match[1]
-  }
-
-  // Finally handle markdown code blocks
-  const markdown_match = content.match(markdown_code_regex)
-  if (markdown_match) {
-    content = markdown_match[1].trim()
-  }
-
-  // Trim any leading/trailing whitespace while preserving intentional newlines in the code
-  return content.trim()
 }
 
 export function apply_changes_command(
