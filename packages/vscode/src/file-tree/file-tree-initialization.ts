@@ -177,7 +177,6 @@ export function file_tree_initialization(
       ),
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()
-        vscode.window.showInformationMessage('All checks have been cleared.')
 
         // Update token count after clearing checks
         update_activity_bar_badge_token_count()
