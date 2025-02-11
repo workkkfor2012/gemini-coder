@@ -8,14 +8,15 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
 // Helper function to clean up the API response
 function cleanup_api_response(content: string): string {
-  const cdata_regex = /<!\[CDATA\[([\s\S]*?)\]\]>/
-  const file_tag_regex = /<file[^>]*>([\s\S]*?)<\/file>/
   const markdown_code_regex = /^```[\s\S]*?\n([\s\S]*?)\n```\s*$/m
+  const file_tag_regex = /<file[^>]*>([\s\S]*?)<\/file>/
+  const cdata_regex = /<!\[CDATA\[([\s\S]*?)\]\]>/
 
-  // First try to extract content from CDATA if present
-  const cdata_match = content.match(cdata_regex)
-  if (cdata_match) {
-    content = cdata_match[1]
+  // Improved markdown code block handling
+  const markdown_match = content.match(markdown_code_regex)
+  if (markdown_match) {
+    // Extract the content between the code block markers and trim any extra whitespace
+    content = markdown_match[1].trim()
   }
 
   // Then try to extract content from file tags if present
@@ -24,11 +25,10 @@ function cleanup_api_response(content: string): string {
     content = file_tag_match[1]
   }
 
-  // Improved markdown code block handling
-  const markdown_match = content.match(markdown_code_regex)
-  if (markdown_match) {
-    // Extract the content between the code block markers and trim any extra whitespace
-    content = markdown_match[1].trim()
+  // First try to extract content from CDATA if present
+  const cdata_match = content.match(cdata_regex)
+  if (cdata_match) {
+    content = cdata_match[1]
   }
 
   // Trim any leading/trailing whitespace while preserving intentional newlines in the code
@@ -254,7 +254,7 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Waiting for the updated file',
+          title: 'Getting updated file',
           cancellable: true
         },
         async (progress, token) => {
@@ -275,7 +275,7 @@ export function apply_changes_command(
                   100
                 )
                 progress.report({
-                  message: `${percentage}% received...`,
+                  message: `${percentage}% generated...`,
                   increment: (chunk.length / total_length) * 100
                 })
               }
