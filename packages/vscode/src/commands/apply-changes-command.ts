@@ -8,16 +8,13 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 
 // Helper function to clean up the API response
 function cleanup_api_response(content: string): string {
-  const markdown_code_regex = /^```[\s\S]*?\n([\s\S]*?)\n```\s*$/m
-  const file_tag_regex = /<file[^>]*>([\s\S]*?)<\/file>/
-  const cdata_regex = /<!\[CDATA\[([\s\S]*?)\]\]>/
+  const markdown_code_regex = /^```[^\n]*\n([^`]*?)```\s*$/m
+  const file_tag_regex = /<file[^>]*>([^<]*?)<\/file>/
+  const open_file_tag_regex = /<file[^>]*>\s*\n/
+  const cdata_regex = /<!\[CDATA\[([\s\\S]*?)\]\]>/
 
-  // Improved markdown code block handling
-  const markdown_match = content.match(markdown_code_regex)
-  if (markdown_match) {
-    // Extract the content between the code block markers and trim any extra whitespace
-    content = markdown_match[1].trim()
-  }
+  // First remove any opening file tags at the start (without proper closing)
+  content = content.replace(open_file_tag_regex, '')
 
   // Then try to extract content from file tags if present
   const file_tag_match = content.match(file_tag_regex)
@@ -25,10 +22,16 @@ function cleanup_api_response(content: string): string {
     content = file_tag_match[1]
   }
 
-  // First try to extract content from CDATA if present
+  // Extract content from CDATA if present
   const cdata_match = content.match(cdata_regex)
   if (cdata_match) {
     content = cdata_match[1]
+  }
+
+  // Finally handle markdown code blocks
+  const markdown_match = content.match(markdown_code_regex)
+  if (markdown_match) {
+    content = markdown_match[1].trim()
   }
 
   // Trim any leading/trailing whitespace while preserving intentional newlines in the code
