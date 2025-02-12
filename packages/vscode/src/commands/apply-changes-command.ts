@@ -19,18 +19,18 @@ function cleanup_api_response(content: string): string {
       content = cdataMatch[1]
     }
 
-    // Handle file tags with better nested content support
-    const fileTagRegex = /<file[^>]*>(?:\s*\n)?([\s\S]*?)<\/file>|<file[^>]*\/>/
-    const fileTagMatch = content.match(fileTagRegex)
-    if (fileTagMatch) {
-      content = fileTagMatch[1] || ''
-    }
-
     // Handle markdown code blocks with better indentation support
     const markdownRegex = /```[^\n]*\n([\s\S]*?)```/m
     const markdownMatch = content.match(markdownRegex)
     if (markdownMatch) {
       content = markdownMatch[1]
+    }
+
+    // Handle file tags with better nested content support
+    const fileTagRegex = /<file[^>]*>(?:\s*\n)?([\s\S]*?)<\/file>|<file[^>]*\/>/
+    const fileTagMatch = content.match(fileTagRegex)
+    if (fileTagMatch) {
+      content = fileTagMatch[1] || ''
     }
 
     // Preserve intentional whitespace while removing extra blank lines
@@ -265,7 +265,7 @@ export function apply_changes_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Getting updated file',
+          title: 'Receiving updated file',
           cancellable: true
         },
         async (progress, token) => {
