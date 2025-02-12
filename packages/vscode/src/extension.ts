@@ -11,7 +11,10 @@ import { open_web_chat_with_instruction_command } from './commands/open-web-chat
 import { copy_apply_changes_prompt_command } from './commands/copy-appy-changes-prompt-command'
 import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
-import { create_default_model_status_bar_item } from './status-bar/create-default-model-status-bar-item' // Import
+import { create_default_model_status_bar_item } from './status-bar/create-default-model-status-bar-item'
+import { apply_refactoring_instruction_command } from './commands/apply-refactoring-instruction-command'
+import { copy_refactoring_instruction_prompt_command } from './commands/copy-refactoring-instruction-prompt-command'
+import { open_web_chat_with_refactoring_instruction_command } from './commands/open-web-chat-with-refactoring-instruction-command'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -36,6 +39,12 @@ export function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     apply_changes_command(context, file_tree_provider),
+    apply_refactoring_instruction_command(context, file_tree_provider),
+    copy_refactoring_instruction_prompt_command(file_tree_provider),
+    open_web_chat_with_refactoring_instruction_command(
+      context,
+      file_tree_provider
+    ),
     request_fim_completion({
       command: 'geminiCoder.requestFimCompletionWith',
       file_tree_provider,

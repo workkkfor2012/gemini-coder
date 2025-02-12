@@ -7,12 +7,12 @@ import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 
-export function apply_changes_command(
+export function apply_refactoring_instruction_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.applyChanges',
+    'geminiCoder.applyRefactoringInstruction',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const editor = vscode.window.activeTextEditor
@@ -27,7 +27,16 @@ export function apply_changes_command(
       const document_text = document.getText()
 
       const clipboard_text = await vscode.env.clipboard.readText()
-      const instruction = clipboard_text
+
+      const instruction = await vscode.window.showInputBox({
+        prompt: 'Enter your refactoring instruction',
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: clipboard_text
+      })
+
+      if (!instruction) {
+        return // User cancelled
+      }
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
@@ -172,14 +181,21 @@ export function apply_changes_command(
       }
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
+      const selection = editor.selection
+      const selected_text = editor.document.getText(selection)
+      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
+      if (selected_text) {
+        refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+      } else {
+        refactor_instruction += ` ${instruction}`
+      }
+
       const payload = {
         before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
         after: `\n</file>\n</files>`
       }
 
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
-
-      const content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
+      const content = `${payload.before}${payload.after}\n${refactor_instruction}`
 
       const messages = [
         ...(system_instructions
@@ -244,6 +260,7 @@ export function apply_changes_command(
               return
             }
 
+            // Use shared helper to clean up the API response.
             const cleaned_content = cleanup_api_response(refactored_content)
 
             const full_range = new vscode.Range(

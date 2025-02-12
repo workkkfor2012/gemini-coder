@@ -109,11 +109,23 @@
       },
       {
         "command": "geminiCoder.openWebChatWithInstruction",
-        "title": "Gemini Coder: Open Web Chat with instruction..."
+        "title": "Gemini Coder: Open Web Chat with Instruction"
       },
       {
         "command": "geminiCoder.composeChatPrompt",
         "title": "Gemini Coder: Compose Chat Prompt to Clipboard"
+      },
+      {
+        "command": "geminiCoder.applyRefactoringInstruction",
+        "title": "Gemini Coder: Apply Refactoring Instruction"
+      },
+      {
+        "command": "geminiCoder.copyRefactoringInstructionPrompt",
+        "title": "Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard"
+      },
+      {
+        "command": "geminiCoder.openWebChatWithRefactoringInstruction",
+        "title": "Gemini Coder: Open Web Chat with Refactoring Instruction"
       }
     ],
     "menus": {

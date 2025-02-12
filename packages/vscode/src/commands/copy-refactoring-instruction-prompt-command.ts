@@ -2,9 +2,11 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 
-export function copy_apply_changes_prompt_command(file_tree_provider: any) {
+export function copy_refactoring_instruction_prompt_command(
+  file_tree_provider: any
+) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyApplyChangesPrompt',
+    'geminiCoder.copyRefactoringInstructionPrompt',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const attach_open_files = config.get<boolean>(
@@ -21,7 +23,17 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      const instruction = await vscode.env.clipboard.readText()
+      const clipboard_text = await vscode.env.clipboard.readText()
+
+      const instruction = await vscode.window.showInputBox({
+        prompt: 'Enter your refactoring instruction',
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: clipboard_text
+      })
+
+      if (!instruction) {
+        return // User cancelled
+      }
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {
@@ -54,24 +66,30 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
           vscode.workspace.workspaceFolders![0].uri.fsPath,
           path_to_be_attached
         )
-        // Use CDATA for file content to handle special characters correctly
         context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
       }
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
+      const selection = editor.selection
+      const selected_text = editor.document.getText(selection)
+      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
+      if (selected_text) {
+        refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+      } else {
+        refactor_instruction += ` ${instruction}`
+      }
+
       const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>`,
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
         after: `\n</file>\n</files>`
       }
 
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
-
-      const content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
+      const content = `${payload.before}${payload.after}\n${refactor_instruction}`
 
       await vscode.env.clipboard.writeText(content)
       vscode.window.showInformationMessage(
-        'Apply changes prompt copied to clipboard!'
+        'Refactoring instruction prompt copied to clipboard!'
       )
     }
   )

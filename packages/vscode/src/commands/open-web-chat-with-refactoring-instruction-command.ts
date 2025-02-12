@@ -4,12 +4,12 @@ import * as path from 'path'
 import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
 import { WEB_CHATS } from '../constants/web-chats'
 
-export function open_web_chat_with_apply_changes_prompt_command(
+export function open_web_chat_with_refactoring_instruction_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.openWebChatWithApplyChangesPrompt',
+    'geminiCoder.openWebChatWithRefactoringInstruction',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const attach_open_files = config.get<boolean>(
@@ -26,7 +26,17 @@ export function open_web_chat_with_apply_changes_prompt_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      const instruction = await vscode.env.clipboard.readText()
+      const clipboard_text = await vscode.env.clipboard.readText()
+
+      const instruction = await vscode.window.showInputBox({
+        prompt: 'Enter your refactoring instruction',
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: clipboard_text
+      })
+
+      if (!instruction) {
+        return // User cancelled
+      }
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {
@@ -64,14 +74,21 @@ export function open_web_chat_with_apply_changes_prompt_command(
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
+      const selection = editor.selection
+      const selected_text = editor.document.getText(selection)
+      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
+      if (selected_text) {
+        refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+      } else {
+        refactor_instruction += ` ${instruction}`
+      }
+
       const payload = {
         before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
         after: `\n</file>\n</files>`
       }
 
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
-
-      let content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
+      let content = `${payload.before}${payload.after}\n${refactor_instruction}`
 
       // Web chat selection logic starts here:
       const ai_studio = WEB_CHATS.find((chat) => chat.label === 'AI Studio')!

@@ -6,6 +6,7 @@ import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
+import { cleanup_api_response } from '../helpers/cleanup-api-response'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -302,7 +303,7 @@ export function request_fim_completion(params: {
           progress.report({ increment: 0 })
           try {
             let completion = await make_api_request(
-              provider!, // provider is checked to be not undefined above
+              provider!, // provider is ensured to be defined here
               body,
               cancel_token_source.token
             )
@@ -317,6 +318,8 @@ export function request_fim_completion(params: {
             }
 
             if (completion) {
+              // Use the shared cleanup helper before inserting completion text.
+              completion = cleanup_api_response(completion)
               await insert_completion_text(editor, position, completion)
             }
           } catch (error: any) {
