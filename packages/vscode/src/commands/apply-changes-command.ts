@@ -9,7 +9,7 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 // Helper function to clean up the API response
 function cleanup_api_response(content: string): string {
   try {
-    const markdown_regex = /```[^\n]*\n([\s\S]*?)```/m
+    const markdown_regex = /```[^\n]*\n([\s\S]*?)(?:```|$)/m
     const markdown_match = content.match(markdown_regex)
     if (markdown_match) {
       content = markdown_match[1]
