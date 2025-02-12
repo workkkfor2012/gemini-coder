@@ -2,20 +2,20 @@ const ai_studio_url =
   'https://aistudio.google.com/app/prompts/new_chat#gemini-coder'
 const is_ai_studio = window.location.href == ai_studio_url
 
-const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
-const is_deepseek = window.location.href == deepseek_url
-
-const github_copilot_url = 'https://github.com/copilot#gemini-coder'
-const is_github_copilot = window.location.href == github_copilot_url
-
-const claude_url = 'https://claude.ai/new#gemini-coder'
-const is_claude = window.location.href == claude_url
+const gemini_url = 'https://gemini.google.com/app#gemini-coder'
+const is_gemini = window.location.href == gemini_url
 
 const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
 const is_chatgpt = window.location.href == chatgpt_url
 
-const gemini_url = 'https://gemini.google.com/app#gemini-coder'
-const is_gemini = window.location.href == gemini_url
+const claude_url = 'https://claude.ai/new#gemini-coder'
+const is_claude = window.location.href == claude_url
+
+const github_copilot_url = 'https://github.com/copilot#gemini-coder'
+const is_github_copilot = window.location.href == github_copilot_url
+
+const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
+const is_deepseek = window.location.href == deepseek_url
 
 const is_open_webui =
   document.title.includes('Open WebUI') &&
@@ -24,11 +24,11 @@ const is_open_webui =
 export const get_input_element = () => {
   const chatbot_selectors = {
     [ai_studio_url]: 'footer textarea',
-    [deepseek_url]: 'textarea',
-    [github_copilot_url]: 'textarea#copilot-chat-textarea',
-    [claude_url]: 'div[contenteditable=true]',
+    [gemini_url]: 'div[contenteditable="true"]',
     [chatgpt_url]: 'div#prompt-textarea',
-    [gemini_url]: 'div[contenteditable="true"]'
+    [claude_url]: 'div[contenteditable=true]',
+    [github_copilot_url]: 'textarea#copilot-chat-textarea',
+    [deepseek_url]: 'textarea'
   } as any
   const selector = chatbot_selectors[window.location.href]
   const active_element = selector
@@ -270,9 +270,8 @@ const handle_firefox = async (r: any) => {
   }
   button.addEventListener('click', handle_paste_on_click)
 
-  // Quirks mitigation and button placement
+  // Quirks mitigation and button placement - ordered according to URL listing
   if (is_ai_studio) {
-    // wait until title container is found
     const button_holder = 'ms-zero-state'
     await new Promise(async (resolve) => {
       while (!document.querySelector(button_holder)) {
@@ -284,10 +283,8 @@ const handle_firefox = async (r: any) => {
       }
       resolve(null)
     })
-    // prepend on top
     document.querySelector(button_holder)?.prepend(button)
   } else if (is_gemini) {
-    // wait until title container is found
     const button_holder = 'zero-state-v2'
     await new Promise(async (resolve) => {
       while (!document.querySelector(button_holder)) {
@@ -300,6 +297,20 @@ const handle_firefox = async (r: any) => {
       resolve(null)
     })
     document.querySelector(button_holder)?.prepend(button)
+  } else if (is_chatgpt) {
+    const model_selector =
+      'button[data-testid="model-switcher-dropdown-button"]'
+    await new Promise(async (resolve) => {
+      while (!document.querySelector(model_selector)) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+    document.querySelector('form')?.appendChild(button)
   } else if (is_claude) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('fieldset')) {
@@ -323,19 +334,6 @@ const handle_firefox = async (r: any) => {
       resolve(null)
     })
     document.querySelector(button_holder)?.prepend(button)
-  } else if (is_deepseek) {
-    const title_container_selector = '.a85a674a'
-    await new Promise(async (resolve) => {
-      while (!document.querySelector(title_container_selector)) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-    document.querySelector(title_container_selector)?.appendChild(button)
   } else if (is_github_copilot) {
     const container_selector =
       '.LegalDisclaimer-module__legalTextImmersive--l5tBL'
@@ -352,11 +350,10 @@ const handle_firefox = async (r: any) => {
     document
       .querySelector(container_selector)
       ?.parentElement?.appendChild(button)
-  } else if (is_chatgpt) {
-    const model_selector =
-      'button[data-testid="model-switcher-dropdown-button"]'
+  } else if (is_deepseek) {
+    const title_container_selector = '.a85a674a'
     await new Promise(async (resolve) => {
-      while (!document.querySelector(model_selector)) {
+      while (!document.querySelector(title_container_selector)) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
@@ -365,7 +362,7 @@ const handle_firefox = async (r: any) => {
       }
       resolve(null)
     })
-    document.querySelector('form')?.appendChild(button)
+    document.querySelector(title_container_selector)?.appendChild(button)
   }
 }
 
@@ -380,7 +377,7 @@ const handle_chrome = async () => {
   const processed = process_clipboard_text(original_text)
   await navigator.clipboard.writeText(processed.text)
 
-  // Quirks mitigation
+  // Quirks mitigation - ordered according to URL listing
   if (is_ai_studio) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('.title-container')) {
@@ -402,6 +399,36 @@ const handle_chrome = async () => {
   } else if (is_gemini) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('bard-mode-switcher')) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+  } else if (is_chatgpt) {
+    await new Promise(async (resolve) => {
+      while (
+        !document.querySelector(
+          'button[data-testid="model-switcher-dropdown-button"]'
+        )
+      ) {
+        await new Promise((resolve) => {
+          setTimeout(() => {
+            resolve(true)
+          }, 100)
+        })
+      }
+      resolve(null)
+    })
+    const reason_button = document.querySelector('button[aria-label="Reason"]')
+    if (reason_button) {
+      ;(reason_button as HTMLButtonElement).click()
+    }
+  } else if (is_claude) {
+    await new Promise(async (resolve) => {
+      while (!document.querySelector('fieldset')) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
@@ -436,25 +463,6 @@ const handle_chrome = async () => {
       }
       resolve(null)
     })
-  } else if (is_chatgpt) {
-    await new Promise(async (resolve) => {
-      while (
-        !document.querySelector(
-          'button[data-testid="model-switcher-dropdown-button"]'
-        )
-      ) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-    const reason_button = document.querySelector('button[aria-label="Reason"]')
-    if (reason_button) {
-      ;(reason_button as HTMLButtonElement).click()
-    }
   }
 
   await apply_settings_and_fill({

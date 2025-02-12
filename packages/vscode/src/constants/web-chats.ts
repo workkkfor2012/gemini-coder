@@ -8,6 +8,7 @@ export const WEB_CHATS: WebChat[] = [
     label: 'AI Studio',
     url: 'https://aistudio.google.com/app/prompts/new_chat'
   },
+  // { label: 'Gemini', url: 'https://gemini.google.com/app' },
   {
     label: 'ChatGPT',
     url: 'https://chatgpt.com'

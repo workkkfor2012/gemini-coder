@@ -9,37 +9,22 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 // Helper function to clean up the API response
 function cleanup_api_response(content: string): string {
   try {
-    // Remove DOCTYPE declarations
-    content = content.replace(/^\s*<!DOCTYPE[^>]*>/i, '')
-
-    // Extract CDATA content
-    const cdataRegex = /<!\[CDATA\[([\s\S]*?)\]\]>/
-    const cdataMatch = content.match(cdataRegex)
-    if (cdataMatch) {
-      content = cdataMatch[1]
+    const markdown_regex = /```[^\n]*\n([\s\S]*?)```/m
+    const markdown_match = content.match(markdown_regex)
+    if (markdown_match) {
+      content = markdown_match[1]
     }
 
-    // Handle markdown code blocks with better indentation support
-    const markdownRegex = /```[^\n]*\n([\s\S]*?)```/m
-    const markdownMatch = content.match(markdownRegex)
-    if (markdownMatch) {
-      content = markdownMatch[1]
+    content = content.replace(/<file[^>]*>/g, '')
+    content = content.replace(/<\/file>/g, '')
+
+    // if content starts with <!DOCTYPE>, remove it
+    if (content.startsWith('<!DOCTYPE')) {
+      content = content.substring(content.indexOf('>') + 1)
     }
 
-    // Handle file tags with better nested content support
-    const fileTagRegex = /<file[^>]*>(?:\s*\n)?([\s\S]*?)<\/file>|<file[^>]*\/>/
-    const fileTagMatch = content.match(fileTagRegex)
-    if (fileTagMatch) {
-      content = fileTagMatch[1] || ''
-    }
-
-    // Preserve intentional whitespace while removing extra blank lines
+    content = content.trim() + '\n'
     return content
-      .split('\n')
-      .map((line) => line.trimEnd()) // Only trim right to preserve indentation
-      .join('\n')
-      .replace(/\n{3,}/g, '\n\n') // Replace multiple blank lines with double newline
-      .trim()
   } catch (error) {
     console.error('Error cleaning up API response:', error)
     return content // Return original content on error
