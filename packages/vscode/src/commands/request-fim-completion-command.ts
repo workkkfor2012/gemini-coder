@@ -308,7 +308,7 @@ export function request_fim_completion(params: {
               cancel_token_source.token
             )
 
-            if (completion === 'rate_limit') {
+            if (completion == 'rate_limit') {
               completion = await handle_rate_limit_fallback(
                 all_providers,
                 default_model_name,

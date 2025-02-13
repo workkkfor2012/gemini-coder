@@ -31,7 +31,7 @@ export function apply_changes_command(
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const default_model_name = config.get<string>('geminiCoder.defaultModel')
+      const default_model_name = config.get<string>('geminiCoder.defaultRefactoringModel')
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -58,7 +58,7 @@ export function apply_changes_command(
 
       // Get the last used models from global state
       let last_used_models = context.globalState.get<string[]>(
-        'lastUsedModels',
+        'lastUsedRefactoringModels',
         []
       )
 
@@ -120,7 +120,7 @@ export function apply_changes_command(
         selected_model_name,
         ...last_used_models.filter((model) => model != selected_model_name)
       ]
-      context.globalState.update('lastUsedModels', last_used_models)
+      context.globalState.update('lastUsedRefactoringModels', last_used_models)
 
       const model = provider.model
       const temperature = provider.temperature

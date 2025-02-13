@@ -18,7 +18,7 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 - FIM completions at the cursor position.
 - Applying suggested code changes.
 - API provider agnostic, read more in "Set up custom providers" section below.
-- Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted). 
+- Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted).
 
 ## How to use FIM completions
 
@@ -37,11 +37,14 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 - `Gemini Coder: Copy FIM Completion Prompt to Clipboard` - Copy FIM prompt with context
 - `Gemini Coder: Open Web Chat with FIM Completion Prompt` - Open web chat with FIM prompt
 
-#### Applying changes
+#### Code Refactoring
 
-- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI
+- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
+- `Gemini Coder: Apply Refactoring Instruction` - Apply changes based on specific refactoring instruction
 - `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy apply changes prompt
+- `Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard` - Copy refactoring instruction prompt
 - `Gemini Coder: Open Web Chat with Apply Changes Prompt` - Open web chat with refactoring prompt
+- `Gemini Coder: Open Web Chat with Refactoring Instruction` - Open web chat with specific refactoring instruction
 
 #### Chat Interactions
 
@@ -52,7 +55,8 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context
 - `Gemini Coder: Clear all checks` - Clear all file selections
-- `Gemini Coder: Change Default Model` - Change default AI model
+- `Gemini Coder: Change Default Model` - Change default AI model for completions
+- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring (apply changes and refactor with instruction commands)
 
 ## Set up custom providers
 
@@ -78,7 +82,6 @@ The extension supports any OpenAI API compatible providers for FIM completions a
     },
   ],
 ```
-
 
 ## License
 

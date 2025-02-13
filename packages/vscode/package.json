@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Gemini Coder initializes AI Studio chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions, whenever you need something context aware!",
-  "version": "1.0.132",
+  "version": "1.0.133",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -92,6 +92,10 @@
         "title": "Gemini Coder: Change Default Model"
       },
       {
+        "command": "geminiCoder.changeDefaultRefactoringModel",
+        "title": "Gemini Coder: Change Default Refactoring Model"
+      },
+      {
         "command": "geminiCoder.applyChanges",
         "title": "Gemini Coder: Apply Changes to this File"
       },
@@ -148,7 +152,12 @@
       "properties": {
         "geminiCoder.defaultModel": {
           "type": "string",
-          "description": "The default model to use.",
+          "description": "The default model to use for FIM completions. Update conveniently with command: Change Default Model.",
+          "default": "Gemini 2.0 Flash"
+        },
+        "geminiCoder.defaultRefactoringModel": {
+          "type": "string",
+          "description": "The default refactoring model to use. Update conveniently with command: Change Default Refactoring Model.",
           "default": "Gemini 2.0 Flash"
         },
         "geminiCoder.apiKey": {

@@ -15,6 +15,7 @@ import { create_default_model_status_bar_item } from './status-bar/create-defaul
 import { apply_refactoring_instruction_command } from './commands/apply-refactoring-instruction-command'
 import { copy_refactoring_instruction_prompt_command } from './commands/copy-refactoring-instruction-prompt-command'
 import { open_web_chat_with_refactoring_instruction_command } from './commands/open-web-chat-with-refactoring-instruction-command'
+import { change_default_refactoring_model_command } from './commands/change-default-refactoring-model-command'
 
 export function activate(context: vscode.ExtensionContext) {
   const file_tree_provider = file_tree_initialization(context)
@@ -59,6 +60,7 @@ export function activate(context: vscode.ExtensionContext) {
     copy_fim_completion_prompt_command(file_tree_provider),
     copy_apply_changes_prompt_command(file_tree_provider),
     change_default_model_command(default_model_status_bar_item),
+    change_default_refactoring_model_command(),
     open_web_chat_with_fim_completion_prompt_command(
       context,
       file_tree_provider
