@@ -20,7 +20,7 @@ export function change_default_refactoring_model_command() {
 
       const selected_provider = await vscode.window.showQuickPick(
         all_providers.map((p) => p.name),
-        { placeHolder: 'Select default model for Gemini Coder' }
+        { placeHolder: 'Select default model for refactoring commands' }
       )
 
       if (selected_provider) {

@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder for VS Code",
   "description": "Gemini Coder initializes AI Studio chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions, whenever you need something context aware!",
-  "version": "1.0.137",
+  "version": "1.0.138",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -120,8 +120,8 @@
         "title": "Gemini Coder: Compose Chat Prompt to Clipboard"
       },
       {
-        "command": "geminiCoder.applyRefactoringInstruction",
-        "title": "Gemini Coder: Apply Refactoring Instruction"
+        "command": "geminiCoder.refactorWithInstruction",
+        "title": "Gemini Coder: Refactor this File with Instruction"
       },
       {
         "command": "geminiCoder.copyRefactoringInstructionPrompt",

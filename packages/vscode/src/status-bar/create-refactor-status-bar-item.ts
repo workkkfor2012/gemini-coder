@@ -22,18 +22,18 @@ export function create_refactor_status_bar_item(
 
   const default_actions: QuickPickActionItem[] = [
     {
-      label: 'Use API',
-      description: 'Refactor the active file',
-      command: 'geminiCoder.applyRefactoringInstruction'
+      label: 'With API',
+      description: 'Update the file in place',
+      command: 'geminiCoder.refactorWithInstruction'
     },
     {
-      label: 'Use web chat',
-      description: 'Continue with the refactoring in the browser',
+      label: 'Open web chat',
+      description: 'Continue in the browser',
       command: 'geminiCoder.openWebChatWithRefactoringInstruction'
     },
     {
-      label: 'To clipboard',
-      description: 'Just copy the refactoring prompt',
+      label: 'Clipboard',
+      description: 'Just copy the prompt',
       command: 'geminiCoder.copyRefactoringInstructionPrompt'
     }
   ]

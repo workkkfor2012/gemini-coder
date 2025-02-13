@@ -22,17 +22,17 @@ export function create_apply_changes_status_bar_item(
 
   const default_actions: QuickPickActionItem[] = [
     {
-      label: 'Use API',
-      description: 'Update the active file',
+      label: 'With API',
+      description: 'Update the file in place',
       command: 'geminiCoder.applyChanges'
     },
     {
-      label: 'Use web chat',
-      description: 'Continue with the prompt in the browser',
+      label: 'Open web chat',
+      description: 'Continue in the browser',
       command: 'geminiCoder.openWebChatWithApplyChangesPrompt'
     },
     {
-      label: 'To clipboard',
+      label: 'Clipboard',
       description: 'Just copy the prompt',
       command: 'geminiCoder.copyApplyChangesPrompt'
     }

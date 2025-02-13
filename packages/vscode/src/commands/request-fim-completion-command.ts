@@ -265,7 +265,7 @@ export function request_fim_completion(params: {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Window,
-          title: 'Waiting for FIM completion...'
+          title: 'Waiting for a completion...'
         },
         async (progress) => {
           progress.report({ increment: 0 })

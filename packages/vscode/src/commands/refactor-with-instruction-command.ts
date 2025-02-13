@@ -8,12 +8,12 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 
-export function apply_refactoring_instruction_command(
+export function refactor_with_instruction(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.applyRefactoringInstruction',
+    'geminiCoder.refactorWithInstruction',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const editor = vscode.window.activeTextEditor
@@ -236,7 +236,7 @@ export function apply_refactoring_instruction_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Waiting for updated file',
+          title: 'Waiting for the updated file',
           cancellable: true
         },
         async (progress, token) => {

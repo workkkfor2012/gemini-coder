@@ -422,10 +422,13 @@ const handle_chrome = async () => {
       }
       resolve(null)
     })
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true)
+      }, 500)
+    })
     const reason_button = document.querySelector('button[aria-label="Reason"]')
-    if (reason_button) {
-      ;(reason_button as HTMLButtonElement).click()
-    }
+    ;(reason_button as HTMLButtonElement)?.click()
   } else if (is_claude) {
     await new Promise(async (resolve) => {
       while (!document.querySelector('fieldset')) {

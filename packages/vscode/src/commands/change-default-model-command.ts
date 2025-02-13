@@ -23,7 +23,7 @@ export function change_default_model_command(
 
       const selected_provider = await vscode.window.showQuickPick(
         all_providers.map((p) => p.name),
-        { placeHolder: 'Select default model for Gemini Coder' }
+        { placeHolder: 'Select default model for FIM completions' }
       )
 
       if (selected_provider) {
