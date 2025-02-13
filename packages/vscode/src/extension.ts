@@ -11,6 +11,7 @@ import { open_web_chat_with_instruction_command } from './commands/open-web-chat
 import { copy_apply_changes_prompt_command } from './commands/copy-appy-changes-prompt-command'
 import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
+import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { create_default_model_status_bar_item } from './status-bar/create-default-model-status-bar-item'
 import { apply_refactoring_instruction_command } from './commands/apply-refactoring-instruction-command'
 import { copy_refactoring_instruction_prompt_command } from './commands/copy-refactoring-instruction-prompt-command'
@@ -23,6 +24,7 @@ export function activate(context: vscode.ExtensionContext) {
   // Status bar
   const default_model_status_bar_item =
     create_default_model_status_bar_item(context)
+  create_refactor_status_bar_item(context)
   create_apply_changes_status_bar_item(context)
 
   // Chat View

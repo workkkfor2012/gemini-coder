@@ -20,6 +20,6 @@ export async function update_status_bar(status_bar_item: vscode.StatusBarItem) {
     .get<string>('geminiCoder.defaultModel')
 
   status_bar_item.text = `${default_model_name || 'Select Model'}`
-  status_bar_item.tooltip = `Change default model`
+  status_bar_item.tooltip = 'Gemini Coder: Change default model'
   status_bar_item.show()
 }

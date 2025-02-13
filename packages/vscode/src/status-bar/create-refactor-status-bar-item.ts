@@ -4,43 +4,43 @@ interface QuickPickActionItem extends vscode.QuickPickItem {
   command: string
 }
 
-const LAST_USED_COMMANDS_KEY = 'geminiCoder.lastUsedApplyChangesCommands'
+const LAST_USED_REFACTOR_COMMANDS_KEY = 'geminiCoder.lastUsedRefactorCommands'
 
-export function create_apply_changes_status_bar_item(
+export function create_refactor_status_bar_item(
   context: vscode.ExtensionContext
 ) {
-  const apply_changes_status_bar_item = vscode.window.createStatusBarItem(
+  const refactor_status_bar_item = vscode.window.createStatusBarItem(
     vscode.StatusBarAlignment.Right,
-    98
+    99
   )
-  apply_changes_status_bar_item.command = 'geminiCoder.pickApplyChangesAction'
-  apply_changes_status_bar_item.text = 'Apply changes'
-  apply_changes_status_bar_item.tooltip =
-    'Gemini Coder: Integrate AI suggested changes with the current file'
-  apply_changes_status_bar_item.show()
-  context.subscriptions.push(apply_changes_status_bar_item)
+  refactor_status_bar_item.command = 'geminiCoder.pickRefactorAction'
+  refactor_status_bar_item.text = 'Refactor'
+  refactor_status_bar_item.tooltip =
+    'Gemini Coder: Apply AI-powered refactoring to the current file'
+  refactor_status_bar_item.show()
+  context.subscriptions.push(refactor_status_bar_item)
 
   const default_actions: QuickPickActionItem[] = [
     {
       label: 'Use API',
-      description: 'Update the active file',
-      command: 'geminiCoder.applyChanges'
+      description: 'Refactor the active file',
+      command: 'geminiCoder.applyRefactoringInstruction'
     },
     {
       label: 'Use web chat',
-      description: 'Continue with the prompt in the browser',
-      command: 'geminiCoder.openWebChatWithApplyChangesPrompt'
+      description: 'Continue with the refactoring in the browser',
+      command: 'geminiCoder.openWebChatWithRefactoringInstruction'
     },
     {
       label: 'To clipboard',
-      description: 'Just copy the prompt',
-      command: 'geminiCoder.copyApplyChangesPrompt'
+      description: 'Just copy the refactoring prompt',
+      command: 'geminiCoder.copyRefactoringInstructionPrompt'
     }
   ]
 
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      'geminiCoder.pickApplyChangesAction',
+      'geminiCoder.pickRefactorAction',
       async () => {
         if (!vscode.window.activeTextEditor) {
           vscode.window.showWarningMessage('No active editor found.')
@@ -49,7 +49,7 @@ export function create_apply_changes_status_bar_item(
 
         // Get the last used commands from storage
         const last_used_commands: string[] = context.globalState.get(
-          LAST_USED_COMMANDS_KEY,
+          LAST_USED_REFACTOR_COMMANDS_KEY,
           []
         )
 
@@ -90,7 +90,7 @@ export function create_apply_changes_status_bar_item(
 
           // Save the updated history
           await context.globalState.update(
-            LAST_USED_COMMANDS_KEY,
+            LAST_USED_REFACTOR_COMMANDS_KEY,
             last_used_commands
           )
 
