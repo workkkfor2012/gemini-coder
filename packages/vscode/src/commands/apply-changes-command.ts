@@ -1,11 +1,44 @@
 import * as vscode from 'vscode'
-import axios from 'axios'
+import axios, { CancelToken } from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
+
+async function handle_rate_limit_fallback(
+  all_providers: Provider[],
+  default_model_name: string | undefined,
+  body: any,
+  cancel_token: CancelToken
+): Promise<string | null> {
+  const available_providers = all_providers.filter(
+    (p) => p.name != default_model_name
+  )
+
+  const selected_provider_name = await vscode.window.showQuickPick(
+    available_providers.map((p) => p.name),
+    {
+      placeHolder: 'Rate limit reached, retry with another model'
+    }
+  )
+
+  if (!selected_provider_name) {
+    vscode.window.showErrorMessage('No model selected. Request cancelled.')
+    return null
+  }
+
+  const selected_provider = all_providers.find(
+    (p) => p.name == selected_provider_name
+  )!
+  const fallback_body = {
+    ...body,
+    model: selected_provider.model,
+    temperature: selected_provider.temperature
+  }
+  return await make_api_request(selected_provider, fallback_body, cancel_token)
+}
 
 export function apply_changes_command(
   context: vscode.ExtensionContext,
@@ -31,7 +64,9 @@ export function apply_changes_command(
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const default_model_name = config.get<string>('geminiCoder.defaultRefactoringModel')
+      const default_model_name = config.get<string>(
+        'geminiCoder.defaultRefactoringModel'
+      )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -168,13 +203,13 @@ export function apply_changes_command(
           vscode.workspace.workspaceFolders![0].uri.fsPath,
           path_to_be_attached
         )
-        context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
+        context_text += `\n\n\n${file_content}\n\n`
       }
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n${document_text}`,
-        after: `\n</file>\n</files>`
+        before: `${context_text}\n\n${document_text}`,
+        after: `\n\n</files>`
       }
 
       const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
@@ -241,6 +276,30 @@ export function apply_changes_command(
               vscode.window.showErrorMessage(
                 'Applying changes failed. Please try again later.'
               )
+              return
+            } else if (refactored_content == 'rate_limit') {
+              const fallback_content = await handle_rate_limit_fallback(
+                all_providers,
+                default_model_name,
+                body,
+                cancel_token_source.token
+              )
+
+              if (!fallback_content) {
+                return
+              }
+
+              // Continue with the fallback content
+              const cleaned_content = cleanup_api_response(fallback_content)
+              const full_range = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document_text.length)
+              )
+              await editor.edit((edit_builder) => {
+                edit_builder.replace(full_range, cleaned_content)
+              })
+
+              vscode.window.showInformationMessage(`Changes have been applied!`)
               return
             }
 

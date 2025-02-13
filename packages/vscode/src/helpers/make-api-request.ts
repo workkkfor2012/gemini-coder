@@ -154,7 +154,7 @@ export async function make_api_request(
     if (axios.isCancel(error)) {
       console.log('Request canceled:', error.message)
       return null
-    } else if (axios.isAxiosError(error) && error.response?.status === 429) {
+    } else if (axios.isAxiosError(error) && error.response?.status == 429) {
       return 'rate_limit'
     } else {
       console.error('API request failed:', error)
