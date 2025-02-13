@@ -11,8 +11,8 @@ export function cleanup_api_response(content: string): string {
       content = markdown_match[1]
     }
 
-    // Remove any file markers.
-    content = content.replace(/]*>/g, '')
+    // Remove any file markers we use in context.
+    content = content.replace(/<file[^>]*>/g, '')
     content = content.replace(/<\/file>/g, '')
 
     // Remove DOCTYPE if the content starts with one.
