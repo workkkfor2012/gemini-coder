@@ -2,12 +2,12 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 
-export function copy_refactoring_instruction_prompt_command(
+export function copy_refactoring_prompt_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyRefactoringInstructionPrompt',
+    'geminiCoder.copyRefactoringPrompt',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const attach_open_files = config.get<boolean>(

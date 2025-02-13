@@ -124,7 +124,7 @@
         "title": "Gemini Coder: Refactor this File with Instruction"
       },
       {
-        "command": "geminiCoder.copyRefactoringInstructionPrompt",
+        "command": "geminiCoder.copyRefactoringPrompt",
         "title": "Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard"
       },
       {

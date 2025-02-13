@@ -14,7 +14,7 @@ import { create_apply_changes_status_bar_item } from './status-bar/create-apply-
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { create_default_model_status_bar_item } from './status-bar/create-default-model-status-bar-item'
 import { refactor_with_instruction } from './commands/refactor-with-instruction-command'
-import { copy_refactoring_instruction_prompt_command } from './commands/copy-refactoring-instruction-prompt-command'
+import { copy_refactoring_prompt_command } from './commands/copy-refactoring-prompt-command'
 import { open_web_chat_with_refactoring_instruction_command } from './commands/open-web-chat-with-refactoring-instruction-command'
 import { change_default_refactoring_model_command } from './commands/change-default-refactoring-model-command'
 
@@ -43,7 +43,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     apply_changes_command(context, file_tree_provider),
     refactor_with_instruction(context, file_tree_provider),
-    copy_refactoring_instruction_prompt_command(context, file_tree_provider),
+    copy_refactoring_prompt_command(context, file_tree_provider),
     open_web_chat_with_refactoring_instruction_command(
       context,
       file_tree_provider

@@ -34,7 +34,7 @@ export function create_refactor_status_bar_item(
     {
       label: 'Clipboard',
       description: 'Just copy the prompt',
-      command: 'geminiCoder.copyRefactoringInstructionPrompt'
+      command: 'geminiCoder.copyRefactoringPrompt'
     }
   ]
 

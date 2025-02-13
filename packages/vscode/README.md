@@ -40,9 +40,9 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 #### Code Refactoring
 
 - `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
-- `Gemini Coder: Apply Refactoring Instruction to this File` - Apply changes based on specific refactoring instruction
+- `Gemini Coder: Refactor this File with Instruction` - Apply changes based on specific refactoring instruction
 - `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy apply changes prompt
-- `Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard` - Copy refactoring instruction prompt
+- `Gemini Coder: Copy Refactoring Prompt to Clipboard` - Copy refactoring instruction prompt
 - `Gemini Coder: Open Web Chat with Apply Changes Prompt` - Open web chat with refactoring prompt
 - `Gemini Coder: Open Web Chat with Refactoring Instruction` - Open web chat with specific refactoring instruction
 
