@@ -34,14 +34,16 @@ export function open_web_chat_with_refactoring_instruction_command(
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: last_instruction
+        value: last_instruction,
+        validateInput: (value) => {
+          context.globalState.update('lastRefactoringInstruction', value)
+          return null
+        }
       })
 
       if (!instruction) {
         return // User cancelled
       }
-
-      context.globalState.update('lastRefactoringInstruction', instruction)
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {

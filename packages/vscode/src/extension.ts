@@ -41,7 +41,7 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     apply_changes_command(context, file_tree_provider),
     apply_refactoring_instruction_command(context, file_tree_provider),
-    copy_refactoring_instruction_prompt_command(file_tree_provider),
+    copy_refactoring_instruction_prompt_command(context, file_tree_provider),
     open_web_chat_with_refactoring_instruction_command(
       context,
       file_tree_provider
