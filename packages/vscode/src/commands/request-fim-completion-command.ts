@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import axios, { CancelToken } from 'axios'
+import axios from 'axios'
 import * as fs from 'fs'
 import * as path from 'path'
 import { Provider } from '../types/provider'
@@ -7,6 +7,7 @@ import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
+import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -88,39 +89,6 @@ async function get_selected_provider(
   context.globalState.update('lastUsedModels', last_used_models)
 
   return selected_provider
-}
-
-async function handle_rate_limit_fallback(
-  all_providers: Provider[],
-  default_model_name: string | undefined,
-  body: any,
-  cancel_token: CancelToken
-): Promise<string | null> {
-  const available_providers = all_providers.filter(
-    (p) => p.name != default_model_name
-  )
-
-  const selected_provider_name = await vscode.window.showQuickPick(
-    available_providers.map((p) => p.name),
-    {
-      placeHolder: 'Rate limit reached, retry with another model'
-    }
-  )
-
-  if (!selected_provider_name) {
-    vscode.window.showErrorMessage('No model selected. Request cancelled.')
-    return null
-  }
-
-  const selected_provider = all_providers.find(
-    (p) => p.name == selected_provider_name
-  )!
-  const fallback_body = {
-    ...body,
-    model: selected_provider.model,
-    temperature: selected_provider.temperature
-  }
-  return await make_api_request(selected_provider, fallback_body, cancel_token)
 }
 
 async function insert_completion_text(

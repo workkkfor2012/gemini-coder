@@ -6,40 +6,7 @@ import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
-import { CancelToken } from 'axios'
-
-async function handle_rate_limit_fallback(
-  all_providers: Provider[],
-  default_model_name: string | undefined,
-  body: any,
-  cancel_token: CancelToken
-): Promise<string | null> {
-  const available_providers = all_providers.filter(
-    (p) => p.name != default_model_name
-  )
-
-  const selected_provider_name = await vscode.window.showQuickPick(
-    available_providers.map((p) => p.name),
-    {
-      placeHolder: 'Rate limit reached, retry with another model'
-    }
-  )
-
-  if (!selected_provider_name) {
-    vscode.window.showErrorMessage('No model selected. Request cancelled.')
-    return null
-  }
-
-  const selected_provider = all_providers.find(
-    (p) => p.name == selected_provider_name
-  )!
-  const fallback_body = {
-    ...body,
-    model: selected_provider.model,
-    temperature: selected_provider.temperature
-  }
-  return await make_api_request(selected_provider, fallback_body, cancel_token)
-}
+import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 
 export function apply_refactoring_instruction_command(
   context: vscode.ExtensionContext,
@@ -74,7 +41,9 @@ export function apply_refactoring_instruction_command(
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const default_model_name = config.get<string>('geminiCoder.defaultRefactoringModel')
+      const default_model_name = config.get<string>(
+        'geminiCoder.defaultRefactoringModel'
+      )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -260,7 +229,7 @@ export function apply_refactoring_instruction_command(
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Receiving updated file',
+          title: 'Waiting for updated file',
           cancellable: true
         },
         async (progress, token) => {
@@ -281,7 +250,7 @@ export function apply_refactoring_instruction_command(
                   100
                 )
                 progress.report({
-                  message: `${percentage}% generated...`,
+                  message: `${percentage}% received...`,
                   increment: (chunk.length / total_length) * 100
                 })
               }
