@@ -27,8 +27,8 @@ export class FileTreeProvider
     // Create a file system watcher for general file changes
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
     this.watcher.onDidCreate(() => this.handle_file_create())
-    this.watcher.onDidDelete(this.on_file_system_changed)
-    this.watcher.onDidChange(this.on_file_system_changed)
+    this.watcher.onDidChange(() => this.on_file_system_changed())
+    this.watcher.onDidDelete(() => this.on_file_system_changed())
 
     // Watch for .gitignore changes specifically
     this.gitignore_watcher =
