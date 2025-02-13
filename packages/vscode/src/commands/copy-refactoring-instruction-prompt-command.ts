@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 
 export function copy_refactoring_instruction_prompt_command(
+  context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
@@ -23,17 +24,22 @@ export function copy_refactoring_instruction_prompt_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      const clipboard_text = await vscode.env.clipboard.readText()
+      const last_instruction = context.globalState.get<string>(
+        'lastRefactoringInstruction',
+        ''
+      )
 
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: clipboard_text
+        value: last_instruction
       })
 
       if (!instruction) {
         return // User cancelled
       }
+
+      context.globalState.update('lastRefactoringInstruction', instruction)
 
       let file_paths_to_be_attached: Set<string> = new Set()
       if (file_tree_provider) {

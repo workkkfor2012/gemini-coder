@@ -27,17 +27,22 @@ export function apply_refactoring_instruction_command(
       const document_path = document.uri.fsPath
       const document_text = document.getText()
 
-      const clipboard_text = await vscode.env.clipboard.readText()
+      const last_instruction = context.globalState.get<string>(
+        'lastRefactoringInstruction',
+        ''
+      )
 
       const instruction = await vscode.window.showInputBox({
         prompt: 'Enter your refactoring instruction',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: clipboard_text
+        value: last_instruction
       })
 
       if (!instruction) {
         return // User cancelled
       }
+
+      context.globalState.update('lastRefactoringInstruction', instruction)
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
