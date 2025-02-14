@@ -1,8 +1,10 @@
 # Gemini Coder
 
-Free and open-source AI coding toolkit with first-class support for Gemini and AI Studio.
+Free and open-source AI coding toolkit for Gemini and beyond.
 
 Effortless one-click web chat initialization with your instruction and a hand-picked context. Supports Gemini, AI Studio, ChatGPT, Claude, GitHub Copilot and DeepSeek.
+
+The goal of this extension is to ensure the same sleek developer experience with all the major AI providers within the Web environment no matter if you commited to any one of them or just are fine with testing their free tiers.
 
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)

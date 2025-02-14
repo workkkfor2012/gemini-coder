@@ -5,6 +5,7 @@ interface QuickPickActionItem extends vscode.QuickPickItem {
 }
 
 const LAST_USED_REFACTOR_COMMANDS_KEY = 'geminiCoder.lastUsedRefactorCommands'
+export const TEMP_REFACTORING_INSTRUCTION_KEY = 'temporaryRefactoringInstruction'
 
 export function create_refactor_status_bar_item(
   context: vscode.ExtensionContext
@@ -47,6 +48,32 @@ export function create_refactor_status_bar_item(
           return
         }
 
+        // First, get the refactoring instruction from the user
+        const last_instruction = context.globalState.get<string>(
+          'lastRefactoringInstruction',
+          ''
+        )
+
+        const instruction = await vscode.window.showInputBox({
+          prompt: 'Enter your refactoring instruction',
+          placeHolder: 'e.g., "Refactor this code to use async/await"',
+          value: last_instruction,
+          validateInput: (value) => {
+            context.globalState.update('lastRefactoringInstruction', value)
+            return null
+          }
+        })
+
+        if (!instruction) {
+          return // User cancelled the instruction input
+        }
+
+        // Store the instruction in workspace state for the commands to use
+        await context.workspaceState.update(
+          TEMP_REFACTORING_INSTRUCTION_KEY,
+          instruction
+        )
+
         // Get the last used commands from storage
         const last_used_commands: string[] = context.globalState.get(
           LAST_USED_REFACTOR_COMMANDS_KEY,
@@ -70,7 +97,10 @@ export function create_refactor_status_bar_item(
         })
 
         const selected_action = await vscode.window.showQuickPick(
-          sorted_actions
+          sorted_actions,
+          {
+            placeHolder: 'Choose how to apply the refactoring'
+          }
         )
 
         if (selected_action) {
@@ -96,6 +126,12 @@ export function create_refactor_status_bar_item(
 
           // Execute the selected command
           vscode.commands.executeCommand(selected_action.command)
+        } else {
+          // If no action was selected, clear the temporary instruction
+          await context.workspaceState.update(
+            TEMP_REFACTORING_INSTRUCTION_KEY,
+            undefined
+          )
         }
       }
     )

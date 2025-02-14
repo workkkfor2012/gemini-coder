@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder for VS Code",
-  "description": "Gemini Coder initializes web chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.140",
+  "displayName": "Gemini Coder - AI for the rest of us",
+  "description": "Gemini Coder initializes web chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware.",
+  "version": "1.0.142",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",

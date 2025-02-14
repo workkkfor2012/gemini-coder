@@ -7,6 +7,7 @@ import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
+import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 
 export function refactor_with_instruction(
   context: vscode.ExtensionContext,
@@ -23,28 +24,42 @@ export function refactor_with_instruction(
         return
       }
 
+      // First try to get instruction from workspace state (set by status bar)
+      let instruction = context.workspaceState.get<string>(
+        TEMP_REFACTORING_INSTRUCTION_KEY
+      )
+
+      // If no instruction in workspace state (direct command invocation), prompt for one
+      if (!instruction) {
+        const last_instruction = context.globalState.get<string>(
+          'lastRefactoringInstruction',
+          ''
+        )
+
+        instruction = await vscode.window.showInputBox({
+          prompt: 'Enter your refactoring instruction',
+          placeHolder: 'e.g., "Refactor this code to use async/await"',
+          value: last_instruction,
+          validateInput: (value) => {
+            context.globalState.update('lastRefactoringInstruction', value)
+            return null
+          }
+        })
+
+        if (!instruction) {
+          return // User cancelled the instruction input
+        }
+      } else {
+        // Clear the temporary instruction immediately after getting it
+        await context.workspaceState.update(
+          TEMP_REFACTORING_INSTRUCTION_KEY,
+          undefined
+        )
+      }
+
       const document = editor.document
       const document_path = document.uri.fsPath
       const document_text = document.getText()
-
-      const last_instruction = context.globalState.get<string>(
-        'lastRefactoringInstruction',
-        ''
-      )
-
-      const instruction = await vscode.window.showInputBox({
-        prompt: 'Enter your refactoring instruction',
-        placeHolder: 'e.g., "Refactor this code to use async/await"',
-        value: last_instruction,
-        validateInput: (value) => {
-          context.globalState.update('lastRefactoringInstruction', value)
-          return null
-        }
-      })
-
-      if (!instruction) {
-        return // User cancelled
-      }
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
@@ -183,8 +198,13 @@ export function refactor_with_instruction(
       let context_text = ''
       for (const path_to_be_attached of file_paths_to_be_attached) {
         let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-        context_text += `\n\n\n${file_content}\n\n`
+        const relative_path = path.relative(
+          vscode.workspace.workspaceFolders![0].uri.fsPath,
+          path_to_be_attached
+        )
+        context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
       }
+
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       const selection = editor.selection
@@ -197,8 +217,8 @@ export function refactor_with_instruction(
       }
 
       const payload = {
-        before: `${context_text}\n\n${document_text}`,
-        after: `\n\n</files>`
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
+        after: '\n]]>\n</file>\n</files>'
       }
 
       const content = `${payload.before}${payload.after}\n${refactor_instruction}`
