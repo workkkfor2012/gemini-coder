@@ -2,11 +2,15 @@
  * Cleans up the API response by stripping away code block markers,
  * file markers, leading DOCTYPE tags, and ensuring a trailing newline.
  */
-export function cleanup_api_response(content: string): string {
+export function cleanup_api_response(params: {
+  content: string
+  end_with_new_line?: boolean
+}): string {
   try {
+    let content = params.content
     // If a markdown code block is detected, extract its contents
     const markdown_regex = /```[^\n]*\n([\s\S]*?)(?:```|$)/m
-    const markdown_match = content.match(markdown_regex)
+    const markdown_match = params.content.match(markdown_regex)
     if (markdown_match) {
       content = markdown_match[1]
     }
@@ -26,10 +30,17 @@ export function cleanup_api_response(content: string): string {
       content = content.substring(content.indexOf('>') + 1)
     }
 
-    // Trim extra whitespace and append a newline
-    return content.trim() + '\n'
+    // Trim extra whitespace
+    content = content.trim()
+
+    // Add newline only if content contains multiple lines
+    if (params.end_with_new_line) {
+      content += '\n'
+    }
+
+    return content
   } catch (error) {
     console.error('Error cleaning up API response:', error)
-    return content // Return original content if an error occurs
+    return params.content // Return original content if an error occurs
   }
 }

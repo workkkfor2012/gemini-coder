@@ -297,7 +297,10 @@ export function refactor_with_instruction(
               }
 
               // Continue with the fallback content
-              const cleaned_content = cleanup_api_response(fallback_content)
+              const cleaned_content = cleanup_api_response({
+                content: fallback_content,
+                end_with_new_line: true
+              })
               const full_range = new vscode.Range(
                 document.positionAt(0),
                 document.positionAt(document_text.length)
@@ -311,7 +314,10 @@ export function refactor_with_instruction(
             }
 
             // Continue with the rest of the code only if we have valid content
-            const cleaned_content = cleanup_api_response(refactored_content)
+            const cleaned_content = cleanup_api_response({
+              content: refactored_content,
+              end_with_new_line: true
+            })
 
             const full_range = new vscode.Range(
               document.positionAt(0),

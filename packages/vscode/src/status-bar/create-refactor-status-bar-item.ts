@@ -5,7 +5,8 @@ interface QuickPickActionItem extends vscode.QuickPickItem {
 }
 
 const LAST_USED_REFACTOR_COMMANDS_KEY = 'geminiCoder.lastUsedRefactorCommands'
-export const TEMP_REFACTORING_INSTRUCTION_KEY = 'temporaryRefactoringInstruction'
+export const TEMP_REFACTORING_INSTRUCTION_KEY =
+  'temporaryRefactoringInstruction'
 
 export function create_refactor_status_bar_item(
   context: vscode.ExtensionContext
@@ -99,7 +100,7 @@ export function create_refactor_status_bar_item(
         const selected_action = await vscode.window.showQuickPick(
           sorted_actions,
           {
-            placeHolder: 'Choose how to apply the refactoring'
+            placeHolder: 'Select how to proceed'
           }
         )
 

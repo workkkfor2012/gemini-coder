@@ -287,7 +287,7 @@ export function request_fim_completion(params: {
 
             if (completion) {
               // Use the shared cleanup helper before inserting completion text.
-              completion = cleanup_api_response(completion)
+              completion = cleanup_api_response({ content: completion })
               await insert_completion_text(editor, position, completion)
             }
           } catch (error: any) {
