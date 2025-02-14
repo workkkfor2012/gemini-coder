@@ -4,29 +4,32 @@
  */
 export function cleanup_api_response(content: string): string {
   try {
-    // If a markdown code block is detected, extract its contents.
+    // If a markdown code block is detected, extract its contents
     const markdown_regex = /```[^\n]*\n([\s\S]*?)(?:```|$)/m
     const markdown_match = content.match(markdown_regex)
     if (markdown_match) {
       content = markdown_match[1]
     }
 
-    // Remove any file markers we use in context.
+    // Remove any file markers we use in context
+    content = content.replace(/<files[^>]*>/g, '')
+    content = content.replace(/<\/files>/g, '')
     content = content.replace(/<file[^>]*>/g, '')
     content = content.replace(/<\/file>/g, '')
 
-    // Remove DOCTYPE if the content starts with one.
+    // Remove CDATA tags
+    content = content.replace('<![CDATA[', '')
+    content = content.replace(']]>', '')
+
+    // Remove unexpected DOCTYPE if the content starts with one
     if (content.startsWith('<!DOCTYPE')) {
       content = content.substring(content.indexOf('>') + 1)
     }
 
-    content = content.replace('<![CDATA[', '')
-    content = content.replace(']]>', '')
-
-    // Trim extra whitespace and append a newline.
+    // Trim extra whitespace and append a newline
     return content.trim() + '\n'
   } catch (error) {
     console.error('Error cleaning up API response:', error)
-    return content // Return original content if an error occurs.
+    return content // Return original content if an error occurs
   }
 }

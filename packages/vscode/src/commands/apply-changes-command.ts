@@ -167,10 +167,6 @@ export function apply_changes_command(
       let context_text = ''
       for (const path_to_be_attached of file_paths_to_be_attached) {
         let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-        const relative_path = path.relative(
-          vscode.workspace.workspaceFolders![0].uri.fsPath,
-          path_to_be_attached
-        )
         context_text += `\n\n\n${file_content}\n\n`
       }
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
@@ -180,7 +176,7 @@ export function apply_changes_command(
         after: `\n\n</files>`
       }
 
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
+      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
 
       const content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
 

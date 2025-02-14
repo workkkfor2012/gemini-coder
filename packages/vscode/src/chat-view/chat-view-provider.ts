@@ -29,10 +29,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
-      const additional_web_chats_config = vscode.workspace
-        .getConfiguration()
-        .get<any[]>('geminiCoder.additionalWebChats', [])
-
       let last_used_web_chats = this._context.globalState.get<string[]>(
         'lastUsedWebChats',
         []
@@ -43,276 +39,244 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       last_used_web_chats = last_used_web_chats.filter(
         (web_chat) =>
           web_chat == 'AI Studio' ||
-          WEB_CHATS.filter((chat) => chat.label !== 'AI Studio').some(
+          WEB_CHATS.filter((chat) => chat.label != 'AI Studio').some(
             (item) => item.label == web_chat
           )
       )
-      WEB_CHATS.filter((chat) => chat.label !== 'AI Studio').forEach((chat) => {
+      WEB_CHATS.filter((chat) => chat.label != 'AI Studio').forEach((chat) => {
         if (!last_used_web_chats.includes(chat.label)) {
           last_used_web_chats.push(chat.label)
         }
       })
       this._context.globalState.update('lastUsedWebChats', last_used_web_chats)
 
-      switch (message.command) {
-        case 'getlastChatPrompt':
-          const last_instruction =
-            this._context.globalState.get<string>('lastChatPrompt') || ''
-          webview_view.webview.postMessage({
-            command: 'initialInstruction',
-            instruction: last_instruction
-          })
-          break
+      if (message.command == 'getlastChatPrompt') {
+        const last_instruction =
+          this._context.globalState.get<string>('lastChatPrompt') || ''
+        webview_view.webview.postMessage({
+          command: 'initialInstruction',
+          instruction: last_instruction
+        })
+      } else if (message.command == 'saveChatInstruction') {
+        this._context.globalState.update('lastChatPrompt', message.instruction)
+      } else if (message.command == 'getSystemInstructions') {
+        const system_instructions = vscode.workspace
+          .getConfiguration()
+          .get<string[]>('geminiCoder.systemInstructions', [])
+        webview_view.webview.postMessage({
+          command: 'systemInstructions',
+          instructions: system_instructions
+        })
+      } else if (message.command == 'processChatInstruction') {
+        // Get context from selected files
+        let context = ''
+        const added_files = new Set<string>()
 
-        case 'saveChatInstruction':
-          this._context.globalState.update(
-            'lastChatPrompt',
-            message.instruction
-          )
-          break
-        case 'getSystemInstructions':
-          const system_instructions = vscode.workspace
-            .getConfiguration()
-            .get<string[]>('geminiCoder.systemInstructions', [])
-          webview_view.webview.postMessage({
-            command: 'systemInstructions',
-            instructions: system_instructions
-          })
-          break
-        case 'processChatInstruction':
-          // Get context from selected files
-          let context = ''
-          const added_files = new Set<string>()
+        const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
 
-          const focused_file =
-            vscode.window.activeTextEditor?.document.uri.fsPath
+        const set_focused_attribute = vscode.workspace
+          .getConfiguration()
+          .get<boolean>('geminiCoder.setFocusedAttribute', true)
 
-          const set_focused_attribute = vscode.workspace
-            .getConfiguration()
-            .get<boolean>('geminiCoder.setFocusedAttribute', true)
-
-          // Add selected files from the file tree
-          if (this.file_tree_provider) {
-            const selected_files_paths =
-              this.file_tree_provider.getCheckedFiles()
-            for (const file_path of selected_files_paths) {
-              try {
-                const file_content = fs.readFileSync(file_path, 'utf8')
-                const relative_path = path.relative(
-                  vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  file_path
-                )
-
-                const focused_attr =
-                  set_focused_attribute && file_path == focused_file
-                    ? ' focused="true"'
-                    : ''
-                context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-                added_files.add(file_path)
-              } catch (error) {
-                console.error(`Error reading file ${file_path}:`, error)
-              }
-            }
-          }
-
-          // Add currently open files
-          const open_tabs = vscode.window.tabGroups.all
-            .flatMap((group) => group.tabs)
-            .map((tab) =>
-              tab.input instanceof vscode.TabInputText ? tab.input.uri : null
-            )
-            .filter((uri): uri is vscode.Uri => uri !== null)
-
-          for (const open_file_uri of open_tabs) {
-            const file_path = open_file_uri.fsPath
-            if (!added_files.has(file_path)) {
-              try {
-                const file_content = fs.readFileSync(file_path, 'utf8')
-                const relative_path = path.relative(
-                  vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  file_path
-                )
-
-                const focused_attr =
-                  set_focused_attribute && file_path == focused_file
-                    ? ' focused="true"'
-                    : ''
-                context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-                added_files.add(file_path)
-              } catch (error) {
-                console.error(`Error reading open file ${file_path}:`, error)
-              }
-            }
-          }
-
-          // Get selected system instruction from webview state
-          const system_instruction = message.system_instruction
-          const prompt_prefix = message.prompt_prefix
-          const prompt_suffix = message.prompt_suffix
-          if (prompt_prefix) {
-            message.instruction = `${prompt_prefix.trim()} ${
-              message.instruction
-            }`
-          }
-
-          if (prompt_suffix) {
-            message.instruction = `${
-              message.instruction
-            } ${prompt_suffix.trim()}`
-          }
-
-          // Construct the final text
-          let clipboard_text = `${
-            context ? `<files>${context}\n</files>\n` : ''
-          }${message.instruction}`
-
-          let selected_chat = last_used_web_chats[0] || 'AI Studio'
-
-          if (!message.clipboard_only && selected_chat == 'AI Studio') {
-            const ai_studio_temperature = vscode.workspace
-              .getConfiguration()
-              .get<number>('geminiCoder.aiStudioTemperature')
-
-            const ai_studio_model = vscode.workspace
-              .getConfiguration()
-              .get<string>('geminiCoder.aiStudioModel')
-
-            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-            if (system_instruction) {
-              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
-            }
-          }
-
-          await vscode.env.clipboard.writeText(clipboard_text)
-
-          if (!message.clipboard_only) {
-            const chat_url =
-              selected_chat == 'AI Studio'
-                ? 'https://aistudio.google.com/app/prompts/new_chat'
-                : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
-                    (chat) => chat.label == selected_chat
-                  )?.url
-
-            if (chat_url) {
-              vscode.env.openExternal(
-                vscode.Uri.parse(`${chat_url}#gemini-coder`)
+        // Add selected files from the file tree
+        if (this.file_tree_provider) {
+          const selected_files_paths = this.file_tree_provider.getCheckedFiles()
+          for (const file_path of selected_files_paths) {
+            try {
+              const file_content = fs.readFileSync(file_path, 'utf8')
+              const relative_path = path.relative(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                file_path
               )
-            } else {
-              vscode.window.showErrorMessage(
-                `URL not found for web chat: ${selected_chat}`
-              )
+
+              const focused_attr =
+                set_focused_attribute && file_path == focused_file
+                  ? ' focused="true"'
+                  : ''
+              context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
+              added_files.add(file_path)
+            } catch (error) {
+              console.error(`Error reading file ${file_path}:`, error)
             }
           }
+        }
 
-          break
-        case 'showError':
-          vscode.window.showErrorMessage(message.message)
-          break
-        case 'getLastSystemInstruction':
-          const last_system_instruction =
-            this._context.globalState.get<string>('lastSystemInstruction') || ''
-          webview_view.webview.postMessage({
-            command: 'initialSystemInstruction',
-            instruction: last_system_instruction
-          })
-          break
-        case 'saveSystemInstruction':
-          this._context.globalState.update(
-            'lastSystemInstruction',
-            message.instruction
+        // Add currently open files
+        const open_tabs = vscode.window.tabGroups.all
+          .flatMap((group) => group.tabs)
+          .map((tab) =>
+            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
           )
-          break
-        case 'getPromptPrefixes':
-          const prompt_prefixes = vscode.workspace
+          .filter((uri): uri is vscode.Uri => uri != null)
+
+        for (const open_file_uri of open_tabs) {
+          const file_path = open_file_uri.fsPath
+          if (!added_files.has(file_path)) {
+            try {
+              const file_content = fs.readFileSync(file_path, 'utf8')
+              const relative_path = path.relative(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                file_path
+              )
+
+              const focused_attr =
+                set_focused_attribute && file_path == focused_file
+                  ? ' focused="true"'
+                  : ''
+              context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
+              added_files.add(file_path)
+            } catch (error) {
+              console.error(`Error reading open file ${file_path}:`, error)
+            }
+          }
+        }
+
+        // Get selected system instruction from webview state
+        const system_instruction = message.system_instruction
+        const prompt_prefix = message.prompt_prefix
+        const prompt_suffix = message.prompt_suffix
+        if (prompt_prefix) {
+          message.instruction = `${prompt_prefix.trim()} ${message.instruction}`
+        }
+
+        if (prompt_suffix) {
+          message.instruction = `${message.instruction} ${prompt_suffix.trim()}`
+        }
+
+        // Construct the final text
+        let clipboard_text = `${
+          context ? `<files>${context}\n</files>\n` : ''
+        }${message.instruction}`
+
+        let selected_chat = last_used_web_chats[0] || 'AI Studio'
+
+        if (!message.clipboard_only && selected_chat == 'AI Studio') {
+          const ai_studio_temperature = vscode.workspace
             .getConfiguration()
-            .get<string[]>('geminiCoder.promptPrefixes', [])
-          webview_view.webview.postMessage({
-            command: 'promptPrefixes',
-            prefixes: prompt_prefixes
-          })
-          break
-        case 'getLastPromptPrefix':
-          const last_prompt_prefix =
-            this._context.globalState.get<string>('lastPromptPrefix') || ''
-          webview_view.webview.postMessage({
-            command: 'initialPromptPrefix',
-            prefix: last_prompt_prefix
-          })
-          break
-        case 'savePromptPrefix':
-          this._context.globalState.update('lastPromptPrefix', message.prefix)
-          break
-        case 'getPromptSuffixes':
-          const prompt_suffixes = vscode.workspace
+            .get<number>('geminiCoder.aiStudioTemperature')
+
+          const ai_studio_model = vscode.workspace
             .getConfiguration()
-            .get<string[]>('geminiCoder.promptSuffixes', [])
-          webview_view.webview.postMessage({
-            command: 'promptSuffixes',
-            suffixes: prompt_suffixes
-          })
-          break
-        case 'getLastPromptSuffix':
-          const last_prompt_suffix =
-            this._context.globalState.get<string>('lastPromptSuffix') || ''
-          webview_view.webview.postMessage({
-            command: 'initialPromptSuffix',
-            suffix: last_prompt_suffix
-          })
-          break
-        case 'savePromptSuffix':
-          this._context.globalState.update('lastPromptSuffix', message.suffix)
-          break
-        case 'updateAiStudioModel':
-          await vscode.workspace
-            .getConfiguration()
-            .update(
-              'geminiCoder.aiStudioModel',
-              message.model,
-              vscode.ConfigurationTarget.Global
+            .get<string>('geminiCoder.aiStudioModel')
+
+          clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+          if (system_instruction) {
+            clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
+          }
+        }
+
+        await vscode.env.clipboard.writeText(clipboard_text)
+
+        if (!message.clipboard_only) {
+          const chat_url =
+            selected_chat == 'AI Studio'
+              ? 'https://aistudio.google.com/app/prompts/new_chat'
+              : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
+                  (chat) => chat.label == selected_chat
+                )?.url
+
+          if (chat_url) {
+            vscode.env.openExternal(
+              vscode.Uri.parse(`${chat_url}#gemini-coder`)
             )
-          break
-        case 'getCurrentAiStudioModel':
-          const currentModel = vscode.workspace
-            .getConfiguration()
-            .get('geminiCoder.aiStudioModel')
-          webview_view.webview.postMessage({
-            command: 'currentAiStudioModel',
-            model: currentModel
-          })
-          break
-        case 'getAdditionalWebChats':
-          webview_view.webview.postMessage({
-            command: 'additionalWebChats',
-            webChats: WEB_CHATS.filter((chat) => chat.label != 'AI Studio')
-          })
-          break
-        case 'getLastUsedWebChats':
-          webview_view.webview.postMessage({
-            command: 'lastUsedWebChats',
-            webChats: last_used_web_chats
-          })
-          break
-        case 'updateLastUsedWebChats':
-          this._context.globalState.update('lastUsedWebChats', message.webChats)
-          break
-        case 'updateAiStudioTemperature':
-          await vscode.workspace
-            .getConfiguration()
-            .update(
-              'geminiCoder.aiStudioTemperature',
-              message.temperature,
-              vscode.ConfigurationTarget.Global
+          } else {
+            vscode.window.showErrorMessage(
+              `URL not found for web chat: ${selected_chat}`
             )
-          break
-        case 'getCurrentAiStudioTemperature':
-          const temperature = vscode.workspace
-            .getConfiguration()
-            .get<number>('geminiCoder.aiStudioTemperature', 0.5)
-          webview_view.webview.postMessage({
-            command: 'currentAiStudioTemperature',
-            temperature
-          })
-          break
+          }
+        }
+      } else if (message.command == 'showError') {
+        vscode.window.showErrorMessage(message.message)
+      } else if (message.command == 'getLastSystemInstruction') {
+        const last_system_instruction =
+          this._context.globalState.get<string>('lastSystemInstruction') || ''
+        webview_view.webview.postMessage({
+          command: 'initialSystemInstruction',
+          instruction: last_system_instruction
+        })
+      } else if (message.command == 'saveSystemInstruction') {
+        this._context.globalState.update(
+          'lastSystemInstruction',
+          message.instruction
+        )
+      } else if (message.command == 'getPromptPrefixes') {
+        const prompt_prefixes = vscode.workspace
+          .getConfiguration()
+          .get<string[]>('geminiCoder.promptPrefixes', [])
+        webview_view.webview.postMessage({
+          command: 'promptPrefixes',
+          prefixes: prompt_prefixes
+        })
+      } else if (message.command == 'getLastPromptPrefix') {
+        const last_prompt_prefix =
+          this._context.globalState.get<string>('lastPromptPrefix') || ''
+        webview_view.webview.postMessage({
+          command: 'initialPromptPrefix',
+          prefix: last_prompt_prefix
+        })
+      } else if (message.command == 'savePromptPrefix') {
+        this._context.globalState.update('lastPromptPrefix', message.prefix)
+      } else if (message.command == 'getPromptSuffixes') {
+        const prompt_suffixes = vscode.workspace
+          .getConfiguration()
+          .get<string[]>('geminiCoder.promptSuffixes', [])
+        webview_view.webview.postMessage({
+          command: 'promptSuffixes',
+          suffixes: prompt_suffixes
+        })
+      } else if (message.command == 'getLastPromptSuffix') {
+        const last_prompt_suffix =
+          this._context.globalState.get<string>('lastPromptSuffix') || ''
+        webview_view.webview.postMessage({
+          command: 'initialPromptSuffix',
+          suffix: last_prompt_suffix
+        })
+      } else if (message.command == 'savePromptSuffix') {
+        this._context.globalState.update('lastPromptSuffix', message.suffix)
+      } else if (message.command == 'updateAiStudioModel') {
+        await vscode.workspace
+          .getConfiguration()
+          .update(
+            'geminiCoder.aiStudioModel',
+            message.model,
+            vscode.ConfigurationTarget.Global
+          )
+      } else if (message.command == 'getCurrentAiStudioModel') {
+        const currentModel = vscode.workspace
+          .getConfiguration()
+          .get('geminiCoder.aiStudioModel')
+        webview_view.webview.postMessage({
+          command: 'currentAiStudioModel',
+          model: currentModel
+        })
+      } else if (message.command == 'getAdditionalWebChats') {
+        webview_view.webview.postMessage({
+          command: 'additionalWebChats',
+          webChats: WEB_CHATS.filter((chat) => chat.label != 'AI Studio')
+        })
+      } else if (message.command == 'getLastUsedWebChats') {
+        webview_view.webview.postMessage({
+          command: 'lastUsedWebChats',
+          webChats: last_used_web_chats
+        })
+      } else if (message.command == 'updateLastUsedWebChats') {
+        this._context.globalState.update('lastUsedWebChats', message.webChats)
+      } else if (message.command == 'updateAiStudioTemperature') {
+        await vscode.workspace
+          .getConfiguration()
+          .update(
+            'geminiCoder.aiStudioTemperature',
+            message.temperature,
+            vscode.ConfigurationTarget.Global
+          )
+      } else if (message.command == 'getCurrentAiStudioTemperature') {
+        const temperature = vscode.workspace
+          .getConfiguration()
+          .get<number>('geminiCoder.aiStudioTemperature', 0.5)
+        webview_view.webview.postMessage({
+          command: 'currentAiStudioTemperature',
+          temperature
+        })
       }
     })
   }

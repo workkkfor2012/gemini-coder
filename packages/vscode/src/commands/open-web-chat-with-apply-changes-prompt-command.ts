@@ -69,7 +69,7 @@ export function open_web_chat_with_apply_changes_prompt_command(
         after: `\n</file>\n</files>`
       }
 
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text. ${instruction}`
+      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
 
       let content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
 

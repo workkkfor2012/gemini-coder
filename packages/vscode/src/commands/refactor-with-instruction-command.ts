@@ -183,17 +183,13 @@ export function refactor_with_instruction(
       let context_text = ''
       for (const path_to_be_attached of file_paths_to_be_attached) {
         let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-        const relative_path = path.relative(
-          vscode.workspace.workspaceFolders![0].uri.fsPath,
-          path_to_be_attached
-        )
         context_text += `\n\n\n${file_content}\n\n`
       }
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       const selection = editor.selection
       const selected_text = editor.document.getText(selection)
-      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send updated file only, without explanations or any other text.`
+      let refactor_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text.`
       if (selected_text) {
         refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
       } else {
