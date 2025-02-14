@@ -2,9 +2,7 @@
 
 Free and open-source AI coding toolkit with first-class support for Gemini and AI Studio.
 
-Effortless one-click web chat initialization with hand-picked context. Supports Gemini, AI Studio, ChatGPT, Claude, GitHub Copilot and DeepSeek.
-
-Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will set model, system instructions, temperature and your context-filled prompt hands-free!
+Effortless one-click web chat initialization with your instruction and a hand-picked context. Supports Gemini, AI Studio, ChatGPT, Claude, GitHub Copilot and DeepSeek.
 
 - [Install for Chrome](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Install for Firefox](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
@@ -14,9 +12,10 @@ Dedicated browser extension Gemini Coder Connector for Chrome and Firefox will s
 ## Features
 
 - Workspace explorer tree for context selection.
-- Automatically initialized chats in AI Studio.
+- Automatically initialized web chats in Gemini & AI Studio (and more).
 - FIM completions at the cursor position.
 - Applying suggested code changes.
+- File refactoring with instruction.
 - API provider agnostic, read more in "Set up custom providers" section below.
 - Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted).
 
