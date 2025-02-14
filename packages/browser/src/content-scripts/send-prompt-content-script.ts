@@ -441,19 +441,22 @@ const handle_chrome = async () => {
       resolve(null)
     })
   } else if (is_github_copilot) {
-    await new Promise(async (resolve) => {
-      while (
-        !document.querySelector(
-          'button[aria-describedby=":r13:-loading-announcement"]'
-        )
-      ) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
+    await new Promise((resolve) => {
+      const check_for_model_selector = () => {
+        const model_button = Array.from(
+          document.querySelectorAll('button')
+        ).find((button) => {
+          const button_text = button.textContent?.trim() || ''
+          return button_text.startsWith('Model:')
         })
+
+        if (model_button) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_model_selector, 100)
+        }
       }
-      resolve(null)
+      check_for_model_selector()
     })
   } else if (is_open_webui) {
     await new Promise(async (resolve) => {
