@@ -31,12 +31,12 @@ export function copy_fim_completion_prompt_command(file_tree_provider: any) {
 
       try {
         // Collect files excluding the current document
-        const context_text = await files_collector.collect_files([
+        const collected_files = await files_collector.collect_files([
           document_path
         ])
 
         const payload = {
-          before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
+          before: `<files>${collected_files}<file path="${vscode.workspace.asRelativePath(
             document.uri
           )}">\n<![CDATA[\n${text_before_cursor}`,
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`

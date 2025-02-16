@@ -87,7 +87,7 @@ export function refactor_with_instruction_command(
         return
       }
 
-      let provider = all_providers.find((p) => p.name === default_model_name)!
+      let provider = all_providers.find((p) => p.name == default_model_name)!
 
       // Get the last used models from global state
       let last_used_models = context.globalState.get<string[]>(
@@ -167,38 +167,24 @@ export function refactor_with_instruction_command(
         return
       }
 
-      // Create files collector instance and collect files
       const files_collector = new FilesCollector(file_tree_provider)
-      let context_text = ''
-      
-      try {
-        // Collect files excluding the current document
-        context_text = await files_collector.collect_files([document_path])
-      } catch (error: any) {
-        console.error('Error collecting files:', error)
-        vscode.window.showErrorMessage(
-          'Error collecting files: ' + error.message
-        )
-        return
-      }
+      const collected_files = await files_collector.collect_files([
+        document_path
+      ])
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       const selection = editor.selection
       const selected_text = editor.document.getText(selection)
-      let refactor_instruction = `User requested refactor of file ${current_file_path}. In your response send fully updated file only, without explanations or any other text.`
+      let refactor_instruction = `User requested refactor of file ${current_file_path}. In your response send fully updated <file> only, without explanations or any other text.`
       if (selected_text) {
         refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
       } else {
         refactor_instruction += ` ${instruction}`
       }
 
-      const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
-        after: '\n]]>\n</file>\n</files>'
-      }
-
-      const content = `${payload.before}${payload.after}\n${refactor_instruction}`
+      const all_files = `<files>${collected_files}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+      const content = `${all_files}\n${refactor_instruction}`
 
       const messages = [
         ...(system_instructions

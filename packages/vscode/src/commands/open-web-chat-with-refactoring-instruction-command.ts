@@ -42,18 +42,9 @@ export function open_web_chat_with_refactoring_instruction_command(
 
       // Create files collector instance
       const files_collector = new FilesCollector(file_tree_provider)
-      let context_text = ''
-
-      try {
-        // Collect files excluding the current document
-        context_text = await files_collector.collect_files([document_path])
-      } catch (error: any) {
-        console.error('Error collecting files:', error)
-        vscode.window.showErrorMessage(
-          'Error collecting files: ' + error.message
-        )
-        return
-      }
+      const collected_files = await files_collector.collect_files([
+        document_path
+      ])
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
@@ -66,12 +57,8 @@ export function open_web_chat_with_refactoring_instruction_command(
         refactor_instruction += ` ${instruction}`
       }
 
-      const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
-        after: `\n]]>\n</file>\n</files>`
-      }
-
-      let content = `${payload.before}${payload.after}\n${refactor_instruction}`
+      const all_files = `<files>${collected_files}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+      let content = `${all_files}\n${refactor_instruction}`
 
       // Web chat selection logic starts here:
       const ai_studio = WEB_CHATS.find((chat) => chat.label == 'AI Studio')!

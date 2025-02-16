@@ -56,7 +56,7 @@ export function apply_changes_command(
         return
       }
 
-      let provider = all_providers.find((p) => p.name === default_model_name)!
+      let provider = all_providers.find((p) => p.name == default_model_name)!
 
       // Get the last used models from global state
       let last_used_models = context.globalState.get<string[]>(
@@ -152,16 +152,9 @@ export function apply_changes_command(
       }
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
-
       const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
-
-      const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
-        after: '\n]]>\n</file>\n</files>'
-      }
-
-      const content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
-
+      const files = `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+      const content = `${files}\n${apply_changes_instruction}`
       const messages = [
         ...(system_instructions
           ? [{ role: 'system', content: system_instructions }]

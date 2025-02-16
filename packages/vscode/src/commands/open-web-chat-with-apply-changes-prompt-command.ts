@@ -40,15 +40,9 @@ export function open_web_chat_with_apply_changes_prompt_command(
       }
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
-
-      const payload = {
-        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
-        after: `\n]]>\n</file>\n</files>`
-      }
-
+      const files = `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
       const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
-
-      let content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
+      let content = `${files}\n${apply_changes_instruction}`
 
       // Web chat selection logic starts here:
       const ai_studio = WEB_CHATS.find((chat) => chat.label === 'AI Studio')!
