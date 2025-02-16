@@ -42,7 +42,7 @@ export function open_web_chat_with_apply_changes_prompt_command(
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
       const payload = {
-        before: `<files>\n${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
         after: `\n]]>\n</file>\n</files>`
       }
 

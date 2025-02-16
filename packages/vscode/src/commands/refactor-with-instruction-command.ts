@@ -194,7 +194,7 @@ export function refactor_with_instruction_command(
       }
 
       const payload = {
-        before: `<files>\n${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
         after: '\n]]>\n</file>\n</files>'
       }
 

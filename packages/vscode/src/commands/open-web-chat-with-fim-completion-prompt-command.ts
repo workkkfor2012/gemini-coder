@@ -41,7 +41,7 @@ export function open_web_chat_with_fim_completion_prompt_command(
         ])
 
         const payload = {
-          before: `<files>\n${context_text}<file path="${vscode.workspace.asRelativePath(
+          before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
             document.uri
           )}">\n<![CDATA[\n${text_before_cursor}`,
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`

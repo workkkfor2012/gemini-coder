@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
-import * as fs from 'fs'
-import * as path from 'path'
 import { WEB_CHATS } from '../constants/web-chats'
+import { FilesCollector } from '../helpers/files-collector'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
@@ -68,122 +67,75 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           instructions: system_instructions
         })
       } else if (message.command == 'processChatInstruction') {
-        // Get context from selected files
-        let context = ''
-        const added_files = new Set<string>()
+        try {
+          // Create files collector instance
+          const files_collector = new FilesCollector(this.file_tree_provider)
+          let context_text = ''
 
-        const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
+          // Collect files
+          context_text = await files_collector.collect_files()
 
-        const set_focused_attribute = vscode.workspace
-          .getConfiguration()
-          .get<boolean>('geminiCoder.setFocusedAttribute', true)
+          // Get selected system instruction and prompt modifiers from webview state
+          const system_instruction = message.system_instruction
+          const prompt_prefix = message.prompt_prefix
+          const prompt_suffix = message.prompt_suffix
 
-        // Add selected files from the file tree
-        if (this.file_tree_provider) {
-          const selected_files_paths = this.file_tree_provider.getCheckedFiles()
-          for (const file_path of selected_files_paths) {
-            try {
-              const file_content = fs.readFileSync(file_path, 'utf8')
-              const relative_path = path.relative(
-                vscode.workspace.workspaceFolders![0].uri.fsPath,
-                file_path
-              )
+          // Apply prompt modifiers
+          let instruction = message.instruction
+          if (prompt_prefix) {
+            instruction = `${prompt_prefix.trim()} ${instruction}`
+          }
+          if (prompt_suffix) {
+            instruction = `${instruction} ${prompt_suffix.trim()}`
+          }
 
-              const focused_attr =
-                set_focused_attribute && file_path == focused_file
-                  ? ' focused="true"'
-                  : ''
-              context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-              added_files.add(file_path)
-            } catch (error) {
-              console.error(`Error reading file ${file_path}:`, error)
+          // Construct the final text
+          let clipboard_text = `${
+            context_text ? `<files>${context_text}</files>\n` : ''
+          }${instruction}`
+
+          let selected_chat = last_used_web_chats[0] || 'AI Studio'
+
+          if (!message.clipboard_only && selected_chat == 'AI Studio') {
+            const ai_studio_temperature = vscode.workspace
+              .getConfiguration()
+              .get<number>('geminiCoder.aiStudioTemperature')
+
+            const ai_studio_model = vscode.workspace
+              .getConfiguration()
+              .get<string>('geminiCoder.aiStudioModel')
+
+            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
+            if (system_instruction) {
+              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
             }
           }
-        }
 
-        // Add currently open files
-        const open_tabs = vscode.window.tabGroups.all
-          .flatMap((group) => group.tabs)
-          .map((tab) =>
-            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
+          await vscode.env.clipboard.writeText(clipboard_text)
+
+          if (!message.clipboard_only) {
+            const chat_url =
+              selected_chat == 'AI Studio'
+                ? 'https://aistudio.google.com/app/prompts/new_chat'
+                : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
+                    (chat) => chat.label == selected_chat
+                  )?.url
+
+            if (chat_url) {
+              vscode.env.openExternal(
+                vscode.Uri.parse(`${chat_url}#gemini-coder`)
+              )
+            } else {
+              vscode.window.showErrorMessage(
+                `URL not found for web chat: ${selected_chat}`
+              )
+            }
+          }
+        } catch (error: any) {
+          console.error('Error processing chat instruction:', error)
+          vscode.window.showErrorMessage(
+            'Error processing chat instruction: ' + error.message
           )
-          .filter((uri): uri is vscode.Uri => uri != null)
-
-        for (const open_file_uri of open_tabs) {
-          const file_path = open_file_uri.fsPath
-          if (!added_files.has(file_path)) {
-            try {
-              const file_content = fs.readFileSync(file_path, 'utf8')
-              const relative_path = path.relative(
-                vscode.workspace.workspaceFolders![0].uri.fsPath,
-                file_path
-              )
-
-              const focused_attr =
-                set_focused_attribute && file_path == focused_file
-                  ? ' focused="true"'
-                  : ''
-              context += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-              added_files.add(file_path)
-            } catch (error) {
-              console.error(`Error reading open file ${file_path}:`, error)
-            }
-          }
-        }
-
-        // Get selected system instruction from webview state
-        const system_instruction = message.system_instruction
-        const prompt_prefix = message.prompt_prefix
-        const prompt_suffix = message.prompt_suffix
-        if (prompt_prefix) {
-          message.instruction = `${prompt_prefix.trim()} ${message.instruction}`
-        }
-
-        if (prompt_suffix) {
-          message.instruction = `${message.instruction} ${prompt_suffix.trim()}`
-        }
-
-        // Construct the final text
-        let clipboard_text = `${
-          context ? `<files>${context}\n</files>\n` : ''
-        }${message.instruction}`
-
-        let selected_chat = last_used_web_chats[0] || 'AI Studio'
-
-        if (!message.clipboard_only && selected_chat == 'AI Studio') {
-          const ai_studio_temperature = vscode.workspace
-            .getConfiguration()
-            .get<number>('geminiCoder.aiStudioTemperature')
-
-          const ai_studio_model = vscode.workspace
-            .getConfiguration()
-            .get<string>('geminiCoder.aiStudioModel')
-
-          clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-          if (system_instruction) {
-            clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
-          }
-        }
-
-        await vscode.env.clipboard.writeText(clipboard_text)
-
-        if (!message.clipboard_only) {
-          const chat_url =
-            selected_chat == 'AI Studio'
-              ? 'https://aistudio.google.com/app/prompts/new_chat'
-              : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
-                  (chat) => chat.label == selected_chat
-                )?.url
-
-          if (chat_url) {
-            vscode.env.openExternal(
-              vscode.Uri.parse(`${chat_url}#gemini-coder`)
-            )
-          } else {
-            vscode.window.showErrorMessage(
-              `URL not found for web chat: ${selected_chat}`
-            )
-          }
         }
       } else if (message.command == 'showError') {
         vscode.window.showErrorMessage(message.message)

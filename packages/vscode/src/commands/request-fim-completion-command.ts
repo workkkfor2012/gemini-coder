@@ -135,7 +135,7 @@ async function build_completion_payload(
   const context_text = await files_collector.collect_files([document_path])
 
   const payload = {
-    before: `<files>\n${context_text}<file path="${vscode.workspace.asRelativePath(
+    before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
       document.uri
     )}">\n<![CDATA[\n${text_before_cursor}`,
     after: `${text_after_cursor}\n]]>\n</file>\n</files>`

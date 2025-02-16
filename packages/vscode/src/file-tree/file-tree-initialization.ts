@@ -1,8 +1,7 @@
 import * as vscode from 'vscode'
-import * as fs from 'fs'
-import * as path from 'path'
 import { FileTreeProvider } from './file-tree-provider'
 import { FileItem } from './file-tree-provider'
+import { FilesCollector } from '../helpers/files-collector'
 
 export function file_tree_initialization(
   context: vscode.ExtensionContext
@@ -21,49 +20,31 @@ export function file_tree_initialization(
       manageCheckboxStateManually: true
     })
 
-    const update_activity_bar_badge_token_count = () => {
+    // Create FilesCollector instance
+    const files_collector = new FilesCollector(file_tree_provider)
+
+    const update_activity_bar_badge_token_count = async () => {
       const config = vscode.workspace.getConfiguration('geminiCoder')
-      const attach_open_files = config.get<boolean>('attachOpenFiles', true)
-      const checked_files = file_tree_provider!.getCheckedFiles()
-      let total_token_count = 0
-      const added_files = new Set<string>()
-
-      // Count tokens from checked files
-      for (const file_path of checked_files) {
-        if (fs.existsSync(file_path)) {
-          const file_content = fs.readFileSync(file_path, 'utf-8')
-          total_token_count += Math.floor(file_content.length / 4)
-          added_files.add(file_path)
-        }
+      let context_text = ''
+      
+      try {
+        // Use FilesCollector to get all files
+        context_text = await files_collector.collect_files()
+      } catch (error) {
+        console.error('Error collecting files:', error)
+        return
       }
 
-      // Add open files if the setting is enabled
-      if (attach_open_files) {
-        const tab_groups: ReadonlyArray<vscode.TabGroup> =
-          vscode.window.tabGroups.all
-
-        for (const group of tab_groups) {
-          for (const tab of group.tabs) {
-            if (tab.input instanceof vscode.TabInputText) {
-              const file_uri = tab.input.uri
-              const file_path = file_uri.fsPath
-
-              // Only count if it's not already included in checked files
-              if (fs.existsSync(file_path) && !added_files.has(file_path)) {
-                const file_content = fs.readFileSync(file_path, 'utf-8')
-                total_token_count += Math.floor(file_content.length / 4)
-                added_files.add(file_path)
-              }
-            }
-          }
-        }
-      }
+      // Calculate tokens from the collected context
+      const total_token_count = Math.floor(context_text.length / 4)
 
       // Update the badge on the activity bar
       gemini_coder_view.badge = {
         value: total_token_count,
         tooltip: `${total_token_count} tokens${
-          attach_open_files ? ' (including open files)' : ''
+          config.get<boolean>('attachOpenFiles', true) 
+            ? ' (including open files)' 
+            : ''
         }`
       }
     }
@@ -74,99 +55,39 @@ export function file_tree_initialization(
     // Register the copy context command
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
-        const config = vscode.workspace.getConfiguration('geminiCoder')
-        const attach_open_files = config.get<boolean>('attachOpenFiles')
-        const set_focused_attribute = config.get<boolean>(
-          'setFocusedAttribute',
-          true
-        )
-        const checked_files = file_tree_provider!.getCheckedFiles()
-
-        let xml_content = ''
-        const added_files = new Set<string>()
-
-        const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
-
-        for (const file_path of checked_files) {
-          if (fs.statSync(file_path).isFile()) {
-            const content = fs.readFileSync(file_path, 'utf-8')
-            const file_name = path.relative(
-              vscode.workspace.workspaceFolders![0].uri.fsPath,
-              file_path
-            )
-
-            // Add the focused attribute if this is the currently focused file and the setting is enabled
-            const focused_attr =
-              set_focused_attribute && file_path == focused_file
-                ? ' focused="true"'
-                : ''
-            xml_content += `<file path="${file_name}"${focused_attr}>\n<![CDATA[\n${content}\n]]>\n</file>\n`
-            added_files.add(file_path)
-          }
+        let context_text = ''
+        
+        try {
+          // Use FilesCollector to get all files
+          context_text = await files_collector.collect_files()
+        } catch (error: any) {
+          console.error('Error collecting files:', error)
+          vscode.window.showErrorMessage(
+            'Error collecting files: ' + error.message
+          )
+          return
         }
 
-        // Add open files if attachOpenFiles is true
-        if (attach_open_files) {
-          const tab_groups: ReadonlyArray<vscode.TabGroup> =
-            vscode.window.tabGroups.all
-
-          for (const group of tab_groups) {
-            for (const tab of group.tabs) {
-              if (tab.input instanceof vscode.TabInputText) {
-                const file_uri = tab.input.uri
-                const file_path = file_uri.fsPath
-
-                // Avoid duplicates (if an open file is also checked)
-                if (fs.existsSync(file_path) && !added_files.has(file_path)) {
-                  const content = fs.readFileSync(file_path, 'utf-8')
-                  const relative_path = path.relative(
-                    vscode.workspace.workspaceFolders![0].uri.fsPath,
-                    file_path
-                  )
-
-                  // Add the focused attribute if this is the currently focused file and the setting is enabled
-                  const focused_attr =
-                    set_focused_attribute && file_path == focused_file
-                      ? ' focused="true"'
-                      : ''
-                  xml_content += `<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${content}\n]]>\n</file>\n`
-                  added_files.add(file_path)
-                }
-              }
-            }
-          }
-        }
-
-        if (xml_content == '') {
+        if (context_text === '') {
           vscode.window.showWarningMessage('No files selected or open.')
           return
         }
 
-        let final_output = `<files>\n${xml_content}\n</files>`
+        const final_output = `<files>${context_text}</files>`
 
-        // Calculate token count here:
-        let total_token_count = 0
-        for (const filePath of added_files) {
-          // Use added_files to avoid double-counting
-          if (fs.existsSync(filePath)) {
-            // Check if file exists before reading
-            const file_content = fs.readFileSync(filePath, 'utf-8')
-            total_token_count += Math.floor(file_content.length / 4) // 4 chars per token
-          }
-        }
+        // Calculate token count
+        const total_token_count = Math.floor(context_text.length / 4)
 
         // Copy to clipboard
         await vscode.env.clipboard.writeText(final_output)
 
-        // Display token count in the information message:
+        // Display token count in the information message
         vscode.window.showInformationMessage(
-          `Context copied to clipboard (~${Math.round(
-            total_token_count
-          )} tokens).`
+          `Context copied to clipboard (~${Math.round(total_token_count)} tokens).`
         )
 
         // Update token count after copying context
-        update_activity_bar_badge_token_count()
+        await update_activity_bar_badge_token_count()
       }),
       vscode.commands.registerCommand(
         'geminiCoder.copyContextCommand',
@@ -190,7 +111,7 @@ export function file_tree_initialization(
       }
 
       // Update token count after checkbox changes
-      update_activity_bar_badge_token_count()
+      await update_activity_bar_badge_token_count()
     })
 
     // Update badge when configuration changes
