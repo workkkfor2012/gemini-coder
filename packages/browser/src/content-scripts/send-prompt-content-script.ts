@@ -409,11 +409,7 @@ const handle_chrome = async () => {
     })
   } else if (is_chatgpt) {
     await new Promise(async (resolve) => {
-      while (
-        !document.querySelector(
-          'button[data-testid="model-switcher-dropdown-button"]'
-        )
-      ) {
+      while (!document.querySelector('span[data-radix-focus-guard]')) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
@@ -421,11 +417,6 @@ const handle_chrome = async () => {
         })
       }
       resolve(null)
-    })
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
     })
     const reason_button = document.querySelector('button[aria-label="Reason"]')
     ;(reason_button as HTMLButtonElement)?.click()

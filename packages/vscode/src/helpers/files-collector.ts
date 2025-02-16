@@ -7,6 +7,7 @@ export class FilesCollector {
   private readonly config: vscode.WorkspaceConfiguration
   private readonly added_files: Set<string> = new Set()
   private context_text: string = ''
+  private excluded_paths: string[] = []
 
   constructor(file_tree_provider: any) {
     this.file_tree_provider = file_tree_provider
@@ -14,13 +15,14 @@ export class FilesCollector {
     this.config = config
   }
 
-  public async collect_files(): Promise<string> {
+  public async collect_files(excluded_paths: string[] = []): Promise<string> {
     const attach_open_files = this.config.get<boolean>(
       'geminiCoder.attachOpenFiles'
     )
 
     this.context_text = ''
     this.added_files.clear()
+    this.excluded_paths = excluded_paths
 
     const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
 
@@ -35,7 +37,7 @@ export class FilesCollector {
         await this._collect_open_files(focused_file)
       }
 
-      return this.context_text ? `<files>${this.context_text}\n</files>` : ''
+      return this.context_text ? `${this.context_text}\n` : ''
     } catch (error: any) {
       console.error('Error collecting files:', error)
       throw new Error('Failed to collect files: ' + error.message)
@@ -47,7 +49,9 @@ export class FilesCollector {
   ): Promise<void> {
     const selected_files_paths = this.file_tree_provider.getCheckedFiles()
     for (const file_path of selected_files_paths) {
-      await this.add_file_to_context(file_path, focused_file)
+      if (!this._is_path_excluded(file_path)) {
+        await this.add_file_to_context(file_path, focused_file)
+      }
     }
   }
 
@@ -66,15 +70,20 @@ export class FilesCollector {
       const file_path = open_file_uri.fsPath
       if (
         file_path != focused_file && // Only process non-focused files first
-        !this.added_files.has(file_path)
+        !this.added_files.has(file_path) &&
+        !this._is_path_excluded(file_path)
       ) {
         await this.add_file_to_context(file_path, focused_file)
       }
     }
 
     // Then add the focused file last (if it exists and should be included)
-    if (focused_file && !this.added_files.has(focused_file)) {
-      const focused_uri = open_tabs.find((uri) => uri.fsPath === focused_file)
+    if (
+      focused_file &&
+      !this.added_files.has(focused_file) &&
+      !this._is_path_excluded(focused_file)
+    ) {
+      const focused_uri = open_tabs.find((uri) => uri.fsPath == focused_file)
       if (focused_uri) {
         await this.add_file_to_context(focused_file, focused_file)
       }
@@ -94,7 +103,7 @@ export class FilesCollector {
 
     // Skip files with null characters (likely binary)
     const null_char_index = content.indexOf('\0')
-    if (null_char_index !== -1) {
+    if (null_char_index != -1) {
       return false
     }
 
@@ -111,6 +120,25 @@ export class FilesCollector {
     } catch {
       return false
     }
+  }
+
+  private _is_path_excluded(file_path: string): boolean {
+    if (!this.excluded_paths.length) return false
+
+    const relative_path = path.relative(
+      vscode.workspace.workspaceFolders![0].uri.fsPath,
+      file_path
+    )
+
+    return this.excluded_paths.some((excluded_path) => {
+      // Handle both absolute and relative paths
+      return (
+        relative_path == excluded_path ||
+        file_path == excluded_path ||
+        relative_path.startsWith(excluded_path + path.sep) ||
+        file_path.startsWith(excluded_path + path.sep)
+      )
+    })
   }
 
   private async add_file_to_context(

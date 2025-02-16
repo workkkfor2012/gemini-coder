@@ -1,13 +1,12 @@
 import * as vscode from 'vscode'
 import axios from 'axios'
-import * as fs from 'fs'
-import * as path from 'path'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { autocomplete_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
+import { FilesCollector } from '../helpers/files-collector'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -119,10 +118,9 @@ async function insert_completion_text(
 async function build_completion_payload(
   document: vscode.TextDocument,
   position: vscode.Position,
-  file_tree_provider: any,
-  attach_open_files?: boolean
+  file_tree_provider: any
 ): Promise<{ payload: any; content: string }> {
-  const documentPath = document.uri.fsPath
+  const document_path = document.uri.fsPath
   const text_before_cursor = document.getText(
     new vscode.Range(new vscode.Position(0, 0), position)
   )
@@ -130,52 +128,23 @@ async function build_completion_payload(
     new vscode.Range(position, document.positionAt(document.getText().length))
   )
 
-  let file_paths_to_be_attached: Set<string> = new Set()
+  // Create files collector instance
+  const files_collector = new FilesCollector(file_tree_provider)
 
-  if (file_tree_provider) {
-    const selected_files_paths = file_tree_provider.getCheckedFiles()
-    for (const file_path of selected_files_paths) {
-      if (file_path != documentPath) {
-        file_paths_to_be_attached.add(file_path)
-      }
-    }
-  }
-
-  if (attach_open_files) {
-    const open_tabs = vscode.window.tabGroups.all
-      .flatMap((group) => group.tabs)
-      .map((tab) =>
-        tab.input instanceof vscode.TabInputText ? tab.input.uri : null
-      )
-      .filter((uri): uri is vscode.Uri => uri !== null)
-    for (const open_file_uri of open_tabs) {
-      if (open_file_uri.fsPath != documentPath) {
-        file_paths_to_be_attached.add(open_file_uri.fsPath)
-      }
-    }
-  }
-
-  let context_text = ''
-  for (const path_to_be_attached of file_paths_to_be_attached) {
-    let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-    const relative_path = path.relative(
-      vscode.workspace.workspaceFolders![0].uri.fsPath,
-      path_to_be_attached
-    )
-    context_text += `\n<file path="${relative_path}">\n<![CDATA[\n${file_content}\n]]>\n</file>`
-  }
+  // Collect files excluding the current document
+  const context_text = await files_collector.collect_files([document_path])
 
   const payload = {
-    before: `<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
+    before: `<files>\n${context_text}<file path="${vscode.workspace.asRelativePath(
       document.uri
-    )}">\n${text_before_cursor}`,
-    after: `${text_after_cursor}\n</file>\n</files>`
+    )}">\n<![CDATA[\n${text_before_cursor}`,
+    after: `${text_after_cursor}\n]]>\n</file>\n</files>`
   }
   const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
   return { payload, content }
 }
 
-export function request_fim_completion(params: {
+export function request_fim_completion_command(params: {
   command: string
   file_tree_provider: any
   context: vscode.ExtensionContext
@@ -188,7 +157,6 @@ export function request_fim_completion(params: {
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
     const verbose = config.get<boolean>('geminiCoder.verbose')
-    const attach_open_files = config.get<boolean>('geminiCoder.attachOpenFiles')
 
     const all_providers = [
       ...BUILT_IN_PROVIDERS.map((provider) => ({
@@ -234,8 +202,7 @@ export function request_fim_completion(params: {
       const { payload, content } = await build_completion_payload(
         document,
         position,
-        params.file_tree_provider,
-        attach_open_files
+        params.file_tree_provider
       )
 
       const messages = [

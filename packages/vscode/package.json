@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - AI for the rest of us",
   "description": "Gemini Coder initializes web chats with your prompt and hand-picked context, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware.",
-  "version": "1.0.143",
+  "version": "1.0.144",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -261,9 +261,9 @@
         "geminiCoder.promptSuffixes": {
           "type": "array",
           "default": [
+            "Keep your response concise.",
             "Think step by step.",
             "Show only changed fragments.",
-            "Keep your response concise.",
             "Summarize your understanding of the problem.",
             "Highlight what needs to change.",
             "Detail the key considerations.",

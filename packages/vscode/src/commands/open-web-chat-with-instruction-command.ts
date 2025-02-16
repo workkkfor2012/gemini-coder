@@ -1,8 +1,7 @@
 import * as vscode from 'vscode'
-import * as fs from 'fs'
-import * as path from 'path'
 import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
 import { WEB_CHATS } from '../constants/web-chats'
+import { FilesCollector } from '../helpers/files-collector'
 
 export function open_web_chat_with_instruction_command(
   context: vscode.ExtensionContext,
@@ -12,13 +11,6 @@ export function open_web_chat_with_instruction_command(
     'geminiCoder.openWebChatWithInstruction',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const attach_open_files = config.get<boolean>(
-        'geminiCoder.attachOpenFiles'
-      )
-      const set_focused_attribute = config.get<boolean>(
-        'geminiCoder.setFocusedAttribute',
-        true
-      )
 
       // Prompt Prefix Selection
       const prompt_prefixes = config.get<string[]>(
@@ -115,63 +107,22 @@ export function open_web_chat_with_instruction_command(
       }
 
       const prompt_suffix =
-        selected_suffix.label !== 'None' ? selected_suffix.label : ''
+        selected_suffix.label != 'None' ? selected_suffix.label : ''
       await context.globalState.update('lastPromptSuffix', prompt_suffix)
 
-      // Context Building (Same as before)
-      const focused_file = vscode.window.activeTextEditor?.document.uri.fsPath
+      // Files Collection using FilesCollector
+      const files_collector = new FilesCollector(file_tree_provider)
       let context_text = ''
-      const added_files = new Set<string>()
 
-      if (file_tree_provider) {
-        const selected_files_paths = file_tree_provider.getCheckedFiles()
-        for (const file_path of selected_files_paths) {
-          try {
-            const file_content = fs.readFileSync(file_path, 'utf8')
-            const relative_path = path.relative(
-              vscode.workspace.workspaceFolders![0].uri.fsPath,
-              file_path
-            )
-            const focused_attr =
-              set_focused_attribute && file_path == focused_file
-                ? ' focused="true"'
-                : ''
-            context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-            added_files.add(file_path)
-          } catch (error) {
-            console.error(`Error reading file ${file_path}:`, error)
-          }
-        }
-      }
-
-      if (attach_open_files) {
-        const open_tabs = vscode.window.tabGroups.all
-          .flatMap((group) => group.tabs)
-          .map((tab) =>
-            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
-          )
-          .filter((uri): uri is vscode.Uri => uri !== null)
-
-        for (const open_file_uri of open_tabs) {
-          const file_path = open_file_uri.fsPath
-          if (!added_files.has(file_path)) {
-            try {
-              const file_content = fs.readFileSync(file_path, 'utf8')
-              const relative_path = path.relative(
-                vscode.workspace.workspaceFolders![0].uri.fsPath,
-                file_path
-              )
-              const focused_attr =
-                set_focused_attribute && file_path == focused_file
-                  ? ' focused="true"'
-                  : ''
-              context_text += `\n<file path="${relative_path}"${focused_attr}>\n<![CDATA[\n${file_content}\n]]>\n</file>`
-              added_files.add(file_path)
-            } catch (error) {
-              console.error(`Error reading open file ${file_path}:`, error)
-            }
-          }
-        }
+      try {
+        // Collect files
+        context_text = await files_collector.collect_files()
+      } catch (error: any) {
+        console.error('Error collecting files:', error)
+        vscode.window.showErrorMessage(
+          'Error collecting files: ' + error.message
+        )
+        return
       }
 
       let final_instruction = instruction
@@ -226,7 +177,7 @@ export function open_web_chat_with_instruction_command(
           ? await vscode.window.showQuickPick(prioritized_quick_pick_items, {
               placeHolder: 'Select web chat to open'
             })
-          : ai_studio
+          : { label: ai_studio.label, url: `${ai_studio.url}#gemini-coder` }
 
       if (selected_chat) {
         if (selected_chat.label == 'AI Studio') {

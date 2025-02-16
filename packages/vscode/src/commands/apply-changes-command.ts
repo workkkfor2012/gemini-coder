@@ -1,12 +1,11 @@
 import * as vscode from 'vscode'
-import axios, { CancelToken } from 'axios'
-import * as fs from 'fs'
-import * as path from 'path'
+import axios from 'axios'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
+import { FilesCollector } from '../helpers/files-collector'
 
 export function apply_changes_command(
   context: vscode.ExtensionContext,
@@ -129,9 +128,6 @@ export function apply_changes_command(
       const temperature = provider.temperature
       const system_instructions = provider.systemInstructions
       const verbose = config.get<boolean>('geminiCoder.verbose')
-      const attach_open_files = config.get<boolean>(
-        'geminiCoder.attachOpenFiles'
-      )
 
       if (!provider.bearerToken) {
         vscode.window.showErrorMessage(
@@ -140,43 +136,29 @@ export function apply_changes_command(
         return
       }
 
-      let file_paths_to_be_attached: Set<string> = new Set()
-      if (file_tree_provider) {
-        const selected_files_paths = file_tree_provider.getCheckedFiles()
-        for (const file_path of selected_files_paths) {
-          if (file_path != document_path) {
-            file_paths_to_be_attached.add(file_path)
-          }
-        }
-      }
-
-      if (attach_open_files) {
-        const open_tabs = vscode.window.tabGroups.all
-          .flatMap((group) => group.tabs)
-          .map((tab) =>
-            tab.input instanceof vscode.TabInputText ? tab.input.uri : null
-          )
-          .filter((uri): uri is vscode.Uri => uri !== null)
-        for (const open_file_uri of open_tabs) {
-          if (open_file_uri.fsPath != document_path) {
-            file_paths_to_be_attached.add(open_file_uri.fsPath)
-          }
-        }
-      }
-
+      // Create files collector instance
+      const files_collector = new FilesCollector(file_tree_provider)
       let context_text = ''
-      for (const path_to_be_attached of file_paths_to_be_attached) {
-        let file_content = fs.readFileSync(path_to_be_attached, 'utf8')
-        context_text += `\n\n\n${file_content}\n\n`
+
+      try {
+        // Collect files excluding the current document
+        context_text = await files_collector.collect_files([document_path])
+      } catch (error: any) {
+        console.error('Error collecting files:', error)
+        vscode.window.showErrorMessage(
+          'Error collecting files: ' + error.message
+        )
+        return
       }
+
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
-      const payload = {
-        before: `${context_text}\n\n${document_text}`,
-        after: `\n\n</files>`
-      }
-
       const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
+
+      const payload = {
+        before: `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}`,
+        after: '\n]]>\n</file>\n</files>'
+      }
 
       const content = `${payload.before}${payload.after}\n${apply_changes_instruction}`
 
