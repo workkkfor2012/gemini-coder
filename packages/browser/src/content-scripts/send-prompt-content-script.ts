@@ -17,6 +17,9 @@ const is_github_copilot = window.location.href == github_copilot_url
 const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
 const is_deepseek = window.location.href == deepseek_url
 
+const mistral_url = 'https://chat.mistral.ai/chat#gemini-coder'
+const is_mistral = window.location.href == mistral_url
+
 const is_open_webui =
   document.title.includes('Open WebUI') &&
   window.location.href.endsWith('#gemini-coder')
@@ -28,7 +31,8 @@ export const get_input_element = () => {
     [chatgpt_url]: 'div#prompt-textarea',
     [claude_url]: 'div[contenteditable=true]',
     [github_copilot_url]: 'textarea#copilot-chat-textarea',
-    [deepseek_url]: 'textarea'
+    [deepseek_url]: 'textarea',
+    [mistral_url]: 'textarea'
   } as any
   const selector = chatbot_selectors[window.location.href]
   const active_element = selector
@@ -363,6 +367,14 @@ const handle_firefox = async (r: any) => {
       resolve(null)
     })
     document.querySelector(title_container_selector)?.appendChild(button)
+  } else if (is_mistral) {
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true)
+      }, 500)
+    })
+    const textarea = document.querySelector('textarea')?.parentElement
+    textarea?.appendChild(button)
   }
 }
 
@@ -448,6 +460,12 @@ const handle_chrome = async () => {
         }
       }
       check_for_model_selector()
+    })
+  } else if (is_mistral) {
+    await new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(true)
+      }, 500)
     })
   } else if (is_open_webui) {
     await new Promise(async (resolve) => {
