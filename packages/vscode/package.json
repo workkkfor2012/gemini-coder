@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
-  "description": "Effortlessly pick context for your prompts and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.149",
+  "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
+  "version": "1.0.150",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -314,6 +314,7 @@
     "@types/react-dom": "^18.2.19",
     "@types/vscode": "^1.92.0",
     "babel-loader": "^9.1.3",
+    "copy-webpack-plugin": "^12.0.2",
     "css-loader": "^6.5.1",
     "mini-css-extract-plugin": "^2.9.0",
     "sass": "^1.49.0",

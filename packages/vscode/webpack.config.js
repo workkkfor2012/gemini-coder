@@ -1,4 +1,5 @@
 const path = require('path')
+const CopyWebpackPlugin = require('copy-webpack-plugin')
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -29,11 +30,7 @@ const config = {
       },
       {
         test: /\.s[ac]ss$/i,
-        use: [
-          'style-loader',
-          'css-loader',
-          'sass-loader'
-        ]
+        use: ['style-loader', 'css-loader', 'sass-loader']
       },
       {
         test: /\.(ts|tsx)$/,
@@ -52,7 +49,17 @@ const config = {
         ]
       }
     ]
-  }
+  },
+  plugins: [
+    new CopyWebpackPlugin({
+      patterns: [
+        {
+          from: '../../README.md',
+          to: '../README.md'
+        }
+      ]
+    })
+  ]
 }
 
 module.exports = config
