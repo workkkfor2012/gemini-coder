@@ -1,5 +1,6 @@
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
+const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 /**@type {import('webpack').Configuration}*/
 const config = {
@@ -51,6 +52,11 @@ const config = {
     ]
   },
   plugins: [
+    new CleanWebpackPlugin({
+      cleanOnceBeforeBuildPatterns: ['../*.vsix'],
+      dangerouslyAllowCleanPatternsOutsideProject: true,
+      dry: false
+    }),
     new CopyWebpackPlugin({
       patterns: [
         {
