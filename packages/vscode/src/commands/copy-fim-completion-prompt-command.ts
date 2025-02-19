@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { autocomplete_instruction } from '../constants/instructions'
+import { autocomplete_instruction_external } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 
 export function copy_fim_completion_prompt_command(file_tree_provider: any) {
@@ -42,7 +42,7 @@ export function copy_fim_completion_prompt_command(file_tree_provider: any) {
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`
         }
 
-        const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
+        const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction_external}`
 
         await vscode.env.clipboard.writeText(content)
         vscode.window.showInformationMessage(

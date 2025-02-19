@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { autocomplete_instruction } from '../constants/instructions'
+import { autocomplete_instruction_external } from '../constants/instructions'
 import { AI_STUDIO_MODELS } from '../constants/ai-studio-models'
 import { WEB_CHATS } from '../constants/web-chats'
 import { FilesCollector } from '../helpers/files-collector'
@@ -47,7 +47,7 @@ export function open_web_chat_with_fim_completion_prompt_command(
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`
         }
 
-        let content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
+        let content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction_external}`
 
         // Web chat selection logic
         const ai_studio = WEB_CHATS.find((chat) => chat.label == 'AI Studio')!
