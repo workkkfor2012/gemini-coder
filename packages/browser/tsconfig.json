@@ -5,8 +5,14 @@
     "outDir": "out",
     "lib": ["es6", "dom"],
     "sourceMap": true,
-    "rootDir": "src",
-    "strict": true
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "strict": true,
+    "types": ["chrome", "webextension-polyfill"],
+    "paths": {
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared/src/*"]
+    }
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "../shared/src/**/*.ts"]
 }

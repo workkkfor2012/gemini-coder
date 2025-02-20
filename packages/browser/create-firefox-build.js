@@ -9,7 +9,21 @@ const manifest = JSON.parse(fs.readFileSync(manifest_path, 'utf8'))
 const firefox_manifest = { ...manifest }
 delete firefox_manifest.manifest_version
 firefox_manifest.manifest_version = 2
-firefox_manifest.permissions = ['clipboardRead', 'clipboardWrite']
+
+// Replace service_worker with background.scripts
+if (firefox_manifest.background && firefox_manifest.background.service_worker) {
+  firefox_manifest.background = {
+    scripts: [firefox_manifest.background.service_worker],
+    persistent: true
+  }
+}
+
+// Filter not relevant permissions
+firefox_manifest.permissions = firefox_manifest.permissions.filter(
+  (p) => p != 'alarms'
+)
+firefox_manifest.permissions.push(firefox_manifest.host_permissions[0])
+delete firefox_manifest.host_permissions
 
 // Create dist-firefox directory if it doesn't exist
 const firefox_dist_dir = path.join(__dirname, 'dist-firefox')
