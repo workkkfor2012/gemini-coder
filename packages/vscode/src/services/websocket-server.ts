@@ -2,7 +2,7 @@ import * as WebSocket from 'ws'
 import * as vscode from 'vscode'
 import * as http from 'http'
 import { WEB_CHATS } from '../constants/web-chats'
-import { InitializeChatsMessage } from '@shared/types/websocket-messages'
+import { InitializeChatsMessage } from '@shared/types/websocket-message'
 
 export class WebSocketServer {
   private context: vscode.ExtensionContext

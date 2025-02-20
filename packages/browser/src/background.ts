@@ -1,7 +1,7 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage
-} from '@shared/types/websocket-messages'
+} from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
 
 // Store WebSocket instance

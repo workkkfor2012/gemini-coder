@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { InitializeChatsMessage } from '@shared/types/websocket-messages'
+import { InitializeChatsMessage } from '@shared/types/websocket-message'
 
 const ai_studio_url =
   'https://aistudio.google.com/prompts/new_chat#gemini-coder'
