@@ -12,5 +12,3 @@ This browser extension is a simple, single purpose content script that automatic
 ## How it works
 
 Prompt is passed via clipboard, the extension reads it and manages basic web interactions for chat initialization. Once chat is initialized, the injected content script is done with all its work.
-
-The extension ensures clipboard is read only if hash #gemini-coder resides in the URL.

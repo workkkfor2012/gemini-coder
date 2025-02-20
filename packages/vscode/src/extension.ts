@@ -17,8 +17,14 @@ import { refactor_with_instruction_command } from './commands/refactor-with-inst
 import { copy_refactoring_prompt_command } from './commands/copy-refactoring-prompt-command'
 import { open_web_chat_with_refactoring_instruction_command } from './commands/open-web-chat-with-refactoring-instruction-command'
 import { change_default_refactoring_model_command } from './commands/change-default-refactoring-model-command'
+import { WebSocketServer } from './services/websocket-server'
+
+// Store WebSocketServer instance at module level
+let websocket_server_instance: WebSocketServer | null = null
 
 export function activate(context: vscode.ExtensionContext) {
+  websocket_server_instance = new WebSocketServer(context)
+
   const file_tree_provider = file_tree_initialization(context)
 
   // Status bar
@@ -31,7 +37,8 @@ export function activate(context: vscode.ExtensionContext) {
   const chat_view_provider = new ChatViewProvider(
     context.extensionUri,
     file_tree_provider,
-    context
+    context,
+    websocket_server_instance
   )
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
@@ -46,7 +53,8 @@ export function activate(context: vscode.ExtensionContext) {
     copy_refactoring_prompt_command(context, file_tree_provider),
     open_web_chat_with_refactoring_instruction_command(
       context,
-      file_tree_provider
+      file_tree_provider,
+      websocket_server_instance
     ),
     request_fim_completion_command({
       command: 'geminiCoder.requestFimCompletionWith',
@@ -65,15 +73,34 @@ export function activate(context: vscode.ExtensionContext) {
     change_default_refactoring_model_command(),
     open_web_chat_with_fim_completion_prompt_command(
       context,
-      file_tree_provider
+      file_tree_provider,
+      websocket_server_instance
     ),
     open_web_chat_with_apply_changes_prompt_command(
       context,
-      file_tree_provider
+      file_tree_provider,
+      websocket_server_instance
     ),
-    open_web_chat_with_instruction_command(context, file_tree_provider),
-    compose_chat_prompt_command(context, file_tree_provider)
+    open_web_chat_with_instruction_command(
+      context,
+      file_tree_provider,
+      websocket_server_instance
+    ),
+    compose_chat_prompt_command(context, file_tree_provider),
+    {
+      dispose: () => {
+        if (websocket_server_instance) {
+          websocket_server_instance.dispose()
+          websocket_server_instance = null
+        }
+      }
+    }
   )
 }
 
-export function deactivate() {}
+export function deactivate() {
+  if (websocket_server_instance) {
+    websocket_server_instance.dispose()
+    websocket_server_instance = null
+  }
+}

@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { WEB_CHATS } from '../constants/web-chats'
 import { FilesCollector } from '../helpers/files-collector'
+import { WebSocketServer } from '@/services/websocket-server'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
@@ -9,7 +10,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly _extension_uri: vscode.Uri,
     private readonly file_tree_provider: any,
-    private readonly _context: vscode.ExtensionContext
+    private readonly _context: vscode.ExtensionContext,
+    private readonly websocket_server_instance: WebSocketServer
   ) {}
 
   public resolveWebviewView(
@@ -76,7 +78,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           context_text = await files_collector.collect_files()
 
           // Get selected system instruction and prompt modifiers from webview state
-          const system_instruction = message.system_instruction
           const prompt_prefix = message.prompt_prefix
           const prompt_suffix = message.prompt_suffix
 
@@ -94,42 +95,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             context_text ? `<files>${context_text}</files>\n` : ''
           }${instruction}`
 
-          let selected_chat = last_used_web_chats[0] || 'AI Studio'
-
-          if (!message.clipboard_only && selected_chat == 'AI Studio') {
-            const ai_studio_temperature = vscode.workspace
-              .getConfiguration()
-              .get<number>('geminiCoder.aiStudioTemperature')
-
-            const ai_studio_model = vscode.workspace
-              .getConfiguration()
-              .get<string>('geminiCoder.aiStudioModel')
-
-            clipboard_text = `<model>${ai_studio_model}</model><temperature>${ai_studio_temperature}</temperature>${clipboard_text}`
-            if (system_instruction) {
-              clipboard_text = `<system>${system_instruction}</system>${clipboard_text}`
-            }
-          }
-
-          await vscode.env.clipboard.writeText(clipboard_text)
-
-          if (!message.clipboard_only) {
-            const chat_url =
-              selected_chat == 'AI Studio'
-                ? 'https://aistudio.google.com/app/prompts/new_chat'
-                : WEB_CHATS.filter((chat) => chat.label != 'AI Studio').find(
-                    (chat) => chat.label == selected_chat
-                  )?.url
-
-            if (chat_url) {
-              vscode.env.openExternal(
-                vscode.Uri.parse(`${chat_url}#gemini-coder`)
-              )
-            } else {
-              vscode.window.showErrorMessage(
-                `URL not found for web chat: ${selected_chat}`
-              )
-            }
+          if (message.clipboard_only) {
+            await vscode.env.clipboard.writeText(clipboard_text)
+          } else {
+            this.websocket_server_instance.initialize_chats(clipboard_text)
           }
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)

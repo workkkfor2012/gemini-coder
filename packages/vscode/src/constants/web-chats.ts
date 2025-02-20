@@ -6,12 +6,12 @@ type WebChat = {
 export const WEB_CHATS: WebChat[] = [
   {
     label: 'AI Studio',
-    url: 'https://aistudio.google.com/app/prompts/new_chat'
+    url: 'https://aistudio.google.com/prompts/new_chat'
   },
-  // { label: 'Gemini', url: 'https://gemini.google.com/app' },
+  { label: 'Gemini', url: 'https://gemini.google.com/app' },
   {
     label: 'ChatGPT',
-    url: 'https://chatgpt.com'
+    url: 'https://chatgpt.com/'
   },
   {
     label: 'GitHub Copilot',
@@ -23,6 +23,22 @@ export const WEB_CHATS: WebChat[] = [
   },
   {
     label: 'DeepSeek',
-    url: 'https://chat.deepseek.com'
+    url: 'https://chat.deepseek.com/'
+  },
+  {
+    label: 'Mistral',
+    url: 'https://chat.mistral.ai/chat'
+  },
+  {
+    label: 'Grok',
+    url: 'https://grok.com/'
+  },
+  {
+    label: 'HuggingChat',
+    url: 'https://huggingface.co/chat/'
+  },
+  {
+    label: 'Open WebUI',
+    url: 'http://openwebui/'
   }
 ]
