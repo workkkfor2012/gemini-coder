@@ -271,35 +271,115 @@
             "type": "string"
           }
         },
-        "geminiCoder.aiStudioTemperature": {
-          "type": "number",
-          "scope": "resource",
-          "description": "Temperature to use with AI Studio Web Chat.",
-          "default": 0.5,
-          "minimum": 0,
-          "maximum": 1
-        },
-        "geminiCoder.aiStudioModel": {
-          "type": "string",
-          "enum": [
-            "gemini-2.0-flash",
-            "gemini-2.0-flash-thinking-exp-01-21",
-            "gemini-2.0-pro-exp-02-05",
-            "gemini-2.0-flash-exp"
-          ],
-          "enumDescriptions": [
-            "Gemini 2.0 Flash",
-            "Gemini 2.0 Flash Thinking Experimental 01-21",
-            "Gemini 2.0 Pro Experimental 02-05",
-            "Gemini 2.0 Flash Experimental"
-          ],
-          "default": "gemini-2.0-flash",
-          "description": "The model to use with AI Studio Web Chat."
-        },
         "geminiCoder.openWebChatsInBackground": {
           "type": "boolean",
           "default": false,
-          "description": "Controls whether web chats are opened in background or brought to front immediately."
+          "description": "Controls whether browser window should be focused or stay below the editor."
+        },
+        "geminiCoder.webChats": {
+          "type": "array",
+          "default": [
+            {
+              "name": "AI Studio",
+              "isDisabled": false,
+              "provider": "ai_studio",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "gemini-2.0-flash",
+              "tokenLimit": 1000000,
+              "temperature": 0.5,
+              "systemInstructions": "You are an AI coding assistant."
+            },
+            {
+              "name": "Gemini",
+              "isDisabled": false,
+              "provider": "gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "gemini-2.0-flash",
+              "tokenLimit": 20000
+            }
+          ],
+          "description": "Configure multiple chat instances that will be initialized together.",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the chat configuration."
+              },
+              "isDisabled": {
+                "type": "boolean",
+                "description": "Disable this chat configuration"
+              },
+              "provider": {
+                "type": "string",
+                "enum": [
+                  "ai_studio",
+                  "gemini",
+                  "chatgpt",
+                  "github_copilot",
+                  "claude",
+                  "deepseek",
+                  "mistral",
+                  "grok",
+                  "huggingchat",
+                  "open_webui"
+                ],
+                "description": "Select supported web chat provider"
+              },
+              "promptPrefix": {
+                "type": "string",
+                "examples": [
+                  "Outline the steps needed to achieve:",
+                  "Draft a roadmap for accomplishing:",
+                  "Propose various approaches for addressing:",
+                  "Identify potential challenges in developing:",
+                  "Describe the purpose of this code:",
+                  "I need assistance troubleshooting this issue:",
+                  "Help diagnose this error:",
+                  "Generate commit message based on changes:",
+                  "Write tests for:"
+                ],
+                "description": "Prefix prepended to all prompts sent with this chat"
+              },
+              "promptSuffix": {
+                "type": "string",
+                "examples": [
+                  "Keep your response concise.",
+                  "Think step by step.",
+                  "Show only changed fragments.",
+                  "Summarize your understanding of the problem.",
+                  "Highlight what needs to change.",
+                  "Detail the key considerations.",
+                  "Suggest any alternative approaches.",
+                  "Identify potential drawbacks.",
+                  "Ask for clarifications if needed before proceeding."
+                ],
+                "description": "Suffix appended to all prompts sent with this chat"
+              },
+              "model": {
+                "type": "string",
+                "description": "Model to use (selected providers only)"
+              },
+              "tokenLimit": {
+                "type": "number",
+                "description": "Token limit for this chat"
+              },
+              "temperature": {
+                "type": "number",
+                "description": "Temperature to use (selected providers only)"
+              },
+              "systemInstructions": {
+                "type": "string",
+                "description": "System instructions to use (selected providers only)"
+              }
+            },
+            "required": [
+              "name",
+              "provider"
+            ]
+          }
         }
       }
     }
