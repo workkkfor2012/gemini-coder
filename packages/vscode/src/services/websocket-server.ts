@@ -14,15 +14,27 @@ export class WebSocketServer {
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context
-    this.port = 9393
+    this.port = 55155
     this.security_token = 'gemini-coder'
-    this.server = http.createServer()
+    this.server = http.createServer(this.handleHttpRequest.bind(this))
     this.wss = new WebSocket.Server({ server: this.server })
 
     this.initialize_websocket_server()
     context.subscriptions.push({
       dispose: () => this.dispose()
     })
+  }
+
+  private handleHttpRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+    if (req.url == '/health') {
+      res.writeHead(200, { 'Content-Type': 'application/json' })
+      res.end(JSON.stringify({ status: 'ok' }))
+      return
+    }
+
+    // Handle other HTTP requests
+    res.writeHead(404)
+    res.end()
   }
 
   private initialize_websocket_server() {

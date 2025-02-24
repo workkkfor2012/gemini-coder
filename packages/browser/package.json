@@ -1,9 +1,10 @@
 {
   "name": "gemini-coder-connector",
   "scripts": {
-    "build": "webpack --mode production && node create-firefox-build.js"
+    "build": "webpack --mode production && node create-firefox-build.js && node create-zip-archives.js"
   },
   "devDependencies": {
+    "archiver": "^6.0.1",
     "clean-webpack-plugin": "^4.0.0",
     "copy-webpack-plugin": "^12.0.2",
     "ts-loader": "^9.5.1",

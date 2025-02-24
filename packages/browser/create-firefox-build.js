@@ -45,5 +45,3 @@ fs.writeFileSync(
   firefox_manifest_path,
   JSON.stringify(firefox_manifest, null, 2)
 )
-
-console.log('Firefox manifest created successfully.')
