@@ -7,17 +7,23 @@ import { InitializeChatsMessage } from '@shared/types/websocket-message'
 export class WebSocketServer {
   private context: vscode.ExtensionContext
   private server: http.Server
-  private wss: WebSocket.Server
+  private wss: WebSocket.WebSocketServer
   private port: number
   private security_token: string
-  private connections: Set<WebSocket> = new Set()
+  private connections: Set<WebSocket.WebSocket> = new Set()
+  private _on_connection_status_change: vscode.EventEmitter<boolean> =
+    new vscode.EventEmitter<boolean>()
+
+  public readonly on_connection_status_change: vscode.Event<boolean> =
+    this._on_connection_status_change.event
 
   constructor(context: vscode.ExtensionContext) {
     this.context = context
     this.port = 55155
     this.security_token = 'gemini-coder'
-    this.server = http.createServer(this.handleHttpRequest.bind(this))
-    this.wss = new WebSocket.Server({ server: this.server })
+    this.server = http.createServer(this.handle_http_request.bind(this))
+
+    this.wss = new WebSocket.WebSocketServer({ server: this.server })
 
     this.initialize_websocket_server()
     context.subscriptions.push({
@@ -25,7 +31,10 @@ export class WebSocketServer {
     })
   }
 
-  private handleHttpRequest(req: http.IncomingMessage, res: http.ServerResponse) {
+  private handle_http_request(
+    req: http.IncomingMessage,
+    res: http.ServerResponse
+  ) {
     if (req.url == '/health') {
       res.writeHead(200, { 'Content-Type': 'application/json' })
       res.end(JSON.stringify({ status: 'ok' }))
@@ -40,7 +49,7 @@ export class WebSocketServer {
   private initialize_websocket_server() {
     this.wss.on(
       'connection',
-      (ws: WebSocket, request: http.IncomingMessage) => {
+      (ws: WebSocket.WebSocket, request: http.IncomingMessage) => {
         // Verify security token
         const url = new URL(request.url || '', `http://localhost:${this.port}`)
         const token = url.searchParams.get('token')
@@ -51,14 +60,17 @@ export class WebSocketServer {
         }
 
         this.connections.add(ws)
+        this._on_connection_status_change.fire(this.is_connected())
 
         ws.on('close', () => {
           this.connections.delete(ws)
+          this._on_connection_status_change.fire(this.is_connected())
         })
 
         ws.on('error', (error) => {
           console.error('WebSocket error:', error)
           this.connections.delete(ws)
+          this._on_connection_status_change.fire(this.is_connected())
         })
       }
     )
@@ -68,11 +80,16 @@ export class WebSocketServer {
     })
   }
 
-  public async initialize_chats(text: string): Promise<void> {
-    const is_connected =
+  public is_connected(): boolean {
+    return (
       this.connections.size > 0 &&
-      Array.from(this.connections).some((ws) => ws.readyState == WebSocket.OPEN)
+      Array.from(this.connections).some(
+        (ws) => ws.readyState == WebSocket.WebSocket.OPEN
+      )
+    )
+  }
 
+  public async initialize_chats(text: string): Promise<void> {
     const config = vscode.workspace.getConfiguration()
     const ai_studio = WEB_CHATS.find((chat) => chat.label == 'AI Studio')!
 
@@ -89,13 +106,6 @@ export class WebSocketServer {
 
     let current_chat: InitializeChatsMessage['chats'][0] = {
       url: `${selected_chat?.url}`
-    }
-
-    if (!is_connected) {
-      // Fallback to opening urls directly
-      await vscode.env.clipboard.writeText(text)
-      vscode.env.openExternal(vscode.Uri.parse(current_chat.url))
-      return
     }
 
     // If AI Studio is selected, include model, system instructions and temperature
@@ -134,7 +144,7 @@ export class WebSocketServer {
     }
 
     this.connections.forEach((ws) => {
-      if (ws.readyState == WebSocket.OPEN) {
+      if (ws.readyState == WebSocket.WebSocket.OPEN) {
         ws.send(JSON.stringify(message))
       }
     })
@@ -147,5 +157,6 @@ export class WebSocketServer {
     this.connections.clear()
     this.wss.close()
     this.server.close()
+    this._on_connection_status_change.dispose()
   }
 }

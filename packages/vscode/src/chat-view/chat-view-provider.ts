@@ -12,7 +12,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     private readonly file_tree_provider: any,
     private readonly _context: vscode.ExtensionContext,
     private readonly websocket_server_instance: WebSocketServer
-  ) {}
+  ) {
+    // Subscribe to connection status changes and forward to webview when available
+    this.websocket_server_instance.on_connection_status_change((connected) => {
+      if (this._webview_view) {
+        this._webview_view.webview.postMessage({
+          command: 'connectionStatus',
+          connected
+        })
+      }
+    })
+  }
 
   public resolveWebviewView(
     webview_view: vscode.WebviewView,
@@ -67,6 +77,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         webview_view.webview.postMessage({
           command: 'systemInstructions',
           instructions: system_instructions
+        })
+      } else if (message.command == 'getConnectionStatus') {
+        // Send current connection status when requested by the webview
+        webview_view.webview.postMessage({
+          command: 'connectionStatus',
+          connected: this.websocket_server_instance.is_connected()
         })
       } else if (message.command == 'processChatInstruction') {
         try {
@@ -199,6 +215,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           temperature
         })
       }
+    })
+
+    // Send initial connection status after webview is ready
+    webview_view.webview.postMessage({
+      command: 'connectionStatus',
+      connected: this.websocket_server_instance.is_connected()
     })
   }
 

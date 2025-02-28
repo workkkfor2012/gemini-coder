@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
 import { AI_STUDIO_MODELS } from '../../constants/ai-studio-models'
 import TextareaAutosize from 'react-autosize-textarea'
+import cn from 'classnames'
 
 type Props = {
   on_submit: (params: { instruction: string; clipboard_only?: boolean }) => void
@@ -22,6 +23,7 @@ type Props = {
   on_ai_studio_temperature_change: (temperature: number) => void
   last_used_web_chats: string[]
   on_web_chat_change: (last_used_web_chats: string[]) => void
+  is_connected?: boolean
 }
 
 const ChatInput: React.FC<Props> = (props) => {
@@ -99,6 +101,8 @@ const ChatInput: React.FC<Props> = (props) => {
   }
 
   const ai_studio_models = AI_STUDIO_MODELS.map((model) => model.name)
+
+  if (props.is_connected === undefined) return null
 
   return (
     <div className={styles.container}>
@@ -219,7 +223,11 @@ const ChatInput: React.FC<Props> = (props) => {
         </select>
       </div>
       <div className={styles.buttons}>
-        <button className={styles.buttons__continue} onClick={handle_submit}>
+        <button
+          className={styles.buttons__continue}
+          onClick={handle_submit}
+          disabled={!props.is_connected}
+        >
           Continue in {props.last_used_web_chats[0]}
         </button>
         <button
@@ -234,36 +242,42 @@ const ChatInput: React.FC<Props> = (props) => {
           Copy
         </button>
       </div>
-      <div className={styles['browser-extension-message']}>
-        {props.last_used_web_chats[0] == 'AI Studio' ? (
-          <span>
-            Clicking "Continue in AI Studio" will open the web chat in your
-            default browser. You'll need the Gemini Coder Connector to
-            initialize the chat with the selected model, system instructions,
-            and temperature.
-          </span>
-        ) : (
-          <span>
-            Clicking "Continue in {props.last_used_web_chats[0]}" will open the
-            web chat in your default browser. Paste the clipboard contents
-            manually or automate chat initialization with the Gemini Coder
-            Connector.
-          </span>
-        )}
 
-        <ul>
-          <li>
-            <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-              Install for Chrome
-            </a>
-          </li>
-          <li>
-            <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
-              Install for Firefox
-            </a>
-          </li>
-        </ul>
-      </div>
+      {props.is_connected ? (
+        <div
+          className={cn(
+            styles['connection-status'],
+            props.is_connected
+              ? styles['connection-status--connected']
+              : styles['connection-status--disconnected']
+          )}
+        >
+          {props.is_connected ? '✓ Connected' : '✗ Disconnected'}
+        </div>
+      ) : (
+        <div className={styles['browser-extension-message']}>
+          <span>
+            Enable hands-free chat initialization with the Gemini Coder
+            Connector. This simple browser extension uses a WebSocket connection
+            to listen for your prompts and handles all required web interactions
+            automatically.
+          </span>
+
+          <ul>
+            <li>
+              <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
+                Install for Chrome
+              </a>
+            </li>
+            <li>
+              <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
+                Install for Firefox
+              </a>
+            </li>
+          </ul>
+        </div>
+      )}
+
       <div className={styles.footer}>
         <div>
           <a href="https://buymeacoffee.com/robertpiosik">Support author</a>

@@ -1,4 +1,5 @@
 // @type
+
 .container {
   padding: 5px 0 10px 0;
   display: flex;
@@ -90,6 +91,14 @@
     &:hover {
       background-color: var(--vscode-button-hoverBackground);
     }
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background-color: var(--vscode-button-background);
+      &:hover {
+        background-color: var(--vscode-button-background);
+      }
+    }
   }
   &__copy {
     background-color: var(--vscode-button-secondaryBackground);
@@ -110,21 +119,6 @@
       margin-bottom: 5px;
     }
   }
-  a {
-    color: var(--vscode-textLink-foreground);
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}
-
-.footer {
-  margin-top: 10px;
-  font-size: 0.9em;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
   a {
     color: var(--vscode-textLink-foreground);
     text-decoration: none;
@@ -198,6 +192,31 @@
     }
     &::-moz-range-thumb {
       background: var(--vscode-button-hoverBackground);
+    }
+  }
+}
+
+.connection-status {
+  font-size: 0.9em;
+  &--connected {
+    color: var(--vscode-gitDecoration-addedResourceForeground);
+  }
+  &--disconnected {
+    color: var(--vscode-gitDecoration-deletedResourceForeground);
+  }
+}
+
+.footer {
+  margin-top: 10px;
+  font-size: 0.9em;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: none;
+    &:hover {
+      text-decoration: underline;
     }
   }
 }

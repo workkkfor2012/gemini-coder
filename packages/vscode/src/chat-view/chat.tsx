@@ -19,6 +19,7 @@ function Chat() {
   const [selected_ai_studio_temperature, set_selected_ai_studio_temperature] =
     useState<number>()
   const [last_used_web_chats, set_last_used_web_chats] = useState<string[]>()
+  const [is_connected, set_is_connected] = useState<boolean>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getlastChatPrompt' })
@@ -31,6 +32,7 @@ function Chat() {
     vscode.postMessage({ command: 'getCurrentAiStudioModel' })
     vscode.postMessage({ command: 'getLastUsedWebChats' })
     vscode.postMessage({ command: 'getCurrentAiStudioTemperature' })
+    vscode.postMessage({ command: 'getConnectionStatus' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -64,6 +66,9 @@ function Chat() {
           break
         case 'currentAiStudioTemperature':
           set_selected_ai_studio_temperature(message.temperature)
+          break
+        case 'connectionStatus':
+          set_is_connected(message.connected)
           break
       }
     }
@@ -176,6 +181,7 @@ function Chat() {
       on_ai_studio_temperature_change={handle_ai_studio_temperature_change}
       last_used_web_chats={last_used_web_chats}
       on_web_chat_change={handle_web_chat_change}
+      is_connected={is_connected}
     />
   )
 }

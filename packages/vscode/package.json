@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.150",
+  "version": "1.0.156",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -415,6 +415,7 @@
   },
   "dependencies": {
     "axios": "^1.7.7",
+    "classnames": "^2.5.1",
     "ignore": "^6.0.2",
     "path-browserify": "^1.0.1",
     "react": "^18.2.0",
