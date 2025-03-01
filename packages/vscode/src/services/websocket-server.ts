@@ -13,6 +13,7 @@ export class WebSocketServer {
   private connections: Set<WebSocket.WebSocket> = new Set()
   private _on_connection_status_change: vscode.EventEmitter<boolean> =
     new vscode.EventEmitter<boolean>()
+  private ping_interval: NodeJS.Timeout | undefined
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
     this._on_connection_status_change.event
@@ -26,6 +27,7 @@ export class WebSocketServer {
     this.wss = new WebSocket.WebSocketServer({ server: this.server })
 
     this.initialize_websocket_server()
+    this.start_ping_interval()
     context.subscriptions.push({
       dispose: () => this.dispose()
     })
@@ -80,6 +82,47 @@ export class WebSocketServer {
     })
   }
 
+  private start_ping_interval() {
+    // Clear any existing interval
+    if (this.ping_interval) {
+      clearInterval(this.ping_interval)
+    }
+
+    // Set up ping every 10 seconds
+    this.ping_interval = setInterval(() => {
+      this.ping_clients()
+    }, 10000)
+  }
+
+  private ping_clients() {
+    let dead_connections: WebSocket.WebSocket[] = []
+
+    this.connections.forEach((ws) => {
+      if (ws.readyState === WebSocket.WebSocket.OPEN) {
+        try {
+          ws.send('ping')
+        } catch (error) {
+          console.error('Error sending ping to client:', error)
+          dead_connections.push(ws)
+        }
+      } else if (
+        ws.readyState == WebSocket.WebSocket.CLOSED ||
+        ws.readyState == WebSocket.WebSocket.CLOSING
+      ) {
+        dead_connections.push(ws)
+      }
+    })
+
+    // Clean up dead connections
+    dead_connections.forEach((ws) => {
+      this.connections.delete(ws)
+    })
+
+    if (dead_connections.length > 0) {
+      this._on_connection_status_change.fire(this.is_connected())
+    }
+  }
+
   public is_connected(): boolean {
     return (
       this.connections.size > 0 &&
@@ -91,42 +134,8 @@ export class WebSocketServer {
 
   public async initialize_chats(text: string): Promise<void> {
     const config = vscode.workspace.getConfiguration()
-    const ai_studio = WEB_CHATS.find((chat) => chat.label == 'AI Studio')!
 
-    // Get the last used web chats from global state
-    const last_used_web_chats = this.context.globalState.get<string[]>(
-      'lastUsedWebChats',
-      []
-    )
 
-    // Use the most recently used chat or AI Studio as default
-    const selected_chat = last_used_web_chats[0]
-      ? WEB_CHATS.find((chat) => chat.label == last_used_web_chats[0])
-      : ai_studio
-
-    let current_chat: InitializeChatsMessage['chats'][0] = {
-      url: `${selected_chat?.url}`
-    }
-
-    // If AI Studio is selected, include model, system instructions and temperature
-    if (selected_chat?.label == 'AI Studio') {
-      const model =
-        config.get<string>('geminiCoder.aiStudioModel') || 'gemini-2.0-flash'
-      const temperature =
-        config.get<number>('geminiCoder.aiStudioTemperature') || 0.5
-      const system_instructions = config.get<string[]>(
-        'geminiCoder.systemInstructions'
-      )
-
-      current_chat = {
-        ...current_chat,
-        system_instructions: system_instructions?.length
-          ? system_instructions[0]
-          : undefined,
-        model,
-        temperature
-      }
-    }
 
     const open_in_background =
       config.get<boolean>('geminiCoder.openWebChatsInBackground') ?? false
@@ -135,7 +144,7 @@ export class WebSocketServer {
       action: 'initialize-chats',
       text,
       open_in_background,
-      chats: [current_chat]
+      chats: []
     }
 
     const verbose = config.get<boolean>('geminiCoder.verbose')
@@ -151,6 +160,12 @@ export class WebSocketServer {
   }
 
   public dispose() {
+    // Clear the ping interval when disposing
+    if (this.ping_interval) {
+      clearInterval(this.ping_interval)
+      this.ping_interval = undefined
+    }
+
     this.connections.forEach((ws) => {
       ws.close()
     })

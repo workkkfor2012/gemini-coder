@@ -276,24 +276,21 @@
           "default": false,
           "description": "Controls whether browser window should be focused or stay below the editor."
         },
-        "geminiCoder.webChats": {
+        "geminiCoder.webChatPresets": {
           "type": "array",
           "default": [
             {
               "name": "AI Studio",
-              "isDisabled": false,
-              "provider": "ai_studio",
+              "chatbot": "ai_studio",
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
-              "tokenLimit": 1000000,
               "temperature": 0.5,
               "systemInstructions": "You are an AI coding assistant."
             },
             {
               "name": "Gemini",
-              "isDisabled": false,
-              "provider": "gemini",
+              "chatbot": "gemini",
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
@@ -308,11 +305,7 @@
                 "type": "string",
                 "description": "Name of the chat configuration."
               },
-              "isDisabled": {
-                "type": "boolean",
-                "description": "Disable this chat configuration"
-              },
-              "provider": {
+              "chatbot": {
                 "type": "string",
                 "enum": [
                   "ai_studio",
@@ -326,7 +319,7 @@
                   "huggingchat",
                   "open_webui"
                 ],
-                "description": "Select supported web chat provider"
+                "description": "Choose supported chatbot"
               },
               "promptPrefix": {
                 "type": "string",
@@ -360,19 +353,15 @@
               },
               "model": {
                 "type": "string",
-                "description": "Model to use (selected providers only)"
-              },
-              "tokenLimit": {
-                "type": "number",
-                "description": "Token limit for this chat"
+                "description": "Model to use (selected chatbots only, for available options, refer to extension's about page)"
               },
               "temperature": {
                 "type": "number",
-                "description": "Temperature to use (selected providers only)"
+                "description": "Temperature to use (selected chatbots only)"
               },
               "systemInstructions": {
                 "type": "string",
-                "description": "System instructions to use (selected providers only)"
+                "description": "System instructions to use (selected chatbots only)"
               }
             },
             "required": [

@@ -1,0 +1,53 @@
+// @type
+
+.presets-list {
+  margin-top: 10px;
+  border-top: 1px solid var(--vscode-sideBarSectionHeader-border);
+  padding-top: 10px;
+  font-size: 0.9em;
+
+  h3 {
+    margin: 0 0 8px 0;
+    font-size: 1em;
+    color: var(--vscode-sideBarTitle-foreground);
+  }
+}
+
+.preset-item {
+  padding: 4px 8px;
+  margin-bottom: 6px;
+  background-color: var(--vscode-sideBar-background);
+  border: 1px solid var(--vscode-sideBarSectionHeader-border);
+  border-radius: 2px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+
+  h4 {
+    margin: 0 0 3px 0;
+    font-size: 1em;
+    color: var(--vscode-foreground);
+  }
+
+  .preset-details {
+    display: flex;
+    flex-direction: column;
+    font-size: 0.9em;
+    color: var(--vscode-descriptionForeground);
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1px;
+
+      .label {
+        font-weight: 500;
+      }
+
+      .value {
+        opacity: 0.8;
+      }
+    }
+  }
+}
