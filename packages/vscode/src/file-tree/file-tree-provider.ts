@@ -45,17 +45,19 @@ export class FileTreeProvider
     this.gitignore_watcher.onDidDelete(() => this.load_all_gitignore_files())
 
     // Listen for configuration changes
-    this.config_change_handler = vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
-        this.load_ignored_extensions()
-        this.refresh()
+    this.config_change_handler = vscode.workspace.onDidChangeConfiguration(
+      (event) => {
+        if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+          this.load_ignored_extensions()
+          this.refresh()
+        }
+        if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+          // When attachOpenFiles setting changes, update open file checks and refresh the tree
+          this.update_open_file_checks()
+          this.refresh()
+        }
       }
-      if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
-        // When attachOpenFiles setting changes, update open file checks and refresh the tree
-        this.update_open_file_checks()
-        this.refresh()
-      }
-    })
+    )
 
     // Listen for active editor changes to update the tree and update open file checks
     vscode.window.onDidChangeActiveTextEditor(() => {
@@ -134,7 +136,7 @@ export class FileTreeProvider
   public dispose(): void {
     this.watcher.dispose()
     this.gitignore_watcher.dispose()
-    this.config_change_handler.dispose();
+    this.config_change_handler.dispose()
   }
 
   private on_file_system_changed(): void {
@@ -247,6 +249,8 @@ export class FileTreeProvider
       }
     }
 
+    // Note: Removed the code that adds "(ignored)" to description since ignored files/directories are now hidden
+
     return element
   }
 
@@ -274,6 +278,15 @@ export class FileTreeProvider
     }
 
     const dir_path = element ? element.resourceUri.fsPath : this.workspace_root
+
+    // If this directory is excluded by gitignore, don't show its contents
+    if (element && element.isDirectory) {
+      const relative_path = path.relative(this.workspace_root, dir_path)
+      if (this.is_excluded(relative_path)) {
+        return [] // Return empty array for excluded directories
+      }
+    }
+
     return this.get_files_and_directories(dir_path)
   }
 
@@ -309,6 +322,14 @@ export class FileTreeProvider
     }
 
     try {
+      // Check if the directory itself is excluded
+      const relative_dir_path = path.relative(this.workspace_root, dir_path)
+      if (this.is_excluded(relative_dir_path)) {
+        // Directory is excluded, return 0 tokens
+        this.directory_token_counts.set(dir_path, 0)
+        return 0
+      }
+
       const entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
@@ -399,7 +420,7 @@ export class FileTreeProvider
         vscode.TreeItemCollapsibleState.None,
         false,
         checkbox_state,
-        false,
+        false, // isGitIgnored is irrelevant as we're skipping ignored files
         false,
         true, // is open file
         token_count
@@ -431,6 +452,15 @@ export class FileTreeProvider
   ): Promise<FileItem[]> {
     const items: FileItem[] = []
     try {
+      // Check if the directory itself is excluded by gitignore
+      const relative_dir_path = path.relative(this.workspace_root, dir_path)
+      if (
+        dir_path !== this.workspace_root &&
+        this.is_excluded(relative_dir_path)
+      ) {
+        return [] // Return empty array for excluded directories
+      }
+
       const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
@@ -447,6 +477,25 @@ export class FileTreeProvider
       for (const entry of dir_entries) {
         const full_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(this.workspace_root, full_path)
+
+        // Check if excluded by .gitignore or other rules
+        const is_excluded = this.is_excluded(relative_path)
+
+        // Skip excluded files and directories completely
+        if (is_excluded) {
+          continue
+        }
+
+        const extension = path
+          .extname(entry.name)
+          .toLowerCase()
+          .replace('.', '')
+        const is_ignored_extension = this.ignored_extensions.has(extension)
+
+        // Skip files with ignored extensions
+        if (is_ignored_extension && !entry.isDirectory()) {
+          continue
+        }
 
         const uri = vscode.Uri.file(full_path)
         let is_directory = entry.isDirectory()
@@ -468,16 +517,6 @@ export class FileTreeProvider
           continue
         }
 
-        // Skip if excluded by .gitignore or other rules
-        if (this.is_excluded(relative_path)) {
-          continue
-        }
-
-        const extension = path
-          .extname(entry.name)
-          .toLowerCase()
-          .replace('.', '')
-        const is_ignored_extension = this.ignored_extensions.has(extension)
         const key = full_path
 
         // Check if this is an open file
@@ -485,10 +524,10 @@ export class FileTreeProvider
         const attachOpenFiles = config.get<boolean>('attachOpenFiles', true)
         const is_open_file =
           attachOpenFiles &&
-          this.get_open_files().some((uri) => uri.fsPath === full_path)
+          this.get_open_files().some((uri) => uri.fsPath == full_path)
 
         // Skip if this is an open file, as it will be displayed in the open files section
-        if (is_open_file && dir_path === this.workspace_root) {
+        if (is_open_file && dir_path == this.workspace_root) {
           continue
         }
 
@@ -498,7 +537,7 @@ export class FileTreeProvider
           const parent_path = path.dirname(full_path)
           const parent_checkbox_state = this.checked_items.get(parent_path)
           if (
-            parent_checkbox_state === vscode.TreeItemCheckboxState.Checked &&
+            parent_checkbox_state == vscode.TreeItemCheckboxState.Checked &&
             !is_ignored_extension
           ) {
             checkbox_state = vscode.TreeItemCheckboxState.Checked
@@ -513,6 +552,15 @@ export class FileTreeProvider
           ? await this.calculate_directory_tokens(full_path)
           : await this.calculate_file_tokens(full_path)
 
+        // Skip directories with 0 tokens unless it's the workspace root
+        if (
+          is_directory &&
+          token_count === 0 &&
+          full_path !== this.workspace_root
+        ) {
+          continue
+        }
+
         const item = new FileItem(
           entry.name,
           uri,
@@ -521,11 +569,12 @@ export class FileTreeProvider
             : vscode.TreeItemCollapsibleState.None,
           is_directory,
           checkbox_state,
-          false, // isGitIgnored is no longer used directly for filtering
+          false, // isGitIgnored is now irrelevant as we're skipping ignored files
           is_symbolic_link,
           false, // is not an open file in this section
           token_count
         )
+
         items.push(item)
       }
     } catch (error) {
@@ -552,9 +601,7 @@ export class FileTreeProvider
       this.checked_items.set(key, state)
 
       if (item.isDirectory) {
-        const relative_path = path.relative(this.workspace_root, key)
-        const is_excluded = this.is_excluded(relative_path)
-        await this.update_directory_check_state(key, state, is_excluded)
+        await this.update_directory_check_state(key, state, false)
       }
 
       // Update parent directories' states
@@ -570,6 +617,14 @@ export class FileTreeProvider
 
   private async update_parent_state(dir_path: string): Promise<void> {
     try {
+      // Check if the directory itself is excluded
+      const relative_dir_path = path.relative(this.workspace_root, dir_path)
+      if (this.is_excluded(relative_dir_path)) {
+        // If directory is excluded, ensure it's unchecked
+        this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Unchecked)
+        return
+      }
+
       const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
@@ -626,6 +681,13 @@ export class FileTreeProvider
     parent_is_excluded: boolean
   ): Promise<void> {
     try {
+      // Check if this directory itself is excluded
+      const relative_dir_path = path.relative(this.workspace_root, dir_path)
+      if (this.is_excluded(relative_dir_path) || parent_is_excluded) {
+        // Don't recursively check excluded directories
+        return
+      }
+
       const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
@@ -639,12 +701,8 @@ export class FileTreeProvider
           .replace('.', '')
         const is_ignored_extension = this.ignored_extensions.has(extension)
 
-        // Skip if parent is excluded or if the item itself is excluded
-        if (
-          parent_is_excluded ||
-          this.is_excluded(relative_path) ||
-          is_ignored_extension
-        ) {
+        // Skip excluded items
+        if (this.is_excluded(relative_path) || is_ignored_extension) {
           continue
         }
 
@@ -684,7 +742,7 @@ export class FileTreeProvider
     const regular_checked_files = Array.from(this.checked_items.entries())
       .filter(
         ([file_path, state]) =>
-          state === vscode.TreeItemCheckboxState.Checked &&
+          state == vscode.TreeItemCheckboxState.Checked &&
           fs.existsSync(file_path) &&
           (fs.lstatSync(file_path).isFile() ||
             fs.lstatSync(file_path).isSymbolicLink()) &&
@@ -697,7 +755,7 @@ export class FileTreeProvider
       ? Array.from(this.open_files_checked_items.entries())
           .filter(
             ([file_path, state]) =>
-              state === vscode.TreeItemCheckboxState.Checked &&
+              state == vscode.TreeItemCheckboxState.Checked &&
               fs.existsSync(file_path) &&
               (fs.lstatSync(file_path).isFile() ||
                 fs.lstatSync(file_path).isSymbolicLink()) &&
@@ -725,6 +783,10 @@ export class FileTreeProvider
     // For each file in filePaths, set its checkboxState to Checked
     for (const file_path of file_paths) {
       if (!fs.existsSync(file_path)) continue
+
+      // Skip files that are excluded by gitignore
+      const relative_path = path.relative(this.workspace_root, file_path)
+      if (this.is_excluded(relative_path)) continue
 
       // If it's an open file, add to open files checked items, otherwise to regular checked items
       if (open_files_set.has(file_path)) {
@@ -771,7 +833,7 @@ export class FileTreeProvider
           .map((rule) => rule.trim())
           .filter((rule) => rule && !rule.startsWith('#'))
           .map((rule) =>
-            relative_gitignore_path === ''
+            relative_gitignore_path == ''
               ? rule
               : `${relative_gitignore_path}${
                   rule.startsWith('/') ? rule : `/${rule}`
@@ -790,6 +852,10 @@ export class FileTreeProvider
     // Add default exclusions (e.g., node_modules at the root)
     this.combined_gitignore.add(['node_modules/'])
 
+    // After updating gitignore rules, clear token caches since exclusions may have changed
+    this.file_token_counts.clear()
+    this.directory_token_counts.clear()
+
     this.refresh()
   }
 
@@ -799,12 +865,8 @@ export class FileTreeProvider
       return true
     }
 
-    return (
-      this.combined_gitignore.ignores(relative_path) ||
-      this.ignored_extensions.has(
-        path.extname(relative_path).toLowerCase().replace('.', '')
-      )
-    )
+    // Use the ignore package to check if the path is ignored
+    return this.combined_gitignore.ignores(relative_path)
   }
 
   private load_ignored_extensions() {
@@ -835,7 +897,12 @@ export class FileItem extends vscode.TreeItem {
     super(label, collapsibleState)
     this.tooltip = this.resourceUri.fsPath
 
-    this.iconPath = new vscode.ThemeIcon(this.isDirectory ? 'folder' : 'file')
+    // Adjust icon based on directory status
+    if (this.isDirectory) {
+      this.iconPath = new vscode.ThemeIcon('folder')
+    } else {
+      this.iconPath = new vscode.ThemeIcon('file')
+    }
 
     this.checkboxState = checkboxState
 
@@ -845,7 +912,7 @@ export class FileItem extends vscode.TreeItem {
     }
 
     if (this.isSymbolicLink) {
-      // Optionally, you can adjust the icon or label to indicate a symlink
+      // Indicate a symlink in description
       this.description = this.description
         ? this.description + ' (symlink)'
         : '(symlink)'

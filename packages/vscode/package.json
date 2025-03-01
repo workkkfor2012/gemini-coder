@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.160",
+  "version": "1.0.161",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -49,7 +49,7 @@
         },
         {
           "id": "geminiCoderViewChat",
-          "name": "Web Chats",
+          "name": "Chat",
           "type": "webview"
         }
       ]
