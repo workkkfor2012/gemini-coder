@@ -18,6 +18,13 @@ if (firefox_manifest.background && firefox_manifest.background.service_worker) {
   }
 }
 
+// Replace action with browser action
+firefox_manifest.browser_action = firefox_manifest.action
+delete firefox_manifest.action
+
+// Add '<all_urls>' permission to avoid CORS errors when reaching the health check
+firefox_manifest.permissions.push('<all_urls>')
+
 // Filter not relevant permissions
 firefox_manifest.permissions = firefox_manifest.permissions.filter(
   (p) => p != 'alarms'
@@ -45,3 +52,5 @@ fs.writeFileSync(
   firefox_manifest_path,
   JSON.stringify(firefox_manifest, null, 2)
 )
+
+console.log('[create-firefox-build] Firefox build created successfully')

@@ -23,7 +23,7 @@ module.exports = (_, argv) => {
     entry: {
       'send-prompt-content-script':
         './src/content-scripts/send-prompt-content-script.ts',
-      background: './src/background.ts'
+      background: './src/background/main.ts'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),

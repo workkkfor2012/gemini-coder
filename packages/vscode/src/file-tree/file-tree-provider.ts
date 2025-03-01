@@ -22,6 +22,9 @@ export class FileTreeProvider
   private gitignore_watcher: vscode.FileSystemWatcher
   private open_file_paths: Set<string> = new Set() // Track open file paths
   private auto_checked_files: Set<string> = new Set() // Track files that were automatically checked because they're open
+  private file_token_counts: Map<string, number> = new Map() // Cache token counts
+  private directory_token_counts: Map<string, number> = new Map() // Cache directory token counts
+  private config_change_handler: vscode.Disposable
 
   constructor(workspace_root: string) {
     this.workspace_root = workspace_root
@@ -42,9 +45,14 @@ export class FileTreeProvider
     this.gitignore_watcher.onDidDelete(() => this.load_all_gitignore_files())
 
     // Listen for configuration changes
-    vscode.workspace.onDidChangeConfiguration((event) => {
+    this.config_change_handler = vscode.workspace.onDidChangeConfiguration((event) => {
       if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
         this.load_ignored_extensions()
+        this.refresh()
+      }
+      if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+        // When attachOpenFiles setting changes, update open file checks and refresh the tree
+        this.update_open_file_checks()
         this.refresh()
       }
     })
@@ -67,9 +75,14 @@ export class FileTreeProvider
 
   private update_open_file_checks(): void {
     const config = vscode.workspace.getConfiguration('geminiCoder')
-    const attachOpenFiles = config.get<boolean>('attachOpenFiles', true)
+    const attach_open_files = config.get<boolean>('attachOpenFiles', true)
 
-    if (!attachOpenFiles) return
+    // If attachOpenFiles is disabled, clear all open file checks
+    if (!attach_open_files) {
+      this.open_files_checked_items.clear()
+      this.auto_checked_files.clear()
+      return
+    }
 
     const current_open_files = this.get_open_files()
     const current_open_file_paths = new Set(
@@ -121,21 +134,28 @@ export class FileTreeProvider
   public dispose(): void {
     this.watcher.dispose()
     this.gitignore_watcher.dispose()
+    this.config_change_handler.dispose();
   }
 
   private on_file_system_changed(): void {
+    // Clear cached token counts when files change
+    this.file_token_counts.clear()
+    this.directory_token_counts.clear()
     this.refresh()
   }
 
   private async handle_file_create(): Promise<void> {
+    // Clear cached token counts for fresh calculation
+    this.file_token_counts.clear()
+    this.directory_token_counts.clear()
+
     // Refresh the tree view
     await this.refresh()
 
     // If a new file is created within a checked directory, check it automatically
     for (const [dir_path] of this.checked_items) {
       if (
-        this.checked_items.get(dir_path) ===
-        vscode.TreeItemCheckboxState.Checked
+        this.checked_items.get(dir_path) == vscode.TreeItemCheckboxState.Checked
       ) {
         const relative_path = path.relative(this.workspace_root, dir_path)
         const is_excluded = this.is_excluded(relative_path)
@@ -208,6 +228,25 @@ export class FileTreeProvider
       : this.checked_items.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
 
     element.checkboxState = checkbox_state
+
+    // Get token count and add it to description
+    const token_count = element.tokenCount
+
+    if (token_count !== undefined) {
+      // Format token count for display (e.g., 1.2k for 1,200)
+      const formatted_token_count =
+        token_count >= 1000
+          ? `${Math.floor(token_count / 1000)}k` // Ceil would be more correct but the activity bar's badge rounds with floor
+          : `${token_count}`
+
+      // Add token count to description
+      if (element.description) {
+        element.description = `${formatted_token_count} (${element.description})`
+      } else {
+        element.description = formatted_token_count
+      }
+    }
+
     return element
   }
 
@@ -236,6 +275,82 @@ export class FileTreeProvider
 
     const dir_path = element ? element.resourceUri.fsPath : this.workspace_root
     return this.get_files_and_directories(dir_path)
+  }
+
+  // Calculate token count for a file
+  private async calculate_file_tokens(file_path: string): Promise<number> {
+    // Check if we've already calculated this file
+    if (this.file_token_counts.has(file_path)) {
+      return this.file_token_counts.get(file_path)!
+    }
+
+    try {
+      // Read file content
+      const content = await fs.promises.readFile(file_path, 'utf8')
+
+      // Simple token estimation: character count / 4
+      const token_count = Math.floor(content.length / 4)
+
+      // Cache the result
+      this.file_token_counts.set(file_path, token_count)
+
+      return token_count
+    } catch (error) {
+      console.error(`Error calculating tokens for ${file_path}:`, error)
+      return 0
+    }
+  }
+
+  // Calculate token count for a directory (sum of all contained files)
+  private async calculate_directory_tokens(dir_path: string): Promise<number> {
+    // Check cache first
+    if (this.directory_token_counts.has(dir_path)) {
+      return this.directory_token_counts.get(dir_path)!
+    }
+
+    try {
+      const entries = await fs.promises.readdir(dir_path, {
+        withFileTypes: true
+      })
+      let total_tokens = 0
+
+      for (const entry of entries) {
+        const full_path = path.join(dir_path, entry.name)
+        const relative_path = path.relative(this.workspace_root, full_path)
+
+        // Skip excluded files/directories
+        if (this.is_excluded(relative_path)) {
+          continue
+        }
+
+        const extension = path
+          .extname(entry.name)
+          .toLowerCase()
+          .replace('.', '')
+        if (this.ignored_extensions.has(extension)) {
+          continue
+        }
+
+        if (entry.isDirectory()) {
+          // Recurse into subdirectory
+          total_tokens += await this.calculate_directory_tokens(full_path)
+        } else if (entry.isFile()) {
+          // Add file tokens
+          total_tokens += await this.calculate_file_tokens(full_path)
+        }
+      }
+
+      // Cache the result
+      this.directory_token_counts.set(dir_path, total_tokens)
+
+      return total_tokens
+    } catch (error) {
+      console.error(
+        `Error calculating tokens for directory ${dir_path}:`,
+        error
+      )
+      return 0
+    }
   }
 
   private async create_open_file_items(
@@ -275,6 +390,9 @@ export class FileTreeProvider
         this.auto_checked_files.add(file_path) // Mark as auto-checked
       }
 
+      // Calculate token count for this file
+      const token_count = await this.calculate_file_tokens(file_path)
+
       const item = new FileItem(
         file_name,
         file_uri,
@@ -283,7 +401,8 @@ export class FileTreeProvider
         checkbox_state,
         false,
         false,
-        true // is open file
+        true, // is open file
+        token_count
       )
 
       items.push(item)
@@ -389,6 +508,11 @@ export class FileTreeProvider
           }
         }
 
+        // Calculate token count
+        const token_count = is_directory
+          ? await this.calculate_directory_tokens(full_path)
+          : await this.calculate_file_tokens(full_path)
+
         const item = new FileItem(
           entry.name,
           uri,
@@ -398,7 +522,9 @@ export class FileTreeProvider
           is_directory,
           checkbox_state,
           false, // isGitIgnored is no longer used directly for filtering
-          is_symbolic_link
+          is_symbolic_link,
+          false, // is not an open file in this section
+          token_count
         )
         items.push(item)
       }
@@ -703,7 +829,8 @@ export class FileItem extends vscode.TreeItem {
     public checkboxState: vscode.TreeItemCheckboxState,
     public isGitIgnored: boolean,
     public isSymbolicLink: boolean = false,
-    public isOpenFile: boolean = false
+    public isOpenFile: boolean = false,
+    public tokenCount?: number
   ) {
     super(label, collapsibleState)
     this.tooltip = this.resourceUri.fsPath

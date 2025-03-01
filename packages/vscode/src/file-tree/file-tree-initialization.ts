@@ -26,10 +26,12 @@ export function file_tree_initialization(
     const update_activity_bar_badge_token_count = async () => {
       const config = vscode.workspace.getConfiguration('geminiCoder')
       let context_text = ''
-      
+
       try {
         // Use FilesCollector to get all files
-        context_text = await files_collector.collect_files()
+        context_text = await files_collector.collect_files({
+          disable_xml: true
+        })
       } catch (error) {
         console.error('Error collecting files:', error)
         return
@@ -42,8 +44,8 @@ export function file_tree_initialization(
       gemini_coder_view.badge = {
         value: total_token_count,
         tooltip: `${total_token_count} tokens${
-          config.get<boolean>('attachOpenFiles', true) 
-            ? ' (including open files)' 
+          config.get<boolean>('attachOpenFiles', true)
+            ? ' (including open files)'
             : ''
         }`
       }
@@ -56,7 +58,7 @@ export function file_tree_initialization(
     context.subscriptions.push(
       vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
         let context_text = ''
-        
+
         try {
           // Use FilesCollector to get all files
           context_text = await files_collector.collect_files()
@@ -83,7 +85,9 @@ export function file_tree_initialization(
 
         // Display token count in the information message
         vscode.window.showInformationMessage(
-          `Context copied to clipboard (~${Math.round(total_token_count)} tokens).`
+          `Context copied to clipboard (~${Math.round(
+            total_token_count
+          )} tokens).`
         )
 
         // Update token count after copying context
