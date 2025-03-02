@@ -1,20 +1,11 @@
 import React from 'react'
 import styles from './Presets.module.scss'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export namespace Presets {
   export type Preset = {
     name: string
-    chatbot:
-      | 'ai_studio'
-      | 'gemini'
-      | 'chatgpt'
-      | 'github_copilot'
-      | 'claude'
-      | 'deepseek'
-      | 'mistral'
-      | 'grok'
-      | 'huggingchat'
-      | 'open_webui'
+    chatbot: keyof typeof CHATBOTS
     prompt_prefix?: string
     prompt_suffix?: string
     model?: string
@@ -23,25 +14,32 @@ export namespace Presets {
   }
 
   export type Props = {
-    presets?: Preset[]
+    presets: Preset[]
+    on_preset_click: (preset_idx: number) => void
   }
 }
 
-export const Presets: React.FC<Presets.Props> = ({ presets }) => {
-  if (!presets || presets.length === 0) return null
+export const Presets: React.FC<Presets.Props> = ({
+  presets,
+  on_preset_click
+}) => {
+  if (presets.length == 0) return null
 
   return (
     <div className={styles['presets-list']}>
       <h3>Web Chat Presets</h3>
-      {presets.map((preset, index) => (
-        <div key={index} className={styles['preset-item']}>
+      {presets.map((preset, i) => (
+        <div
+          key={i}
+          className={styles['preset-item']}
+          onClick={() => on_preset_click(i)}
+          style={{ cursor: 'pointer' }}
+        >
           <h4>{preset.name}</h4>
           <div className={styles['preset-details']}>
             <div className={styles['detail-row']}>
               <span className={styles.label}>Chatbot:</span>
-              <span className={styles.value}>
-                {formatChatbotName(preset.chatbot)}
-              </span>
+              <span className={styles.value}>{preset.chatbot}</span>
             </div>
 
             {preset.model && (
@@ -89,23 +87,6 @@ export const Presets: React.FC<Presets.Props> = ({ presets }) => {
       ))}
     </div>
   )
-}
-
-function formatChatbotName(chatbot: string): string {
-  const names: Record<string, string> = {
-    ai_studio: 'AI Studio',
-    gemini: 'Gemini',
-    chatgpt: 'ChatGPT',
-    github_copilot: 'GitHub Copilot',
-    claude: 'Claude',
-    deepseek: 'DeepSeek',
-    mistral: 'Mistral',
-    grok: 'Grok',
-    huggingchat: 'HuggingChat',
-    open_webui: 'Open WebUI'
-  }
-
-  return names[chatbot] || chatbot
 }
 
 function truncate(str: string, maxLength: number): string {

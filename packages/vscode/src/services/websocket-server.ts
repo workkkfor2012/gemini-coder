@@ -1,8 +1,8 @@
 import * as WebSocket from 'ws'
 import * as vscode from 'vscode'
 import * as http from 'http'
-import { WEB_CHATS } from '../constants/web-chats'
 import { InitializeChatsMessage } from '@shared/types/websocket-message'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export class WebSocketServer {
   private context: vscode.ExtensionContext
@@ -132,19 +132,30 @@ export class WebSocketServer {
     )
   }
 
-  public async initialize_chats(text: string): Promise<void> {
+  public async initialize_chats(
+    text: string,
+    presets_idx: number[]
+  ): Promise<void> {
     const config = vscode.workspace.getConfiguration()
-
-
-
     const open_in_background =
       config.get<boolean>('geminiCoder.openWebChatsInBackground') ?? false
+    const web_chat_presets =
+      config.get<any[]>('geminiCoder.webChatPresets') ?? []
 
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',
       text,
       open_in_background,
-      chats: []
+      chats: presets_idx.map((idx) => {
+        const preset = web_chat_presets[idx]
+        const chatbot = CHATBOTS[preset.chatbot]
+        return {
+          url: chatbot.url,
+          model: preset.model,
+          temperature: preset.temperature,
+          system_instructions: preset.systemInstructions
+        }
+      })
     }
 
     const verbose = config.get<boolean>('geminiCoder.verbose')

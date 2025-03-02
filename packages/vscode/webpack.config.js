@@ -24,7 +24,11 @@ const config = [
       vscode: 'commonjs vscode'
     },
     resolve: {
-      extensions: ['.ts', '.js']
+      extensions: ['.ts', '.js'],
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        '@shared': path.resolve(__dirname, '../shared/src')
+      }
     },
     module: {
       rules: [
@@ -35,10 +39,7 @@ const config = [
             {
               loader: 'babel-loader',
               options: {
-                presets: [
-                  '@babel/preset-env',
-                  '@babel/preset-typescript'
-                ]
+                presets: ['@babel/preset-env', '@babel/preset-typescript']
               }
             }
           ]
@@ -67,7 +68,7 @@ const config = [
     mode: 'production',
     target: 'web',
     entry: {
-      chat: './src/chat-view/chat.tsx'
+      chat: './src/chat-view/app.tsx'
     },
     output: {
       path: path.resolve(__dirname, 'out'),
@@ -76,7 +77,11 @@ const config = [
     },
     devtool: 'source-map',
     resolve: {
-      extensions: ['.ts', '.tsx', '.js']
+      extensions: ['.ts', '.tsx', '.js'],
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        '@shared': path.resolve(__dirname, '../shared/src')
+      }
     },
     module: {
       rules: [

@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
-import ChatInput from './components/ChatInput'
-import { Presets } from './components/Presets'
+import { Main } from './Main'
+import { Presets } from './Main/Presets'
 const vscode = acquireVsCodeApi()
 
-function Chat() {
+function App() {
   const [initial_prompt, set_initial_prompt] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Presets.Preset[]>()
@@ -36,14 +36,21 @@ function Chat() {
     }
   }, [])
 
-  const handle_send_message = (params: {
+  const handle_initialize_chats = (params: {
     instruction: string
-    clipboard_only?: boolean
+    presets_idx: number[]
   }) => {
     vscode.postMessage({
       command: 'sendPrompt',
       instruction: params.instruction,
-      clipboard_only: params.clipboard_only
+      presets_idx: params.presets_idx
+    })
+  }
+
+  const handle_copy_to_clipboard = (instruction: string) => {
+    vscode.postMessage({
+      command: 'copyPrompt',
+      instruction
     })
   }
 
@@ -63,9 +70,10 @@ function Chat() {
   }
 
   return (
-    <ChatInput
+    <Main
       initial_instruction={initial_prompt}
-      on_submit={handle_send_message}
+      initialize_chats={handle_initialize_chats}
+      copy_to_clipboard={handle_copy_to_clipboard}
       on_instruction_change={handle_instruction_change}
       is_connected={is_connected}
       presets={presets}
@@ -74,4 +82,4 @@ function Chat() {
 }
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
-root.render(<Chat />)
+root.render(<App />)

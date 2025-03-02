@@ -1,18 +1,22 @@
 import React, { useState, useRef, useEffect } from 'react'
-import styles from './ChatInput.module.scss'
+import styles from './Main.module.scss'
 import TextareaAutosize from 'react-autosize-textarea'
 import cn from 'classnames'
 import { Presets } from './Presets'
 
 type Props = {
-  on_submit: (params: { instruction: string; clipboard_only?: boolean }) => void
+  initialize_chats: (params: {
+    instruction: string
+    presets_idx: number[]
+  }) => void
+  copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
   is_connected: boolean
   presets: Presets.Preset[]
 }
 
-const ChatInput: React.FC<Props> = (props) => {
+export const Main: React.FC<Props> = (props) => {
   const [instruction, set_instruction] = useState(props.initial_instruction)
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
 
@@ -28,14 +32,11 @@ const ChatInput: React.FC<Props> = (props) => {
     props.on_instruction_change(e.target.value)
   }
 
-  const handle_submit = () => {
-    props.on_submit({ instruction })
-  }
-
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key == 'Enter' && !e.shiftKey) {
+    // Remove Enter key handling since we no longer have a Continue button
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault()
-      handle_submit()
+      set_instruction(instruction + '\n')
     }
   }
 
@@ -59,46 +60,36 @@ const ChatInput: React.FC<Props> = (props) => {
           onPointerEnterCapture={() => {}}
           onPointerLeaveCapture={() => {}}
         />
-      </div>
-      <div className={styles.buttons}>
-        <button
-          className={styles.buttons__continue}
-          onClick={handle_submit}
-          disabled={!props.is_connected}
-        >
-          Continue
-        </button>
-        <button
-          className={styles.buttons__copy}
-          onClick={() => {
-            props.on_submit({
-              instruction: instruction,
-              clipboard_only: true
-            })
-          }}
-        >
-          Copy
-        </button>
+        <div className={styles.buttons}>
+          <button
+            className={styles.buttons__copy}
+            onClick={() => {
+              props.copy_to_clipboard(instruction)
+            }}
+          >
+            Copy to clipboard
+          </button>
+        </div>
       </div>
 
       {props.is_connected ? (
-        <div
-          className={cn(
-            styles['connection-status'],
-            props.is_connected
-              ? styles['connection-status--connected']
-              : styles['connection-status--disconnected']
-          )}
-        >
-          {props.is_connected ? '✓ Connected' : '✗ Disconnected'}
-        </div>
+        <>
+          <div
+            className={cn(
+              styles['connection-status'],
+              props.is_connected
+                ? styles['connection-status--connected']
+                : styles['connection-status--disconnected']
+            )}
+          >
+            {props.is_connected ? '✓ Connected' : '✗ Disconnected'}
+          </div>
+        </>
       ) : (
         <div className={styles['browser-extension-message']}>
           <span>
-            Enable hands-free chat initialization with the Gemini Coder
-            Connector. This simple browser extension uses a WebSocket connection
-            to listen for your prompts and handles all required web interactions
-            automatically.
+            This extension exposes a WebSocket server, you need the Gemini Coder
+            Connector to use it for a hands-free chat initialization.
           </span>
 
           <ul>
@@ -116,7 +107,15 @@ const ChatInput: React.FC<Props> = (props) => {
         </div>
       )}
 
-      <Presets presets={props.presets} />
+      <Presets
+        presets={props.presets}
+        on_preset_click={(preset_idx) => {
+          props.initialize_chats({
+            instruction,
+            presets_idx: [preset_idx]
+          })
+        }}
+      />
 
       <div className={styles.footer}>
         <div>
@@ -131,5 +130,3 @@ const ChatInput: React.FC<Props> = (props) => {
     </div>
   )
 }
-
-export default ChatInput

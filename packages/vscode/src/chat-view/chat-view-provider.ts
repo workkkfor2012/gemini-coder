@@ -1,8 +1,7 @@
 import * as vscode from 'vscode'
-import { WEB_CHATS } from '../constants/web-chats'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketServer } from '@/services/websocket-server'
-import { Presets } from './components/Presets'
+import { Presets } from './Main/Presets'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
@@ -79,34 +78,37 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         try {
           // Create files collector instance
           const files_collector = new FilesCollector(this.file_tree_provider)
-          let context_text = ''
+          let context = ''
 
           // Collect files
-          context_text = await files_collector.collect_files()
-
-          // Get selected system instruction and prompt modifiers from webview state
-          const prompt_prefix = message.prompt_prefix
-          const prompt_suffix = message.prompt_suffix
-
-          // Apply prompt modifiers
-          let instruction = message.instruction
-          if (prompt_prefix) {
-            instruction = `${prompt_prefix.trim()} ${instruction}`
-          }
-          if (prompt_suffix) {
-            instruction = `${instruction} ${prompt_suffix.trim()}`
-          }
+          context = await files_collector.collect_files()
 
           // Construct the final text
-          let text = `${
-            context_text ? `<files>${context_text}</files>\n` : ''
-          }${instruction}`
+          let text = `${context ? `${context}\n` : ''}${message.instruction}`
 
-          if (message.clipboard_only) {
-            await vscode.env.clipboard.writeText(text)
-          } else {
-            this.websocket_server_instance.initialize_chats(text)
-          }
+          this.websocket_server_instance.initialize_chats(
+            text,
+            message.presets_idx
+          )
+        } catch (error: any) {
+          console.error('Error processing chat instruction:', error)
+          vscode.window.showErrorMessage(
+            'Error processing chat instruction: ' + error.message
+          )
+        }
+      } else if (message.command == 'copyPrompt') {
+        try {
+          // Create files collector instance
+          const files_collector = new FilesCollector(this.file_tree_provider)
+          let context = ''
+
+          // Collect files
+          context = await files_collector.collect_files()
+
+          // Construct the final text
+          let text = `${context ? `${context}\n` : ''}${message.instruction}`
+
+          vscode.env.clipboard.writeText(text)
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)
           vscode.window.showErrorMessage(

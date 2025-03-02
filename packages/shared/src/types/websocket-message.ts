@@ -1,4 +1,4 @@
-export type ChatInstance = {
+type Chat = {
   url: string
   model?: string
   temperature?: number
@@ -9,7 +9,7 @@ export type InitializeChatsMessage = {
   action: 'initialize-chats'
   open_in_background: boolean
   text: string
-  chats: ChatInstance[]
+  chats: Chat[]
 }
 
 export type WebSocketMessage = InitializeChatsMessage
