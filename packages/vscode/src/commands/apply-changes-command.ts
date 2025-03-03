@@ -8,7 +8,6 @@ import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallbac
 import { FilesCollector } from '../helpers/files-collector'
 
 export function apply_changes_command(
-  context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
@@ -32,7 +31,7 @@ export function apply_changes_command(
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
       const default_model_name = config.get<string>(
-        'geminiCoder.defaultRefactoringModel'
+        'geminiCoder.defaultApplyChangesModel'
       )
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
@@ -51,83 +50,12 @@ export function apply_changes_command(
         !all_providers.some((p) => p.name == default_model_name)
       ) {
         vscode.window.showErrorMessage(
-          `Default model is not set or invalid. Please set it in the settings.`
+          `Default apply changes model is not set or invalid. Please set it in the settings.`
         )
         return
       }
 
-      let provider = all_providers.find((p) => p.name == default_model_name)!
-
-      // Get the last used models from global state
-      let last_used_models = context.globalState.get<string[]>(
-        'lastUsedModels',
-        []
-      )
-
-      // Filter out the default model from last used models (it will be added at the beginning)
-      last_used_models = last_used_models.filter(
-        (model) => model != default_model_name
-      )
-
-      // Construct the QuickPick items, prioritizing the default model and last used models
-      const quick_pick_items: any[] = [
-        {
-          label: default_model_name,
-          description: 'Currently set as default'
-        },
-        ...last_used_models
-          .map((model_name) => {
-            const model_provider = all_providers.find(
-              (p) => p.name == model_name
-            )
-            if (model_provider) {
-              return {
-                label: model_name
-              }
-            }
-            return null
-          })
-          .filter((item) => item !== null),
-        ...all_providers
-          .filter(
-            (p) =>
-              p.name != default_model_name && !last_used_models.includes(p.name)
-          )
-          .map((p) => ({
-            label: p.name
-          }))
-      ]
-
-      // Show the QuickPick selector
-      const selected_item = await vscode.window.showQuickPick(
-        quick_pick_items,
-        {
-          placeHolder: 'Select a model for code refactoring'
-        }
-      )
-
-      if (!selected_item) {
-        return // User cancelled
-      }
-
-      // Update the selected provider based on user selection
-      const selected_model_name = selected_item.label.startsWith('$(star-full)')
-        ? default_model_name
-        : selected_item.label
-
-      provider = all_providers.find((p) => p.name == selected_model_name)!
-
-      // Update the last used models in global state
-      last_used_models = [
-        selected_model_name,
-        ...last_used_models.filter((model) => model != selected_model_name)
-      ]
-      context.globalState.update('lastUsedModels', last_used_models)
-
-      const model = provider.model
-      const temperature = provider.temperature
-      const system_instructions = provider.systemInstructions
-      const verbose = config.get<boolean>('geminiCoder.verbose')
+      const provider = all_providers.find((p) => p.name == default_model_name)!
 
       if (!provider.bearerToken) {
         vscode.window.showErrorMessage(
@@ -135,6 +63,11 @@ export function apply_changes_command(
         )
         return
       }
+
+      const model = provider.model
+      const temperature = provider.temperature
+      const system_instructions = provider.systemInstructions
+      const verbose = config.get<boolean>('geminiCoder.verbose')
 
       // Create files collector instance
       const files_collector = new FilesCollector(file_tree_provider)
@@ -174,7 +107,7 @@ export function apply_changes_command(
       }
 
       if (verbose) {
-        console.log('[Gemini Coder] Refactor Prompt:', content)
+        console.log('[Gemini Coder] Apply Changes Prompt:', content)
       }
 
       let cancel_token_source = axios.CancelToken.source()

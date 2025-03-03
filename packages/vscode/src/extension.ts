@@ -53,7 +53,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    apply_changes_command(context, file_tree_provider),
+    apply_changes_command(file_tree_provider),
     refactor_with_instruction_command(context, file_tree_provider),
     copy_refactoring_prompt_command(context, file_tree_provider),
     request_fim_completion_command({

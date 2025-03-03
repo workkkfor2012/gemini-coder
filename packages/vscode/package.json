@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.162",
+  "version": "1.0.163",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -15,16 +15,15 @@
     "Other"
   ],
   "keywords": [
+    "AI",
     "Google",
     "Gemini",
     "AI Studio",
-    "ChatGPT",
-    "Claude",
-    "DeepSeek",
+    "OpenAI API",
     "FIM",
+    "Code completions",
     "Refactoring",
-    "Coding assistant",
-    "Chat"
+    "Coding assistant"
   ],
   "activationEvents": [
     "onView.geminiCoderViewContext"
@@ -248,13 +247,55 @@
               "name": "Gemini 2.0 Flash",
               "chatbot": "Gemini",
               "promptPrefix": "",
-              "promptSuffix": "",
-              "model": "gemini-2.0-flash",
-              "tokenLimit": 20000
+              "promptSuffix": ""
             },
             {
               "name": "ChatGPT",
-              "chatbot": "ChatGPT"
+              "chatbot": "ChatGPT",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "Claude",
+              "chatbot": "Claude",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "GitHub Copilot",
+              "chatbot": "GitHub Copilot",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "Grok",
+              "chatbot": "Grok",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "DeepSeek",
+              "chatbot": "DeepSeek",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "Mistral",
+              "chatbot": "Mistral",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "HuggingChat",
+              "chatbot": "HuggingChat",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
+              "name": "Open WebUI",
+              "chatbot": "Open WebUI",
+              "promptPrefix": "",
+              "promptSuffix": ""
             }
           ],
           "description": "Edit presets fine-grained control over the selected web chat initialization. For example create task-specific chats with custom prompt prefix or suffix.",
@@ -271,11 +312,11 @@
                   "AI Studio",
                   "Gemini",
                   "ChatGPT",
-                  "GitHub Copilot",
                   "Claude",
+                  "GitHub Copilot",
+                  "Grok",
                   "DeepSeek",
                   "Mistral",
-                  "Grok",
                   "HuggingChat",
                   "Open WebUI"
                 ],
