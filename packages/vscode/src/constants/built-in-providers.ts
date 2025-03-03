@@ -11,11 +11,11 @@ export const BUILT_IN_PROVIDERS: Provider[] = [
     instruction: ''
   },
   {
-    name: 'Gemini 2.0 Flash Lite Experimental 02-05',
+    name: 'Gemini 2.0 Flash Lite',
     endpointUrl:
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',
     bearerToken: '',
-    model: 'gemini-2.0-flash-lite-preview-02-05',
+    model: 'gemini-2.0-flash-lite',
     temperature: 0,
     instruction: ''
   },

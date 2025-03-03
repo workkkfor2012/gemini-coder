@@ -1,0 +1,35 @@
+// @type
+.container {
+  display: flex;
+  padding: 4px 0;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.model-select {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 0.9em;
+    color: var(--vscode-foreground);
+  }
+
+  select {
+    width: 100%;
+    padding: 4px;
+    border-radius: 2px;
+    font-family: system-ui, sans-serif;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border);
+
+    &:focus {
+      outline-color: var(--vscode-focusBorder);
+      outline-offset: -1px;
+      outline-style: solid;
+      outline-width: 1px;
+    }
+  }
+}

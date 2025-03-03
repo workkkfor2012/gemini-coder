@@ -10,48 +10,62 @@ export function open_web_chat_with_instruction_command(
   return vscode.commands.registerCommand(
     'geminiCoder.openWebChatWithInstruction',
     async () => {
+      // Check connection status immediately
+      if (!websocket_server_instance.is_connected()) {
+        vscode.window.showInformationMessage(
+          'Could not connect to the web browser. Please check if it is running and if the Gemini Coder Connector is installed.'
+        )
+        return
+      }
+
       const config = vscode.workspace.getConfiguration()
 
-      // Prompt Prefix Selection
-      const prompt_prefixes = config.get<string[]>(
-        'geminiCoder.promptPrefixes',
+      // Get web chat presets
+      const web_chat_presets = config.get<any[]>(
+        'geminiCoder.webChatPresets',
         []
       )
-      const last_prompt_prefix =
-        context.globalState.get<string>('lastPromptPrefix') || ''
 
-      const prefix_quick_pick_items = [
-        ...(last_prompt_prefix
-          ? [
-              {
-                label: last_prompt_prefix,
-                description: 'Last used'
-              }
-            ]
-          : []),
-        { label: 'None', description: "Don't use prompt prefix" },
-        ...prompt_prefixes
-          .filter((prefix) => prefix != last_prompt_prefix)
-          .map((prefix) => ({
-            label: prefix
-          }))
-      ]
+      // Create quickpick items for presets
+      const preset_quick_pick_items = web_chat_presets.map((preset, index) => ({
+        label: preset.name,
+        description: `${preset.chatbot}${
+          preset.model ? ` - ${preset.model}` : ''
+        }`,
+        picked: false,
+        index: index
+      }))
 
-      const selected_prefix = await vscode.window.showQuickPick(
-        prefix_quick_pick_items,
+      // Get previously selected presets from globalState
+      const last_selected_indices = context.globalState.get<number[]>(
+        'selectedWebChatPresets',
+        []
+      )
+
+      // Set picked state based on previously selected presets
+      preset_quick_pick_items.forEach((item) => {
+        item.picked = last_selected_indices.includes(item.index)
+      })
+
+      // Show quickpick with multi-select enabled
+      const selected_presets = await vscode.window.showQuickPick(
+        preset_quick_pick_items,
         {
-          placeHolder: 'Select a prompt prefix (optional)'
+          placeHolder: 'Select one or more chat presets',
+          canPickMany: true
         }
       )
 
-      if (!selected_prefix) {
-        return // User cancelled
+      if (!selected_presets || selected_presets.length == 0) {
+        return // User cancelled or didn't select any presets
       }
 
-      const prompt_prefix =
-        selected_prefix.label != 'None' ? selected_prefix.label : ''
-
-      await context.globalState.update('lastPromptPrefix', prompt_prefix)
+      // Save selected preset indices to globalState
+      const selected_indices = selected_presets.map((preset) => preset.index)
+      await context.globalState.update(
+        'selectedWebChatPresets',
+        selected_indices
+      )
 
       // Main Instruction Input
       let last_chat_prompt =
@@ -69,47 +83,6 @@ export function open_web_chat_with_instruction_command(
 
       await context.globalState.update('lastChatPrompt', instruction)
 
-      // Prompt Suffix Selection
-      const prompt_suffixes = config.get<string[]>(
-        'geminiCoder.promptSuffixes',
-        []
-      )
-
-      const last_prompt_suffix =
-        context.globalState.get<string>('lastPromptSuffix') || ''
-
-      const suffix_quick_pick_items = [
-        ...(last_prompt_suffix
-          ? [
-              {
-                label: last_prompt_suffix,
-                description: 'Last used'
-              }
-            ]
-          : []),
-        { label: 'None', description: "Don't use prompt suffix" },
-        ...prompt_suffixes
-          .filter((suffix) => suffix !== last_prompt_suffix)
-          .map((suffix) => ({
-            label: suffix
-          }))
-      ]
-
-      const selected_suffix = await vscode.window.showQuickPick(
-        suffix_quick_pick_items,
-        {
-          placeHolder: 'Select a prompt suffix (optional)'
-        }
-      )
-
-      if (!selected_suffix) {
-        return // User cancelled
-      }
-
-      const prompt_suffix =
-        selected_suffix.label != 'None' ? selected_suffix.label : ''
-      await context.globalState.update('lastPromptSuffix', prompt_suffix)
-
       // Files Collection using FilesCollector
       const files_collector = new FilesCollector(file_tree_provider)
       let context_text = ''
@@ -125,19 +98,12 @@ export function open_web_chat_with_instruction_command(
         return
       }
 
-      let final_instruction = instruction
-      if (prompt_prefix) {
-        final_instruction = `${prompt_prefix.trim()} ${final_instruction}`
-      }
-      if (prompt_suffix) {
-        final_instruction = `${final_instruction} ${prompt_suffix.trim()}`
-      }
-
       const final_text = `${
         context_text ? `<files>${context_text}\n</files>\n` : ''
-      }${final_instruction}`
+      }${instruction}`
 
-      websocket_server_instance.initialize_chats(final_text)
+      // Initialize chats with selected presets
+      websocket_server_instance.initialize_chats(final_text, selected_indices)
     }
   )
 }

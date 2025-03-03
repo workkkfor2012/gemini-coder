@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.161",
+  "version": "1.0.162",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -51,6 +51,11 @@
           "id": "geminiCoderViewChat",
           "name": "Chat",
           "type": "webview"
+        },
+        {
+          "id": "geminiCoderViewApi",
+          "name": "API",
+          "type": "webview"
         }
       ]
     },
@@ -88,12 +93,16 @@
         "title": "Gemini Coder: Copy FIM Completion Prompt to Clipboard"
       },
       {
-        "command": "geminiCoder.changeDefaultModel",
-        "title": "Gemini Coder: Change Default Model"
+        "command": "geminiCoder.changeDefaultFimModel",
+        "title": "Gemini Coder: Change Default FIM Model"
       },
       {
         "command": "geminiCoder.changeDefaultRefactoringModel",
         "title": "Gemini Coder: Change Default Refactoring Model"
+      },
+      {
+        "command": "geminiCoder.changeDefaultApplyChangesModel",
+        "title": "Gemini Coder: Change Default Apply Changes Model"
       },
       {
         "command": "geminiCoder.applyChanges",
@@ -102,14 +111,6 @@
       {
         "command": "geminiCoder.copyApplyChangesPrompt",
         "title": "Gemini Coder: Copy Apply Changes Prompt to Clipboard"
-      },
-      {
-        "command": "geminiCoder.openWebChatWithFimCompletionPrompt",
-        "title": "Gemini Coder: Open Web Chat with FIM Completion Prompt"
-      },
-      {
-        "command": "geminiCoder.openWebChatWithApplyChangesPrompt",
-        "title": "Gemini Coder: Open Web Chat with Apply Changes Prompt"
       },
       {
         "command": "geminiCoder.openWebChatWithInstruction",
@@ -121,15 +122,11 @@
       },
       {
         "command": "geminiCoder.refactorWithInstruction",
-        "title": "Gemini Coder: Refactor this File with Instruction"
+        "title": "Gemini Coder: Refactor this File"
       },
       {
         "command": "geminiCoder.copyRefactoringPrompt",
         "title": "Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard"
-      },
-      {
-        "command": "geminiCoder.openWebChatWithRefactoringInstruction",
-        "title": "Gemini Coder: Open Web Chat with Refactoring Instruction"
       }
     ],
     "menus": {
@@ -150,14 +147,19 @@
       "type": "object",
       "title": "Gemini Coder Settings",
       "properties": {
-        "geminiCoder.defaultModel": {
+        "geminiCoder.defaultFimModel": {
           "type": "string",
-          "description": "The default model to use for FIM completions. Update conveniently with command: Change Default Model.",
+          "description": "The default model to use for FIM completions.",
           "default": "Gemini 2.0 Flash"
         },
         "geminiCoder.defaultRefactoringModel": {
           "type": "string",
-          "description": "The default refactoring model to use. Update conveniently with command: Change Default Refactoring Model.",
+          "description": "The default model to use for file refactoring.",
+          "default": "Gemini 2.0 Flash"
+        },
+        "geminiCoder.defaultApplyChangesModel": {
+          "type": "string",
+          "description": "The default model to use for applying changes.",
           "default": "Gemini 2.0 Flash"
         },
         "geminiCoder.apiKey": {
@@ -225,52 +227,6 @@
           "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
           "default": "png,jpg,jpeg,gif,svg"
         },
-        "geminiCoder.systemInstructions": {
-          "type": "array",
-          "default": [
-            "You are an AI coding assistant."
-          ],
-          "description": "System instructions for AI Studio.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "geminiCoder.promptPrefixes": {
-          "type": "array",
-          "default": [
-            "Outline the steps needed to achieve:",
-            "Draft a roadmap for accomplishing:",
-            "Propose various approaches for addressing:",
-            "Identify potential challenges in developing:",
-            "Describe the purpose of this code:",
-            "I need assistance troubleshooting this issue:",
-            "Help diagnose this error:",
-            "Generate commit message based on changes:",
-            "Write tests for:"
-          ],
-          "description": "Prompt prefixes.",
-          "items": {
-            "type": "string"
-          }
-        },
-        "geminiCoder.promptSuffixes": {
-          "type": "array",
-          "default": [
-            "Keep your response concise.",
-            "Think step by step.",
-            "Show only changed fragments.",
-            "Summarize your understanding of the problem.",
-            "Highlight what needs to change.",
-            "Detail the key considerations.",
-            "Suggest any alternative approaches.",
-            "Identify potential drawbacks.",
-            "Ask for clarifications if needed before proceeding."
-          ],
-          "description": "Prompt suffixes.",
-          "items": {
-            "type": "string"
-          }
-        },
         "geminiCoder.openWebChatsInBackground": {
           "type": "boolean",
           "default": false,
@@ -280,8 +236,8 @@
           "type": "array",
           "default": [
             {
-              "name": "AI Studio",
-              "chatbot": "aistudio",
+              "name": "AI Studio with Gemini 2.0 Flash",
+              "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
@@ -289,15 +245,19 @@
               "systemInstructions": "You are an AI coding assistant."
             },
             {
-              "name": "Gemini",
-              "chatbot": "gemini",
+              "name": "Gemini 2.0 Flash",
+              "chatbot": "Gemini",
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
               "tokenLimit": 20000
+            },
+            {
+              "name": "ChatGPT",
+              "chatbot": "ChatGPT"
             }
           ],
-          "description": "Configure multiple chat instances that will be initialized together.",
+          "description": "Edit presets fine-grained control over the selected web chat initialization. For example create task-specific chats with custom prompt prefix or suffix.",
           "items": {
             "type": "object",
             "properties": {

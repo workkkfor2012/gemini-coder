@@ -1,34 +1,37 @@
 import browser from 'webextension-polyfill'
 import { InitializeChatsMessage } from '@shared/types/websocket-message'
 
+// In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
+const current_url = window.location.href
+
 const ai_studio_url =
   'https://aistudio.google.com/prompts/new_chat#gemini-coder'
-const is_ai_studio = window.location.href == ai_studio_url
+const is_ai_studio = current_url == ai_studio_url
 
 const gemini_url = 'https://gemini.google.com/app#gemini-coder'
-const is_gemini = window.location.href == gemini_url
+const is_gemini = current_url == gemini_url
 
 const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
-const is_chatgpt = window.location.href == chatgpt_url
+const is_chatgpt = current_url == chatgpt_url
 
 const claude_url = 'https://claude.ai/new#gemini-coder'
-const is_claude = window.location.href == claude_url
+const is_claude = current_url == claude_url
 
 const github_copilot_url = 'https://github.com/copilot#gemini-coder'
-const is_github_copilot = window.location.href == github_copilot_url
+const is_github_copilot = current_url == github_copilot_url
 
 const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
-const is_deepseek = window.location.href == deepseek_url
+const is_deepseek = current_url == deepseek_url
 
 const mistral_url = 'https://chat.mistral.ai/chat#gemini-coder'
-const is_mistral = window.location.href == mistral_url
+const is_mistral = current_url == mistral_url
 
 const grok_url = 'https://grok.com/#gemini-coder'
-const is_grok = window.location.href == grok_url
+const is_grok = current_url == grok_url
 
 // No need for special handling
 // const huggingchat_url = 'https://huggingface.co/chat/'
-// const is_huggingchat = window.location.href == huggingchat_url
+// const is_huggingchat = current_url == huggingchat_url
 
 const is_open_webui = document.title.includes('Open WebUI')
 
@@ -42,7 +45,7 @@ export const get_textarea_element = () => {
     [deepseek_url]: 'textarea',
     [mistral_url]: 'textarea'
   } as any
-  const selector = chatbot_selectors[window.location.href]
+  const selector = chatbot_selectors[current_url]
   const active_element = selector
     ? (document.querySelector(selector) as HTMLElement)
     : (document.activeElement as HTMLElement)

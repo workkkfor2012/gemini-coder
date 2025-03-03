@@ -74,6 +74,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           command: 'webChatPresets',
           presets
         })
+      } else if (message.command == 'getSelectedPresets') {
+        const selected_indices = this._context.globalState.get<number[]>(
+          'selectedWebChatPresets',
+          []
+        )
+        webview_view.webview.postMessage({
+          command: 'selectedPresets',
+          indices: selected_indices
+        })
+      } else if (message.command == 'saveSelectedPresets') {
+        this._context.globalState.update(
+          'selectedWebChatPresets',
+          message.indices
+        )
       } else if (message.command == 'sendPrompt') {
         try {
           // Create files collector instance
@@ -88,7 +102,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           this.websocket_server_instance.initialize_chats(
             text,
-            message.presets_idx
+            message.preset_indices
           )
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)

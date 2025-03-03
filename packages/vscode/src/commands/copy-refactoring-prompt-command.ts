@@ -50,7 +50,9 @@ export function copy_refactoring_prompt_command(
 
       // Create files collector instance and collect files excluding current document
       const files_collector = new FilesCollector(file_tree_provider)
-      const context_text = await files_collector.collect_files([document_path])
+      const context_text = await files_collector.collect_files({
+        exclude_path: document_path
+      })
 
       const content =
         '<files>' +

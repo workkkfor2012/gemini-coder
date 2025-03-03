@@ -1,19 +1,20 @@
 import React, { useState, useRef, useEffect } from 'react'
 import styles from './Main.module.scss'
 import TextareaAutosize from 'react-autosize-textarea'
-import cn from 'classnames'
 import { Presets } from './Presets'
 
 type Props = {
   initialize_chats: (params: {
     instruction: string
-    presets_idx: number[]
+    preset_indices: number[]
   }) => void
   copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
   is_connected: boolean
   presets: Presets.Preset[]
+  selected_presets: number[]
+  on_presets_selection_change: (selected_indices: number[]) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -33,8 +34,7 @@ export const Main: React.FC<Props> = (props) => {
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // Remove Enter key handling since we no longer have a Continue button
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key == 'Enter' && e.shiftKey) {
       e.preventDefault()
       set_instruction(instruction + '\n')
     }
@@ -44,6 +44,13 @@ export const Main: React.FC<Props> = (props) => {
     if (textarea_ref.current) {
       textarea_ref.current.select()
     }
+  }
+
+  const handle_continue = () => {
+    props.initialize_chats({
+      instruction,
+      preset_indices: props.selected_presets
+    })
   }
 
   return (
@@ -62,6 +69,20 @@ export const Main: React.FC<Props> = (props) => {
         />
         <div className={styles.buttons}>
           <button
+            className={styles.buttons__continue}
+            onClick={handle_continue}
+            disabled={!props.is_connected || !props.selected_presets.length}
+            title={
+              !props.is_connected
+                ? 'WebSocket connection not established. Please install the browser extension.'
+                : !props.selected_presets.length
+                ? 'Please select at least one preset to continue'
+                : 'Click to initialize chats with selected presets'
+            }
+          >
+            Continue
+          </button>
+          <button
             className={styles.buttons__copy}
             onClick={() => {
               props.copy_to_clipboard(instruction)
@@ -74,22 +95,18 @@ export const Main: React.FC<Props> = (props) => {
 
       {props.is_connected ? (
         <>
-          <div
-            className={cn(
-              styles['connection-status'],
-              props.is_connected
-                ? styles['connection-status--connected']
-                : styles['connection-status--disconnected']
-            )}
-          >
-            {props.is_connected ? '✓ Connected' : '✗ Disconnected'}
+          <div className={styles['connection-status']}>
+            ✓ Connected
+            {!props.selected_presets.length
+              ? ', select one or more presets to continue'
+              : ''}
           </div>
         </>
       ) : (
         <div className={styles['browser-extension-message']}>
           <span>
             This extension exposes a WebSocket server, you need the Gemini Coder
-            Connector to use it for a hands-free chat initialization.
+            Connector to use it for hands-free chat initializations.
           </span>
 
           <ul>
@@ -109,12 +126,8 @@ export const Main: React.FC<Props> = (props) => {
 
       <Presets
         presets={props.presets}
-        on_preset_click={(preset_idx) => {
-          props.initialize_chats({
-            instruction,
-            presets_idx: [preset_idx]
-          })
-        }}
+        selected_presets={props.selected_presets}
+        on_selection_change={props.on_presets_selection_change}
       />
 
       <div className={styles.footer}>

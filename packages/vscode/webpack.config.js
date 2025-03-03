@@ -111,6 +111,55 @@ const config = [
         }
       ]
     }
+  },
+  {
+    name: 'api',
+    mode: 'production',
+    target: 'web',
+    entry: {
+      api: './src/api-view/app.tsx'
+    },
+    output: {
+      path: path.resolve(__dirname, 'out'),
+      filename: '[name].js',
+      devtoolModuleFilenameTemplate: '../[resource-path]'
+    },
+    devtool: 'source-map',
+    resolve: {
+      extensions: ['.ts', '.tsx', '.js'],
+      alias: {
+        '@': path.resolve(__dirname, 'src'),
+        '@shared': path.resolve(__dirname, '../shared/src')
+      }
+    },
+    module: {
+      rules: [
+        {
+          test: /\.css$/,
+          use: ['style-loader', 'css-loader']
+        },
+        {
+          test: /\.s[ac]ss$/i,
+          use: ['style-loader', 'css-loader', 'sass-loader']
+        },
+        {
+          test: /\.(ts|tsx)$/,
+          exclude: /node_modules/,
+          use: [
+            {
+              loader: 'babel-loader',
+              options: {
+                presets: [
+                  '@babel/preset-env',
+                  '@babel/preset-react',
+                  '@babel/preset-typescript'
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
   }
 ]
 

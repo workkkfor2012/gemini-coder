@@ -60,7 +60,7 @@ export function apply_changes_command(
 
       // Get the last used models from global state
       let last_used_models = context.globalState.get<string[]>(
-        'lastUsedRefactoringModels',
+        'lastUsedModels',
         []
       )
 
@@ -122,7 +122,7 @@ export function apply_changes_command(
         selected_model_name,
         ...last_used_models.filter((model) => model != selected_model_name)
       ]
-      context.globalState.update('lastUsedRefactoringModels', last_used_models)
+      context.globalState.update('lastUsedModels', last_used_models)
 
       const model = provider.model
       const temperature = provider.temperature
@@ -142,7 +142,9 @@ export function apply_changes_command(
 
       try {
         // Collect files excluding the current document
-        context_text = await files_collector.collect_files([document_path])
+        context_text = await files_collector.collect_files({
+          exclude_path: document_path
+        })
       } catch (error: any) {
         console.error('Error collecting files:', error)
         vscode.window.showErrorMessage(

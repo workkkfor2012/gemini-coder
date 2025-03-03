@@ -62,9 +62,7 @@ export function refactor_with_instruction_command(
 
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const default_model_name = config.get<string>(
-        'geminiCoder.defaultRefactoringModel'
-      )
+      const default_model_name = config.get<string>('geminiCoder.defaultFimModel')
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -91,7 +89,7 @@ export function refactor_with_instruction_command(
 
       // Get the last used models from global state
       let last_used_models = context.globalState.get<string[]>(
-        'lastUsedRefactoringModels',
+        'lastUsedModels',
         []
       )
 
@@ -153,7 +151,7 @@ export function refactor_with_instruction_command(
         selected_model_name,
         ...last_used_models.filter((model) => model != selected_model_name)
       ]
-      context.globalState.update('lastUsedRefactoringModels', last_used_models)
+      context.globalState.update('lastUsedModels', last_used_models)
 
       const model = provider.model
       const temperature = provider.temperature
@@ -168,9 +166,9 @@ export function refactor_with_instruction_command(
       }
 
       const files_collector = new FilesCollector(file_tree_provider)
-      const collected_files = await files_collector.collect_files([
-        document_path
-      ])
+      const collected_files = await files_collector.collect_files({
+        exclude_path: document_path
+      })
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
 

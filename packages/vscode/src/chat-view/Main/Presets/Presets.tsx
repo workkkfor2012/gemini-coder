@@ -15,27 +15,48 @@ export namespace Presets {
 
   export type Props = {
     presets: Preset[]
-    on_preset_click: (preset_idx: number) => void
+    selected_presets: number[]
+    on_selection_change: (selected_indices: number[]) => void
   }
 }
 
 export const Presets: React.FC<Presets.Props> = ({
   presets,
-  on_preset_click
+  selected_presets,
+  on_selection_change
 }) => {
   if (presets.length == 0) return null
 
+  const handle_checkbox_change = (index: number) => {
+    const new_selected = selected_presets.includes(index)
+      ? selected_presets.filter((i) => i !== index)
+      : [...selected_presets, index]
+    on_selection_change(new_selected)
+  }
+
   return (
     <div className={styles['presets-list']}>
-      <h3>Web Chat Presets</h3>
+      <h3>
+        Presets{' '}
+        <a href="vscode://settings/geminiCoder.webChatPresets">(edit)</a>
+      </h3>
       {presets.map((preset, i) => (
         <div
           key={i}
           className={styles['preset-item']}
-          onClick={() => on_preset_click(i)}
+          onClick={() => handle_checkbox_change(i)}
           style={{ cursor: 'pointer' }}
         >
-          <h4>{preset.name}</h4>
+          <div className={styles['preset-header']}>
+            <input
+              type="checkbox"
+              checked={selected_presets.includes(i)}
+              onChange={() => handle_checkbox_change(i)}
+              onClick={(e) => e.stopPropagation()}
+              className={styles['preset-checkbox']}
+            />
+            <h4>{preset.name}</h4>
+          </div>
           <div className={styles['preset-details']}>
             <div className={styles['detail-row']}>
               <span className={styles.label}>Chatbot:</span>

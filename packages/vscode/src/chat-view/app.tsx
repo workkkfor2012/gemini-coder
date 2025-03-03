@@ -8,11 +8,13 @@ function App() {
   const [initial_prompt, set_initial_prompt] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Presets.Preset[]>()
+  const [selected_presets, set_selected_presets] = useState<number[]>([])
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
     vscode.postMessage({ command: 'getConnectionStatus' })
     vscode.postMessage({ command: 'getWebChatPresets' })
+    vscode.postMessage({ command: 'getSelectedPresets' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -26,6 +28,9 @@ function App() {
         case 'webChatPresets':
           set_presets(message.presets)
           break
+        case 'selectedPresets':
+          set_selected_presets(message.indices)
+          break
       }
     }
 
@@ -38,12 +43,12 @@ function App() {
 
   const handle_initialize_chats = (params: {
     instruction: string
-    presets_idx: number[]
+    preset_indices: number[]
   }) => {
     vscode.postMessage({
       command: 'sendPrompt',
       instruction: params.instruction,
-      presets_idx: params.presets_idx
+      preset_indices: params.preset_indices
     })
   }
 
@@ -59,6 +64,14 @@ function App() {
       command: 'saveChatInstruction',
       instruction
     })
+  }
+
+  const handle_presets_selection_change = (selected_indices: number[]) => {
+    vscode.postMessage({
+      command: 'saveSelectedPresets',
+      indices: selected_indices
+    })
+    set_selected_presets(selected_indices)
   }
 
   if (
@@ -77,6 +90,8 @@ function App() {
       on_instruction_change={handle_instruction_change}
       is_connected={is_connected}
       presets={presets}
+      selected_presets={selected_presets}
+      on_presets_selection_change={handle_presets_selection_change}
     />
   )
 }

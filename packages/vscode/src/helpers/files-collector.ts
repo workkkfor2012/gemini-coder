@@ -16,13 +16,17 @@ export class FilesCollector {
       : ''
   }
 
-  async collect_files(params?: { disable_xml: boolean }): Promise<string> {
+  async collect_files(params?: {
+    disable_xml?: boolean
+    exclude_path?: string
+  }): Promise<string> {
     // Get checked files from the file tree provider (which now handles both regular and open files)
     let context_files = this.file_tree_provider.getCheckedFiles()
     let collected_text = ''
 
     // Process each checked file
     for (const file_path of context_files) {
+      if (params?.exclude_path && params.exclude_path == file_path) continue
       try {
         if (!fs.existsSync(file_path)) continue
         const stats = fs.statSync(file_path)

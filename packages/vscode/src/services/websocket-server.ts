@@ -134,7 +134,7 @@ export class WebSocketServer {
 
   public async initialize_chats(
     text: string,
-    presets_idx: number[]
+    preset_indices: number[]
   ): Promise<void> {
     const config = vscode.workspace.getConfiguration()
     const open_in_background =
@@ -142,11 +142,14 @@ export class WebSocketServer {
     const web_chat_presets =
       config.get<any[]>('geminiCoder.webChatPresets') ?? []
 
+      console.log(preset_indices)
+console.log(web_chat_presets)
+
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',
       text,
       open_in_background,
-      chats: presets_idx.map((idx) => {
+      chats: preset_indices.map((idx) => {
         const preset = web_chat_presets[idx]
         const chatbot = CHATBOTS[preset.chatbot]
         return {

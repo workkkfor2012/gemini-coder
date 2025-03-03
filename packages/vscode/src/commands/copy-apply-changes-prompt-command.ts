@@ -23,7 +23,9 @@ export function copy_apply_changes_prompt_command(file_tree_provider: any) {
 
       try {
         // Collect files excluding the current document
-        context_text = await files_collector.collect_files([document_path])
+        context_text = await files_collector.collect_files({
+          exclude_path: document_path
+        })
       } catch (error: any) {
         console.error('Error collecting files:', error)
         vscode.window.showErrorMessage(

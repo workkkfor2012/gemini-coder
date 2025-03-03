@@ -119,7 +119,7 @@ async function build_completion_payload(
   document: vscode.TextDocument,
   position: vscode.Position,
   file_tree_provider: any
-): Promise<{ payload: any; content: string }> {
+): Promise<string> {
   const document_path = document.uri.fsPath
   const text_before_cursor = document.getText(
     new vscode.Range(new vscode.Position(0, 0), position)
@@ -132,7 +132,9 @@ async function build_completion_payload(
   const files_collector = new FilesCollector(file_tree_provider)
 
   // Collect files excluding the current document
-  const context_text = await files_collector.collect_files([document_path])
+  const context_text = await files_collector.collect_files({
+    exclude_path: document_path
+  })
 
   const payload = {
     before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
@@ -140,8 +142,7 @@ async function build_completion_payload(
     )}">\n<![CDATA[\n${text_before_cursor}`,
     after: `${text_after_cursor}\n]]>\n</file>\n</files>`
   }
-  const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
-  return { payload, content }
+  return `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 }
 
 export function request_fim_completion_command(params: {
@@ -153,7 +154,7 @@ export function request_fim_completion_command(params: {
   return vscode.commands.registerCommand(params.command, async () => {
     const config = vscode.workspace.getConfiguration()
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const default_model_name = config.get<string>(`geminiCoder.defaultModel`)
+    const default_model_name = config.get<string>(`geminiCoder.defaultFimModel`)
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
     const verbose = config.get<boolean>('geminiCoder.verbose')
@@ -199,7 +200,7 @@ export function request_fim_completion_command(params: {
       const document = editor.document
       const position = editor.selection.active
 
-      const { payload, content } = await build_completion_payload(
+      const content = await build_completion_payload(
         document,
         position,
         params.file_tree_provider
