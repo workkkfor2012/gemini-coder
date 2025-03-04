@@ -8,7 +8,7 @@ export const Status: React.FC<Props> = (props) => {
   return (
     <div className={styles.container}>
       <div className={styles.status}>
-        <div className="codicon codicon-browser" />
+        <div className="codicon codicon-debug-disconnect" />
         <div
           className={`${styles.dot} ${
             props.is_connected

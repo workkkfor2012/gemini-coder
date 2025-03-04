@@ -60,28 +60,29 @@ export const Main: React.FC<Props> = (props) => {
         }
       />
 
-      <UiSeparator size="large" />
-
       {!props.is_connected && (
-        <div className={styles['browser-extension-message']}>
-          <span>
-            If you haven't already, consider installing the companion browser
-            extension and enjoy hands-free chat initialization.
-          </span>
+        <>
+          <UiSeparator size="large" />
+          <div className={styles['browser-extension-message']}>
+            <span>
+              If you haven't already, consider installing the companion browser
+              extension and enjoy hands-free chat initialization.
+            </span>
 
-          <ul>
-            <li>
-              <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-                Install for Chrome
-              </a>
-            </li>
-            <li>
-              <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
-                Install for Firefox
-              </a>
-            </li>
-          </ul>
-        </div>
+            <ul>
+              <li>
+                <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
+                  Install for Chrome
+                </a>
+              </li>
+              <li>
+                <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
+                  Install for Firefox
+                </a>
+              </li>
+            </ul>
+          </div>
+        </>
       )}
 
       <UiSeparator size="large" />

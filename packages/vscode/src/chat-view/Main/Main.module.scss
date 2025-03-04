@@ -27,22 +27,3 @@
     }
   }
 }
-
-.connection-status {
-  font-size: 0.9em;
-  color: var(--vscode-gitDecoration-addedResourceForeground);
-}
-
-.footer {
-  font-size: 0.9em;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  a {
-    color: var(--vscode-textLink-foreground);
-    text-decoration: none;
-    &:hover {
-      text-decoration: underline;
-    }
-  }
-}

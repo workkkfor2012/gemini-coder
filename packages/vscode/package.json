@@ -48,7 +48,7 @@
         },
         {
           "id": "geminiCoderViewChat",
-          "name": "Chat",
+          "name": "Web Chat",
           "type": "webview"
         },
         {

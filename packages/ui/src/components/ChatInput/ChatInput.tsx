@@ -1,6 +1,7 @@
-import { useRef, useEffect, useState } from 'react'
+import { useRef, useEffect } from 'react'
 import styles from './ChatInput.module.scss'
-import TextareaAutosize from 'react-autosize-textarea'
+import TextareaAutosize from 'react-textarea-autosize'
+import cn from 'classnames'
 
 type Props = {
   value: string
@@ -26,9 +27,14 @@ export const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key == 'Enter' && e.shiftKey) {
+    if (e.key === 'Enter' && e.shiftKey) {
       e.preventDefault()
       props.on_change(props.value + '\n')
+    } else if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault()
+      if (!props.is_submit_disabled) {
+        props.on_submit()
+      }
     }
   }
 
@@ -38,31 +44,38 @@ export const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
+  const handle_container_click = () => {
+    textarea_ref.current?.focus()
+  }
+
   return (
-    <div className={styles.container}>
+    <div className={styles.container} onClick={handle_container_click}>
       <TextareaAutosize
         ref={textarea_ref}
-        placeholder="Type something"
+        placeholder="Ask anything"
         value={props.value}
         onChange={handle_input_change}
         onKeyDown={handle_key_down}
         onFocus={handle_focus}
         autoFocus
-        onPointerEnterCapture={() => {}}
-        onPointerLeaveCapture={() => {}}
+        className={styles.textarea}
+        minRows={1}
+        maxRows={10}
       />
-      <div className={styles.buttons}>
-        <button
-          className={styles.buttons__continue}
-          onClick={props.on_submit}
-          disabled={props.is_submit_disabled}
-          title={props.submit_disabled_title}
-        >
-          Continue
-        </button>
-        <button className={styles.buttons__copy} onClick={props.on_copy}>
-          Copy
-        </button>
+      <div className={styles.footer}>
+        <div></div>
+        <div className={styles.footer__actions}>
+          <button onClick={props.on_copy}>
+            <div className={cn('codicon', 'codicon-copy')} />
+          </button>
+          <button
+            onClick={props.on_submit}
+            disabled={props.is_submit_disabled}
+            title={props.submit_disabled_title}
+          >
+            <div className={cn('codicon', 'codicon-link-external')} />
+          </button>
+        </div>
       </div>
     </div>
   )

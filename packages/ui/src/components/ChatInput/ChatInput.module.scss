@@ -3,61 +3,50 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  > textarea {
-    padding: 8px;
-    border-radius: 2px;
-    font-family: system-ui, sans-serif;
-    height: 48px;
-    background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-    border: none;
-    resize: none;
-    &:focus {
-      outline-color: var(--vscode-focusBorder);
-      outline-offset: -1px;
-      outline-style: solid;
-      outline-width: 1px;
-    }
+  border-radius: 5px;
+  background-color: var(--vscode-input-background);
+  cursor: text;
+  &:focus-within {
+    outline: 1px solid var(--vscode-focusBorder);
+    outline-offset: -1px;
   }
 }
 
-.buttons {
+.textarea {
+  padding: 8px;
+  font-family: sans-serif;
+  background-color: transparent;
+  color: var(--vscode-input-foreground);
+  border: none;
+  resize: none;
+  &:focus {
+    outline: none;
+  }
+}
+
+.footer {
   display: flex;
-  gap: 8px;
-  > button {
+  bottom: 0;
+  right: 0;
+  padding: 4px;
+  gap: 16px;
+  justify-content: space-between;
+  &__actions {
+    flex-shrink: 0;
     display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 28px;
-    font-size: 13px;
-    padding: 4px 16px;
-    font-family: system-ui, sans-serif;
-    border: none;
-    border-radius: 2px;
-    cursor: pointer;
-  }
-  &__continue {
-    flex: 1;
-    background-color: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    &:hover {
-      background-color: var(--vscode-button-hoverBackground);
-    }
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background-color: var(--vscode-button-background);
+    gap: 4px;
+    > button {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 20px;
+      width: 20px;
+      border-radius: 5px;
+      cursor: pointer;
+      color: var(--vscode-input-foreground);
       &:hover {
-        background-color: var(--vscode-button-background);
+        background-color: var(--vscode-toolbar-hoverBackground);
       }
-    }
-  }
-  &__copy {
-    background-color: var(--vscode-button-secondaryBackground);
-    color: var(--vscode-button-secondaryForeground);
-    &:hover {
-      background-color: var(--vscode-button-secondaryHoverBackground);
     }
   }
 }
