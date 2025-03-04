@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Main } from './Main'
-import { Presets } from './Main/Presets'
+import { Presets as UiPresets } from '@ui/components/Presets'
 const vscode = acquireVsCodeApi()
+
+import '@vscode/codicons/dist/codicon.css'
+import '@ui/styles/styles.css'
 
 function App() {
   const [initial_prompt, set_initial_prompt] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
-  const [presets, set_presets] = useState<Presets.Preset[]>()
+  const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<number[]>([])
 
   useEffect(() => {

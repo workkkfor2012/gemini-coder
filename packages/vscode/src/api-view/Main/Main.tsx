@@ -1,4 +1,3 @@
-import React from 'react'
 import styles from './Main.module.scss'
 import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
 
@@ -34,8 +33,9 @@ export const Main: React.FC<Props> = ({
 
   return (
     <div className={styles.container}>
+      <div>Select default models</div>
       <div className={styles['model-select']}>
-        <label>FIM Model</label>
+        <label>FIM</label>
         <select
           value={defaultFimModel}
           onChange={(e) => onFimModelChange(e.target.value)}
@@ -49,7 +49,7 @@ export const Main: React.FC<Props> = ({
       </div>
 
       <div className={styles['model-select']}>
-        <label>File Refactoring Model</label>
+        <label>File Refactoring</label>
         <select
           value={defaultRefactoringModel}
           onChange={(e) => onRefactoringModelChange(e.target.value)}
@@ -63,7 +63,7 @@ export const Main: React.FC<Props> = ({
       </div>
 
       <div className={styles['model-select']}>
-        <label>Apply Changes Model</label>
+        <label>Apply Changes</label>
         <select
           value={defaultApplyChangesModel}
           onChange={(e) => onApplyChangesModelChange(e.target.value)}

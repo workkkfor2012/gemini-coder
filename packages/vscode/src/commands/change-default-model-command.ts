@@ -5,42 +5,41 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 export type ModelType = 'fim' | 'refactoring' | 'apply_changes'
 
 type ModelConfig = {
-  commandId: string
-  configKey: string
-  displayName: string
-  placeholderText: string
+  command_id: string
+  config_key: string
+  display_name: string
+  placeholder: string
 }
 
 const MODEL_CONFIGS: Record<ModelType, ModelConfig> = {
   fim: {
-    commandId: 'geminiCoder.changeDefaultFimModel',
-    configKey: 'geminiCoder.defaultFimModel',
-    displayName: 'FIM',
-    placeholderText: 'Select default model for FIM completions'
+    command_id: 'geminiCoder.changeDefaultFimModel',
+    config_key: 'geminiCoder.defaultFimModel',
+    display_name: 'FIM',
+    placeholder: 'Select default model for FIM completions'
   },
   refactoring: {
-    commandId: 'geminiCoder.changeDefaultRefactoringModel',
-    configKey: 'geminiCoder.defaultRefactoringModel',
-    displayName: 'Refactoring',
-    placeholderText: 'Select default model for refactoring'
+    command_id: 'geminiCoder.changeDefaultRefactoringModel',
+    config_key: 'geminiCoder.defaultRefactoringModel',
+    display_name: 'Refactoring',
+    placeholder: 'Select default model for file refactoring'
   },
   apply_changes: {
-    commandId: 'geminiCoder.changeDefaultApplyChangesModel',
-    configKey: 'geminiCoder.defaultApplyChangesModel',
-    displayName: 'Apply Changes',
-    placeholderText: 'Select default model for applying changes'
+    command_id: 'geminiCoder.changeDefaultApplyChangesModel',
+    config_key: 'geminiCoder.defaultApplyChangesModel',
+    display_name: 'Apply Changes',
+    placeholder: 'Select default model for applying changes'
   }
 }
 
-export function change_default_model_command(modelType: ModelType) {
-  const config = MODEL_CONFIGS[modelType]
+export function change_default_model_command(model_type: ModelType) {
+  const config = MODEL_CONFIGS[model_type]
 
-  return vscode.commands.registerCommand(config.commandId, async () => {
-    const workspaceConfig = vscode.workspace.getConfiguration()
-    const user_providers =
-      workspaceConfig.get<Provider[]>('geminiCoder.providers') || []
+  return vscode.commands.registerCommand(config.command_id, async () => {
+    const config = vscode.workspace.getConfiguration()
+    const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const all_providers = [...BUILT_IN_PROVIDERS, ...user_providers]
-    const current_default_model = workspaceConfig.get<string>(config.configKey)
+    const current_default_model = config.get<string>(config.config_key)
 
     if (!all_providers || all_providers.length === 0) {
       vscode.window.showErrorMessage(
@@ -52,9 +51,9 @@ export function change_default_model_command(modelType: ModelType) {
     const quick_pick = vscode.window.createQuickPick()
     quick_pick.items = all_providers.map((p) => ({
       label: p.name,
-      description: p.name === current_default_model ? 'Default model' : ''
+      description: p.name == current_default_model ? 'Default model' : ''
     }))
-    quick_pick.placeholder = config.placeholderText
+    quick_pick.placeholder = config.placeholder
 
     // Set the active items to the current default model
     if (current_default_model) {
@@ -69,13 +68,13 @@ export function change_default_model_command(modelType: ModelType) {
     quick_pick.onDidAccept(async () => {
       const selected_provider = quick_pick.selectedItems[0]?.label
       if (selected_provider) {
-        await workspaceConfig.update(
-          config.configKey,
+        await config.update(
+          config.config_key,
           selected_provider,
           vscode.ConfigurationTarget.Global
         )
         vscode.window.showInformationMessage(
-          `Default ${config.displayName} model changed to: ${selected_provider}`
+          `Default ${config.display_name} model changed to: ${selected_provider}`
         )
       }
       quick_pick.dispose()

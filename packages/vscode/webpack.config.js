@@ -80,7 +80,8 @@ const config = [
       extensions: ['.ts', '.tsx', '.js'],
       alias: {
         '@': path.resolve(__dirname, 'src'),
-        '@shared': path.resolve(__dirname, '../shared/src')
+        '@shared': path.resolve(__dirname, '../shared/src'),
+        '@ui': path.resolve(__dirname, '../ui/src')
       }
     },
     module: {
@@ -102,12 +103,22 @@ const config = [
               options: {
                 presets: [
                   '@babel/preset-env',
-                  '@babel/preset-react',
+                  [
+                    '@babel/preset-react',
+                    {
+                      runtime: 'automatic'
+                    }
+                  ],
                   '@babel/preset-typescript'
                 ]
               }
             }
           ]
+        },
+        {
+          test: /\.svg$/i,
+          issuer: /\.[jt]sx?$/,
+          use: ['@svgr/webpack']
         }
       ]
     }
@@ -151,7 +162,12 @@ const config = [
               options: {
                 presets: [
                   '@babel/preset-env',
-                  '@babel/preset-react',
+                  [
+                    '@babel/preset-react',
+                    {
+                      runtime: 'automatic'
+                    }
+                  ],
                   '@babel/preset-typescript'
                 ]
               }

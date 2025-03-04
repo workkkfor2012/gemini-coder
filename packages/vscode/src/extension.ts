@@ -9,7 +9,7 @@ import { copy_apply_changes_prompt_command } from './commands/copy-apply-changes
 import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
-import { refactor_with_instruction_command } from './commands/refactor-with-instruction-command'
+import { refactor_command } from './commands/refactor-command'
 import { copy_refactoring_prompt_command } from './commands/copy-refactoring-prompt-command'
 import { WebSocketServer } from './services/websocket-server'
 import { create_fim_status_bar_item } from './status-bar/create-fim-status-bar-item'
@@ -53,8 +53,28 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    apply_changes_command(file_tree_provider),
-    refactor_with_instruction_command(context, file_tree_provider),
+    apply_changes_command({
+      command: 'geminiCoder.applyChanges',
+      file_tree_provider,
+      context,
+      use_default_model: true
+    }),
+    apply_changes_command({
+      command: 'geminiCoder.applyChangesWith',
+      file_tree_provider,
+      context
+    }),
+    refactor_command({
+      command: 'geminiCoder.refactor',
+      context,
+      file_tree_provider,
+      use_default_model: true
+    }),
+    refactor_command({
+      command: 'geminiCoder.refactorWith',
+      context,
+      file_tree_provider
+    }),
     copy_refactoring_prompt_command(context, file_tree_provider),
     request_fim_completion_command({
       command: 'geminiCoder.requestFimCompletionWith',

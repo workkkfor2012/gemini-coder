@@ -1,7 +1,9 @@
-import React, { useState, useRef, useEffect } from 'react'
+import { useState } from 'react'
 import styles from './Main.module.scss'
-import TextareaAutosize from 'react-autosize-textarea'
-import { Presets } from './Presets'
+import { Presets as UiPresets } from '@ui/components/Presets'
+import { ChatInput as UiChatInput } from '@ui/components/ChatInput'
+import { Status as UiStatus } from '@ui/components/Status'
+import { Separator as UiSeparator } from '@ui/components/Separator'
 
 type Props = {
   initialize_chats: (params: {
@@ -12,101 +14,59 @@ type Props = {
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
   is_connected: boolean
-  presets: Presets.Preset[]
+  presets: UiPresets.Preset[]
   selected_presets: number[]
-  on_presets_selection_change: (selected_indices: number[]) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
   const [instruction, set_instruction] = useState(props.initial_instruction)
-  const textarea_ref = useRef<HTMLTextAreaElement>(null)
 
-  useEffect(() => {
-    if (textarea_ref.current) {
-      textarea_ref.current.focus()
-      textarea_ref.current.select()
-    }
-  }, [])
-
-  const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    set_instruction(e.target.value)
-    props.on_instruction_change(e.target.value)
+  const handle_input_change = (value: string) => {
+    set_instruction(value)
+    props.on_instruction_change(value)
   }
 
-  const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key == 'Enter' && e.shiftKey) {
-      e.preventDefault()
-      set_instruction(instruction + '\n')
-    }
-  }
-
-  const handle_focus = () => {
-    if (textarea_ref.current) {
-      textarea_ref.current.select()
-    }
-  }
-
-  const handle_continue = () => {
+  const handle_submit = () => {
     props.initialize_chats({
       instruction,
       preset_indices: props.selected_presets
     })
   }
 
+  const handle_copy = () => {
+    props.copy_to_clipboard(instruction)
+  }
+
   return (
     <div className={styles.container}>
-      <div className={styles['chat-input']}>
-        <TextareaAutosize
-          ref={textarea_ref}
-          placeholder="Type something"
-          value={instruction}
-          onChange={handle_input_change}
-          onKeyDown={handle_key_down}
-          onFocus={handle_focus}
-          autoFocus
-          onPointerEnterCapture={() => {}}
-          onPointerLeaveCapture={() => {}}
-        />
-        <div className={styles.buttons}>
-          <button
-            className={styles.buttons__continue}
-            onClick={handle_continue}
-            disabled={!props.is_connected || !props.selected_presets.length}
-            title={
-              !props.is_connected
-                ? 'WebSocket connection not established. Please install the browser extension.'
-                : !props.selected_presets.length
-                ? 'Please select at least one preset to continue'
-                : 'Click to initialize chats with selected presets'
-            }
-          >
-            Continue
-          </button>
-          <button
-            className={styles.buttons__copy}
-            onClick={() => {
-              props.copy_to_clipboard(instruction)
-            }}
-          >
-            Copy to clipboard
-          </button>
-        </div>
-      </div>
+      <UiStatus is_connected={props.is_connected} />
 
-      {props.is_connected ? (
-        <>
-          <div className={styles['connection-status']}>
-            ✓ Connected
-            {!props.selected_presets.length
-              ? ', select one or more presets to continue'
-              : ''}
-          </div>
-        </>
-      ) : (
+      <UiSeparator size="small" />
+
+      <UiChatInput
+        value={instruction}
+        on_change={handle_input_change}
+        on_submit={handle_submit}
+        on_copy={handle_copy}
+        is_submit_disabled={
+          !props.is_connected || !props.selected_presets.length
+        }
+        submit_disabled_title={
+          !props.is_connected
+            ? 'WebSocket connection not established. Please install the browser extension.'
+            : !props.selected_presets.length
+            ? 'Please select at least one preset to continue'
+            : 'Click to initialize chats with selected presets'
+        }
+      />
+
+      <UiSeparator size="large" />
+
+      {!props.is_connected && (
         <div className={styles['browser-extension-message']}>
           <span>
-            This extension exposes a WebSocket server, you need the Gemini Coder
-            Connector to use it for hands-free chat initializations.
+            If you haven't already, consider installing the companion browser
+            extension and enjoy hands-free chat initialization.
           </span>
 
           <ul>
@@ -124,22 +84,18 @@ export const Main: React.FC<Props> = (props) => {
         </div>
       )}
 
-      <Presets
-        presets={props.presets}
-        selected_presets={props.selected_presets}
-        on_selection_change={props.on_presets_selection_change}
-      />
+      <UiSeparator size="large" />
 
-      <div className={styles.footer}>
-        <div>
-          <a href="https://buymeacoffee.com/robertpiosik">Support author</a>
-        </div>
-        <div>
-          <a href="https://github.com/robertpiosik/gemini-coder/discussions">
-            Send feedback
-          </a>
-        </div>
-      </div>
+      <UiPresets
+        presets={props.presets}
+        on_preset_click={(i) => {
+          props.initialize_chats({
+            instruction,
+            preset_indices: [i]
+          })
+        }}
+        disabled={!props.is_connected}
+      />
     </div>
   )
 }

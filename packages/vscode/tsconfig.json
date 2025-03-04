@@ -7,12 +7,20 @@
     "sourceMap": true,
     "strict": true,
     "esModuleInterop": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared/*": ["../shared/src/*"],
+      "@ui/*": ["../ui/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "../shared/src/**/*.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/**/*.tsx",
+    "../shared/src/**/*.ts",
+    "../ui/src/**/*"
+  ],
+  "exclude": ["node_modules"]
 }

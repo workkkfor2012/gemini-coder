@@ -108,6 +108,10 @@
         "title": "Gemini Coder: Apply Changes to this File"
       },
       {
+        "command": "geminiCoder.applyChangesWith",
+        "title": "Gemini Coder: Apply Changes to this File with..."
+      },
+      {
         "command": "geminiCoder.copyApplyChangesPrompt",
         "title": "Gemini Coder: Copy Apply Changes Prompt to Clipboard"
       },
@@ -120,8 +124,12 @@
         "title": "Gemini Coder: Compose Chat Prompt to Clipboard"
       },
       {
-        "command": "geminiCoder.refactorWithInstruction",
+        "command": "geminiCoder.refactor",
         "title": "Gemini Coder: Refactor this File"
+      },
+      {
+        "command": "geminiCoder.refactorWith",
+        "title": "Gemini Coder: Refactor this File with..."
       },
       {
         "command": "geminiCoder.copyRefactoringPrompt",
@@ -235,7 +243,7 @@
           "type": "array",
           "default": [
             {
-              "name": "AI Studio with Gemini 2.0 Flash",
+              "name": "AI Studio",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
@@ -286,19 +294,13 @@
               "promptSuffix": ""
             },
             {
-              "name": "HuggingChat",
-              "chatbot": "HuggingChat",
-              "promptPrefix": "",
-              "promptSuffix": ""
-            },
-            {
               "name": "Open WebUI",
               "chatbot": "Open WebUI",
               "promptPrefix": "",
               "promptSuffix": ""
             }
           ],
-          "description": "Edit presets fine-grained control over the selected web chat initialization. For example create task-specific chats with custom prompt prefix or suffix.",
+          "description": "Preset is a general or task specific web chat configuration.",
           "items": {
             "type": "object",
             "properties": {
@@ -377,13 +379,17 @@
   "scripts": {
     "build": "vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
-    "compile": "webpack --config ./webpack.config.js"
+    "compile": "webpack --config ./webpack.config.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
+    "@storybook/react": "^7.6.17",
+    "@svgr/webpack": "^8.1.0",
     "@types/node": "20.x",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
@@ -396,6 +402,7 @@
     "mini-css-extract-plugin": "^2.9.0",
     "sass": "^1.49.0",
     "sass-loader": "^12.4.0",
+    "storybook": "^7.6.17",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.5.1",
     "typed-css-modules": "^0.9.1",
@@ -404,6 +411,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@vscode/codicons": "^0.0.36",
     "axios": "^1.7.7",
     "classnames": "^2.5.1",
     "ignore": "^6.0.2",
@@ -411,6 +419,7 @@
     "react": "^18.2.0",
     "react-autosize-textarea": "^7.1.0",
     "react-dom": "^18.2.0",
+    "ui": "workspace:*",
     "ws": "^8.18.0"
   }
 }

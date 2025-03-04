@@ -4,114 +4,14 @@
   padding: 5px 0 10px 0;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-}
-
-.small-selects {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
-  padding-bottom: 8px;
-  select {
-    width: 100%;
-    padding: 2px;
-    font-family: system-ui, sans-serif;
-    background-color: var(--vscode-sideBar-background);
-    color: var(--vscode-input-foreground);
-    border: 1px solid var(--vscode-sideBarSectionHeader-border);
-    font-size: 0.9em;
-    &:focus {
-      outline-color: var(--vscode-focusBorder);
-      outline-offset: -1px;
-      outline-style: solid;
-      outline-width: 1px;
-    }
-  }
-}
-
-.prefix-suffix {
-  select {
-    width: 100%;
-    padding: 4px;
-    border-radius: 2px;
-    font-family: system-ui, sans-serif;
-    background-color: var(--vscode-sideBar-background);
-    border: 1px solid var(--vscode-sideBarSectionHeader-border);
-    color: var(--vscode-input-foreground);
-    &:focus {
-      outline-color: var(--vscode-focusBorder);
-      outline-offset: -1px;
-      outline-style: solid;
-      outline-width: 1px;
-    }
-  }
-}
-
-.chat-input {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  > textarea {
-    padding: 8px;
-    border-radius: 2px;
-    font-family: system-ui, sans-serif;
-    height: 48px;
-    background-color: var(--vscode-input-background);
-    color: var(--vscode-input-foreground);
-    border: none;
-    &:focus {
-      outline-color: var(--vscode-focusBorder);
-      outline-offset: -1px;
-      outline-style: solid;
-      outline-width: 1px;
-    }
-  }
-}
-
-.buttons {
-  display: flex;
-  gap: 8px;
-  > button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    min-height: 28px;
-    font-size: 13px;
-    padding: 4px 16px;
-    font-family: system-ui, sans-serif;
-    border: none;
-    border-radius: 2px;
-    cursor: pointer;
-  }
-  &__continue {
-    flex: 1;
-    background-color: var(--vscode-button-background);
-    color: var(--vscode-button-foreground);
-    &:hover {
-      background-color: var(--vscode-button-hoverBackground);
-    }
-    &:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-      background-color: var(--vscode-button-background);
-      &:hover {
-        background-color: var(--vscode-button-background);
-      }
-    }
-  }
-  &__copy {
-    background-color: var(--vscode-button-secondaryBackground);
-    color: var(--vscode-button-secondaryForeground);
-    &:hover {
-      background-color: var(--vscode-button-secondaryHoverBackground);
-    }
-  }
 }
 
 .browser-extension-message {
-  font-size: 0.9em;
-  color: var(--vscode-descriptionForeground);
+  color: var(--vscode-foreground);
+  border-radius: 8px;
+  border: 1px solid var(--vscode-panel-border);
+  padding: 10px;
+  background-color: var(--vscode-sideBar-background);
   ul {
     margin: 5px 0 0 20px;
     padding: 0;
@@ -134,7 +34,6 @@
 }
 
 .footer {
-  margin-top: 10px;
   font-size: 0.9em;
   display: flex;
   flex-direction: column;

@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Main } from './Main/Main'
 const vscode = acquireVsCodeApi()
 
+import '@vscode/codicons/dist/codicon.css'
+
 function App() {
   const [providers, setProviders] = useState<any[]>([])
   const [defaultFimModel, setDefaultFimModel] = useState<string>('')
-  const [defaultRefactoringModel, setDefaultRefactoringModel] = useState<string>('')
-  const [defaultApplyChangesModel, setDefaultApplyChangesModel] = useState<string>('')
+  const [defaultRefactoringModel, setDefaultRefactoringModel] =
+    useState<string>('')
+  const [defaultApplyChangesModel, setDefaultApplyChangesModel] =
+    useState<string>('')
 
   useEffect(() => {
     vscode.postMessage({ command: 'getConfiguration' })

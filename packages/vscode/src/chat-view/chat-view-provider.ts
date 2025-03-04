@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketServer } from '@/services/websocket-server'
-import { Presets } from './Main/Presets'
+import { Presets } from '../../../ui/src/components/Presets'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'

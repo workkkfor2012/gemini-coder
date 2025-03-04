@@ -40,10 +40,9 @@ export function compose_chat_prompt_command(
       }
 
       const final_text = `${
-        context_text ? `<files>${context_text}\n</files>\n` : ''
+        context_text ? `<files>${context_text}\n</files>` : ''
       }${instruction}`
 
-      // Copy to clipboard instead of opening web chats
       await vscode.env.clipboard.writeText(final_text)
       vscode.window.showInformationMessage('Chat prompt copied to clipboard')
     }

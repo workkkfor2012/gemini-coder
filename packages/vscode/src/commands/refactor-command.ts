@@ -5,6 +5,7 @@ import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
+import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 import { FilesCollector } from '../helpers/files-collector'
 
 async function get_selected_provider(
@@ -21,23 +22,19 @@ async function get_selected_provider(
   }
 
   // Get the last used models from global state
-  let last_used_models = context.globalState.get<string[]>('lastUsedApplyChangesModels', [])
+  let last_used_models = context.globalState.get<string[]>('lastUsedRefactoringModels', [])
 
-  // Filter out the default model from last used models
+  // Filter out the default model from last used models (it will be added at the beginning)
   last_used_models = last_used_models.filter(
     (model) => model != default_model_name
   )
 
-  // Construct the QuickPick items
+  // Construct the QuickPick items, prioritizing the default model and last used models
   const quick_pick_items: any[] = [
-    ...(default_model_name
-      ? [
-          {
-            label: default_model_name,
-            description: 'Currently set as default'
-          }
-        ]
-      : []),
+    {
+      label: default_model_name,
+      description: 'Currently set as default'
+    },
     ...last_used_models
       .map((model_name) => {
         const model_provider = all_providers.find((p) => p.name == model_name)
@@ -61,7 +58,7 @@ async function get_selected_provider(
 
   // Show the QuickPick selector
   const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
-    placeHolder: 'Select a model for applying changes'
+    placeHolder: 'Select a model for code refactoring'
   })
 
   if (!selected_item) {
@@ -84,15 +81,15 @@ async function get_selected_provider(
     selected_model_name,
     ...last_used_models.filter((model) => model != selected_model_name)
   ]
-  context.globalState.update('lastUsedApplyChangesModels', last_used_models)
+  context.globalState.update('lastUsedRefactoringModels', last_used_models)
 
   return selected_provider
 }
 
-export function apply_changes_command(params: {
+export function refactor_command(params: {
   command: string
-  file_tree_provider: any
   context: vscode.ExtensionContext
+  file_tree_provider: any
   use_default_model?: boolean
 }) {
   return vscode.commands.registerCommand(params.command, async () => {
@@ -104,17 +101,45 @@ export function apply_changes_command(params: {
       return
     }
 
+    // First try to get instruction from workspace state (set by status bar)
+    let instruction = params.context.workspaceState.get<string>(
+      TEMP_REFACTORING_INSTRUCTION_KEY
+    )
+
+    // If no instruction in workspace state (direct command invocation), prompt for one
+    if (!instruction) {
+      const last_instruction = params.context.globalState.get<string>(
+        'lastRefactoringInstruction',
+        ''
+      )
+
+      instruction = await vscode.window.showInputBox({
+        prompt: 'Enter your refactoring instruction',
+        placeHolder: 'e.g., "Refactor this code to use async/await"',
+        value: last_instruction,
+        validateInput: (value) => {
+          params.context.globalState.update('lastRefactoringInstruction', value)
+          return null
+        }
+      })
+
+      if (!instruction) {
+        return // User cancelled the instruction input
+      }
+    } else {
+      // Clear the temporary instruction immediately after getting it
+      await params.context.workspaceState.update(
+        TEMP_REFACTORING_INSTRUCTION_KEY,
+        undefined
+      )
+    }
+
     const document = editor.document
     const document_path = document.uri.fsPath
     const document_text = document.getText()
 
-    const clipboard_text = await vscode.env.clipboard.readText()
-    const instruction = clipboard_text
-
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const default_model_name = config.get<string>(
-      'geminiCoder.defaultApplyChangesModel'
-    )
+    const default_model_name = config.get<string>('geminiCoder.defaultFimModel')
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
@@ -132,7 +157,7 @@ export function apply_changes_command(params: {
       provider = all_providers.find((p) => p.name == default_model_name)
       if (!provider) {
         vscode.window.showErrorMessage(
-          `Default apply changes model is not set or invalid. Please set it in the settings.`
+          `Default model is not set or invalid. Please set it in the settings.`
         )
         return
       }
@@ -160,25 +185,25 @@ export function apply_changes_command(params: {
     const system_instructions = provider.systemInstructions
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
-    // Create files collector instance
     const files_collector = new FilesCollector(params.file_tree_provider)
-    let context_text = ''
-
-    try {
-      // Collect files excluding the current document
-      context_text = await files_collector.collect_files({
-        exclude_path: document_path
-      })
-    } catch (error: any) {
-      console.error('Error collecting files:', error)
-      vscode.window.showErrorMessage('Error collecting files: ' + error.message)
-      return
-    }
+    const collected_files = await files_collector.collect_files({
+      exclude_path: document_path
+    })
 
     const current_file_path = vscode.workspace.asRelativePath(document.uri)
-    const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
-    const files = `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
-    const content = `${files}\n${apply_changes_instruction}`
+
+    const selection = editor.selection
+    const selected_text = editor.document.getText(selection)
+    let refactor_instruction = `User requested refactor of file ${current_file_path}. In your response send fully updated <file> only, without explanations or any other text.`
+    if (selected_text) {
+      refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
+    } else {
+      refactor_instruction += ` ${instruction}`
+    }
+
+    const all_files = `<files>${collected_files}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+    const content = `${all_files}\n${refactor_instruction}`
+
     const messages = [
       ...(system_instructions
         ? [{ role: 'system', content: system_instructions }]
@@ -196,7 +221,7 @@ export function apply_changes_command(params: {
     }
 
     if (verbose) {
-      console.log('[Gemini Coder] Apply Changes Prompt:', content)
+      console.log('[Gemini Coder] Refactor Prompt:', content)
     }
 
     let cancel_token_source = axios.CancelToken.source()
@@ -269,6 +294,7 @@ export function apply_changes_command(params: {
             return
           }
 
+          // Continue with the rest of the code only if we have valid content
           const cleaned_content = cleanup_api_response({
             content: refactored_content,
             end_with_new_line: true

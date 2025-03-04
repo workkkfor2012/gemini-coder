@@ -10,7 +10,7 @@ export function create_refactor_status_bar_item(
     vscode.StatusBarAlignment.Right,
     99
   )
-  refactor_status_bar_item.command = 'geminiCoder.refactorWithInstruction'
+  refactor_status_bar_item.command = 'geminiCoder.refactor'
   refactor_status_bar_item.text = 'Refactor'
   refactor_status_bar_item.tooltip =
     'Gemini Coder: Refactor the current file with instruction'

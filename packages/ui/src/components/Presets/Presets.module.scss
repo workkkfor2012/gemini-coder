@@ -1,0 +1,62 @@
+// @type
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.top {
+  display: flex;
+  > span {
+    color: var(--vscode-foreground);
+  }
+}
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 10px;
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  &__item {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      min-height: 24px;
+      &__title {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        padding-right: 16px;
+        padding: 4px 16px 4px 0;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+      &__right {
+        flex-shrink: 0;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+    }
+    &__details {
+      display: flex;
+      flex-direction: column;
+      &__row {
+        display: flex;
+        flex-direction: column;
+      }
+    }
+  }
+  &__edit {
+    margin-top: 8px;
+  }
+}
