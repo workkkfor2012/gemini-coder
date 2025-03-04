@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { file_tree_initialization } from './file-tree/file-tree-initialization'
 import { apply_changes_command } from './commands/apply-changes-command'
-import { request_fim_completion_command } from './commands/request-fim-completion-command'
+import { fim_completion_command } from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import { web_chat_command } from './commands/web-chat-command'
@@ -76,13 +76,13 @@ export function activate(context: vscode.ExtensionContext) {
       file_tree_provider
     }),
     refactor_to_clipboard_command(context, file_tree_provider),
-    request_fim_completion_command({
-      command: 'geminiCoder.requestFimCompletionWith',
+    fim_completion_command({
+      command: 'geminiCoder.fimCompletionWith',
       file_tree_provider,
       context
     }),
-    request_fim_completion_command({
-      command: 'geminiCoder.requestFimCompletion',
+    fim_completion_command({
+      command: 'geminiCoder.fimCompletion',
       file_tree_provider,
       context,
       use_default_model: true

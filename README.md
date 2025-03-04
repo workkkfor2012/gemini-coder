@@ -26,38 +26,38 @@ The goal of this extension is to ensure the same sleek developer experience with
 1.  Open the Context View and select all relevant folders/files you want to attach as context in each request.
 2.  Place the cursor where you want to insert code completion.
 3.  Open the Command Palette (`Ctrl+Shift+P`).
-4.  Type `Gemini Coder: Request FIM completion`.
-5.  Bind command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Request FIM completion`.
+4.  Type `Gemini Coder: Request FIM Completion`.
+5.  Bind command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Request FIM Completion`.
 
 ## Commands
 
-#### FIM completions
+#### FIM Completion
 
-- `Gemini Coder: Request FIM completion` - Get fill-in-the-middle completion using default model
-- `Gemini Coder: Request FIM completion with...` - Get fill-in-the-middle completion with model selection
-- `Gemini Coder: Copy FIM Completion Prompt to Clipboard` - Copy FIM prompt with context
-- `Gemini Coder: Open Web Chat with FIM Completion Prompt` - Open web chat with FIM prompt
+- `Gemini Coder: Request FIM Completion` - Get fill-in-the-middle completion using default model
+- `Gemini Coder: Request FIM Completion with...` - Get fill-in-the-middle completion with model selection
+- `Gemini Coder: FIM Completion to Clipboard` - Copy FIM completion content to clipboard
+- `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions
 
 #### Code Refactoring
 
 - `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
-- `Gemini Coder: Refactor this File with Instruction` - Apply changes based on specific refactoring instruction
-- `Gemini Coder: Copy Apply Changes Prompt to Clipboard` - Copy apply changes prompt
-- `Gemini Coder: Copy Refactoring Prompt to Clipboard` - Copy refactoring instruction prompt
-- `Gemini Coder: Open Web Chat with Apply Changes Prompt` - Open web chat with refactoring prompt
-- `Gemini Coder: Open Web Chat with Refactoring Instruction` - Open web chat with specific refactoring instruction
+- `Gemini Coder: Apply Changes to this File with...` - Apply changes with model selection
+- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
+- `Gemini Coder: Refactor this File` - Apply changes based on refactoring instruction
+- `Gemini Coder: Refactor this File with...` - Refactor with model selection
+- `Gemini Coder: Refactor to Clipboard` - Copy refactoring content to clipboard
+- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring
+- `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes
 
 #### Chat Interactions
 
-- `Gemini Coder: Open Web Chat with instruction...` - Compose custom prompt with context
-- `Gemini Coder: Compose Chat Prompt to Clipboard` - Create chat prompt with context/prefix/suffix
+- `Gemini Coder: Web Chat` - Open web chat with context
+- `Gemini Coder: Chat to Clipboard` - Create chat content with context to clipboard
 
 #### Context Management
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context
 - `Gemini Coder: Clear all checks` - Clear all file selections
-- `Gemini Coder: Change Default Model` - Change default AI model for completions
-- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring (apply changes and refactor with instruction commands)
 
 ## Set up custom providers
 

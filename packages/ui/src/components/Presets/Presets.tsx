@@ -1,6 +1,5 @@
 import styles from './Presets.module.scss'
 import { CHATBOTS } from '@shared/constants/chatbots'
-import { useState } from 'react'
 import { IconButton } from '../IconButton/IconButton'
 import { Button } from '../Button/Button'
 import cn from 'classnames'
@@ -23,6 +22,8 @@ export namespace Presets {
     selected_presets: number[]
     on_selected_presets_change: (selected_indices: number[]) => void
     on_edit_presets: () => void
+    expanded_presets: number[]
+    on_expanded_presets_change: (expanded_indices: number[]) => void
   }
 }
 
@@ -48,12 +49,11 @@ const DetailField = ({
 }
 
 export const Presets: React.FC<Presets.Props> = (props) => {
-  const [expanded_presets, set_expanded_presets] = useState<number[]>([])
-
   const toggle_expand = (index: number) => {
-    set_expanded_presets((prev) =>
-      prev.includes(index) ? prev.filter((i) => i != index) : [...prev, index]
-    )
+    const new_expanded = props.expanded_presets.includes(index)
+      ? props.expanded_presets.filter((i) => i != index)
+      : [...props.expanded_presets, index]
+    props.on_expanded_presets_change(new_expanded)
   }
 
   const handle_checkbox_change = (index: number) => {
@@ -67,17 +67,13 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
   if (props.presets.length == 0) return null
 
-  const open_settings = () => {
-    if (!props.disabled && props.on_edit_presets) {
-      props.on_edit_presets()
-    }
-  }
-
   return (
     <div className={styles.container}>
       <div className={styles.top}>
         <span>MY PRESETS</span>
-        <IconButton codicon_icon="edit" on_click={open_settings} />
+        {!props.disabled && (
+          <IconButton codicon_icon="edit" on_click={props.on_edit_presets} />
+        )}
       </div>
 
       <div
@@ -104,7 +100,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 <div
                   className={cn(
                     'codicon',
-                    expanded_presets.includes(i)
+                    props.expanded_presets.includes(i)
                       ? 'codicon-chevron-up'
                       : 'codicon-chevron-down'
                   )}
@@ -112,25 +108,24 @@ export const Presets: React.FC<Presets.Props> = (props) => {
               </div>
             </div>
 
-            {expanded_presets.includes(i) && (
+            {props.expanded_presets.includes(i) && (
               <div className={styles.presets__item__details}>
                 <div className={styles.presets__item__details__actions}>
                   <IconButton
                     codicon_icon="send"
                     on_click={() => props.on_preset_click?.(i)}
                   />
-                </div>
-
-                <div className={styles.presets__item__details__row}>
-                  <label className={styles.presets__item__details__row__label}>
+                  <label>
+                    Use by default
                     <input
                       type="checkbox"
                       checked={props.selected_presets?.includes(i) || false}
                       onChange={() => handle_checkbox_change(i)}
-                      className={styles.presets__item__details__row__checkbox}
                     />
-                    Use by default
                   </label>
+                </div>
+
+                <div className={styles.presets__item__details__row}>
                   <DetailField label="Chatbot" value={preset.chatbot} />
                   <DetailField label="Model" value={preset.model} />
                   <DetailField label="Temperature" value={preset.temperature} />
@@ -152,7 +147,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           </div>
         ))}
         <div className={styles.presets__edit}>
-          <Button on_click={open_settings}>Edit Presets</Button>
+          <Button on_click={props.on_edit_presets}>Edit Presets</Button>
         </div>
       </div>
     </div>

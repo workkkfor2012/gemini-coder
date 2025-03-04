@@ -1,6 +1,6 @@
 /**
  * Cleans up the API response by stripping away code block markers,
- * file markers, leading DOCTYPE tags, and ensuring a trailing newline.
+ * file markers, and ensuring a trailing newline.
  */
 export function cleanup_api_response(params: {
   content: string
@@ -24,11 +24,6 @@ export function cleanup_api_response(params: {
     // Remove CDATA tags
     content = content.replace('<![CDATA[', '')
     content = content.replace(']]>', '')
-
-    // Remove unexpected DOCTYPE if the content starts with one
-    if (content.startsWith('<!DOCTYPE')) {
-      content = content.substring(content.indexOf('>') + 1)
-    }
 
     // Remove paths that appear at the start of the content
     const filename_regex = /^(?:(?:\w+\/)+[\w.-]+\.[a-zA-Z0-9]+\s*\n?)/

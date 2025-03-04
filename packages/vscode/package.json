@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.168",
+  "version": "1.0.170",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -62,10 +62,7 @@
       {
         "command": "geminiCoder.copyContext",
         "title": "Copy context",
-        "icon": {
-          "light": "resources/light/copy.svg",
-          "dark": "resources/dark/copy.svg"
-        }
+        "icon": "$(copy)"
       },
       {
         "command": "geminiCoder.copyContextCommand",
@@ -74,18 +71,15 @@
       {
         "command": "geminiCoder.clearChecks",
         "title": "Clear all checks",
-        "icon": {
-          "light": "resources/light/clear.svg",
-          "dark": "resources/dark/clear.svg"
-        }
+        "icon": "$(clear-all)"
       },
       {
-        "command": "geminiCoder.requestFimCompletionWith",
-        "title": "Gemini Coder: Request FIM Completion with..."
+        "command": "geminiCoder.fimCompletionWith",
+        "title": "Gemini Coder: FIM Completion with..."
       },
       {
-        "command": "geminiCoder.requestFimCompletion",
-        "title": "Gemini Coder: Request FIM Completion"
+        "command": "geminiCoder.fimCompletion",
+        "title": "Gemini Coder: FIM Completion"
       },
       {
         "command": "geminiCoder.fimCompletionToClipboard",

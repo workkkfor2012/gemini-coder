@@ -12,12 +12,14 @@ function App() {
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<number[]>([])
+  const [expanded_presets, set_expanded_presets] = useState<number[]>([])
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
     vscode.postMessage({ command: 'getConnectionStatus' })
     vscode.postMessage({ command: 'getPresets' })
     vscode.postMessage({ command: 'getSelectedPresets' })
+    vscode.postMessage({ command: 'getExpandedPresets' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -37,14 +39,14 @@ function App() {
         case 'selectedPresetsFromPicker':
           set_selected_presets(message.indices)
           break
+        case 'expandedPresets':
+          set_expanded_presets(message.indices)
+          break
       }
     }
 
     window.addEventListener('message', handle_message)
-
-    return () => {
-      window.removeEventListener('message', handle_message)
-    }
+    return () => window.removeEventListener('message', handle_message)
   }, [])
 
   const handle_initialize_chats = (params: {
@@ -100,6 +102,14 @@ function App() {
     set_selected_presets(selected_indices)
   }
 
+  const handle_expanded_presets_change = (expanded_indices: number[]) => {
+    vscode.postMessage({
+      command: 'saveExpandedPresets',
+      indices: expanded_indices
+    })
+    set_expanded_presets(expanded_indices)
+  }
+
   const handle_open_settings = () => {
     vscode.postMessage({
       command: 'openSettings'
@@ -124,7 +134,9 @@ function App() {
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}
+      expanded_presets={expanded_presets}
       on_selected_presets_change={handle_presets_selection_change}
+      on_expanded_presets_change={handle_expanded_presets_change}
       open_settings={handle_open_settings}
     />
   )

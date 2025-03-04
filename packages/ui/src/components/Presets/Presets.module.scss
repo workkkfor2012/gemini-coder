@@ -62,16 +62,24 @@
     &__details {
       display: flex;
       flex-direction: column;
-      position: relative;
       padding: 8px;
       background: var(--vscode-editor-background);
       border-radius: 5px;
       margin-bottom: 8px;
 
       &__actions {
-        position: absolute;
-        top: 6px;
-        right: 6px;
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+
+        > label {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 4px;
+          cursor: pointer;
+          order: 1;
+        }
       }
 
       &__row {
@@ -82,13 +90,6 @@
 
         &:last-child {
           margin-bottom: 0;
-        }
-
-        &__label {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          cursor: pointer;
         }
 
         &__checkbox {

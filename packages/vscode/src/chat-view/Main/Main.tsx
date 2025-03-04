@@ -18,7 +18,9 @@ type Props = {
   is_connected: boolean
   presets: UiPresets.Preset[]
   selected_presets: number[]
+  expanded_presets: number[]
   on_selected_presets_change: (selected_indices: number[]) => void
+  on_expanded_presets_change: (expanded_indices: number[]) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -103,7 +105,9 @@ export const Main: React.FC<Props> = (props) => {
         presets={props.presets}
         disabled={!props.is_connected}
         selected_presets={props.selected_presets}
+        expanded_presets={props.expanded_presets}
         on_selected_presets_change={props.on_selected_presets_change}
+        on_expanded_presets_change={props.on_expanded_presets_change}
         on_edit_presets={props.open_settings}
         on_preset_click={(idx) => {
           props.initialize_chats({

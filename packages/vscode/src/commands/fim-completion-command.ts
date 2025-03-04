@@ -145,7 +145,7 @@ async function build_completion_payload(
   return `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 }
 
-export function request_fim_completion_command(params: {
+export function fim_completion_command(params: {
   command: string
   file_tree_provider: any
   context: vscode.ExtensionContext

@@ -84,10 +84,18 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           indices: selected_indices
         })
       } else if (message.command == 'saveSelectedPresets') {
-        this._context.globalState.update(
-          'selectedPresets',
-          message.indices
+        this._context.globalState.update('selectedPresets', message.indices)
+      } else if (message.command == 'getExpandedPresets') {
+        const expanded_indices = this._context.globalState.get<number[]>(
+          'expandedPresets',
+          []
         )
+        webview_view.webview.postMessage({
+          command: 'expandedPresets',
+          indices: expanded_indices
+        })
+      } else if (message.command == 'saveExpandedPresets') {
+        this._context.globalState.update('expandedPresets', message.indices)
       } else if (message.command == 'sendPrompt') {
         try {
           // Create files collector instance
@@ -133,10 +141,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         vscode.window.showErrorMessage(message.message)
       } else if (message.command == 'showPresetPicker') {
         const config = vscode.workspace.getConfiguration()
-        const web_chat_presets = config.get<any[]>(
-          'geminiCoder.presets',
-          []
-        )
+        const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
 
         const preset_quick_pick_items = web_chat_presets.map(
           (preset, index) => ({
