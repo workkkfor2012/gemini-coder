@@ -6,6 +6,7 @@
   border-radius: 5px;
   background-color: var(--vscode-input-background);
   cursor: text;
+
   &:focus-within {
     outline: 1px solid var(--vscode-focusBorder);
     outline-offset: -1px;
@@ -19,6 +20,7 @@
   color: var(--vscode-input-foreground);
   border: none;
   resize: none;
+
   &:focus {
     outline: none;
   }
@@ -31,10 +33,12 @@
   padding: 4px;
   gap: 16px;
   justify-content: space-between;
+
   &__actions {
     flex-shrink: 0;
     display: flex;
     gap: 4px;
+
     > button {
       display: flex;
       align-items: center;
@@ -43,7 +47,8 @@
       width: 20px;
       border-radius: 5px;
       cursor: pointer;
-      color: var(--vscode-input-foreground);
+      color: var(--vscode-icon-foreground);
+
       &:hover {
         background-color: var(--vscode-toolbar-hoverBackground);
       }

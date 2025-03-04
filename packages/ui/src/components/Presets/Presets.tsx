@@ -18,9 +18,32 @@ export namespace Presets {
 
   export type Props = {
     presets: Preset[]
-    on_preset_click: (idx: number) => void
+    on_preset_click?: (idx: number) => void
     disabled?: boolean
+    selected_presets?: number[]
+    on_selected_presets_change?: (selected_indices: number[]) => void
   }
+}
+
+const DetailField = ({
+  label,
+  value
+}: {
+  label: string
+  value: string | number | undefined
+}) => {
+  if (!value) return null
+
+  return (
+    <div className={styles.presets__item__details__row__field}>
+      <span className={styles.presets__item__details__row__field__label}>
+        {label}
+      </span>
+      <span className={styles.presets__item__details__row__field__value}>
+        {value}
+      </span>
+    </div>
+  )
 }
 
 export const Presets: React.FC<Presets.Props> = (props) => {
@@ -32,8 +55,13 @@ export const Presets: React.FC<Presets.Props> = (props) => {
     )
   }
 
-  const handle_edit_presets = () => {
-    window.open('vscode://settings/geminiCoder.webChatPresets')
+  const handle_checkbox_change = (index: number) => {
+    if (props.on_selected_presets_change) {
+      const new_selected = props.selected_presets?.includes(index)
+        ? props.selected_presets.filter((i) => i !== index)
+        : [...(props.selected_presets || []), index]
+      props.on_selected_presets_change(new_selected)
+    }
   }
 
   if (props.presets.length == 0) return null
@@ -51,67 +79,78 @@ export const Presets: React.FC<Presets.Props> = (props) => {
       >
         {props.presets.map((preset, i) => (
           <div key={i} className={styles.presets__item}>
-            <div className={styles.presets__item__header}>
+            <div
+              className={styles.presets__item__header}
+              onClick={() => toggle_expand(i)}
+              role="button"
+            >
               <div
-                className={styles.presets__item__header__title}
-                onClick={() => {
-                  props.on_preset_click(i)
-                }}
+                className={cn(styles.presets__item__header__title, {
+                  [styles['presets__item__header__title--default']]:
+                    props.selected_presets?.includes(i)
+                })}
               >
-                {preset.name}
+                <span>{preset.name}</span>
               </div>
               <div className={styles.presets__item__header__right}>
-                <IconButton
-                  codicon_icon={
-                    expanded_presets.includes(i) ? 'chevron-up' : 'chevron-down'
-                  }
-                  on_click={() => toggle_expand(i)}
-                />
-                <IconButton
-                  codicon_icon="link-external"
-                  on_click={() => {
-                    props.on_preset_click(i)
-                  }}
+                <div
+                  className={cn(
+                    'codicon',
+                    expanded_presets.includes(i)
+                      ? 'codicon-chevron-up'
+                      : 'codicon-chevron-down'
+                  )}
                 />
               </div>
             </div>
 
             {expanded_presets.includes(i) && (
               <div className={styles.presets__item__details}>
-                <div className={styles.presets__item__details__row}>
-                  Chatbot: {preset.chatbot}
+                <div className={styles.presets__item__details__actions}>
+                  <IconButton
+                    codicon_icon="send"
+                    on_click={() => props.on_preset_click?.(i)}
+                  />
                 </div>
-                {preset.model && (
-                  <div className={styles.presets__item__details__row}>
-                    Model: {preset.model}
-                  </div>
-                )}
-                {preset.temperature && (
-                  <div className={styles.presets__item__details__row}>
-                    Temperature: {preset.temperature}
-                  </div>
-                )}
-                {preset.prompt_prefix && (
-                  <div className={styles.presets__item__details__row}>
-                    Prompt prefix: {preset.prompt_prefix}
-                  </div>
-                )}
-                {preset.prompt_suffix && (
-                  <div className={styles.presets__item__details__row}>
-                    Prompt suffix: {preset.prompt_suffix}
-                  </div>
-                )}
-                {preset.system_instructions && (
-                  <div className={styles.presets__item__details__row}>
-                    System instructions: {preset.system_instructions}
-                  </div>
-                )}
+
+                <div className={styles.presets__item__details__row}>
+                  <label className={styles.presets__item__details__row__label}>
+                    <input
+                      type="checkbox"
+                      checked={props.selected_presets?.includes(i) || false}
+                      onChange={() => handle_checkbox_change(i)}
+                      className={styles.presets__item__details__row__checkbox}
+                    />
+                    Use by default
+                  </label>
+                  <DetailField label="Chatbot" value={preset.chatbot} />
+                  <DetailField label="Model" value={preset.model} />
+                  <DetailField label="Temperature" value={preset.temperature} />
+                  <DetailField
+                    label="Prompt Prefix"
+                    value={preset.prompt_prefix}
+                  />
+                  <DetailField
+                    label="Prompt Suffix"
+                    value={preset.prompt_suffix}
+                  />
+                  <DetailField
+                    label="System Instructions"
+                    value={preset.system_instructions}
+                  />
+                </div>
               </div>
             )}
           </div>
         ))}
         <div className={styles.presets__edit}>
-          <Button on_click={handle_edit_presets}>Edit Presets</Button>
+          <Button
+            on_click={() => {
+              window.open('vscode://settings/geminiCoder.webChatPresets')
+            }}
+          >
+            Edit Presets
+          </Button>
         </div>
       </div>
     </div>

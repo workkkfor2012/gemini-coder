@@ -94,6 +94,7 @@ function App() {
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}
+      on_selected_presets_change={handle_presets_selection_change}
     />
   )
 }

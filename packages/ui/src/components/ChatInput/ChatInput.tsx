@@ -59,7 +59,7 @@ export const ChatInput: React.FC<Props> = (props) => {
         onFocus={handle_focus}
         autoFocus
         className={styles.textarea}
-        minRows={1}
+        minRows={2}
         maxRows={10}
       />
       <div className={styles.footer}>
@@ -73,7 +73,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             disabled={props.is_submit_disabled}
             title={props.submit_disabled_title}
           >
-            <div className={cn('codicon', 'codicon-link-external')} />
+            <div className={cn('codicon', 'codicon-send')} />
           </button>
         </div>
       </div>

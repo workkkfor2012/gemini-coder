@@ -5,10 +5,17 @@ declare const styles: {
   readonly "presets__edit": string;
   readonly "presets__item": string;
   readonly "presets__item__details": string;
+  readonly "presets__item__details__actions": string;
   readonly "presets__item__details__row": string;
+  readonly "presets__item__details__row__checkbox": string;
+  readonly "presets__item__details__row__field": string;
+  readonly "presets__item__details__row__field__label": string;
+  readonly "presets__item__details__row__field__value": string;
+  readonly "presets__item__details__row__label": string;
   readonly "presets__item__header": string;
   readonly "presets__item__header__right": string;
   readonly "presets__item__header__title": string;
+  readonly "presets__item__header__title--default": string;
   readonly "top": string;
 };
 export = styles;

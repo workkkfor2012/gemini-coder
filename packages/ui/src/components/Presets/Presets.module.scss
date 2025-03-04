@@ -17,29 +17,38 @@
   display: flex;
   flex-direction: column;
   margin-bottom: 10px;
+
   &--disabled {
     opacity: 0.5;
     pointer-events: none;
   }
+
   &__item {
     display: flex;
     flex-direction: column;
     border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
+
     &__header {
       display: flex;
       justify-content: space-between;
       min-height: 24px;
+      cursor: pointer;
+
       &__title {
         display: flex;
         align-items: center;
-        gap: 4px;
-        cursor: pointer;
-        padding-right: 16px;
+        gap: 8px;
         padding: 4px 16px 4px 0;
-        &:hover {
-          text-decoration: underline;
+
+        &--default {
+          font-weight: 500;
+        }
+
+        > span {
+          cursor: pointer;
         }
       }
+
       &__right {
         flex-shrink: 0;
         display: flex;
@@ -47,16 +56,63 @@
         gap: 4px;
       }
     }
+
     &__details {
       display: flex;
       flex-direction: column;
+      position: relative;
+      padding: 8px;
+      background: var(--vscode-editor-background);
+      border-radius: 5px;
+      margin-bottom: 8px;
+
+      &__actions {
+        position: absolute;
+        top: 4px;
+        right: 4px;
+      }
+
       &__row {
         display: flex;
         flex-direction: column;
+        margin-bottom: 8px;
+        gap: 12px;
+
+        &:last-child {
+          margin-bottom: 0;
+        }
+
+        &__label {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          cursor: pointer;
+        }
+
+        &__checkbox {
+          margin: 0;
+          cursor: pointer;
+        }
+
+        &__field {
+          display: flex;
+          flex-direction: column;
+
+          &__label {
+            font-size: 11px;
+            text-transform: uppercase;
+            color: var(--vscode-descriptionForeground);
+          }
+
+          &__value {
+            color: var(--vscode-foreground);
+          }
+        }
       }
     }
   }
+
   &__edit {
-    margin-top: 8px;
+    margin-top: 12px;
   }
 }

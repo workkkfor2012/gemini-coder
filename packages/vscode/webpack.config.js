@@ -140,7 +140,8 @@ const config = [
       extensions: ['.ts', '.tsx', '.js'],
       alias: {
         '@': path.resolve(__dirname, 'src'),
-        '@shared': path.resolve(__dirname, '../shared/src')
+        '@shared': path.resolve(__dirname, '../shared/src'),
+        '@ui': path.resolve(__dirname, '../ui/src')
       }
     },
     module: {
