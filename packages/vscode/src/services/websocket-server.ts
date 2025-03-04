@@ -140,7 +140,7 @@ export class WebSocketServer {
     const open_in_background =
       config.get<boolean>('geminiCoder.openWebChatsInBackground') ?? false
     const web_chat_presets =
-      config.get<any[]>('geminiCoder.webChatPresets') ?? []
+      config.get<any[]>('geminiCoder.presets') ?? []
 
       console.log(preset_indices)
 console.log(web_chat_presets)

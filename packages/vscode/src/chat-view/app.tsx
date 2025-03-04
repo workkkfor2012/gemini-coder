@@ -16,7 +16,7 @@ function App() {
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
     vscode.postMessage({ command: 'getConnectionStatus' })
-    vscode.postMessage({ command: 'getWebChatPresets' })
+    vscode.postMessage({ command: 'getPresets' })
     vscode.postMessage({ command: 'getSelectedPresets' })
 
     const handle_message = (event: MessageEvent) => {
@@ -28,7 +28,7 @@ function App() {
         case 'connectionStatus':
           set_is_connected(message.connected)
           break
-        case 'webChatPresets':
+        case 'presets':
           set_presets(message.presets)
           break
         case 'selectedPresets':

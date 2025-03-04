@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function copy_apply_changes_prompt_command(file_tree_provider: any) {
+export function apply_changes_to_clipboard_command(file_tree_provider: any) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyApplyChangesPrompt',
+    'geminiCoder.applyChangesToClipboard',
     async () => {
       const editor = vscode.window.activeTextEditor
       if (!editor) {

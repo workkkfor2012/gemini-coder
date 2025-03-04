@@ -1,12 +1,12 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function compose_chat_prompt_command(
+export function chat_to_clipboard_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.composeChatPrompt',
+    'geminiCoder.chatToClipboard',
     async () => {
       // Main Instruction Input
       let last_chat_prompt =

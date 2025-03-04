@@ -1,12 +1,12 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function copy_refactoring_prompt_command(
+export function refactor_to_clipboard_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyRefactoringPrompt',
+    'geminiCoder.refactorToClipboard',
     async () => {
       const editor = vscode.window.activeTextEditor
       if (!editor) {

@@ -25,6 +25,11 @@ export const Multiple = () => {
   return (
     <Presets
       presets={presets}
+      on_preset_click={() => {}}
+      disabled={false}
+      selected_presets={[]}
+      on_selected_presets_change={() => {}}
+      on_edit_presets={() => {}}
     />
   )
 }
@@ -33,6 +38,11 @@ export const Empty = () => {
   return (
     <Presets
       presets={[]}
+      on_preset_click={() => {}}
+      disabled={false}
+      selected_presets={[]}
+      on_selected_presets_change={() => {}}
+      on_edit_presets={() => {}}
     />
   )
 }

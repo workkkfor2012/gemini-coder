@@ -2,13 +2,13 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketServer } from '../services/websocket-server'
 
-export function open_web_chat_with_instruction_command(
+export function open_web_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   websocket_server_instance: WebSocketServer
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.openWebChatWithInstruction',
+    'geminiCoder.openWebChat',
     async () => {
       // Check connection status immediately
       if (!websocket_server_instance.is_connected()) {
@@ -22,7 +22,7 @@ export function open_web_chat_with_instruction_command(
 
       // Get web chat presets
       const web_chat_presets = config.get<any[]>(
-        'geminiCoder.webChatPresets',
+        'geminiCoder.presets',
         []
       )
 
@@ -38,7 +38,7 @@ export function open_web_chat_with_instruction_command(
 
       // Get previously selected presets from globalState
       const last_selected_indices = context.globalState.get<number[]>(
-        'selectedWebChatPresets',
+        'selectedPresets',
         []
       )
 
@@ -63,7 +63,7 @@ export function open_web_chat_with_instruction_command(
       // Save selected preset indices to globalState
       const selected_indices = selected_presets.map((preset) => preset.index)
       await context.globalState.update(
-        'selectedWebChatPresets',
+        'selectedPresets',
         selected_indices
       )
 

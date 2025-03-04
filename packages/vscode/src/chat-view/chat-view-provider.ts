@@ -55,10 +55,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           command: 'connectionStatus',
           connected: this.websocket_server_instance.is_connected()
         })
-      } else if (message.command == 'getWebChatPresets') {
+      } else if (message.command == 'getPresets') {
         const web_chat_presets_config = vscode.workspace
           .getConfiguration()
-          .get('geminiCoder.webChatPresets', [])
+          .get('geminiCoder.presets', [])
         const presets: Presets.Preset[] = web_chat_presets_config.map(
           (preset: any) => ({
             name: preset.name,
@@ -71,12 +71,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
         )
         webview_view.webview.postMessage({
-          command: 'webChatPresets',
+          command: 'presets',
           presets
         })
       } else if (message.command == 'getSelectedPresets') {
         const selected_indices = this._context.globalState.get<number[]>(
-          'selectedWebChatPresets',
+          'selectedPresets',
           []
         )
         webview_view.webview.postMessage({
@@ -85,7 +85,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         })
       } else if (message.command == 'saveSelectedPresets') {
         this._context.globalState.update(
-          'selectedWebChatPresets',
+          'selectedPresets',
           message.indices
         )
       } else if (message.command == 'sendPrompt') {
@@ -134,7 +134,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       } else if (message.command == 'showPresetPicker') {
         const config = vscode.workspace.getConfiguration()
         const web_chat_presets = config.get<any[]>(
-          'geminiCoder.webChatPresets',
+          'geminiCoder.presets',
           []
         )
 
@@ -162,7 +162,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
               // Save the selection
               this._context.globalState.update(
-                'selectedWebChatPresets',
+                'selectedPresets',
                 selected_indices
               )
 
@@ -182,7 +182,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       } else if (message.command == 'openSettings') {
         vscode.commands.executeCommand(
           'workbench.action.openSettings',
-          'geminiCoder.webChatPresets'
+          'geminiCoder.presets'
         )
       }
     })

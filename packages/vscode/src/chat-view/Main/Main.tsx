@@ -105,6 +105,12 @@ export const Main: React.FC<Props> = (props) => {
         selected_presets={props.selected_presets}
         on_selected_presets_change={props.on_selected_presets_change}
         on_edit_presets={props.open_settings}
+        on_preset_click={(idx) => {
+          props.initialize_chats({
+            instruction: instruction,
+            preset_indices: [idx]
+          })
+        }}
       />
     </div>
   )

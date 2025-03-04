@@ -18,11 +18,11 @@ export namespace Presets {
 
   export type Props = {
     presets: Preset[]
-    on_preset_click?: (idx: number) => void
-    disabled?: boolean
-    selected_presets?: number[]
-    on_selected_presets_change?: (selected_indices: number[]) => void
-    on_edit_presets?: () => void
+    on_preset_click: (idx: number) => void
+    disabled: boolean
+    selected_presets: number[]
+    on_selected_presets_change: (selected_indices: number[]) => void
+    on_edit_presets: () => void
   }
 }
 

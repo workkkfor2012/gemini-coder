@@ -2,9 +2,9 @@ import * as vscode from 'vscode'
 import { autocomplete_instruction_external } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function copy_fim_completion_prompt_command(file_tree_provider: any) {
+export function fim_completion_to_clipboard_command(file_tree_provider: any) {
   return vscode.commands.registerCommand(
-    'geminiCoder.copyFimCompletionPrompt',
+    'geminiCoder.fimCompletionToClipboard',
     async () => {
       const editor = vscode.window.activeTextEditor
       if (!editor) {

@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.164",
+  "version": "1.0.167",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -88,8 +88,8 @@
         "title": "Gemini Coder: Request FIM Completion"
       },
       {
-        "command": "geminiCoder.copyFimCompletionPrompt",
-        "title": "Gemini Coder: Copy FIM Completion Prompt to Clipboard"
+        "command": "geminiCoder.fimCompletionToClipboard",
+        "title": "Gemini Coder: FIM Completion to Clipboard"
       },
       {
         "command": "geminiCoder.changeDefaultFimModel",
@@ -112,16 +112,16 @@
         "title": "Gemini Coder: Apply Changes to this File with..."
       },
       {
-        "command": "geminiCoder.copyApplyChangesPrompt",
-        "title": "Gemini Coder: Copy Apply Changes Prompt to Clipboard"
+        "command": "geminiCoder.applyChangesToClipboard",
+        "title": "Gemini Coder: Apply Changes to Clipboard"
       },
       {
-        "command": "geminiCoder.openWebChatWithInstruction",
-        "title": "Gemini Coder: Open Web Chat with Instruction"
+        "command": "geminiCoder.openWebChat",
+        "title": "Gemini Coder: Open Web Chat"
       },
       {
-        "command": "geminiCoder.composeChatPrompt",
-        "title": "Gemini Coder: Compose Chat Prompt to Clipboard"
+        "command": "geminiCoder.chatToClipboard",
+        "title": "Gemini Coder: Chat to Clipboard"
       },
       {
         "command": "geminiCoder.refactor",
@@ -132,8 +132,8 @@
         "title": "Gemini Coder: Refactor this File with..."
       },
       {
-        "command": "geminiCoder.copyRefactoringPrompt",
-        "title": "Gemini Coder: Copy Refactoring Instruction Prompt to Clipboard"
+        "command": "geminiCoder.refactorToClipboard",
+        "title": "Gemini Coder: Refactor to Clipboard"
       }
     ],
     "menus": {
@@ -239,15 +239,24 @@
           "default": false,
           "description": "Controls whether browser window should be focused or stay below the editor."
         },
-        "geminiCoder.webChatPresets": {
+        "geminiCoder.presets": {
           "type": "array",
           "default": [
             {
-              "name": "AI Studio",
+              "name": "AI Studio with Flash",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
+              "temperature": 0.5,
+              "systemInstructions": "You are an AI coding assistant."
+            },
+            {
+              "name": "AI Studio with Pro Exp",
+              "chatbot": "AI Studio",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "gemini-2.0-pro-exp-02-05",
               "temperature": 0.5,
               "systemInstructions": "You are an AI coding assistant."
             },
@@ -389,7 +398,6 @@
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
     "@storybook/react": "^7.6.17",
-    "@svgr/webpack": "^8.1.0",
     "@types/node": "20.x",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",

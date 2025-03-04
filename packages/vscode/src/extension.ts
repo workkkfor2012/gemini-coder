@@ -2,15 +2,15 @@ import * as vscode from 'vscode'
 import { file_tree_initialization } from './file-tree/file-tree-initialization'
 import { apply_changes_command } from './commands/apply-changes-command'
 import { request_fim_completion_command } from './commands/request-fim-completion-command'
-import { copy_fim_completion_prompt_command } from './commands/copy-fim-completion-prompt-command'
+import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
-import { open_web_chat_with_instruction_command } from './commands/open-web-chat-with-instruction-command'
-import { copy_apply_changes_prompt_command } from './commands/copy-apply-changes-prompt-command'
-import { compose_chat_prompt_command } from './commands/compose-chat-prompt-command'
+import { open_web_chat_command } from './commands/open-web-chat-command'
+import { apply_changes_to_clipboard_command } from './commands/apply-changes-to-clipboard-command'
+import { chat_to_clipboard_command } from './commands/chat-to-clipboard-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { refactor_command } from './commands/refactor-command'
-import { copy_refactoring_prompt_command } from './commands/copy-refactoring-prompt-command'
+import { refactor_to_clipboard_command } from './commands/refactor-to-clipboard-command'
 import { WebSocketServer } from './services/websocket-server'
 import { create_fim_status_bar_item } from './status-bar/create-fim-status-bar-item'
 import { ApiViewProvider } from './api-view/api-view-provider'
@@ -75,7 +75,7 @@ export function activate(context: vscode.ExtensionContext) {
       context,
       file_tree_provider
     }),
-    copy_refactoring_prompt_command(context, file_tree_provider),
+    refactor_to_clipboard_command(context, file_tree_provider),
     request_fim_completion_command({
       command: 'geminiCoder.requestFimCompletionWith',
       file_tree_provider,
@@ -87,17 +87,17 @@ export function activate(context: vscode.ExtensionContext) {
       context,
       use_default_model: true
     }),
-    copy_fim_completion_prompt_command(file_tree_provider),
+    fim_completion_to_clipboard_command(file_tree_provider),
     change_default_model_command('fim'),
     change_default_model_command('refactoring'),
     change_default_model_command('apply_changes'),
-    copy_apply_changes_prompt_command(file_tree_provider),
-    open_web_chat_with_instruction_command(
+    apply_changes_to_clipboard_command(file_tree_provider),
+    open_web_chat_command(
       context,
       file_tree_provider,
       websocket_server_instance
     ),
-    compose_chat_prompt_command(context, file_tree_provider),
+    chat_to_clipboard_command(context, file_tree_provider),
     {
       dispose: () => {
         if (websocket_server_instance) {
