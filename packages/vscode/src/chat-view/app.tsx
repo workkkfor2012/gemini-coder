@@ -58,7 +58,9 @@ function App() {
     })
   }
 
-  const handle_show_preset_picker = (instruction: string): Promise<number[]> => {
+  const handle_show_preset_picker = (
+    instruction: string
+  ): Promise<number[]> => {
     return new Promise((resolve) => {
       const messageHandler = (event: MessageEvent) => {
         const message = event.data
@@ -98,6 +100,12 @@ function App() {
     set_selected_presets(selected_indices)
   }
 
+  const handle_open_settings = () => {
+    vscode.postMessage({
+      command: 'openSettings'
+    })
+  }
+
   if (
     initial_prompt === undefined ||
     is_connected === undefined ||
@@ -117,6 +125,7 @@ function App() {
       presets={presets}
       selected_presets={selected_presets}
       on_selected_presets_change={handle_presets_selection_change}
+      open_settings={handle_open_settings}
     />
   )
 }

@@ -90,6 +90,9 @@ importers:
       '@types/react-dom':
         specifier: ^18.2.19
         version: 18.3.5(@types/react@18.3.18)
+      '@types/vscode':
+        specifier: ^1.92.0
+        version: 1.96.0
       css-loader:
         specifier: ^6.5.1
         version: 6.11.0(webpack@5.97.1(esbuild@0.18.20))

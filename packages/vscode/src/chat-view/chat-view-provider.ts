@@ -179,6 +179,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               })
             }
           })
+      } else if (message.command == 'openSettings') {
+        vscode.commands.executeCommand(
+          'workbench.action.openSettings',
+          'geminiCoder.webChatPresets'
+        )
       }
     })
 

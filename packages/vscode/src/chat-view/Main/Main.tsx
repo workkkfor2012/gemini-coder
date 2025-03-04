@@ -13,6 +13,7 @@ type Props = {
   show_preset_picker: (instruction: string) => Promise<number[]>
   copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
+  open_settings: () => void
   initial_instruction: string
   is_connected: boolean
   presets: UiPresets.Preset[]
@@ -76,8 +77,8 @@ export const Main: React.FC<Props> = (props) => {
           <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
-              Consider installing the companion browser
-              extension and enjoy hands-free chat initialization.
+              Consider installing the companion browser extension and enjoy
+              hands-free chat initialization.
             </span>
 
             <ul>
@@ -103,6 +104,7 @@ export const Main: React.FC<Props> = (props) => {
         disabled={!props.is_connected}
         selected_presets={props.selected_presets}
         on_selected_presets_change={props.on_selected_presets_change}
+        on_edit_presets={props.open_settings}
       />
     </div>
   )

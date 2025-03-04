@@ -22,6 +22,7 @@ export namespace Presets {
     disabled?: boolean
     selected_presets?: number[]
     on_selected_presets_change?: (selected_indices: number[]) => void
+    on_edit_presets?: () => void
   }
 }
 
@@ -66,17 +67,17 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
   if (props.presets.length == 0) return null
 
+  const open_settings = () => {
+    if (!props.disabled && props.on_edit_presets) {
+      props.on_edit_presets()
+    }
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles.top}>
         <span>MY PRESETS</span>
-        <IconButton
-          codicon_icon="edit"
-          on_click={() => {
-            if (props.disabled) return
-            window.open('vscode://settings/geminiCoder.webChatPresets')
-          }}
-        />
+        <IconButton codicon_icon="edit" on_click={open_settings} />
       </div>
 
       <div
@@ -151,13 +152,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           </div>
         ))}
         <div className={styles.presets__edit}>
-          <Button
-            on_click={() => {
-              window.open('vscode://settings/geminiCoder.webChatPresets')
-            }}
-          >
-            Edit Presets
-          </Button>
+          <Button on_click={open_settings}>Edit Presets</Button>
         </div>
       </div>
     </div>
