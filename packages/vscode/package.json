@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.167",
+  "version": "1.0.168",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -116,8 +116,8 @@
         "title": "Gemini Coder: Apply Changes to Clipboard"
       },
       {
-        "command": "geminiCoder.openWebChat",
-        "title": "Gemini Coder: Open Web Chat"
+        "command": "geminiCoder.webChat",
+        "title": "Gemini Coder: Web Chat"
       },
       {
         "command": "geminiCoder.chatToClipboard",
@@ -234,7 +234,7 @@
           "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
           "default": "png,jpg,jpeg,gif,svg"
         },
-        "geminiCoder.openWebChatsInBackground": {
+        "geminiCoder.webChatsInBackground": {
           "type": "boolean",
           "default": false,
           "description": "Controls whether browser window should be focused or stay below the editor."

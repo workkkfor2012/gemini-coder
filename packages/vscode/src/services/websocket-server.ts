@@ -138,7 +138,7 @@ export class WebSocketServer {
   ): Promise<void> {
     const config = vscode.workspace.getConfiguration()
     const open_in_background =
-      config.get<boolean>('geminiCoder.openWebChatsInBackground') ?? false
+      config.get<boolean>('geminiCoder.webChatsInBackground') ?? false
     const web_chat_presets =
       config.get<any[]>('geminiCoder.presets') ?? []
 
