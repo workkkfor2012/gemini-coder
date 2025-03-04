@@ -70,6 +70,13 @@ export const Presets: React.FC<Presets.Props> = (props) => {
     <div className={styles.container}>
       <div className={styles.top}>
         <span>MY PRESETS</span>
+        <IconButton
+          codicon_icon="edit"
+          on_click={() => {
+            if (props.disabled) return
+            window.open('vscode://settings/geminiCoder.webChatPresets')
+          }}
+        />
       </div>
 
       <div

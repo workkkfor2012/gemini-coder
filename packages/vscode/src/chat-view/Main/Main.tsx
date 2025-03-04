@@ -10,6 +10,7 @@ type Props = {
     instruction: string
     preset_indices: number[]
   }) => void
+  show_preset_picker: (instruction: string) => Promise<number[]>
   copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   initial_instruction: string
@@ -27,11 +28,24 @@ export const Main: React.FC<Props> = (props) => {
     props.on_instruction_change(value)
   }
 
-  const handle_submit = () => {
-    props.initialize_chats({
-      instruction,
-      preset_indices: props.selected_presets
-    })
+  const handle_submit = async () => {
+    // If no presets are selected, show the picker
+    if (props.selected_presets.length == 0) {
+      const selected_indices = await props.show_preset_picker(instruction)
+      if (selected_indices.length > 0) {
+        // Update the selected presets through the callback
+        props.on_selected_presets_change(selected_indices)
+        props.initialize_chats({
+          instruction,
+          preset_indices: selected_indices
+        })
+      }
+    } else {
+      props.initialize_chats({
+        instruction,
+        preset_indices: props.selected_presets
+      })
+    }
   }
 
   const handle_copy = () => {
@@ -49,15 +63,11 @@ export const Main: React.FC<Props> = (props) => {
         on_change={handle_input_change}
         on_submit={handle_submit}
         on_copy={handle_copy}
-        is_submit_disabled={
-          !props.is_connected || !props.selected_presets.length
-        }
+        is_submit_disabled={!props.is_connected}
         submit_disabled_title={
           !props.is_connected
             ? 'WebSocket connection not established. Please install the browser extension.'
-            : !props.selected_presets.length
-            ? 'Please select at least one preset to continue'
-            : 'Click to initialize chats with selected presets'
+            : 'Click to initialize chats'
         }
       />
 
@@ -66,7 +76,7 @@ export const Main: React.FC<Props> = (props) => {
           <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
-              If you haven't already, consider installing the companion browser
+              Consider installing the companion browser
               extension and enjoy hands-free chat initialization.
             </span>
 

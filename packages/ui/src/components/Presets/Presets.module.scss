@@ -8,6 +8,7 @@
 
 .top {
   display: flex;
+  justify-content: space-between;
   > span {
     color: var(--vscode-foreground);
   }
@@ -41,7 +42,7 @@
         padding: 4px 16px 4px 0;
 
         &--default {
-          font-weight: 500;
+          font-weight: 600;
         }
 
         > span {
@@ -68,8 +69,8 @@
 
       &__actions {
         position: absolute;
-        top: 4px;
-        right: 4px;
+        top: 6px;
+        right: 6px;
       }
 
       &__row {

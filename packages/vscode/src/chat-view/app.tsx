@@ -34,6 +34,9 @@ function App() {
         case 'selectedPresets':
           set_selected_presets(message.indices)
           break
+        case 'selectedPresetsFromPicker':
+          set_selected_presets(message.indices)
+          break
       }
     }
 
@@ -52,6 +55,24 @@ function App() {
       command: 'sendPrompt',
       instruction: params.instruction,
       preset_indices: params.preset_indices
+    })
+  }
+
+  const handle_show_preset_picker = (instruction: string): Promise<number[]> => {
+    return new Promise((resolve) => {
+      const messageHandler = (event: MessageEvent) => {
+        const message = event.data
+        if (message.command == 'presetsSelectedFromPicker') {
+          window.removeEventListener('message', messageHandler)
+          resolve(message.indices)
+        }
+      }
+      window.addEventListener('message', messageHandler)
+
+      vscode.postMessage({
+        command: 'showPresetPicker',
+        instruction
+      })
     })
   }
 
@@ -89,6 +110,7 @@ function App() {
     <Main
       initial_instruction={initial_prompt}
       initialize_chats={handle_initialize_chats}
+      show_preset_picker={handle_show_preset_picker}
       copy_to_clipboard={handle_copy_to_clipboard}
       on_instruction_change={handle_instruction_change}
       is_connected={is_connected}

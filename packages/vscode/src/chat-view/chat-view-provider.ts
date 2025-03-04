@@ -131,6 +131,54 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         }
       } else if (message.command == 'showError') {
         vscode.window.showErrorMessage(message.message)
+      } else if (message.command == 'showPresetPicker') {
+        const config = vscode.workspace.getConfiguration()
+        const web_chat_presets = config.get<any[]>(
+          'geminiCoder.webChatPresets',
+          []
+        )
+
+        const preset_quick_pick_items = web_chat_presets.map(
+          (preset, index) => ({
+            label: preset.name,
+            description: `${preset.chatbot}${
+              preset.model ? ` - ${preset.model}` : ''
+            }`,
+            picked: false,
+            index: index
+          })
+        )
+
+        vscode.window
+          .showQuickPick(preset_quick_pick_items, {
+            placeHolder: 'Select one or more chat presets',
+            canPickMany: true
+          })
+          .then((selected_presets) => {
+            if (selected_presets && selected_presets.length > 0) {
+              const selected_indices = selected_presets.map(
+                (preset) => preset.index
+              )
+
+              // Save the selection
+              this._context.globalState.update(
+                'selectedWebChatPresets',
+                selected_indices
+              )
+
+              // Send the indices back to the webview
+              webview_view.webview.postMessage({
+                command: 'presetsSelectedFromPicker',
+                indices: selected_indices
+              })
+            } else {
+              // Send empty array if nothing was selected
+              webview_view.webview.postMessage({
+                command: 'presetsSelectedFromPicker',
+                indices: []
+              })
+            }
+          })
       }
     })
 

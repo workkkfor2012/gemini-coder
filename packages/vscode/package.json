@@ -252,7 +252,7 @@
               "systemInstructions": "You are an AI coding assistant."
             },
             {
-              "name": "Gemini 2.0 Flash",
+              "name": "Gemini",
               "chatbot": "Gemini",
               "promptPrefix": "",
               "promptSuffix": ""
