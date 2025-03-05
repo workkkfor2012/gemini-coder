@@ -11,7 +11,6 @@ declare const styles: {
   readonly "presets__item__details__row__field": string;
   readonly "presets__item__details__row__field__label": string;
   readonly "presets__item__details__row__field__value": string;
-  readonly "presets__item__details__row__label": string;
   readonly "presets__item__header": string;
   readonly "presets__item__header__right": string;
   readonly "presets__item__header__title": string;

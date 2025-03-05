@@ -29,7 +29,7 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
 
     // Handle messages from the webview
     webview_view.webview.onDidReceiveMessage(async (message) => {
-      if (message.command == 'getConfiguration') {
+      if (message.command == 'get_configuration') {
         const config = vscode.workspace.getConfiguration('geminiCoder')
         const providers = config.get('providers', [])
         const default_fim_model = this.model_manager.get_default_fim_model()
@@ -45,12 +45,17 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
           default_refactoring_model,
           default_apply_changes_model
         })
-      } else if (message.command == 'updateFimModel') {
+      } else if (message.command == 'update_fim_model') {
         await this.model_manager.set_default_fim_model(message.model)
-      } else if (message.command == 'updateRefactoringModel') {
+      } else if (message.command == 'update_refactoring_model') {
         await this.model_manager.set_default_refactoring_model(message.model)
-      } else if (message.command == 'updateApplyChangesModel') {
+      } else if (message.command == 'update_apply_changes_model') {
         await this.model_manager.set_default_apply_changes_model(message.model)
+      } else if (message.command == 'open_providers_settings') {
+        vscode.commands.executeCommand(
+          'workbench.action.openSettings',
+          'geminiCoder.providers'
+        )
       }
     })
   }

@@ -52,6 +52,15 @@
       &:hover {
         background-color: var(--vscode-toolbar-hoverBackground);
       }
+
+      &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        
+        &:hover {
+          background-color: none;
+        }
+      }
     }
   }
 }

@@ -1,27 +1,23 @@
 // @type
 
 .container {
-  padding: 5px 0 10px 0;
+  padding: 5px 0 12px 0;
   display: flex;
   flex-direction: column;
 }
 
 .browser-extension-message {
-  color: var(--vscode-foreground);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   border-radius: 8px;
   border: 1px solid var(--vscode-panel-border);
   padding: 10px;
   background-color: var(--vscode-sideBar-background);
-  ul {
-    margin: 5px 0 0 20px;
-    padding: 0;
-    li {
-      margin-bottom: 5px;
-    }
-  }
-  a {
+  > a {
     color: var(--vscode-textLink-foreground);
     text-decoration: none;
+    font-size: 0.9em;
     &:hover {
       text-decoration: underline;
     }

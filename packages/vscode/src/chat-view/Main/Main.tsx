@@ -66,11 +66,11 @@ export const Main: React.FC<Props> = (props) => {
         on_change={handle_input_change}
         on_submit={handle_submit}
         on_copy={handle_copy}
-        is_submit_disabled={!props.is_connected}
+        is_connected={props.is_connected}
         submit_disabled_title={
           !props.is_connected
             ? 'WebSocket connection not established. Please install the browser extension.'
-            : 'Click to initialize chats'
+            : 'Initialize chats'
         }
       />
 
@@ -79,22 +79,20 @@ export const Main: React.FC<Props> = (props) => {
           <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
-              Consider installing the companion browser extension and enjoy
-              hands-free chat initialization.
+              For hands-free chat initialization, consider installing our{' '}
+              <a href="https://github.com/robertpiosik/gemini-coder/tree/master/packages/browser">
+                open-source
+              </a>
+              , 100% local browser extension.
             </span>
 
-            <ul>
-              <li>
-                <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-                  Install for Chrome
-                </a>
-              </li>
-              <li>
-                <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
-                  Install for Firefox
-                </a>
-              </li>
-            </ul>
+            <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
+              - Install for Chrome
+            </a>
+
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
+              - Install for Firefox
+            </a>
           </div>
         </>
       )}

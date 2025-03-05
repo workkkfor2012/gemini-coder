@@ -8,7 +8,7 @@ type Props = {
   on_change: (value: string) => void
   on_submit: () => void
   on_copy: () => void
-  is_submit_disabled: boolean
+  is_connected: boolean
   submit_disabled_title?: string
 }
 
@@ -26,15 +26,18 @@ export const ChatInput: React.FC<Props> = (props) => {
     props.on_change(e.target.value)
   }
 
+  const handle_submit = () => {
+    if (!props.is_connected) return
+    props.on_submit()
+  }
+
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && e.shiftKey) {
+    if (e.key == 'Enter' && e.shiftKey) {
       e.preventDefault()
       props.on_change(props.value + '\n')
-    } else if (e.key === 'Enter' && !e.shiftKey) {
+    } else if (e.key == 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      if (!props.is_submit_disabled) {
-        props.on_submit()
-      }
+      handle_submit()
     }
   }
 
@@ -60,7 +63,7 @@ export const ChatInput: React.FC<Props> = (props) => {
         autoFocus
         className={styles.textarea}
         minRows={2}
-        maxRows={10}
+        maxRows={12}
       />
       <div className={styles.footer}>
         <div></div>
@@ -69,8 +72,8 @@ export const ChatInput: React.FC<Props> = (props) => {
             <div className={cn('codicon', 'codicon-copy')} />
           </button>
           <button
-            onClick={props.on_submit}
-            disabled={props.is_submit_disabled}
+            onClick={handle_submit}
+            disabled={!props.is_connected}
             title={props.submit_disabled_title}
           >
             <div className={cn('codicon', 'codicon-send')} />

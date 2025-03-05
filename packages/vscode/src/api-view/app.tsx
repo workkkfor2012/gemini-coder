@@ -15,7 +15,7 @@ function App() {
     useState<string>('')
 
   useEffect(() => {
-    vscode.postMessage({ command: 'getConfiguration' })
+    vscode.postMessage({ command: 'get_configuration' })
 
     const handleMessage = (event: MessageEvent) => {
       const message = event.data
@@ -33,7 +33,7 @@ function App() {
 
   const handle_fim_model_change = (model: string) => {
     vscode.postMessage({
-      command: 'updateFimModel',
+      command: 'update_fim_model',
       model
     })
     set_default_fim_model(model)
@@ -41,7 +41,7 @@ function App() {
 
   const handle_refactoring_model_change = (model: string) => {
     vscode.postMessage({
-      command: 'updateRefactoringModel',
+      command: 'update_refactoring_model',
       model
     })
     set_default_refactoring_model(model)
@@ -49,10 +49,16 @@ function App() {
 
   const handle_apply_changes_model_change = (model: string) => {
     vscode.postMessage({
-      command: 'updateApplyChangesModel',
+      command: 'update_apply_changes_model',
       model
     })
     set_default_apply_changes_model(model)
+  }
+
+  const handle_open_providers_settings = () => {
+    vscode.postMessage({
+      command: 'open_providers_settings'
+    })
   }
 
   return (
@@ -64,6 +70,7 @@ function App() {
       on_fim_model_change={handle_fim_model_change}
       on_refactoring_model_change={handle_refactoring_model_change}
       on_apply_changes_model_change={handle_apply_changes_model_change}
+      open_providers_settings={handle_open_providers_settings}
     />
   )
 }

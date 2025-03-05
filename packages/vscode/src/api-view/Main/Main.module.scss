@@ -1,7 +1,17 @@
 // @type
 .container {
+  padding: 5px 0 12px 0;
   display: flex;
-  padding: 8px 0 16px 0;
+  flex-direction: column;
+}
+
+.header {
+  color: var(--vscode-foreground);
+  font-size: 13px;
+}
+
+.model-group {
+  display: flex;
   flex-direction: column;
   gap: 16px;
 }
@@ -12,24 +22,28 @@
   gap: 8px;
 
   label {
-    font-size: 0.9em;
+    font-size: 13px;
     color: var(--vscode-foreground);
   }
 
   select {
     width: 100%;
     padding: 4px;
-    border-radius: 2px;
     font-family: system-ui, sans-serif;
+    font-size: 13px;
     background-color: var(--vscode-input-background);
     color: var(--vscode-input-foreground);
-    border: 1px solid var(--vscode-input-border);
+    border: none;
+    cursor: pointer;
 
     &:focus {
-      outline-color: var(--vscode-focusBorder);
+      outline: 1px solid var(--vscode-focusBorder);
       outline-offset: -1px;
-      outline-style: solid;
-      outline-width: 1px;
+    }
+
+    option {
+      background-color: var(--vscode-input-background);
+      color: var(--vscode-input-foreground);
     }
   }
 }
