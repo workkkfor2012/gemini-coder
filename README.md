@@ -26,27 +26,30 @@ The goal of this extension is to ensure the same sleek developer experience with
 1.  Open the Context View and select all relevant folders/files you want to attach as context in each request.
 2.  Place the cursor where you want to insert code completion.
 3.  Open the Command Palette (`Ctrl+Shift+P`).
-4.  Type `Gemini Coder: Request FIM Completion`.
-5.  Bind command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: Request FIM Completion`.
+4.  Type `Gemini Coder: FIM Completion`.
+5.  Bind command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: FIM Completion`.
 
 ## Commands
 
-#### FIM Completion
+#### FIM Completions
 
-- `Gemini Coder: Request FIM Completion` - Get fill-in-the-middle completion using default model
-- `Gemini Coder: Request FIM Completion with...` - Get fill-in-the-middle completion with model selection
+- `Gemini Coder: FIM Completion` - Get fill-in-the-middle completion using default model
+- `Gemini Coder: FIM Completion with...` - Get fill-in-the-middle completion with model selection
 - `Gemini Coder: FIM Completion to Clipboard` - Copy FIM completion content to clipboard
 - `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions
 
-#### Code Refactoring
+#### Refactoring
 
-- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
-- `Gemini Coder: Apply Changes to this File with...` - Apply changes with model selection
-- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
 - `Gemini Coder: Refactor this File` - Apply changes based on refactoring instruction
 - `Gemini Coder: Refactor this File with...` - Refactor with model selection
 - `Gemini Coder: Refactor to Clipboard` - Copy refactoring content to clipboard
 - `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring
+
+#### Applying Changes
+
+- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
+- `Gemini Coder: Apply Changes to this File with...` - Apply changes with model selection
+- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
 - `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes
 
 #### Chat Interactions
@@ -57,7 +60,6 @@ The goal of this extension is to ensure the same sleek developer experience with
 #### Context Management
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context
-- `Gemini Coder: Clear all checks` - Clear all file selections
 
 ## Set up custom providers
 
