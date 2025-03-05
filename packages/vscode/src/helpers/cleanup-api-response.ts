@@ -25,6 +25,11 @@ export function cleanup_api_response(params: {
     content = content.replace('<![CDATA[', '')
     content = content.replace(']]>', '')
 
+    // Remove doctype if starts with it
+    if (content.startsWith('<!DOCTYPE')) {
+      content = content.substring(content.indexOf('>') + 1)
+    }
+
     // Remove paths that appear at the start of the content
     const filename_regex = /^(?:(?:\w+\/)+[\w.-]+\.[a-zA-Z0-9]+\s*\n?)/
     content = content.replace(filename_regex, '')
