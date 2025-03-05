@@ -6,6 +6,7 @@ import { Presets } from '../../../ui/src/components/Presets'
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
   private _webview_view: vscode.WebviewView | undefined
+  private _config_listener: vscode.Disposable | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -22,6 +23,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         })
       }
     })
+
+    // Listen for configuration changes
+    this._config_listener = vscode.workspace.onDidChangeConfiguration(
+      (event) => {
+        if (
+          event.affectsConfiguration('geminiCoder.presets') &&
+          this._webview_view
+        ) {
+          this._send_presets_to_webview(this._webview_view.webview)
+        }
+      }
+    )
+
+    // Register the disposable
+    this._context.subscriptions.push(this._config_listener)
   }
 
   public resolveWebviewView(
@@ -56,24 +72,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           connected: this.websocket_server_instance.is_connected()
         })
       } else if (message.command == 'getPresets') {
-        const web_chat_presets_config = vscode.workspace
-          .getConfiguration()
-          .get('geminiCoder.presets', [])
-        const presets: Presets.Preset[] = web_chat_presets_config.map(
-          (preset: any) => ({
-            name: preset.name,
-            chatbot: preset.chatbot,
-            prompt_prefix: preset.promptPrefix,
-            prompt_suffix: preset.promptSuffix,
-            model: preset.model,
-            temperature: preset.temperature,
-            system_instructions: preset.systemInstructions
-          })
-        )
-        webview_view.webview.postMessage({
-          command: 'presets',
-          presets
-        })
+        this._send_presets_to_webview(webview_view.webview)
       } else if (message.command == 'getSelectedPresets') {
         const selected_names = this._context.globalState.get<string[]>(
           'selectedPresets',
@@ -145,15 +144,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         const config = vscode.workspace.getConfiguration()
         const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
 
-        const preset_quick_pick_items = web_chat_presets.map(
-          (preset) => ({
-            label: preset.name,
-            description: `${preset.chatbot}${
-              preset.model ? ` - ${preset.model}` : ''
-            }`,
-            picked: false
-          })
-        )
+        const preset_quick_pick_items = web_chat_presets.map((preset) => ({
+          label: preset.name,
+          description: `${preset.chatbot}${
+            preset.model ? ` - ${preset.model}` : ''
+          }`,
+          picked: false
+        }))
 
         // Get previously selected presets from globalState
         const selected_preset_names = this._context.globalState.get<string[]>(
@@ -211,6 +208,30 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     })
   }
 
+  // Helper method to send presets to webview
+  private _send_presets_to_webview(webview: vscode.Webview) {
+    const web_chat_presets_config = vscode.workspace
+      .getConfiguration()
+      .get('geminiCoder.presets', [])
+
+    const presets: Presets.Preset[] = web_chat_presets_config.map(
+      (preset: any) => ({
+        name: preset.name,
+        chatbot: preset.chatbot,
+        prompt_prefix: preset.promptPrefix,
+        prompt_suffix: preset.promptSuffix,
+        model: preset.model,
+        temperature: preset.temperature,
+        system_instructions: preset.systemInstructions
+      })
+    )
+
+    webview.postMessage({
+      command: 'presets',
+      presets
+    })
+  }
+
   private _get_html_for_webview(webview: vscode.Webview) {
     const script_uri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extension_uri, 'out', 'chat.js')
@@ -229,5 +250,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       </body>
       </html>
     `
+  }
+
+  // Clean up resources when the provider is disposed
+  public dispose() {
+    if (this._config_listener) {
+      this._config_listener.dispose()
+    }
   }
 }
