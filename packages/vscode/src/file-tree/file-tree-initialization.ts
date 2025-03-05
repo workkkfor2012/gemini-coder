@@ -75,23 +75,13 @@ export function file_tree_initialization(
           return
         }
 
-        const final_output = `<files>${context_text}</files>`
-
-        // Calculate token count
-        const total_token_count = Math.floor(context_text.length / 4)
+        const final_text = `<files>${context_text}</files>`
 
         // Copy to clipboard
-        await vscode.env.clipboard.writeText(final_output)
+        await vscode.env.clipboard.writeText(final_text)
 
         // Display token count in the information message
-        vscode.window.showInformationMessage(
-          `Context copied to clipboard (~${Math.round(
-            total_token_count
-          )} tokens).`
-        )
-
-        // Update token count after copying context
-        await update_activity_bar_badge_token_count()
+        vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),
       vscode.commands.registerCommand(
         'geminiCoder.copyContextCommand',
