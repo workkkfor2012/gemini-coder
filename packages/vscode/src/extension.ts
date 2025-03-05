@@ -4,7 +4,10 @@ import { apply_changes_command } from './commands/apply-changes-command'
 import { fim_completion_command } from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
-import { web_chat_command, web_chat_with_command } from './commands/web-chat-command'
+import {
+  web_chat_command,
+  web_chat_with_command
+} from './commands/web-chat-command'
 import { apply_changes_to_clipboard_command } from './commands/apply-changes-to-clipboard-command'
 import { chat_to_clipboard_command } from './commands/chat-to-clipboard-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
@@ -44,7 +47,7 @@ export function activate(context: vscode.ExtensionContext) {
   )
 
   // API View
-  const api_view_provider = new ApiViewProvider(context.extensionUri)
+  const api_view_provider = new ApiViewProvider(context.extensionUri, context)
   context.subscriptions.push(
     vscode.window.registerWebviewViewProvider(
       'geminiCoderViewApi',
@@ -88,15 +91,11 @@ export function activate(context: vscode.ExtensionContext) {
       use_default_model: true
     }),
     fim_completion_to_clipboard_command(file_tree_provider),
-    change_default_model_command('fim'),
-    change_default_model_command('refactoring'),
-    change_default_model_command('apply_changes'),
+    change_default_model_command('fim', context),
+    change_default_model_command('refactoring', context),
+    change_default_model_command('apply_changes', context),
     apply_changes_to_clipboard_command(file_tree_provider),
-    web_chat_command(
-      context,
-      file_tree_provider,
-      websocket_server_instance
-    ),
+    web_chat_command(context, file_tree_provider, websocket_server_instance),
     web_chat_with_command(
       context,
       file_tree_provider,

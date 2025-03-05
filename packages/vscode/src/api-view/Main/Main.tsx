@@ -3,29 +3,21 @@ import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
 
 type Props = {
   providers: any[]
-  defaultFimModel: string
-  defaultRefactoringModel: string
-  defaultApplyChangesModel: string
-  onFimModelChange: (model: string) => void
-  onRefactoringModelChange: (model: string) => void
-  onApplyChangesModelChange: (model: string) => void
+  default_fim_model: string
+  default_refactoring_model: string
+  default_apply_changes_model: string
+  on_fim_model_change: (model: string) => void
+  on_refactoring_model_change: (model: string) => void
+  on_apply_changes_model_change: (model: string) => void
 }
 
-export const Main: React.FC<Props> = ({
-  providers,
-  defaultFimModel,
-  defaultRefactoringModel,
-  defaultApplyChangesModel,
-  onFimModelChange,
-  onRefactoringModelChange,
-  onApplyChangesModelChange
-}) => {
+export const Main: React.FC<Props> = (props) => {
   const providerOptions = [
     ...BUILT_IN_PROVIDERS.map((provider) => ({
       name: provider.name,
       value: provider.name
     })),
-    ...providers.map((provider) => ({
+    ...props.providers.map((provider) => ({
       name: provider.name,
       value: provider.name
     }))
@@ -33,12 +25,12 @@ export const Main: React.FC<Props> = ({
 
   return (
     <div className={styles.container}>
-      <div>Select default models</div>
+      <div>Select default models for given features:</div>
       <div className={styles['model-select']}>
         <label>FIM</label>
         <select
-          value={defaultFimModel}
-          onChange={(e) => onFimModelChange(e.target.value)}
+          value={props.default_fim_model}
+          onChange={(e) => props.on_fim_model_change(e.target.value)}
         >
           {providerOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -51,8 +43,8 @@ export const Main: React.FC<Props> = ({
       <div className={styles['model-select']}>
         <label>File Refactoring</label>
         <select
-          value={defaultRefactoringModel}
-          onChange={(e) => onRefactoringModelChange(e.target.value)}
+          value={props.default_refactoring_model}
+          onChange={(e) => props.on_refactoring_model_change(e.target.value)}
         >
           {providerOptions.map((option) => (
             <option key={option.value} value={option.value}>
@@ -65,8 +57,8 @@ export const Main: React.FC<Props> = ({
       <div className={styles['model-select']}>
         <label>Apply Changes</label>
         <select
-          value={defaultApplyChangesModel}
-          onChange={(e) => onApplyChangesModelChange(e.target.value)}
+          value={props.default_apply_changes_model}
+          onChange={(e) => props.on_apply_changes_model_change(e.target.value)}
         >
           {providerOptions.map((option) => (
             <option key={option.value} value={option.value}>

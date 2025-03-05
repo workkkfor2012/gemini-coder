@@ -1,12 +1,12 @@
 import * as vscode from 'vscode'
 import { Provider } from '../types/provider'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
+import { ModelManager } from '../services/model-manager'
 
 export type ModelType = 'fim' | 'refactoring' | 'apply_changes'
 
 type ModelConfig = {
   command_id: string
-  config_key: string
   display_name: string
   placeholder: string
 }
@@ -14,32 +14,47 @@ type ModelConfig = {
 const MODEL_CONFIGS: Record<ModelType, ModelConfig> = {
   fim: {
     command_id: 'geminiCoder.changeDefaultFimModel',
-    config_key: 'geminiCoder.defaultFimModel',
     display_name: 'FIM',
     placeholder: 'Select default model for FIM completions'
   },
   refactoring: {
     command_id: 'geminiCoder.changeDefaultRefactoringModel',
-    config_key: 'geminiCoder.defaultRefactoringModel',
     display_name: 'Refactoring',
     placeholder: 'Select default model for file refactoring'
   },
   apply_changes: {
     command_id: 'geminiCoder.changeDefaultApplyChangesModel',
-    config_key: 'geminiCoder.defaultApplyChangesModel',
-    display_name: 'Apply Changes',
+    display_name: 'Applying Changes',
     placeholder: 'Select default model for applying changes'
   }
 }
 
-export function change_default_model_command(model_type: ModelType) {
+export function change_default_model_command(
+  model_type: ModelType,
+  context: vscode.ExtensionContext
+) {
   const config = MODEL_CONFIGS[model_type]
+  const modelManager = new ModelManager(context)
 
   return vscode.commands.registerCommand(config.command_id, async () => {
-    const config = vscode.workspace.getConfiguration()
-    const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+    const userConfig = vscode.workspace.getConfiguration()
+    const user_providers = userConfig.get<Provider[]>('geminiCoder.providers') || []
     const all_providers = [...BUILT_IN_PROVIDERS, ...user_providers]
-    const current_default_model = config.get<string>(config.config_key)
+    
+    // Get current default model from global state
+    let current_default_model: string
+    
+    switch (model_type) {
+      case 'fim':
+        current_default_model = modelManager.get_default_fim_model()
+        break
+      case 'refactoring':
+        current_default_model = modelManager.get_default_refactoring_model()
+        break
+      case 'apply_changes':
+        current_default_model = modelManager.get_default_apply_changes_model()
+        break
+    }
 
     if (!all_providers || all_providers.length === 0) {
       vscode.window.showErrorMessage(
@@ -68,11 +83,19 @@ export function change_default_model_command(model_type: ModelType) {
     quick_pick.onDidAccept(async () => {
       const selected_provider = quick_pick.selectedItems[0]?.label
       if (selected_provider) {
-        await config.update(
-          config.config_key,
-          selected_provider,
-          vscode.ConfigurationTarget.Global
-        )
+        // Update in global state instead of configuration
+        switch (model_type) {
+          case 'fim':
+            await modelManager.setDefaultFimModel(selected_provider)
+            break
+          case 'refactoring':
+            await modelManager.setDefaultRefactoringModel(selected_provider)
+            break
+          case 'apply_changes':
+            await modelManager.setDefaultApplyChangesModel(selected_provider)
+            break
+        }
+        
         vscode.window.showInformationMessage(
           `Default ${config.display_name} model changed to: ${selected_provider}`
         )

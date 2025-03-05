@@ -7,11 +7,11 @@ import '@vscode/codicons/dist/codicon.css'
 import '@ui/styles/styles.css'
 
 function App() {
-  const [providers, setProviders] = useState<any[]>([])
-  const [defaultFimModel, setDefaultFimModel] = useState<string>('')
-  const [defaultRefactoringModel, setDefaultRefactoringModel] =
+  const [providers, set_providers] = useState<any[]>([])
+  const [default_fim_model, set_default_fim_model] = useState<string>('')
+  const [default_refactoring_model, set_default_refactoring_model] =
     useState<string>('')
-  const [defaultApplyChangesModel, setDefaultApplyChangesModel] =
+  const [default_apply_changes_model, set_default_apply_changes_model] =
     useState<string>('')
 
   useEffect(() => {
@@ -19,11 +19,11 @@ function App() {
 
     const handleMessage = (event: MessageEvent) => {
       const message = event.data
-      if (message.command === 'configuration') {
-        setProviders(message.providers)
-        setDefaultFimModel(message.defaultFimModel)
-        setDefaultRefactoringModel(message.defaultRefactoringModel)
-        setDefaultApplyChangesModel(message.defaultApplyChangesModel)
+      if (message.command == 'configuration') {
+        set_providers(message.providers)
+        set_default_fim_model(message.default_fim_model)
+        set_default_refactoring_model(message.default_refactoring_model)
+        set_default_apply_changes_model(message.default_apply_changes_model)
       }
     }
 
@@ -31,39 +31,39 @@ function App() {
     return () => window.removeEventListener('message', handleMessage)
   }, [])
 
-  const handleFimModelChange = (model: string) => {
+  const handle_fim_model_change = (model: string) => {
     vscode.postMessage({
       command: 'updateFimModel',
       model
     })
-    setDefaultFimModel(model)
+    set_default_fim_model(model)
   }
 
-  const handleRefactoringModelChange = (model: string) => {
+  const handle_refactoring_model_change = (model: string) => {
     vscode.postMessage({
       command: 'updateRefactoringModel',
       model
     })
-    setDefaultRefactoringModel(model)
+    set_default_refactoring_model(model)
   }
 
-  const handleApplyChangesModelChange = (model: string) => {
+  const handle_apply_changes_model_change = (model: string) => {
     vscode.postMessage({
       command: 'updateApplyChangesModel',
       model
     })
-    setDefaultApplyChangesModel(model)
+    set_default_apply_changes_model(model)
   }
 
   return (
     <Main
       providers={providers}
-      defaultFimModel={defaultFimModel}
-      defaultRefactoringModel={defaultRefactoringModel}
-      defaultApplyChangesModel={defaultApplyChangesModel}
-      onFimModelChange={handleFimModelChange}
-      onRefactoringModelChange={handleRefactoringModelChange}
-      onApplyChangesModelChange={handleApplyChangesModelChange}
+      default_fim_model={default_fim_model}
+      default_refactoring_model={default_refactoring_model}
+      default_apply_changes_model={default_apply_changes_model}
+      on_fim_model_change={handle_fim_model_change}
+      on_refactoring_model_change={handle_refactoring_model_change}
+      on_apply_changes_model_change={handle_apply_changes_model_change}
     />
   )
 }

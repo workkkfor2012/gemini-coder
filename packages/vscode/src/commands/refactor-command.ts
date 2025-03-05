@@ -7,6 +7,7 @@ import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 import { FilesCollector } from '../helpers/files-collector'
+import { ModelManager } from '../services/model-manager'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -22,7 +23,10 @@ async function get_selected_provider(
   }
 
   // Get the last used models from global state
-  let last_used_models = context.globalState.get<string[]>('lastUsedRefactoringModels', [])
+  let last_used_models = context.globalState.get<string[]>(
+    'lastUsedRefactoringModels',
+    []
+  )
 
   // Filter out the default model from last used models (it will be added at the beginning)
   last_used_models = last_used_models.filter(
@@ -92,6 +96,8 @@ export function refactor_command(params: {
   file_tree_provider: any
   use_default_model?: boolean
 }) {
+  const model_manager = new ModelManager(params.context)
+
   return vscode.commands.registerCommand(params.command, async () => {
     const config = vscode.workspace.getConfiguration()
     const editor = vscode.window.activeTextEditor
@@ -139,9 +145,11 @@ export function refactor_command(params: {
     const document_text = document.getText()
 
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const default_model_name = config.get<string>('geminiCoder.defaultFimModel')
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
+
+    // Get default model from global state instead of config
+    const default_model_name = model_manager.get_default_refactoring_model()
 
     const all_providers = [
       ...BUILT_IN_PROVIDERS.map((provider) => ({
