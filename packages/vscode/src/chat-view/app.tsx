@@ -11,7 +11,7 @@ function App() {
   const [initial_prompt, set_initial_prompt] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
-  const [selected_presets, set_selected_presets] = useState<number[]>([])
+  const [selected_presets, set_selected_presets] = useState<string[]>([])
   const [expanded_presets, set_expanded_presets] = useState<number[]>([])
 
   useEffect(() => {
@@ -34,10 +34,10 @@ function App() {
           set_presets(message.presets)
           break
         case 'selectedPresets':
-          set_selected_presets(message.indices)
+          set_selected_presets(message.names)
           break
         case 'selectedPresetsFromPicker':
-          set_selected_presets(message.indices)
+          set_selected_presets(message.names)
           break
         case 'expandedPresets':
           set_expanded_presets(message.indices)
@@ -51,24 +51,24 @@ function App() {
 
   const handle_initialize_chats = (params: {
     instruction: string
-    preset_indices: number[]
+    preset_names: string[]
   }) => {
     vscode.postMessage({
       command: 'sendPrompt',
       instruction: params.instruction,
-      preset_indices: params.preset_indices
+      preset_names: params.preset_names
     })
   }
 
   const handle_show_preset_picker = (
     instruction: string
-  ): Promise<number[]> => {
+  ): Promise<string[]> => {
     return new Promise((resolve) => {
       const messageHandler = (event: MessageEvent) => {
         const message = event.data
         if (message.command == 'presetsSelectedFromPicker') {
           window.removeEventListener('message', messageHandler)
-          resolve(message.indices)
+          resolve(message.names)
         }
       }
       window.addEventListener('message', messageHandler)
@@ -94,12 +94,12 @@ function App() {
     })
   }
 
-  const handle_presets_selection_change = (selected_indices: number[]) => {
+  const handle_presets_selection_change = (selected_names: string[]) => {
     vscode.postMessage({
       command: 'saveSelectedPresets',
-      indices: selected_indices
+      names: selected_names
     })
-    set_selected_presets(selected_indices)
+    set_selected_presets(selected_names)
   }
 
   const handle_expanded_presets_change = (expanded_indices: number[]) => {

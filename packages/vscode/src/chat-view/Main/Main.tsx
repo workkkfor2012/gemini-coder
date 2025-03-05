@@ -8,18 +8,18 @@ import { Separator as UiSeparator } from '@ui/components/Separator'
 type Props = {
   initialize_chats: (params: {
     instruction: string
-    preset_indices: number[]
+    preset_names: string[]
   }) => void
-  show_preset_picker: (instruction: string) => Promise<number[]>
+  show_preset_picker: (instruction: string) => Promise<string[]>
   copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   open_settings: () => void
   initial_instruction: string
   is_connected: boolean
   presets: UiPresets.Preset[]
-  selected_presets: number[]
+  selected_presets: string[]
   expanded_presets: number[]
-  on_selected_presets_change: (selected_indices: number[]) => void
+  on_selected_presets_change: (selected_names: string[]) => void
   on_expanded_presets_change: (expanded_indices: number[]) => void
 }
 
@@ -34,25 +34,31 @@ export const Main: React.FC<Props> = (props) => {
   const handle_submit = async () => {
     // If no presets are selected, show the picker
     if (props.selected_presets.length == 0) {
-      const selected_indices = await props.show_preset_picker(instruction)
-      if (selected_indices.length > 0) {
+      const selected_names = await props.show_preset_picker(instruction)
+      if (selected_names.length > 0) {
         // Update the selected presets through the callback
-        props.on_selected_presets_change(selected_indices)
+        props.on_selected_presets_change(selected_names)
         props.initialize_chats({
           instruction,
-          preset_indices: selected_indices
+          preset_names: selected_names
         })
       }
     } else {
       props.initialize_chats({
         instruction,
-        preset_indices: props.selected_presets
+        preset_names: props.selected_presets
       })
     }
   }
 
   const handle_copy = () => {
     props.copy_to_clipboard(instruction)
+  }
+
+  // Find preset index by name
+  const getPresetIndexByName = (name: string): number => {
+    const index = props.presets.findIndex((preset) => preset.name === name)
+    return index !== -1 ? index : -1
   }
 
   return (
@@ -107,10 +113,10 @@ export const Main: React.FC<Props> = (props) => {
         on_selected_presets_change={props.on_selected_presets_change}
         on_expanded_presets_change={props.on_expanded_presets_change}
         on_edit_presets={props.open_settings}
-        on_preset_click={(idx) => {
+        on_preset_click={(name) => {
           props.initialize_chats({
             instruction: instruction,
-            preset_indices: [idx]
+            preset_names: [name]
           })
         }}
       />

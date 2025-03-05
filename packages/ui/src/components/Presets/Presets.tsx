@@ -17,10 +17,10 @@ export namespace Presets {
 
   export type Props = {
     presets: Preset[]
-    on_preset_click: (idx: number) => void
+    on_preset_click: (name: string) => void
     disabled: boolean
-    selected_presets: number[]
-    on_selected_presets_change: (selected_indices: number[]) => void
+    selected_presets: string[]
+    on_selected_presets_change: (selected_names: string[]) => void
     on_edit_presets: () => void
     expanded_presets: number[]
     on_expanded_presets_change: (expanded_indices: number[]) => void
@@ -56,11 +56,11 @@ export const Presets: React.FC<Presets.Props> = (props) => {
     props.on_expanded_presets_change(new_expanded)
   }
 
-  const handle_checkbox_change = (index: number) => {
+  const handle_checkbox_change = (name: string) => {
     if (props.on_selected_presets_change) {
-      const new_selected = props.selected_presets?.includes(index)
-        ? props.selected_presets.filter((i) => i !== index)
-        : [...(props.selected_presets || []), index]
+      const new_selected = props.selected_presets?.includes(name)
+        ? props.selected_presets.filter((n) => n !== name)
+        : [...(props.selected_presets || []), name]
       props.on_selected_presets_change(new_selected)
     }
   }
@@ -91,7 +91,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
               <div
                 className={cn(styles.presets__item__header__title, {
                   [styles['presets__item__header__title--default']]:
-                    props.selected_presets?.includes(i)
+                    props.selected_presets?.includes(preset.name)
                 })}
               >
                 <span>{preset.name}</span>
@@ -113,14 +113,16 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 <div className={styles.presets__item__details__actions}>
                   <IconButton
                     codicon_icon="send"
-                    on_click={() => props.on_preset_click?.(i)}
+                    on_click={() => props.on_preset_click?.(preset.name)}
                   />
                   <label>
                     Use by default
                     <input
                       type="checkbox"
-                      checked={props.selected_presets?.includes(i) || false}
-                      onChange={() => handle_checkbox_change(i)}
+                      checked={
+                        props.selected_presets?.includes(preset.name) || false
+                      }
+                      onChange={() => handle_checkbox_change(preset.name)}
                     />
                   </label>
                 </div>

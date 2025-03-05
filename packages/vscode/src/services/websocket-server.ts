@@ -134,31 +134,35 @@ export class WebSocketServer {
 
   public async initialize_chats(
     text: string,
-    preset_indices: number[]
+    preset_names: string[]
   ): Promise<void> {
     const config = vscode.workspace.getConfiguration()
     const open_in_background =
       config.get<boolean>('geminiCoder.webChatsInBackground') ?? false
-    const web_chat_presets =
-      config.get<any[]>('geminiCoder.presets') ?? []
-
-      console.log(preset_indices)
-console.log(web_chat_presets)
+    const web_chat_presets = config.get<any[]>('geminiCoder.presets') ?? []
 
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',
       text,
       open_in_background,
-      chats: preset_indices.map((idx) => {
-        const preset = web_chat_presets[idx]
-        const chatbot = CHATBOTS[preset.chatbot]
-        return {
-          url: chatbot.url,
-          model: preset.model,
-          temperature: preset.temperature,
-          system_instructions: preset.systemInstructions
-        }
-      })
+      chats: preset_names
+        .map((name) => {
+          // Find preset by name
+          const preset = web_chat_presets.find((p) => p.name == name)
+          if (!preset) {
+            console.error(`Preset not found: ${name}`)
+            return null
+          }
+
+          const chatbot = CHATBOTS[preset.chatbot]
+          return {
+            url: chatbot.url,
+            model: preset.model,
+            temperature: preset.temperature,
+            system_instructions: preset.systemInstructions
+          }
+        })
+        .filter((chat) => chat !== null) // Filter out any null chats (if preset wasn't found)
     }
 
     const verbose = config.get<boolean>('geminiCoder.verbose')

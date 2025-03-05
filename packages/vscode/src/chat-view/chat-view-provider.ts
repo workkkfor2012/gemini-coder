@@ -75,16 +75,16 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           presets
         })
       } else if (message.command == 'getSelectedPresets') {
-        const selected_indices = this._context.globalState.get<number[]>(
+        const selected_names = this._context.globalState.get<string[]>(
           'selectedPresets',
           []
         )
         webview_view.webview.postMessage({
           command: 'selectedPresets',
-          indices: selected_indices
+          names: selected_names
         })
       } else if (message.command == 'saveSelectedPresets') {
-        this._context.globalState.update('selectedPresets', message.indices)
+        this._context.globalState.update('selectedPresets', message.names)
       } else if (message.command == 'getExpandedPresets') {
         const expanded_indices = this._context.globalState.get<number[]>(
           'expandedPresets',
@@ -111,7 +111,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           this.websocket_server_instance.initialize_chats(
             text,
-            message.preset_indices
+            message.preset_names
           )
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)
@@ -146,15 +146,25 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
 
         const preset_quick_pick_items = web_chat_presets.map(
-          (preset, index) => ({
+          (preset) => ({
             label: preset.name,
             description: `${preset.chatbot}${
               preset.model ? ` - ${preset.model}` : ''
             }`,
-            picked: false,
-            index: index
+            picked: false
           })
         )
+
+        // Get previously selected presets from globalState
+        const selected_preset_names = this._context.globalState.get<string[]>(
+          'selectedPresets',
+          []
+        )
+
+        // Set picked state based on previously selected preset names
+        preset_quick_pick_items.forEach((item) => {
+          item.picked = selected_preset_names.includes(item.label)
+        })
 
         vscode.window
           .showQuickPick(preset_quick_pick_items, {
@@ -163,26 +173,26 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
           .then((selected_presets) => {
             if (selected_presets && selected_presets.length > 0) {
-              const selected_indices = selected_presets.map(
-                (preset) => preset.index
+              const selected_names = selected_presets.map(
+                (preset) => preset.label
               )
 
               // Save the selection
               this._context.globalState.update(
                 'selectedPresets',
-                selected_indices
+                selected_names
               )
 
-              // Send the indices back to the webview
+              // Send the names back to the webview
               webview_view.webview.postMessage({
                 command: 'presetsSelectedFromPicker',
-                indices: selected_indices
+                names: selected_names
               })
             } else {
               // Send empty array if nothing was selected
               webview_view.webview.postMessage({
                 command: 'presetsSelectedFromPicker',
-                indices: []
+                names: []
               })
             }
           })
