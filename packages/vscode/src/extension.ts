@@ -4,7 +4,7 @@ import { apply_changes_command } from './commands/apply-changes-command'
 import { fim_completion_command } from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
-import { web_chat_command } from './commands/web-chat-command'
+import { web_chat_command, web_chat_with_command } from './commands/web-chat-command'
 import { apply_changes_to_clipboard_command } from './commands/apply-changes-to-clipboard-command'
 import { chat_to_clipboard_command } from './commands/chat-to-clipboard-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
@@ -93,6 +93,11 @@ export function activate(context: vscode.ExtensionContext) {
     change_default_model_command('apply_changes'),
     apply_changes_to_clipboard_command(file_tree_provider),
     web_chat_command(
+      context,
+      file_tree_provider,
+      websocket_server_instance
+    ),
+    web_chat_with_command(
       context,
       file_tree_provider,
       websocket_server_instance

@@ -122,13 +122,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         try {
           // Create files collector instance
           const files_collector = new FilesCollector(this.file_tree_provider)
-          let context = ''
 
           // Collect files
-          context = await files_collector.collect_files()
+          const context_text = await files_collector.collect_files()
 
           // Construct the final text
-          let text = `${context ? `${context}\n` : ''}${message.instruction}`
+          let text = `${
+            context_text ? `<files>\n${context_text}\n</files>\n` : ''
+          }${message.instruction}`
 
           vscode.env.clipboard.writeText(text)
         } catch (error: any) {
