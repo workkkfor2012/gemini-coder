@@ -1,4 +1,3 @@
-
 type Chatbot = {
   [key: string]: {
     url: string

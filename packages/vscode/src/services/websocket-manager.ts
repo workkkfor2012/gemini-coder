@@ -5,11 +5,12 @@ import * as path from 'path'
 import * as net from 'net'
 import { InitializeChatsMessage } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
+import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext
-  private port: number = 55155
-  private security_token: string = 'gemini-coder-vscode'
+  private port: number = DEFAULT_PORT
+  private security_token: string = SECURITY_TOKENS.VSCODE
   private client: WebSocket.WebSocket | null = null
   private _on_connection_status_change: vscode.EventEmitter<boolean> =
     new vscode.EventEmitter<boolean>()
@@ -179,7 +180,7 @@ export class WebSocketManager {
     }, 3000)
   }
 
-  is_connected(): boolean {
+  is_connected_with_browser(): boolean {
     return this.has_connected_browsers
   }
 

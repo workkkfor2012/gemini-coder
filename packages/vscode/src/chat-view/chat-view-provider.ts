@@ -69,7 +69,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         // Send current connection status when requested by the webview
         webview_view.webview.postMessage({
           command: 'connectionStatus',
-          connected: this.websocket_server_instance.is_connected()
+          connected: this.websocket_server_instance.is_connected_with_browser()
         })
       } else if (message.command == 'getPresets') {
         this._send_presets_to_webview(webview_view.webview)
@@ -204,7 +204,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     // Send initial connection status after webview is ready
     webview_view.webview.postMessage({
       command: 'connectionStatus',
-      connected: this.websocket_server_instance.is_connected()
+      connected: this.websocket_server_instance.is_connected_with_browser()
     })
   }
 

@@ -2,6 +2,7 @@ import { WebSocketMessage } from '@shared/types/websocket-message'
 import { update_extension_icon } from './icon'
 import { handle_messages } from './message-handler'
 import { CONFIG } from './config'
+import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 
 // Store WebSocket instance and connection state
 let websocket: WebSocket | null = null
@@ -12,7 +13,7 @@ let is_reconnecting = false
  */
 export async function checkServerHealth(): Promise<boolean> {
   try {
-    const response = await fetch(CONFIG.HEALTH_CHECK_URL)
+    const response = await fetch(`http://localhost:${DEFAULT_PORT}/health`)
     return response.ok
   } catch {
     return false
@@ -43,7 +44,9 @@ export async function connect_websocket() {
       return
     }
 
-    websocket = new WebSocket('ws://localhost:55155?token=gemini-coder')
+    websocket = new WebSocket(
+      `ws://localhost:${DEFAULT_PORT}?token=${SECURITY_TOKENS.BROWSERS}`
+    )
 
     websocket.onopen = () => {
       console.log('Connected with the VS Code!')

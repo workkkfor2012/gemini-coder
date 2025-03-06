@@ -11,7 +11,7 @@ export function web_chat_with_command(
     'geminiCoder.webChatWith',
     async () => {
       // Check connection status immediately
-      if (!websocket_server_instance.is_connected()) {
+      if (!websocket_server_instance.is_connected_with_browser()) {
         vscode.window.showInformationMessage(
           'Could not connect to the web browser. Please check if it is running and if the Gemini Coder Connector is installed.'
         )
@@ -93,7 +93,7 @@ export function web_chat_command(
 ) {
   return vscode.commands.registerCommand('geminiCoder.webChat', async () => {
     // Check connection status immediately
-    if (!websocket_server_instance.is_connected()) {
+    if (!websocket_server_instance.is_connected_with_browser()) {
       vscode.window.showInformationMessage(
         'Could not connect to the web browser. Please check if it is running and if the Gemini Coder Connector is installed.'
       )
