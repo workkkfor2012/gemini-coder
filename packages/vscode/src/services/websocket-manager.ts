@@ -111,10 +111,19 @@ export class WebSocketManager {
 
     this.client.on('open', () => {
       console.log('Connected to WebSocket server')
-      this._on_connection_status_change.fire(true)
-
       // Start ping interval to keep connection alive
       this.start_ping_interval()
+    })
+
+    this.client.on('message', (data) => {
+      try {
+        const message = JSON.parse(data.toString())
+        if (message.action === 'browser-connection-status') {
+          this._on_connection_status_change.fire(message.hasConnectedBrowsers)
+        }
+      } catch (error) {
+        console.error('Error processing message:', error)
+      }
     })
 
     this.client.on('error', (error) => {
