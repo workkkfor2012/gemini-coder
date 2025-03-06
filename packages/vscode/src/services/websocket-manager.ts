@@ -15,6 +15,7 @@ export class WebSocketManager {
     new vscode.EventEmitter<boolean>()
   private reconnect_timer: NodeJS.Timeout | null = null
   private ping_interval: NodeJS.Timeout | null = null
+  private has_connected_browsers: boolean = false
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
     this._on_connection_status_change.event
@@ -118,8 +119,9 @@ export class WebSocketManager {
     this.client.on('message', (data) => {
       try {
         const message = JSON.parse(data.toString())
-        if (message.action === 'browser-connection-status') {
-          this._on_connection_status_change.fire(message.hasConnectedBrowsers)
+        if (message.action == 'browser-connection-status') {
+          this.has_connected_browsers = message.has_connected_browsers
+          this._on_connection_status_change.fire(this.has_connected_browsers)
         }
       } catch (error) {
         console.error('Error processing message:', error)
@@ -128,6 +130,7 @@ export class WebSocketManager {
 
     this.client.on('error', (error) => {
       console.error('WebSocket client error:', error)
+      this.has_connected_browsers = false
       this._on_connection_status_change.fire(false)
 
       // Schedule reconnect
@@ -136,6 +139,7 @@ export class WebSocketManager {
 
     this.client.on('close', () => {
       console.log('Disconnected from WebSocket server')
+      this.has_connected_browsers = false
       this._on_connection_status_change.fire(false)
 
       // Clear ping interval
@@ -175,27 +179,16 @@ export class WebSocketManager {
     }, 3000)
   }
 
-  public async is_connected(): Promise<boolean> {
-    try {
-      const response = await fetch(`http://localhost:${this.port}/health`)
-      if (!response.ok) {
-        return false
-      }
-
-      const data = await response.json()
-      return data.connected_browsers > 0
-    } catch (error) {
-      console.error('Health check failed:', error)
-      return false
-    }
+  is_connected(): boolean {
+    return this.has_connected_browsers
   }
 
   public async initialize_chats(
     text: string,
     preset_names: string[]
   ): Promise<void> {
-    if (!(await this.is_connected())) {
-      throw new Error('Not connected to WebSocket server')
+    if (!this.has_connected_browsers) {
+      throw new Error('Does not have connected browsers')
     }
 
     const config = vscode.workspace.getConfiguration()
