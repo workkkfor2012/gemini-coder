@@ -1,108 +1,133 @@
-const WebSocket = require('ws');
-const http = require('http');
-const process = require('process');
+const WebSocket = require('ws')
+const http = require('http')
+const process = require('process')
 
-const PORT = 55155;
-const SECURITY_TOKEN = 'gemini-coder';
+const PORT = 55155
+const SECURITY_TOKEN_BROWSERS = 'gemini-coder'
+const SECURITY_TOKEN_VSCODE = 'gemini-coder-vscode'
+
+// Track total connected browsers
+let connected_browsers = 0
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
   if (req.url === '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ status: 'ok' }));
-    return;
+    res.writeHead(200, { 'Content-Type': 'application/json' })
+    res.end(JSON.stringify({ 
+      status: 'ok',
+      connected_browsers: connected_browsers 
+    }))
+    return
   }
-  
-  res.writeHead(404);
-  res.end();
-});
+
+  res.writeHead(404)
+  res.end()
+})
 
 // Create WebSocket server
-const wss = new WebSocket.WebSocketServer({ server });
-const connections = new Set();
+const wss = new WebSocket.WebSocketServer({ server })
+const connections = new Set()
 
 // Log server start information
-console.log(`Starting WebSocket server process (PID: ${process.pid})`);
+console.log(`Starting WebSocket server process (PID: ${process.pid})`)
 
 // Handle WebSocket connections
 wss.on('connection', (ws, request) => {
   // Verify security token
-  const url = new URL(request.url || '', `http://localhost:${PORT}`);
-  const token = url.searchParams.get('token');
+  const url = new URL(request.url || '', `http://localhost:${PORT}`)
+  const token = url.searchParams.get('token')
 
-  if (token !== SECURITY_TOKEN) {
-    ws.close(1008, 'Invalid security token');
-    return;
+  if (token !== SECURITY_TOKEN_BROWSERS && token !== SECURITY_TOKEN_VSCODE) {
+    ws.close(1008, 'Invalid security token')
+    return
   }
 
-  console.log('New client connected');
-  connections.add(ws);
+  // Track if this is a browser connection
+  const is_browser_client = token == SECURITY_TOKEN_BROWSERS
+  if (is_browser_client) {
+    connected_browsers++
+    console.log(`Browser client connected. Total browsers: ${connected_browsers}`)
+  } else {
+    console.log('VS Code client connected')
+  }
+
+  connections.add(ws)
 
   // Handle messages from clients
   ws.on('message', (message) => {
     try {
-      const msgString = message.toString();
-      
+      const msgString = message.toString()
+
       // Handle ping message specially
       if (msgString === 'ping') {
         // Just keep the connection alive, no response needed
-        return;
+        return
       }
-      
-      const msgData = JSON.parse(msgString);
-      
+
+      const msgData = JSON.parse(msgString)
+
       // Broadcast message to all other clients if it's an initialize-chats action
       if (msgData.action === 'initialize-chats') {
         connections.forEach((client) => {
           if (client !== ws && client.readyState === WebSocket.OPEN) {
-            client.send(msgString);
+            client.send(msgString)
           }
-        });
+        })
       }
     } catch (error) {
-      console.error('Error processing message:', error);
+      console.error('Error processing message:', error)
     }
-  });
+  })
 
   // Handle client disconnection
   ws.on('close', () => {
-    console.log('Client disconnected');
-    connections.delete(ws);
-  });
+    if (is_browser_client) {
+      connected_browsers--
+      console.log(`Browser client disconnected. Total browsers: ${connected_browsers}`)
+    } else {
+      console.log('VS Code client disconnected')
+    }
+    connections.delete(ws)
+  })
 
   ws.on('error', (error) => {
-    console.error('WebSocket error:', error);
-    connections.delete(ws);
-  });
-});
+    console.error('WebSocket error:', error)
+    if (is_browser_client) {
+      connected_browsers--
+      console.log(`Browser client error disconnect. Total browsers: ${connected_browsers}`)
+    }
+    connections.delete(ws)
+  })
+})
 
 // Start server
 server.listen(PORT, () => {
-  console.log(`WebSocket server is running on ws://localhost:${PORT}`);
-});
+  console.log(`WebSocket server is running on ws://localhost:${PORT}`)
+})
 
 // Handle process signals for graceful shutdown
 process.on('SIGINT', () => {
-  shutdown();
-});
+  shutdown()
+})
 
 process.on('SIGTERM', () => {
-  shutdown();
-});
+  shutdown()
+})
 
 function shutdown() {
-  console.log('Shutting down WebSocket server...');
-  
+  console.log('Shutting down WebSocket server...')
+
   // Close all connections
   connections.forEach((ws) => {
-    ws.close();
-  });
-  connections.clear();
-  
+    ws.close()
+  })
+  connections.clear()
+  connected_browsers = 0
+
   // Close server
-  wss.close();
+  wss.close()
   server.close(() => {
-    console.log('WebSocket server stopped');
-    process.exit(0);
-  });
+    console.log('WebSocket server stopped')
+    process.exit(0)
+  })
 }
