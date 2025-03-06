@@ -14,16 +14,16 @@ import { create_apply_changes_status_bar_item } from './status-bar/create-apply-
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { refactor_command } from './commands/refactor-command'
 import { refactor_to_clipboard_command } from './commands/refactor-to-clipboard-command'
-import { WebSocketServer } from './services/websocket-server'
+import { WebSocketManager } from './services/websocket-manager'
 import { create_fim_status_bar_item } from './status-bar/create-fim-status-bar-item'
 import { ApiViewProvider } from './api-view/api-view-provider'
 import { change_default_model_command } from './commands/change-default-model-command'
 
 // Store WebSocketServer instance at module level
-let websocket_server_instance: WebSocketServer | null = null
+let websocket_server_instance: WebSocketManager | null = null
 
 export function activate(context: vscode.ExtensionContext) {
-  websocket_server_instance = new WebSocketServer(context)
+  websocket_server_instance = new WebSocketManager(context)
 
   const file_tree_provider = file_tree_initialization(context)
 

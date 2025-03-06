@@ -1,11 +1,11 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
-import { WebSocketServer } from '../services/websocket-server'
+import { WebSocketManager } from '../services/websocket-manager'
 
 export function web_chat_with_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
-  websocket_server_instance: WebSocketServer
+  websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.webChatWith',
@@ -89,7 +89,7 @@ export function web_chat_with_command(
 export function web_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
-  websocket_server_instance: WebSocketServer
+  websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand('geminiCoder.webChat', async () => {
     // Check connection status immediately

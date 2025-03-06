@@ -11,7 +11,8 @@ const config = [
     mode: 'production',
     target: 'node',
     entry: {
-      extension: './src/extension.ts'
+      extension: './src/extension.ts',
+      'websocket-server-process': './src/services/websocket-server-process.js'
     },
     output: {
       path: path.resolve(__dirname, 'out'),

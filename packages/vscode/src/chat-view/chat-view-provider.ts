@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
-import { WebSocketServer } from '@/services/websocket-server'
+import { WebSocketManager } from '@/services/websocket-manager'
 import { Presets } from '../../../ui/src/components/Presets'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
@@ -12,7 +12,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     private readonly _extension_uri: vscode.Uri,
     private readonly file_tree_provider: any,
     private readonly _context: vscode.ExtensionContext,
-    private readonly websocket_server_instance: WebSocketServer
+    private readonly websocket_server_instance: WebSocketManager
   ) {
     // Subscribe to connection status changes and forward to webview when available
     this.websocket_server_instance.on_connection_status_change((connected) => {
