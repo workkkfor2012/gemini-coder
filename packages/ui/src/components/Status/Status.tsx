@@ -18,8 +18,10 @@ export const Status: React.FC<Props> = (props) => {
         />
       </div>
       <div className={styles.links}>
-        <a href="https://github.com/robertpiosik/gemini-coder/discussions">
-          Feedback
+        <a href="https://github.com/robertpiosik/gemini-coder">GitHub</a>
+        <span>·</span>
+        <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details">
+          Rate
         </a>
         <span>·</span>
         <a href="https://buymeacoffee.com/robertpiosik">Donate</a>

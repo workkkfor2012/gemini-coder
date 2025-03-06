@@ -859,7 +859,7 @@ export class FileTreeProvider
     this.refresh()
   }
 
-  private is_excluded(relative_path: string): boolean {
+  public is_excluded(relative_path: string): boolean {
     // .git is never gitignored, should be excluded manually
     if (relative_path.split(path.sep).some((part) => part == '.git')) {
       return true
@@ -879,6 +879,26 @@ export class FileTreeProvider
       .split(',')
       .map((ext) => ext.trim().toLowerCase())
     this.ignored_extensions = new Set(extensions_array)
+  }
+
+  public async check_all(): Promise<void> {
+    const top_level_items = await this.get_files_and_directories(
+      this.workspace_root
+    )
+    for (const item of top_level_items) {
+      const key = item.resourceUri.fsPath
+      this.checked_items.set(key, vscode.TreeItemCheckboxState.Checked)
+
+      if (item.isDirectory) {
+        await this.update_directory_check_state(
+          key,
+          vscode.TreeItemCheckboxState.Checked,
+          false
+        )
+      }
+    }
+    this.update_open_file_checks()
+    this.refresh()
   }
 }
 

@@ -75,7 +75,7 @@ export function web_chat_with_command(
       }
 
       const final_text = `${
-        context_text ? `<files>\n${context_text}\n</files>\n` : ''
+        context_text ? `<files>\n${context_text}</files>\n` : ''
       }${instruction}`
 
       // Initialize chat with selected preset name
@@ -172,7 +172,7 @@ export function web_chat_command(
     }
 
     const final_text = `${
-      context_text ? `<files>\n${context_text}\n</files>\n` : ''
+      context_text ? `<files>\n${context_text}</files>\n` : ''
     }${instruction}`
 
     // Initialize chats with selected preset names

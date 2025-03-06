@@ -105,7 +105,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           // Construct the final text
           let text = `${
-            context_text ? `<files>\n${context_text}\n</files>\n` : ''
+            context_text ? `<files>\n${context_text}</files>\n` : ''
           }${message.instruction}`
 
           this.websocket_server_instance.initialize_chats(
@@ -128,7 +128,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
           // Construct the final text
           let text = `${
-            context_text ? `<files>\n${context_text}\n</files>\n` : ''
+            context_text ? `<files>\n${context_text}</files>\n` : ''
           }${message.instruction}`
 
           vscode.env.clipboard.writeText(text)

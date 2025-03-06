@@ -60,7 +60,6 @@ export function file_tree_initialization(
         let context_text = ''
 
         try {
-          // Use FilesCollector to get all files
           context_text = await files_collector.collect_files()
         } catch (error: any) {
           console.error('Error collecting files:', error)
@@ -70,17 +69,13 @@ export function file_tree_initialization(
           return
         }
 
-        if (context_text === '') {
+        if (context_text == '') {
           vscode.window.showWarningMessage('No files selected or open.')
           return
         }
 
-        const final_text = `<files>${context_text}</files>`
-
-        // Copy to clipboard
-        await vscode.env.clipboard.writeText(final_text)
-
-        // Display token count in the information message
+        context_text = `<files>\n${context_text}</files>\n`
+        await vscode.env.clipboard.writeText(context_text)
         vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),
       vscode.commands.registerCommand(
@@ -91,10 +86,16 @@ export function file_tree_initialization(
         }
       ),
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
-        file_tree_provider!.clearChecks()
-
-        // Update token count after clearing checks
-        update_activity_bar_badge_token_count()
+        if (file_tree_provider) {
+          file_tree_provider.clearChecks()
+          update_activity_bar_badge_token_count()
+        }
+      }),
+      vscode.commands.registerCommand('geminiCoder.checkAll', async () => {
+        if (file_tree_provider) {
+          await file_tree_provider.check_all()
+          update_activity_bar_badge_token_count()
+        }
       })
     )
 

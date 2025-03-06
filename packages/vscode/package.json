@@ -61,8 +61,13 @@
     "commands": [
       {
         "command": "geminiCoder.copyContext",
-        "title": "Copy context",
+        "title": "Copy Context",
         "icon": "$(copy)"
+      },
+      {
+        "command": "geminiCoder.checkAll",
+        "title": "Check All",
+        "icon": "$(check-all)"
       },
       {
         "command": "geminiCoder.copyContextCommand",
@@ -70,7 +75,7 @@
       },
       {
         "command": "geminiCoder.clearChecks",
-        "title": "Clear all checks",
+        "title": "Clear All Checks",
         "icon": "$(clear-all)"
       },
       {
@@ -140,6 +145,11 @@
           "command": "geminiCoder.copyContext",
           "when": "view == geminiCoderViewContext",
           "group": "navigation@1"
+        },
+        {
+          "command": "geminiCoder.checkAll",
+          "when": "view == geminiCoderViewContext",
+          "group": "navigation@2"
         },
         {
           "command": "geminiCoder.clearChecks",
