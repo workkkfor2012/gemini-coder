@@ -40,7 +40,7 @@ export function chat_to_clipboard_command(
       }
 
       const final_text = `${
-        context_text ? `<files>\n${context_text}\n</files>\n` : ''
+        context_text ? `<files>\n${context_text}</files>\n` : ''
       }${instruction}`
 
       await vscode.env.clipboard.writeText(final_text)
