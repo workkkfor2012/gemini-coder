@@ -2,7 +2,10 @@ const WebSocket = require('ws')
 const http = require('http')
 const process = require('process')
 
-const { DEFAULT_PORT, SECURITY_TOKENS } = require('../../../shared/src/constants/websocket')
+const {
+  DEFAULT_PORT,
+  SECURITY_TOKENS
+} = require('../../../shared/src/constants/websocket')
 
 const PORT = DEFAULT_PORT
 const SECURITY_TOKEN_BROWSERS = SECURITY_TOKENS.BROWSERS
@@ -45,6 +48,18 @@ function notifyVSCodeClients() {
     }
   })
 }
+
+// Send ping to all connected clients
+function pingClients() {
+  connections.forEach((ws) => {
+    if (ws.readyState == WebSocket.OPEN) {
+      ws.ping()
+    }
+  })
+}
+
+// Start periodic ping
+setInterval(pingClients, 10000) // Send ping every 10 seconds
 
 // Log server start information
 console.log(`Starting WebSocket server process (PID: ${process.pid})`)

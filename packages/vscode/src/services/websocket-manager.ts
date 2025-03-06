@@ -15,7 +15,6 @@ export class WebSocketManager {
   private _on_connection_status_change: vscode.EventEmitter<boolean> =
     new vscode.EventEmitter<boolean>()
   private reconnect_timer: NodeJS.Timeout | null = null
-  private ping_interval: NodeJS.Timeout | null = null
   private has_connected_browsers: boolean = false
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
@@ -114,7 +113,6 @@ export class WebSocketManager {
     this.client.on('open', () => {
       console.log('Connected to WebSocket server')
       // Start ping interval to keep connection alive
-      this.start_ping_interval()
     })
 
     this.client.on('message', (data) => {
@@ -143,29 +141,9 @@ export class WebSocketManager {
       this.has_connected_browsers = false
       this._on_connection_status_change.fire(false)
 
-      // Clear ping interval
-      if (this.ping_interval) {
-        clearInterval(this.ping_interval)
-        this.ping_interval = null
-      }
-
       // Schedule reconnect
       this.schedule_reconnect()
     })
-  }
-
-  private start_ping_interval() {
-    // Clear existing interval
-    if (this.ping_interval) {
-      clearInterval(this.ping_interval)
-    }
-
-    // Send ping every 10 seconds to keep the connection alive
-    this.ping_interval = setInterval(() => {
-      if (this.client && this.client.readyState === WebSocket.OPEN) {
-        this.client.send('ping')
-      }
-    }, 10000)
   }
 
   private schedule_reconnect() {
@@ -229,12 +207,6 @@ export class WebSocketManager {
   }
 
   public dispose() {
-    // Clear intervals and timers
-    if (this.ping_interval) {
-      clearInterval(this.ping_interval)
-      this.ping_interval = null
-    }
-
     if (this.reconnect_timer) {
       clearTimeout(this.reconnect_timer)
       this.reconnect_timer = null
