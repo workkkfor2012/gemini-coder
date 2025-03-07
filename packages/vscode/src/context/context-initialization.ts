@@ -164,27 +164,40 @@ export function context_initialization(context: vscode.ExtensionContext): {
     context.subscriptions.push(
       vscode.workspace.onDidChangeConfiguration((event) => {
         if (event.affectsConfiguration('geminiCoder')) {
+          // If attachOpenFiles setting changed, refresh the tree views
+          if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+            const config = vscode.workspace.getConfiguration('geminiCoder')
+            const attachOpenFiles = config.get('attachOpenFiles', true)
+
+            // Update the OpenEditorsProvider with the new setting value
+            if (open_editors_provider) {
+              open_editors_provider.updateAttachOpenFilesSetting(
+                attachOpenFiles
+              )
+            }
+          }
+
           update_activity_bar_badge_token_count()
         }
       })
     )
 
     // Update badge when tabs change with debouncing to avoid multiple updates
-    let tabChangeTimeout: NodeJS.Timeout | null = null;
+    let tabChangeTimeout: NodeJS.Timeout | null = null
     context.subscriptions.push(
       vscode.window.tabGroups.onDidChangeTabs(() => {
         // Clear previous timeout if it exists
         if (tabChangeTimeout) {
-          clearTimeout(tabChangeTimeout);
+          clearTimeout(tabChangeTimeout)
         }
         // Set a new timeout to update after a short delay
         tabChangeTimeout = setTimeout(() => {
-          update_activity_bar_badge_token_count();
-          tabChangeTimeout = null;
-        }, 100); // 100ms debounce
+          update_activity_bar_badge_token_count()
+          tabChangeTimeout = null
+        }, 100) // 100ms debounce
       })
-    );
-    
+    )
+
     // Update title when workspace folders change
     context.subscriptions.push(
       vscode.workspace.onDidChangeWorkspaceFolders(() => {

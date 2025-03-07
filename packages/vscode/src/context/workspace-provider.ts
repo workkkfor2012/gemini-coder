@@ -646,7 +646,7 @@ export class FileItem extends vscode.TreeItem {
       this.command = {
         command: 'vscode.open',
         title: 'Open File',
-        arguments: [this.resourceUri]
+        arguments: [this.resourceUri, { preview: false }]
       }
     }
 

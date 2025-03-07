@@ -44,34 +44,35 @@ export class OpenEditorsProvider
   refresh(): void {
     // Clean up closed files from checked_items
     this.cleanUpClosedFiles()
-    
+
     // Handle newly opened files (this is the new part)
     this.handleNewlyOpenedFiles()
-    
+
     // Trigger view update
     this._onDidChangeTreeData.fire()
   }
 
   // New method to handle newly opened files
   private handleNewlyOpenedFiles(): void {
+    // Only auto-check new files if the setting is enabled
     if (!this.attach_open_files) return
-    
+
     const openFilePaths = this.getOpenEditors()
-    
+
     for (const uri of openFilePaths) {
       const filePath = uri.fsPath
-      
+
       // Skip files not in workspace
       if (!filePath.startsWith(this.workspace_root)) continue
-      
+
       const extension = path.extname(filePath).toLowerCase().replace('.', '')
       if (this.ignored_extensions.has(extension)) continue
-      
+
       // Check if this is a new file that isn't in our map yet
       if (!this.checked_items.has(filePath)) {
         // Auto-check new files
         this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
-        
+
         // Clear token count for this file to force recalculation
         this.file_token_counts.delete(filePath)
       }
@@ -81,9 +82,9 @@ export class OpenEditorsProvider
   // New method to clean up closed files from checked_items
   private cleanUpClosedFiles(): void {
     const openFilePaths = new Set(
-      this.getOpenEditors().map(uri => uri.fsPath)
+      this.getOpenEditors().map((uri) => uri.fsPath)
     )
-    
+
     // Filter out entries that are no longer open
     const keysToDelete: string[] = []
     this.checked_items.forEach((state, filePath) => {
@@ -91,14 +92,14 @@ export class OpenEditorsProvider
         keysToDelete.push(filePath)
       }
     })
-    
+
     // Remove closed files from checked_items
-    keysToDelete.forEach(key => {
+    keysToDelete.forEach((key) => {
       this.checked_items.delete(key)
     })
-    
+
     // Clear token count for closed files
-    keysToDelete.forEach(key => {
+    keysToDelete.forEach((key) => {
       this.file_token_counts.delete(key)
     })
   }
@@ -199,10 +200,13 @@ export class OpenEditorsProvider
         continue
       }
 
-      // Get checkbox state, auto-check if not set
+      // Get checkbox state, respect attach_open_files setting
       let checkbox_state = this.checked_items.get(file_path)
       if (checkbox_state === undefined) {
-        checkbox_state = vscode.TreeItemCheckboxState.Checked
+        // Only auto-check if attach_open_files is enabled
+        checkbox_state = this.attach_open_files
+          ? vscode.TreeItemCheckboxState.Checked
+          : vscode.TreeItemCheckboxState.Unchecked
         this.checked_items.set(file_path, checkbox_state)
       }
 
@@ -239,20 +243,20 @@ export class OpenEditorsProvider
   clearChecks(): void {
     // Instead of clearing the map, explicitly set each open editor to unchecked
     const open_files = this.getOpenEditors()
-    
+
     for (const uri of open_files) {
       const file_path = uri.fsPath
-      
+
       // Skip files not in workspace
       if (!file_path.startsWith(this.workspace_root)) continue
-      
+
       // Explicitly set to unchecked state
       this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
     }
-    
+
     // Force a complete tree refresh by clearing the file token count cache
     this.file_token_counts.clear()
-    
+
     // Fire the event with undefined to force full tree refresh
     this._onDidChangeTreeData.fire(undefined)
   }
@@ -274,7 +278,7 @@ export class OpenEditorsProvider
 
     // Force a complete tree refresh by clearing the file token count cache
     this.file_token_counts.clear()
-    
+
     // Fire the event with undefined to force full tree refresh
     this._onDidChangeTreeData.fire(undefined)
   }
@@ -308,9 +312,18 @@ export class OpenEditorsProvider
     this.refresh()
   }
 
+  // Add this method to the OpenEditorsProvider class
+  public updateAttachOpenFilesSetting(value: boolean): void {
+    if (this.attach_open_files == value) {
+      return
+    }
+    this.attach_open_files = value
+    this.refresh()
+  }
+
   private autoCheckOpenEditors(): void {
     if (!this.attach_open_files) return
-    
+
     const open_files = this.getOpenEditors()
 
     for (const uri of open_files) {
