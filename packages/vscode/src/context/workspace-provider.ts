@@ -656,5 +656,10 @@ export class FileItem extends vscode.TreeItem {
       // Indicate a symlink in description
       this.description = '(symlink)'
     }
+
+    // Set contextValue for open files to enable context menu actions
+    if (this.isOpenFile) {
+      this.contextValue = 'openEditor'
+    }
   }
 }

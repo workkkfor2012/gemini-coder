@@ -213,8 +213,20 @@ export function context_initialization(context: vscode.ExtensionContext): {
       file_tree_provider!.refresh()
     })
 
-    // Initial update of the badge
-    update_activity_bar_badge_token_count()
+    // Set up event listener for when the open editors provider initializes
+    context.subscriptions.push(
+      open_editors_provider.onDidChangeTreeData(() => {
+        // Update the badge after the open editors provider refreshes
+        if (open_editors_provider!.isInitialized()) {
+          update_activity_bar_badge_token_count()
+        }
+      })
+    )
+
+    // Also schedule a delayed update for initial badge display
+    setTimeout(() => {
+      update_activity_bar_badge_token_count()
+    }, 1000) // Wait for 1 second to ensure VS Code has fully loaded
   } else {
     vscode.window.showInformationMessage(
       'Please open a workspace folder to use this extension.'

@@ -19,6 +19,7 @@ export class OpenEditorsProvider
   private tab_change_handler: vscode.Disposable
   private ignored_extensions: Set<string> = new Set()
   private attach_open_files: boolean = true
+  private initialized: boolean = false // Add initialization tracking
 
   constructor(workspace_root: string, ignored_extensions: Set<string>) {
     this.workspace_root = workspace_root
@@ -34,7 +35,12 @@ export class OpenEditorsProvider
     })
 
     // Initial auto-check of all open editors
-    this.autoCheckOpenEditors()
+    // We'll use setTimeout to ensure VS Code has fully loaded editors
+    setTimeout(() => {
+      this.autoCheckOpenEditors()
+      this.initialized = true
+      this._onDidChangeTreeData.fire() // Fire event to refresh view
+    }, 500) // Small delay to ensure VS Code has loaded all editors
   }
 
   public dispose(): void {
@@ -340,5 +346,10 @@ export class OpenEditorsProvider
         this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
       }
     }
+  }
+  
+  // New method to check if provider is fully initialized
+  public isInitialized(): boolean {
+    return this.initialized;
   }
 }

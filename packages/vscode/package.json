@@ -81,6 +81,11 @@
         "icon": "$(clear-all)"
       },
       {
+        "command": "geminiCoder.closeEditor",
+        "title": "Close Editor",
+        "icon": "$(close)"
+      },
+      {
         "command": "geminiCoder.copyContextCommand",
         "title": "Gemini Coder: Copy Context"
       },
@@ -166,6 +171,13 @@
           "command": "geminiCoder.clearChecksOpenEditors",
           "when": "view == geminiCoderViewOpenEditors",
           "group": "navigation@3"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "geminiCoder.closeEditor",
+          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "group": "inline"
         }
       ]
     },
