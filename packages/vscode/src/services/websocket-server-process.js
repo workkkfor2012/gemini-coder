@@ -53,7 +53,7 @@ function notify_vscode_clients() {
 function ping_clients() {
   connections.forEach((ws) => {
     if (ws.readyState == WebSocket.OPEN) {
-      ws.ping()
+      ws.send(JSON.stringify({ action: 'ping' }))
     }
   })
 }
