@@ -23,7 +23,7 @@ export function cleanup_api_response(params: {
 
     // Remove CDATA tags
     content = content.replace('<![CDATA[', '')
-    content = content.replace(']]>', '')
+    content = content.replaceAll(']]>', '') // Sometimes we get some leftover
 
     // Remove doctype if starts with it
     if (content.startsWith('<!DOCTYPE')) {
