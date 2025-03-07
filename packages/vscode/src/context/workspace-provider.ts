@@ -641,6 +641,7 @@ export class FileItem extends vscode.TreeItem {
     // Adjust icon based on directory status
     if (this.isDirectory) {
       this.iconPath = new vscode.ThemeIcon('folder')
+      this.contextValue = 'directory'
     } else {
       this.iconPath = new vscode.ThemeIcon('file')
       this.command = {

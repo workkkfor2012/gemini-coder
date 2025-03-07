@@ -19,6 +19,9 @@ import { create_fim_status_bar_item } from './status-bar/create-fim-status-bar-i
 import { ApiViewProvider } from './api-view/api-view-provider'
 import { change_default_model_command } from './commands/change-default-model-command'
 import { close_editor_command } from './commands/close-editor-command'
+import { close_all_editors_command } from './commands/close-all-editors-command'
+import { save_all_command } from './commands/save-all-command'
+import { create_file_command } from './commands/create-file-command'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -132,6 +135,9 @@ export function activate(context: vscode.ExtensionContext) {
       open_editors_provider
     ),
     close_editor_command(),
+    close_all_editors_command(),
+    save_all_command(),
+    create_file_command(),
     {
       dispose: () => {
         if (websocket_server_instance) {

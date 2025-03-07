@@ -86,6 +86,21 @@
         "icon": "$(close)"
       },
       {
+        "command": "geminiCoder.closeAllEditors",
+        "title": "Close All Editors",
+        "icon": "$(close-all)"
+      },
+      {
+        "command": "geminiCoder.saveAll",
+        "title": "Save All",
+        "icon": "$(save-all)"
+      },
+      {
+        "command": "geminiCoder.createFile",
+        "title": "Create File",
+        "icon": "$(new-file)"
+      },
+      {
         "command": "geminiCoder.copyContextCommand",
         "title": "Gemini Coder: Copy Context"
       },
@@ -165,10 +180,20 @@
         {
           "command": "geminiCoder.checkAllOpenEditors",
           "when": "view == geminiCoderViewOpenEditors",
-          "group": "navigation@2"
+          "group": "navigation@1"
         },
         {
           "command": "geminiCoder.clearChecksOpenEditors",
+          "when": "view == geminiCoderViewOpenEditors",
+          "group": "navigation@2"
+        },
+        {
+          "command": "geminiCoder.closeAllEditors",
+          "when": "view == geminiCoderViewOpenEditors",
+          "group": "navigation@4"
+        },
+        {
+          "command": "geminiCoder.saveAll",
           "when": "view == geminiCoderViewOpenEditors",
           "group": "navigation@3"
         }
@@ -177,6 +202,11 @@
         {
           "command": "geminiCoder.closeEditor",
           "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "group": "inline"
+        },
+        {
+          "command": "geminiCoder.createFile",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "inline"
         }
       ]
