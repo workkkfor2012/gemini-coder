@@ -35,7 +35,7 @@ const wss = new WebSocket.WebSocketServer({ server })
 const connections = new Set()
 
 // Notify VS Code clients about browser connection status
-function notifyVSCodeClients() {
+function notify_vscode_clients() {
   const has_connected_browsers = browser_clients.size > 0
   const message = JSON.stringify({
     action: 'browser-connection-status',
@@ -50,7 +50,7 @@ function notifyVSCodeClients() {
 }
 
 // Send ping to all connected clients
-function pingClients() {
+function ping_clients() {
   connections.forEach((ws) => {
     if (ws.readyState == WebSocket.OPEN) {
       ws.ping()
@@ -59,7 +59,7 @@ function pingClients() {
 }
 
 // Start periodic ping
-setInterval(pingClients, 10000) // Send ping every 10 seconds
+setInterval(ping_clients, 10000) // Send ping every 10 seconds
 
 // Log server start information
 console.log(`Starting WebSocket server process (PID: ${process.pid})`)
@@ -83,7 +83,7 @@ wss.on('connection', (ws, request) => {
     console.log(
       `Browser client connected. Total browsers: ${browser_clients.size}`
     )
-    notifyVSCodeClients() // Notify when a browser connects
+    notify_vscode_clients() // Notify when a browser connects
   } else {
     vscode_clients.add(ws)
     console.log('VS Code client connected')
@@ -131,7 +131,7 @@ wss.on('connection', (ws, request) => {
       console.log(
         `Browser client disconnected. Total browsers: ${browser_clients.size}`
       )
-      notifyVSCodeClients() // Notify when a browser disconnects
+      notify_vscode_clients() // Notify when a browser disconnects
     } else {
       vscode_clients.delete(ws)
       console.log('VS Code client disconnected')
@@ -146,7 +146,7 @@ wss.on('connection', (ws, request) => {
       console.log(
         `Browser client error disconnect. Total browsers: ${browser_clients.size}`
       )
-      notifyVSCodeClients() // Notify when a browser disconnects due to error
+      notify_vscode_clients() // Notify when a browser disconnects due to error
     } else {
       vscode_clients.delete(ws)
     }
