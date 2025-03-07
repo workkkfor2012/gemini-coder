@@ -3,7 +3,8 @@ import { FilesCollector } from '../helpers/files-collector'
 
 export function chat_to_clipboard_command(
   context: vscode.ExtensionContext,
-  file_tree_provider: any
+  file_tree_provider: any,
+  open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.chatToClipboard',
@@ -25,7 +26,10 @@ export function chat_to_clipboard_command(
       await context.globalState.update('lastChatPrompt', instruction)
 
       // Files Collection using FilesCollector
-      const files_collector = new FilesCollector(file_tree_provider)
+      const files_collector = new FilesCollector(
+        file_tree_provider,
+        open_editors_provider
+      )
       let context_text = ''
 
       try {

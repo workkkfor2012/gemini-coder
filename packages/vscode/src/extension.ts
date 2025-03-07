@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { file_tree_initialization } from './file-tree/file-tree-initialization'
+import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command'
 import { fim_completion_command } from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
@@ -25,7 +25,8 @@ let websocket_server_instance: WebSocketManager | null = null
 export function activate(context: vscode.ExtensionContext) {
   websocket_server_instance = new WebSocketManager(context)
 
-  const file_tree_provider = file_tree_initialization(context)
+  const { file_tree_provider, open_editors_provider } =
+    context_initialization(context)
 
   // Status bar
   create_refactor_status_bar_item(context)
@@ -36,6 +37,7 @@ export function activate(context: vscode.ExtensionContext) {
   const chat_view_provider = new ChatViewProvider(
     context.extensionUri,
     file_tree_provider,
+    open_editors_provider,
     context,
     websocket_server_instance
   )
@@ -58,50 +60,76 @@ export function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     apply_changes_command({
       command: 'geminiCoder.applyChanges',
-      file_tree_provider,
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider,
       context,
       use_default_model: true
     }),
     apply_changes_command({
       command: 'geminiCoder.applyChangesWith',
-      file_tree_provider,
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider,
       context
     }),
     refactor_command({
       command: 'geminiCoder.refactor',
       context,
-      file_tree_provider,
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider,
       use_default_model: true
     }),
     refactor_command({
       command: 'geminiCoder.refactorWith',
       context,
-      file_tree_provider
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider
     }),
-    refactor_to_clipboard_command(context, file_tree_provider),
+    refactor_to_clipboard_command(
+      context,
+      file_tree_provider,
+      open_editors_provider
+    ),
     fim_completion_command({
       command: 'geminiCoder.fimCompletionWith',
-      file_tree_provider,
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider,
       context
     }),
     fim_completion_command({
       command: 'geminiCoder.fimCompletion',
-      file_tree_provider,
+      file_tree_provider: file_tree_provider,
+      open_editors_provider: open_editors_provider,
       context,
       use_default_model: true
     }),
-    fim_completion_to_clipboard_command(file_tree_provider),
+    fim_completion_to_clipboard_command(
+      file_tree_provider,
+      open_editors_provider
+    ),
     change_default_model_command('fim', context),
     change_default_model_command('refactoring', context),
     change_default_model_command('apply_changes', context),
-    apply_changes_to_clipboard_command(file_tree_provider),
-    web_chat_command(context, file_tree_provider, websocket_server_instance),
+    apply_changes_to_clipboard_command(
+      file_tree_provider,
+      open_editors_provider
+    ),
+    web_chat_command(
+      context,
+      file_tree_provider,
+      open_editors_provider,
+      websocket_server_instance
+    ),
     web_chat_with_command(
       context,
       file_tree_provider,
+      open_editors_provider,
       websocket_server_instance
     ),
-    chat_to_clipboard_command(context, file_tree_provider),
+    chat_to_clipboard_command(
+      context,
+      file_tree_provider,
+      open_editors_provider
+    ),
     {
       dispose: () => {
         if (websocket_server_instance) {

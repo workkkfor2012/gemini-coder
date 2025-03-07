@@ -94,6 +94,7 @@ export function refactor_command(params: {
   command: string
   context: vscode.ExtensionContext
   file_tree_provider: any
+  open_editors_provider?: any
   use_default_model?: boolean
 }) {
   const model_manager = new ModelManager(params.context)
@@ -193,7 +194,12 @@ export function refactor_command(params: {
     const system_instructions = provider.systemInstructions
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
-    const files_collector = new FilesCollector(params.file_tree_provider)
+    // Create files collector with both providers
+    const files_collector = new FilesCollector(
+      params.file_tree_provider,
+      params.open_editors_provider
+    )
+    
     const collected_files = await files_collector.collect_files({
       exclude_path: document_path
     })

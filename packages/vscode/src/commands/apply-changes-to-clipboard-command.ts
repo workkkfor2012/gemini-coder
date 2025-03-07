@@ -1,7 +1,10 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function apply_changes_to_clipboard_command(file_tree_provider: any) {
+export function apply_changes_to_clipboard_command(
+  file_tree_provider: any,
+  open_editors_provider?: any
+) {
   return vscode.commands.registerCommand(
     'geminiCoder.applyChangesToClipboard',
     async () => {
@@ -18,7 +21,10 @@ export function apply_changes_to_clipboard_command(file_tree_provider: any) {
       const instruction = await vscode.env.clipboard.readText()
 
       // Create files collector instance
-      const files_collector = new FilesCollector(file_tree_provider)
+      const files_collector = new FilesCollector(
+        file_tree_provider,
+        open_editors_provider
+      )
       let context_text = ''
 
       try {
@@ -35,7 +41,7 @@ export function apply_changes_to_clipboard_command(file_tree_provider: any) {
       }
 
       const current_file_path = vscode.workspace.asRelativePath(document.uri)
-      const files = `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+      const files = `<files>\n${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
       const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated file only, without explanations or any other text. ${instruction}`
       const content = `${files}\n${apply_changes_instruction}`
 

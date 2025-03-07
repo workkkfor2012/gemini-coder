@@ -119,7 +119,8 @@ async function insert_completion_text(
 async function build_completion_payload(
   document: vscode.TextDocument,
   position: vscode.Position,
-  file_tree_provider: any
+  file_tree_provider: any,
+  open_editors_provider?: any
 ): Promise<string> {
   const document_path = document.uri.fsPath
   const text_before_cursor = document.getText(
@@ -130,7 +131,7 @@ async function build_completion_payload(
   )
 
   // Create files collector instance
-  const files_collector = new FilesCollector(file_tree_provider)
+  const files_collector = new FilesCollector(file_tree_provider, open_editors_provider)
 
   // Collect files excluding the current document
   const context_text = await files_collector.collect_files({
@@ -138,7 +139,7 @@ async function build_completion_payload(
   })
 
   const payload = {
-    before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
+    before: `<files>\n${context_text}\n<file path="${vscode.workspace.asRelativePath(
       document.uri
     )}">\n<![CDATA[\n${text_before_cursor}`,
     after: `${text_after_cursor}\n]]>\n</file>\n</files>`
@@ -149,6 +150,7 @@ async function build_completion_payload(
 export function fim_completion_command(params: {
   command: string
   file_tree_provider: any
+  open_editors_provider?: any
   context: vscode.ExtensionContext
   use_default_model?: boolean
 }) {
@@ -208,7 +210,8 @@ export function fim_completion_command(params: {
       const content = await build_completion_payload(
         document,
         position,
-        params.file_tree_provider
+        params.file_tree_provider,
+        params.open_editors_provider
       )
 
       const messages = [

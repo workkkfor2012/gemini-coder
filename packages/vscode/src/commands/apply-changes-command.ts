@@ -96,6 +96,7 @@ async function get_selected_provider(
 export function apply_changes_command(params: {
   command: string
   file_tree_provider: any
+  open_editors_provider?: any
   context: vscode.ExtensionContext
   use_default_model?: boolean
 }) {
@@ -166,8 +167,12 @@ export function apply_changes_command(params: {
     const system_instructions = provider.systemInstructions
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
-    // Create files collector instance
-    const files_collector = new FilesCollector(params.file_tree_provider)
+    // Create files collector instance with both providers
+    const files_collector = new FilesCollector(
+      params.file_tree_provider,
+      params.open_editors_provider
+    )
+    
     let context_text = ''
 
     try {

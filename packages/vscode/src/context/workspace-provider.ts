@@ -4,7 +4,7 @@ import * as path from 'path'
 import ignore from 'ignore'
 import { ignored_extensions } from './ignored-extensions'
 
-export class FileTreeProvider
+export class WorkspaceProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
 {
   private _on_did_change_tree_data: vscode.EventEmitter<
@@ -15,14 +15,10 @@ export class FileTreeProvider
   > = this._on_did_change_tree_data.event
   private workspace_root: string
   private checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
-  private open_files_checked_items: Map<string, vscode.TreeItemCheckboxState> =
-    new Map()
   private combined_gitignore = ignore() // To hold all .gitignore rules
   private ignored_extensions: Set<string> = new Set()
   private watcher: vscode.FileSystemWatcher
   private gitignore_watcher: vscode.FileSystemWatcher
-  private open_file_paths: Set<string> = new Set() // Track open file paths
-  private auto_checked_files: Set<string> = new Set() // Track files that were automatically checked because they're open
   private file_token_counts: Map<string, number> = new Map() // Cache token counts
   private directory_token_counts: Map<string, number> = new Map() // Cache directory token counts
   private config_change_handler: vscode.Disposable
@@ -52,86 +48,8 @@ export class FileTreeProvider
           this.load_ignored_extensions()
           this.refresh()
         }
-        if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
-          // When attachOpenFiles setting changes, update open file checks and refresh the tree
-          this.update_open_file_checks()
-          this.refresh()
-        }
       }
     )
-
-    // Listen for active editor changes to update the tree and update open file checks
-    vscode.window.onDidChangeActiveTextEditor(() => {
-      this.update_open_file_checks()
-      this.refresh()
-    })
-
-    // Listen for tab changes to update open file checks
-    vscode.window.tabGroups.onDidChangeTabs(() => {
-      this.update_open_file_checks()
-      this.refresh()
-    })
-
-    // Initialize open file checks
-    this.update_open_file_checks()
-  }
-
-  private update_open_file_checks(): void {
-    const config = vscode.workspace.getConfiguration('geminiCoder')
-    const attach_open_files = config.get<boolean>('attachOpenFiles', true)
-
-    // If attachOpenFiles is disabled, clear all open file checks
-    if (!attach_open_files) {
-      this.open_files_checked_items.clear()
-      this.auto_checked_files.clear()
-      return
-    }
-
-    const current_open_files = this.get_open_files()
-    const current_open_file_paths = new Set(
-      current_open_files
-        .map((uri) => uri.fsPath)
-        .filter((path) => path.startsWith(this.workspace_root))
-    )
-
-    // Find files that were open but are now closed
-    const closed_files = Array.from(this.open_file_paths).filter(
-      (path) => !current_open_file_paths.has(path)
-    )
-
-    // Remove closed files from open_files_checked_items regardless of auto-check status
-    for (const file_path of closed_files) {
-      this.open_files_checked_items.delete(file_path)
-      this.auto_checked_files.delete(file_path)
-    }
-
-    // Update our tracked open files
-    this.open_file_paths = current_open_file_paths
-
-    // Auto-check all currently open files that are within the workspace and not excluded
-    current_open_files.forEach((uri) => {
-      const file_path = uri.fsPath
-
-      // Skip files not in workspace
-      if (!file_path.startsWith(this.workspace_root)) return
-
-      const relative_path = path.relative(this.workspace_root, file_path)
-
-      // Skip excluded files
-      if (this.is_excluded(relative_path)) return
-
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this.ignored_extensions.has(extension)) return
-
-      // Auto-check the file if it's not already checked in open files section
-      if (!this.open_files_checked_items.has(file_path)) {
-        this.open_files_checked_items.set(
-          file_path,
-          vscode.TreeItemCheckboxState.Checked
-        )
-        this.auto_checked_files.add(file_path) // Mark as auto-checked
-      }
-    })
   }
 
   public dispose(): void {
@@ -177,58 +95,14 @@ export class FileTreeProvider
   }
 
   clearChecks(): void {
-    // Clear all checks in the regular tree
     this.checked_items.clear()
-
-    // Clear all checks in open files section if attachOpenFiles is disabled
-    const config = vscode.workspace.getConfiguration('geminiCoder')
-    const attachOpenFiles = config.get<boolean>('attachOpenFiles', true)
-
-    if (attachOpenFiles) {
-      const open_files = this.get_open_files()
-      const open_file_paths = open_files.map((file) => file.fsPath)
-
-      // Keep only open file entries
-      const new_open_files_checked_items = new Map<
-        string,
-        vscode.TreeItemCheckboxState
-      >()
-      this.auto_checked_files.clear() // Reset auto-checked tracking
-
-      open_file_paths.forEach((file_path) => {
-        // Skip if not in workspace or excluded
-        if (!file_path.startsWith(this.workspace_root)) return
-
-        const relative_path = path.relative(this.workspace_root, file_path)
-        if (this.is_excluded(relative_path)) return
-
-        const extension = path.extname(file_path).toLowerCase().replace('.', '')
-        if (this.ignored_extensions.has(extension)) return
-
-        new_open_files_checked_items.set(
-          file_path,
-          vscode.TreeItemCheckboxState.Checked
-        )
-        this.auto_checked_files.add(file_path) // Mark as auto-checked
-      })
-
-      this.open_files_checked_items = new_open_files_checked_items
-    } else {
-      this.open_files_checked_items.clear()
-      this.auto_checked_files.clear()
-    }
-
     this.refresh()
   }
 
   getTreeItem(element: FileItem): vscode.TreeItem {
     const key = element.resourceUri.fsPath
-
-    // Use separate checkbox state maps based on whether this is an open file in the top section
-    const checkbox_state = element.isOpenFile
-      ? this.open_files_checked_items.get(key) ??
-        vscode.TreeItemCheckboxState.Unchecked
-      : this.checked_items.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
+    const checkbox_state =
+      this.checked_items.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
 
     element.checkboxState = checkbox_state
 
@@ -239,7 +113,7 @@ export class FileTreeProvider
       // Format token count for display (e.g., 1.2k for 1,200)
       const formatted_token_count =
         token_count >= 1000
-          ? `${Math.floor(token_count / 1000)}k` // Ceil would be more correct but the activity bar's badge rounds with floor
+          ? `${Math.floor(token_count / 1000)}k`
           : `${token_count}`
 
       // Add token count to description
@@ -250,8 +124,6 @@ export class FileTreeProvider
       }
     }
 
-    // Note: Removed the code that adds "(ignored)" to description since ignored files/directories are now hidden
-
     return element
   }
 
@@ -259,23 +131,6 @@ export class FileTreeProvider
     if (!this.workspace_root) {
       vscode.window.showInformationMessage('No workspace folder found.')
       return []
-    }
-
-    // If we're at the root level (no element), show open files first
-    if (!element) {
-      const config = vscode.workspace.getConfiguration('geminiCoder')
-      const attach_open_files = config.get<boolean>('attachOpenFiles', true)
-
-      if (attach_open_files) {
-        const open_files = this.get_open_files()
-        const open_file_items = await this.create_open_file_items(open_files)
-
-        // Add workspace files/folders
-        const workspace_items = await this.get_files_and_directories(
-          this.workspace_root
-        )
-        return [...open_file_items, ...workspace_items]
-      }
     }
 
     const dir_path = element ? element.resourceUri.fsPath : this.workspace_root
@@ -375,79 +230,6 @@ export class FileTreeProvider
     }
   }
 
-  private async create_open_file_items(
-    open_files: vscode.Uri[]
-  ): Promise<FileItem[]> {
-    const items: FileItem[] = []
-
-    for (const file_uri of open_files) {
-      const file_path = file_uri.fsPath
-
-      // Skip files not in the workspace
-      if (!file_path.startsWith(this.workspace_root)) {
-        continue
-      }
-
-      const relative_path = path.relative(this.workspace_root, file_path)
-
-      // Skip if excluded by .gitignore or other rules
-      if (this.is_excluded(relative_path)) {
-        continue
-      }
-
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      const is_ignored_extension = this.ignored_extensions.has(extension)
-
-      if (is_ignored_extension) {
-        continue
-      }
-
-      const file_name = path.basename(file_path)
-
-      // Get checkbox state from open files map, auto-check if not set
-      let checkbox_state = this.open_files_checked_items.get(file_path)
-      if (checkbox_state === undefined) {
-        checkbox_state = vscode.TreeItemCheckboxState.Checked
-        this.open_files_checked_items.set(file_path, checkbox_state)
-        this.auto_checked_files.add(file_path) // Mark as auto-checked
-      }
-
-      // Calculate token count for this file
-      const token_count = await this.calculate_file_tokens(file_path)
-
-      const item = new FileItem(
-        file_name,
-        file_uri,
-        vscode.TreeItemCollapsibleState.None,
-        false,
-        checkbox_state,
-        false, // isGitIgnored is irrelevant as we're skipping ignored files
-        false,
-        true, // is open file
-        token_count
-      )
-
-      items.push(item)
-    }
-
-    return items
-  }
-
-  private get_open_files(): vscode.Uri[] {
-    const open_files: vscode.Uri[] = []
-
-    // Add files from all tab groups
-    vscode.window.tabGroups.all.forEach((tabGroup) => {
-      tabGroup.tabs.forEach((tab) => {
-        if (tab.input instanceof vscode.TabInputText) {
-          open_files.push(tab.input.uri)
-        }
-      })
-    })
-
-    return open_files
-  }
-
   private async get_files_and_directories(
     dir_path: string
   ): Promise<FileItem[]> {
@@ -520,19 +302,7 @@ export class FileTreeProvider
 
         const key = full_path
 
-        // Check if this is an open file
-        const config = vscode.workspace.getConfiguration('geminiCoder')
-        const attachOpenFiles = config.get<boolean>('attachOpenFiles', true)
-        const is_open_file =
-          attachOpenFiles &&
-          this.get_open_files().some((uri) => uri.fsPath == full_path)
-
-        // Skip if this is an open file, as it will be displayed in the open files section
-        if (is_open_file && dir_path == this.workspace_root) {
-          continue
-        }
-
-        // Get checkbox state from regular tree map
+        // Check path against checked_items
         let checkbox_state = this.checked_items.get(key)
         if (checkbox_state === undefined) {
           const parent_path = path.dirname(full_path)
@@ -572,7 +342,7 @@ export class FileTreeProvider
           checkbox_state,
           false, // isGitIgnored is now irrelevant as we're skipping ignored files
           is_symbolic_link,
-          false, // is not an open file in this section
+          false, // is not an open file
           token_count
         )
 
@@ -589,28 +359,17 @@ export class FileTreeProvider
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
     const key = item.resourceUri.fsPath
+    this.checked_items.set(key, state)
 
-    // Update the appropriate map based on whether this is an open file in the top section
-    if (item.isOpenFile) {
-      this.open_files_checked_items.set(key, state)
+    if (item.isDirectory) {
+      await this.update_directory_check_state(key, state, false)
+    }
 
-      // If user manually toggles, remove from auto-checked tracking
-      if (this.auto_checked_files.has(key)) {
-        this.auto_checked_files.delete(key)
-      }
-    } else {
-      this.checked_items.set(key, state)
-
-      if (item.isDirectory) {
-        await this.update_directory_check_state(key, state, false)
-      }
-
-      // Update parent directories' states
-      let dir_path = path.dirname(key)
-      while (dir_path.startsWith(this.workspace_root)) {
-        await this.update_parent_state(dir_path)
-        dir_path = path.dirname(dir_path)
-      }
+    // Update parent directories' states
+    let dir_path = path.dirname(key)
+    while (dir_path.startsWith(this.workspace_root)) {
+      await this.update_parent_state(dir_path)
+      dir_path = path.dirname(dir_path)
     }
 
     this.refresh()
@@ -736,11 +495,7 @@ export class FileTreeProvider
   }
 
   getCheckedFiles(): string[] {
-    const config = vscode.workspace.getConfiguration('geminiCoder')
-    const attachOpenFiles = config.get<boolean>('attachOpenFiles', true)
-
-    // Collect files from both maps
-    const regular_checked_files = Array.from(this.checked_items.entries())
+    return Array.from(this.checked_items.entries())
       .filter(
         ([file_path, state]) =>
           state == vscode.TreeItemCheckboxState.Checked &&
@@ -750,36 +505,11 @@ export class FileTreeProvider
           !this.is_excluded(path.relative(this.workspace_root, file_path))
       )
       .map(([path, _]) => path)
-
-    // If attachOpenFiles is enabled, also include checked open files
-    const open_checked_files = attachOpenFiles
-      ? Array.from(this.open_files_checked_items.entries())
-          .filter(
-            ([file_path, state]) =>
-              state == vscode.TreeItemCheckboxState.Checked &&
-              fs.existsSync(file_path) &&
-              (fs.lstatSync(file_path).isFile() ||
-                fs.lstatSync(file_path).isSymbolicLink()) &&
-              !this.is_excluded(path.relative(this.workspace_root, file_path))
-          )
-          .map(([path, _]) => path)
-      : []
-
-    // Combine and remove duplicates (in case a file appears in both lists)
-    return Array.from(
-      new Set([...regular_checked_files, ...open_checked_files])
-    )
   }
 
   public async setCheckedFiles(file_paths: string[]): Promise<void> {
     // Clear existing checks
     this.checked_items.clear()
-    this.open_files_checked_items.clear()
-    this.auto_checked_files.clear()
-
-    // Get currently open files
-    const open_file_paths = this.get_open_files().map((uri) => uri.fsPath)
-    const open_files_set = new Set(open_file_paths)
 
     // For each file in filePaths, set its checkboxState to Checked
     for (const file_path of file_paths) {
@@ -789,28 +519,17 @@ export class FileTreeProvider
       const relative_path = path.relative(this.workspace_root, file_path)
       if (this.is_excluded(relative_path)) continue
 
-      // If it's an open file, add to open files checked items, otherwise to regular checked items
-      if (open_files_set.has(file_path)) {
-        this.open_files_checked_items.set(
-          file_path,
-          vscode.TreeItemCheckboxState.Checked
-        )
-      } else {
-        this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
-      }
+      this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
     }
 
     // Update parent directories' checkbox states
-    for (const file_path of file_paths.filter((p) => !open_files_set.has(p))) {
+    for (const file_path of file_paths) {
       let dir_path = path.dirname(file_path)
       while (dir_path.startsWith(this.workspace_root)) {
         await this.update_parent_state(dir_path)
         dir_path = path.dirname(dir_path)
       }
     }
-
-    // Make sure open files are checked if the setting is enabled
-    this.update_open_file_checks()
 
     this.refresh()
   }
@@ -875,7 +594,7 @@ export class FileTreeProvider
     const config = vscode.workspace.getConfiguration('geminiCoder')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
-      .map((ext) => ext.toLowerCase().replace(/^\./, ''))
+      .map((ext) => ext.toLowerCase().replace(/^\\./, ''))
 
     // Combine hardcoded and configured extensions
     this.ignored_extensions = new Set([
@@ -900,7 +619,6 @@ export class FileTreeProvider
         )
       }
     }
-    this.update_open_file_checks()
     this.refresh()
   }
 }
@@ -925,20 +643,18 @@ export class FileItem extends vscode.TreeItem {
       this.iconPath = new vscode.ThemeIcon('folder')
     } else {
       this.iconPath = new vscode.ThemeIcon('file')
+      this.command = {
+        command: 'vscode.open',
+        title: 'Open File',
+        arguments: [this.resourceUri]
+      }
     }
 
     this.checkboxState = checkboxState
 
-    if (this.isOpenFile) {
-      this.contextValue = 'openFile'
-      this.description = 'Open editor'
-    }
-
     if (this.isSymbolicLink) {
       // Indicate a symlink in description
-      this.description = this.description
-        ? this.description + ' (symlink)'
-        : '(symlink)'
+      this.description = '(symlink)'
     }
   }
 }

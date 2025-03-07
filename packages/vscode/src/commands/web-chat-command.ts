@@ -5,6 +5,7 @@ import { WebSocketManager } from '../services/websocket-manager'
 export function web_chat_with_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
+  open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
@@ -60,7 +61,10 @@ export function web_chat_with_command(
       await context.globalState.update('lastChatPrompt', instruction)
 
       // Files Collection using FilesCollector
-      const files_collector = new FilesCollector(file_tree_provider)
+      const files_collector = new FilesCollector(
+        file_tree_provider,
+        open_editors_provider
+      )
       let context_text = ''
 
       try {
@@ -89,6 +93,7 @@ export function web_chat_with_command(
 export function web_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
+  open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand('geminiCoder.webChat', async () => {
@@ -159,7 +164,10 @@ export function web_chat_command(
     await context.globalState.update('lastChatPrompt', instruction)
 
     // Files Collection using FilesCollector
-    const files_collector = new FilesCollector(file_tree_provider)
+    const files_collector = new FilesCollector(
+      file_tree_provider,
+      open_editors_provider
+    )
     let context_text = ''
 
     try {

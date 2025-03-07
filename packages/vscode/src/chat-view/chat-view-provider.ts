@@ -11,6 +11,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   constructor(
     private readonly _extension_uri: vscode.Uri,
     private readonly file_tree_provider: any,
+    private readonly open_editors_provider: any,
     private readonly _context: vscode.ExtensionContext,
     private readonly websocket_server_instance: WebSocketManager
   ) {
@@ -97,8 +98,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         this._context.globalState.update('expandedPresets', message.indices)
       } else if (message.command == 'sendPrompt') {
         try {
-          // Create files collector instance
-          const files_collector = new FilesCollector(this.file_tree_provider)
+          // Create files collector instance with both providers
+          const files_collector = new FilesCollector(
+            this.file_tree_provider,
+            this.open_editors_provider
+          )
 
           // Collect files
           const context_text = await files_collector.collect_files()
@@ -120,8 +124,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         }
       } else if (message.command == 'copyPrompt') {
         try {
-          // Create files collector instance
-          const files_collector = new FilesCollector(this.file_tree_provider)
+          // Create files collector instance with both providers
+          const files_collector = new FilesCollector(
+            this.file_tree_provider,
+            this.open_editors_provider
+          )
 
           // Collect files
           const context_text = await files_collector.collect_files()

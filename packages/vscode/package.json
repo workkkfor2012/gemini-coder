@@ -25,9 +25,6 @@
     "Refactoring",
     "Coding assistant"
   ],
-  "activationEvents": [
-    "onView.geminiCoderViewContext"
-  ],
   "main": "out/extension.js",
   "icon": "media/thumbnail.png",
   "contributes": {
@@ -43,12 +40,16 @@
     "views": {
       "geminiCoder": [
         {
-          "id": "geminiCoderViewContext",
-          "name": "Context"
+          "id": "geminiCoderViewOpenEditors",
+          "name": "Open Editors"
+        },
+        {
+          "id": "geminiCoderViewWorkspace",
+          "name": "Workspace"
         },
         {
           "id": "geminiCoderViewChat",
-          "name": "Web Chat",
+          "name": "Chat",
           "type": "webview"
         },
         {
@@ -60,23 +61,28 @@
     },
     "commands": [
       {
-        "command": "geminiCoder.copyContext",
-        "title": "Copy Context",
-        "icon": "$(copy)"
-      },
-      {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
         "icon": "$(check-all)"
       },
       {
-        "command": "geminiCoder.copyContextCommand",
-        "title": "Gemini Coder: Copy Context"
-      },
-      {
         "command": "geminiCoder.clearChecks",
         "title": "Clear All Checks",
         "icon": "$(clear-all)"
+      },
+      {
+        "command": "geminiCoder.checkAllOpenEditors",
+        "title": "Check All",
+        "icon": "$(check-all)"
+      },
+      {
+        "command": "geminiCoder.clearChecksOpenEditors",
+        "title": "Clear All Checks",
+        "icon": "$(clear-all)"
+      },
+      {
+        "command": "geminiCoder.copyContextCommand",
+        "title": "Gemini Coder: Copy Context"
       },
       {
         "command": "geminiCoder.fimCompletionWith",
@@ -142,18 +148,23 @@
     "menus": {
       "view/title": [
         {
-          "command": "geminiCoder.copyContext",
-          "when": "view == geminiCoderViewContext",
-          "group": "navigation@1"
-        },
-        {
           "command": "geminiCoder.checkAll",
-          "when": "view == geminiCoderViewContext",
+          "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@2"
         },
         {
           "command": "geminiCoder.clearChecks",
-          "when": "view == geminiCoderViewContext",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@3"
+        },
+        {
+          "command": "geminiCoder.checkAllOpenEditors",
+          "when": "view == geminiCoderViewOpenEditors",
+          "group": "navigation@2"
+        },
+        {
+          "command": "geminiCoder.clearChecksOpenEditors",
+          "when": "view == geminiCoderViewOpenEditors",
           "group": "navigation@3"
         }
       ]

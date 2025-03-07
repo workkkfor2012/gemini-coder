@@ -3,7 +3,8 @@ import { FilesCollector } from '../helpers/files-collector'
 
 export function refactor_to_clipboard_command(
   context: vscode.ExtensionContext,
-  file_tree_provider: any
+  file_tree_provider: any,
+  open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.refactorToClipboard',
@@ -48,17 +49,20 @@ export function refactor_to_clipboard_command(
         refactor_instruction += ` ${instruction}`
       }
 
-      // Create files collector instance and collect files excluding current document
-      const files_collector = new FilesCollector(file_tree_provider)
+      // Create files collector instance with both providers
+      const files_collector = new FilesCollector(
+        file_tree_provider,
+        open_editors_provider
+      )
       const context_text = await files_collector.collect_files({
         exclude_path: document_path
       })
 
       const content =
-        '<files>' +
+        '<files>\n' +
         context_text +
-        `<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>` +
-        '</files>\n' +
+        `\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>` +
+        '\n</files>\n' +
         refactor_instruction
 
       await vscode.env.clipboard.writeText(content)

@@ -2,7 +2,10 @@ import * as vscode from 'vscode'
 import { autocomplete_instruction_external } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 
-export function fim_completion_to_clipboard_command(file_tree_provider: any) {
+export function fim_completion_to_clipboard_command(
+  file_tree_provider: any,
+  open_editors_provider?: any
+) {
   return vscode.commands.registerCommand(
     'geminiCoder.fimCompletionToClipboard',
     async () => {
@@ -27,7 +30,10 @@ export function fim_completion_to_clipboard_command(file_tree_provider: any) {
       )
 
       // Create files collector instance
-      const files_collector = new FilesCollector(file_tree_provider)
+      const files_collector = new FilesCollector(
+        file_tree_provider,
+        open_editors_provider
+      )
 
       try {
         // Collect files excluding the current document
@@ -36,7 +42,7 @@ export function fim_completion_to_clipboard_command(file_tree_provider: any) {
         })
 
         const payload = {
-          before: `<files>${collected_files}<file path="${vscode.workspace.asRelativePath(
+          before: `<files>\n${collected_files}<file path="${vscode.workspace.asRelativePath(
             document.uri
           )}">\n<![CDATA[\n${text_before_cursor}`,
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`

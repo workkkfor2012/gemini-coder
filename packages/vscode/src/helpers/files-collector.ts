@@ -1,14 +1,20 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { FileTreeProvider } from '../file-tree/file-tree-provider'
+import { WorkspaceProvider } from '../context/workspace-provider'
+import { OpenEditorsProvider } from '../context/open-editors-provider'
 
 export class FilesCollector {
-  private file_tree_provider: FileTreeProvider
+  private file_tree_provider: WorkspaceProvider
+  private open_editors_provider?: OpenEditorsProvider
   private workspace_root: string
 
-  constructor(file_tree_provider: FileTreeProvider) {
+  constructor(
+    file_tree_provider: WorkspaceProvider,
+    open_editors_provider?: OpenEditorsProvider
+  ) {
     this.file_tree_provider = file_tree_provider
+    this.open_editors_provider = open_editors_provider
     // Get workspace root from VS Code API
     const workspace_folders = vscode.workspace.workspaceFolders
     this.workspace_root = workspace_folders
@@ -20,8 +26,15 @@ export class FilesCollector {
     disable_xml?: boolean
     exclude_path?: string
   }): Promise<string> {
-    // Get checked files from the file tree provider (which now handles both regular and open files)
-    let context_files = this.file_tree_provider.getCheckedFiles()
+    // Get checked files from both providers
+    const workspace_files = this.file_tree_provider.getCheckedFiles()
+    const open_editor_files =
+      this.open_editors_provider?.getCheckedFiles() || []
+
+    // Combine and deduplicate files
+    const context_files = Array.from(
+      new Set([...workspace_files, ...open_editor_files])
+    )
     let collected_text = ''
 
     // Process each checked file
