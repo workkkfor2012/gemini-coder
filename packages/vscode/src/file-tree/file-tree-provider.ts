@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import ignore from 'ignore'
+import { ignored_extensions } from './ignored-extensions'
 
 export class FileTreeProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -870,15 +871,17 @@ export class FileTreeProvider
   }
 
   private load_ignored_extensions() {
+    // Get additional extensions from config
     const config = vscode.workspace.getConfiguration('geminiCoder')
-    const extensions_string = config.get<string>(
-      'ignoredExtensions',
-      'png,jpg,jpeg,gif,svg'
-    )
-    const extensions_array = extensions_string
-      .split(',')
-      .map((ext) => ext.trim().toLowerCase())
-    this.ignored_extensions = new Set(extensions_array)
+    const additional_extensions = config
+      .get<string[]>('ignoredExtensions', [])
+      .map((ext) => ext.toLowerCase().replace(/^\./, ''))
+
+    // Combine hardcoded and configured extensions
+    this.ignored_extensions = new Set([
+      ...ignored_extensions,
+      ...additional_extensions
+    ])
   }
 
   public async check_all(): Promise<void> {

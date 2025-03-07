@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.184",
+  "version": "1.0.185",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -223,9 +223,15 @@
           "description": "Attach open files to the context."
         },
         "geminiCoder.ignoredExtensions": {
-          "type": "string",
-          "description": "Comma-separated list of file extensions to ignore during recursive scan for context files. Example: 'png,jpg,jpeg,gif,svg'.",
-          "default": "png,jpg,jpeg,gif,svg"
+          "type": "array",
+          "description": "List of file extensions to ignore in the context.",
+          "default": [
+            "svg"
+          ],
+          "items": {
+            "type": "string",
+            "description": "File extension to ignore (without the dot)"
+          }
         },
         "geminiCoder.webChatsInBackground": {
           "type": "boolean",
