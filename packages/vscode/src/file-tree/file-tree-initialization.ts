@@ -125,6 +125,11 @@ export function file_tree_initialization(
       })
     )
 
+    // Fix for issue when the collapsed item have some of its children selected, collapsed state isn't remembered
+    gemini_coder_view.onDidCollapseElement(() => {
+      file_tree_provider!.refresh()
+    })
+
     // Initial update of the badge
     update_activity_bar_badge_token_count()
   } else {
