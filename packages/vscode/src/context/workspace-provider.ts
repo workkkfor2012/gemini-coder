@@ -644,10 +644,11 @@ export class FileItem extends vscode.TreeItem {
       this.contextValue = 'directory'
     } else {
       this.iconPath = new vscode.ThemeIcon('file')
+      // Use custom command instead of vscode.open
       this.command = {
-        command: 'vscode.open',
+        command: 'geminiCoder.openFileFromWorkspace',
         title: 'Open File',
-        arguments: [this.resourceUri, { preview: false }]
+        arguments: [this.resourceUri]
       }
     }
 

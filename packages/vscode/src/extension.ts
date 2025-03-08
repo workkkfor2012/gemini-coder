@@ -22,6 +22,7 @@ import { close_editor_command } from './commands/close-editor-command'
 import { close_all_editors_command } from './commands/close-all-editors-command'
 import { save_all_command } from './commands/save-all-command'
 import { create_file_command } from './commands/create-file-command'
+import { open_file_from_workspace_command } from './commands/open-file-from-workspace-command'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -59,6 +60,11 @@ export function activate(context: vscode.ExtensionContext) {
       'geminiCoderViewApi',
       api_view_provider
     )
+  )
+
+  // Register the custom open file command
+  context.subscriptions.push(
+    open_file_from_workspace_command(open_editors_provider)
   )
 
   context.subscriptions.push(

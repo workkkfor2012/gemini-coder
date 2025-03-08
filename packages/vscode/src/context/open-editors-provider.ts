@@ -21,6 +21,10 @@ export class OpenEditorsProvider
   private ignored_extensions: Set<string> = new Set()
   private attach_open_files: boolean = true
   private initialized: boolean = false
+  // Track files opened from workspace view
+  private opened_from_workspace_view: Set<string> = new Set()
+  // Keep track of files we've already attempted to open in non-preview mode
+  private non_preview_files: Set<string> = new Set()
 
   constructor(workspace_root: string, ignored_extensions: Set<string>) {
     this.workspace_root = workspace_root
@@ -54,6 +58,11 @@ export class OpenEditorsProvider
     }, 500) // Small delay to ensure VS Code has loaded all editors
   }
 
+  // New method to mark files opened from workspace view
+  markOpenedFromWorkspaceView(filePath: string): void {
+    this.opened_from_workspace_view.add(filePath)
+  }
+
   public dispose(): void {
     this.tab_change_handler.dispose()
     this.file_change_watcher.dispose() // Dispose the file watcher
@@ -70,7 +79,7 @@ export class OpenEditorsProvider
     this._onDidChangeTreeData.fire()
   }
 
-  // New method to handle newly opened files
+  // Modified method to handle newly opened files
   private handleNewlyOpenedFiles(): void {
     // Only auto-check new files if the setting is enabled
     if (!this.attach_open_files) return
@@ -88,8 +97,18 @@ export class OpenEditorsProvider
 
       // Check if this is a new file that isn't in our map yet
       if (!this.checked_items.has(filePath)) {
-        // Auto-check new files
-        this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+        // Don't auto-check if the file was opened from workspace view
+        if (this.opened_from_workspace_view.has(filePath)) {
+          this.checked_items.set(
+            filePath,
+            vscode.TreeItemCheckboxState.Unchecked
+          )
+          // Remove from set once processed
+          this.opened_from_workspace_view.delete(filePath)
+        } else {
+          // Auto-check new files opened through other means
+          this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+        }
 
         // Clear token count for this file to force recalculation
         this.file_token_counts.delete(filePath)
@@ -97,7 +116,7 @@ export class OpenEditorsProvider
     }
   }
 
-  // New method to clean up closed files from checked_items
+  // New method to clean up closed files from workspace view tracking
   private cleanUpClosedFiles(): void {
     const openFilePaths = new Set(
       this.getOpenEditors().map((uri) => uri.fsPath)
@@ -114,6 +133,10 @@ export class OpenEditorsProvider
     // Remove closed files from checked_items
     keysToDelete.forEach((key) => {
       this.checked_items.delete(key)
+      // Also remove from workspace view tracking
+      this.opened_from_workspace_view.delete(key)
+      // Remove from non-preview files tracking
+      this.non_preview_files.delete(key)
     })
 
     // Clear token count for closed files
@@ -249,12 +272,41 @@ export class OpenEditorsProvider
     return items
   }
 
+  // Modified helper method to open a file in non-preview mode without pinning
+  private async openFileInNonPreviewMode(uri: vscode.Uri): Promise<void> {
+    const filePath = uri.fsPath
+
+    // Skip if we've already tried to open this file in non-preview mode
+    if (this.non_preview_files.has(filePath)) {
+      return
+    }
+
+    // Mark that we've tried to open this file in non-preview mode
+    this.non_preview_files.add(filePath)
+
+    try {
+      // Open the file in non-preview mode
+      await vscode.window.showTextDocument(uri, { preview: false })
+    } catch (error) {
+      console.error(
+        `Error opening file in non-preview mode for ${filePath}:`,
+        error
+      )
+    }
+  }
+
   async updateCheckState(
     item: FileItem,
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
     const key = item.resourceUri.fsPath
     this.checked_items.set(key, state)
+
+    // Open the file in non-preview mode if it's being checked
+    if (state === vscode.TreeItemCheckboxState.Checked) {
+      await this.openFileInNonPreviewMode(item.resourceUri)
+    }
+
     this.refresh()
   }
 
@@ -339,7 +391,7 @@ export class OpenEditorsProvider
     this.refresh()
   }
 
-  private autoCheckOpenEditors(): void {
+  private async autoCheckOpenEditors(): Promise<void> {
     if (!this.attach_open_files) return
 
     const open_files = this.getOpenEditors()
