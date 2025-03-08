@@ -118,7 +118,7 @@ export class WorkspaceProvider
 
       // Add token count to description
       if (element.description) {
-        element.description = `${formatted_token_count} (${element.description})`
+        element.description = `${formatted_token_count} ${element.description}`
       } else {
         element.description = formatted_token_count
       }
@@ -633,10 +633,12 @@ export class FileItem extends vscode.TreeItem {
     public isGitIgnored: boolean,
     public isSymbolicLink: boolean = false,
     public isOpenFile: boolean = false,
-    public tokenCount?: number
+    public tokenCount?: number,
+    description?: string
   ) {
     super(label, collapsibleState)
     this.tooltip = this.resourceUri.fsPath
+    this.description = description
 
     // Adjust icon based on directory status
     if (this.isDirectory) {
@@ -655,8 +657,10 @@ export class FileItem extends vscode.TreeItem {
     this.checkboxState = checkboxState
 
     if (this.isSymbolicLink) {
-      // Indicate a symlink in description
-      this.description = '(symlink)'
+      // If it's a symlink, append to existing description
+      this.description = this.description
+        ? `${this.description} (symlink)`
+        : '(symlink)'
     }
 
     // Set contextValue for open files to enable context menu actions

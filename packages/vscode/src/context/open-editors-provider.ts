@@ -261,7 +261,7 @@ export class OpenEditorsProvider
 
       // Add token count to description
       if (element.description) {
-        element.description = `${formatted_token_count} (${element.description})`
+        element.description = `${formatted_token_count} ${element.description}`
       } else {
         element.description = formatted_token_count
       }
@@ -320,6 +320,7 @@ export class OpenEditorsProvider
     }
   }
 
+  // In createOpenEditorItems method of OpenEditorsProvider class
   async createOpenEditorItems(): Promise<FileItem[]> {
     const items: FileItem[] = []
     const open_files = this.getOpenEditors()
@@ -343,17 +344,24 @@ export class OpenEditorsProvider
       // Get checkbox state, respect attach_open_files setting
       let checkbox_state = this.checked_items.get(file_path)
       if (checkbox_state === undefined) {
-        const isPreview = this.preview_tabs.get(file_path)
+        const is_preview = this.preview_tabs.get(file_path)
         // Only auto-check if attach_open_files is enabled and file is not in preview mode
         checkbox_state =
-          this.attach_open_files && !isPreview
+          this.attach_open_files && !is_preview
             ? vscode.TreeItemCheckboxState.Checked
             : vscode.TreeItemCheckboxState.Unchecked
         this.checked_items.set(file_path, checkbox_state)
       }
 
-      // Calculate token count for this file
+      // Calculate relative path from workspace root
+      const relative_path = path.relative(
+        this.workspace_root,
+        path.dirname(file_path)
+      )
+
+      // Create description with relative path and token count
       const token_count = await this.calculateFileTokens(file_path)
+      const description = relative_path ? `${relative_path}` : ''
 
       const item = new FileItem(
         file_name,
@@ -364,7 +372,8 @@ export class OpenEditorsProvider
         false, // not git ignored
         false, // not a symlink
         true, // is an open file
-        token_count
+        token_count,
+        description
       )
 
       items.push(item)
