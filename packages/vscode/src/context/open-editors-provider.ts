@@ -115,7 +115,7 @@ export class OpenEditorsProvider
     }
   }
 
-  // New method to handle when a file is "unpinned" (goes from preview to normal mode)
+  // Modified method to handle when a file is "unpinned" (goes from preview to normal mode)
   private handleFileUnpinned(filePath: string): void {
     // Only proceed if the setting is enabled
     if (!this.attach_open_files) return
@@ -127,17 +127,23 @@ export class OpenEditorsProvider
     if (this.ignored_extensions.has(extension)) return
 
     // Skip if already checked
-    if (this.checked_items.get(filePath) === vscode.TreeItemCheckboxState.Checked) return
-
-    // Skip if opened from workspace view
-    if (this.opened_from_workspace_view.has(filePath)) {
-      // Remove from set once processed
-      this.opened_from_workspace_view.delete(filePath)
+    if (
+      this.checked_items.get(filePath) === vscode.TreeItemCheckboxState.Checked
+    )
       return
+
+    // Check if this file was opened from workspace view
+    const wasOpenedFromWorkspaceView =
+      this.opened_from_workspace_view.has(filePath)
+
+    // Remove from tracking set - we'll process it now regardless
+    if (wasOpenedFromWorkspaceView) {
+      this.opened_from_workspace_view.delete(filePath)
     }
 
-    // Mark as checked when file is unpinned
+    // Mark as checked when file is unpinned - even if it was opened from workspace view
     this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+
     // Clear token count to recalculate
     this.file_token_counts.delete(filePath)
   }
@@ -182,7 +188,10 @@ export class OpenEditorsProvider
       // Check if this is a new file that isn't in our map yet
       if (!this.checked_items.has(filePath)) {
         // Don't auto-check if the file was opened from workspace view or is in preview mode
-        if (this.opened_from_workspace_view.has(filePath) || this.preview_tabs.get(filePath)) {
+        if (
+          this.opened_from_workspace_view.has(filePath) ||
+          this.preview_tabs.get(filePath)
+        ) {
           this.checked_items.set(
             filePath,
             vscode.TreeItemCheckboxState.Unchecked
@@ -336,9 +345,10 @@ export class OpenEditorsProvider
       if (checkbox_state === undefined) {
         const isPreview = this.preview_tabs.get(file_path)
         // Only auto-check if attach_open_files is enabled and file is not in preview mode
-        checkbox_state = (this.attach_open_files && !isPreview)
-          ? vscode.TreeItemCheckboxState.Checked
-          : vscode.TreeItemCheckboxState.Unchecked
+        checkbox_state =
+          this.attach_open_files && !isPreview
+            ? vscode.TreeItemCheckboxState.Checked
+            : vscode.TreeItemCheckboxState.Unchecked
         this.checked_items.set(file_path, checkbox_state)
       }
 

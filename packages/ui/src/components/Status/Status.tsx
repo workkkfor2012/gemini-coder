@@ -21,7 +21,7 @@ export const Status: React.FC<Props> = (props) => {
         <a href="https://github.com/robertpiosik/gemini-coder">GitHub</a>
         <span>·</span>
         <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details">
-          Rate
+          Rate extension
         </a>
         <span>·</span>
         <a href="https://buymeacoffee.com/robertpiosik">Donate</a>
