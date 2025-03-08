@@ -1,50 +1,53 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
-import * as fs from 'fs'
 
 export function create_file_command() {
   return vscode.commands.registerCommand(
     'geminiCoder.createFile',
     async (item?: vscode.TreeItem) => {
-      if (!item || !item.resourceUri) {
+      // If item is not provided, we can't create a file
+      if (!item?.resourceUri) {
         return
       }
 
-      // Get the folder path from the selected item
-      const folderPath = item.resourceUri.fsPath
+      const parent_path = item.resourceUri.fsPath
 
       // Prompt user for the file name
-      const fileName = await vscode.window.showInputBox({
+      const file_name = await vscode.window.showInputBox({
         prompt: 'Enter file name',
-        placeHolder: 'example.js'
+        placeHolder: ''
       })
 
-      if (!fileName) {
-        return // User cancelled the input
+      // If user cancelled or didn't enter a name, abort
+      if (!file_name) {
+        return
       }
 
       try {
         // Create full file path
-        const filePath = path.join(folderPath, fileName)
+        const file_path = path.join(parent_path, file_name)
 
         // Check if file already exists
-        if (fs.existsSync(filePath)) {
-          const overwrite = await vscode.window.showWarningMessage(
-            `File '${fileName}' already exists. Do you want to overwrite it?`,
-            'Yes',
-            'No'
-          )
-          if (overwrite !== 'Yes') {
-            return
-          }
+        try {
+          await vscode.workspace.fs.stat(vscode.Uri.file(file_path))
+          vscode.window.showErrorMessage(`File '${file_name}' already exists.`)
+          return
+        } catch {
+          // File doesn't exist, which is what we want
         }
 
         // Create the file with empty content
-        fs.writeFileSync(filePath, '')
+        await vscode.workspace.fs.writeFile(
+          vscode.Uri.file(file_path),
+          new Uint8Array()
+        )
 
         // Open the new file in the editor
-        const document = await vscode.workspace.openTextDocument(filePath)
+        const document = await vscode.workspace.openTextDocument(file_path)
         await vscode.window.showTextDocument(document)
+
+        // Show success message
+        vscode.window.showInformationMessage(`Created file: ${file_name}`)
 
         // Refresh the workspace tree view
         vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')

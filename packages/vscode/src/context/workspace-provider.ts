@@ -323,15 +323,6 @@ export class WorkspaceProvider
           ? await this.calculate_directory_tokens(full_path)
           : await this.calculate_file_tokens(full_path)
 
-        // Skip directories with 0 tokens unless it's the workspace root
-        if (
-          is_directory &&
-          token_count === 0 &&
-          full_path !== this.workspace_root
-        ) {
-          continue
-        }
-
         const item = new FileItem(
           entry.name,
           uri,

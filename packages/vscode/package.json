@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.192",
+  "version": "1.0.193",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -163,6 +163,11 @@
       {
         "command": "geminiCoder.refactorToClipboard",
         "title": "Gemini Coder: Refactor to Clipboard"
+      },
+      {
+        "command": "geminiCoder.createFolder",
+        "title": "Create Folder",
+        "icon": "$(new-folder)"
       }
     ],
     "menus": {
@@ -207,7 +212,12 @@
         {
           "command": "geminiCoder.createFile",
           "when": "view == geminiCoderViewWorkspace && viewItem == directory",
-          "group": "inline"
+          "group": "inline@1"
+        },
+        {
+          "command": "geminiCoder.createFolder",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "group": "inline@2"
         }
       ]
     },
