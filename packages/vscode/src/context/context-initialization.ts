@@ -50,7 +50,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
     )
 
     const update_activity_bar_badge_token_count = async () => {
-      const config = vscode.workspace.getConfiguration('geminiCoder')
       let context_text = ''
 
       try {

@@ -17,9 +17,10 @@ export class OpenEditorsProvider
   private checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
   private file_token_counts: Map<string, number> = new Map() // Cache token counts
   private tab_change_handler: vscode.Disposable
+  private file_change_watcher: vscode.Disposable
   private ignored_extensions: Set<string> = new Set()
   private attach_open_files: boolean = true
-  private initialized: boolean = false // Add initialization tracking
+  private initialized: boolean = false
 
   constructor(workspace_root: string, ignored_extensions: Set<string>) {
     this.workspace_root = workspace_root
@@ -34,6 +35,16 @@ export class OpenEditorsProvider
       this.refresh()
     })
 
+    // Listen for file content changes
+    this.file_change_watcher = vscode.workspace.onDidChangeTextDocument((e) => {
+      if (e.document.isDirty) return // Only process saved changes
+
+      const filePath = e.document.uri.fsPath
+      // Clear token count for this file to force recalculation
+      this.file_token_counts.delete(filePath)
+      this._onDidChangeTreeData.fire()
+    })
+
     // Initial auto-check of all open editors
     // We'll use setTimeout to ensure VS Code has fully loaded editors
     setTimeout(() => {
@@ -45,6 +56,7 @@ export class OpenEditorsProvider
 
   public dispose(): void {
     this.tab_change_handler.dispose()
+    this.file_change_watcher.dispose() // Dispose the file watcher
   }
 
   refresh(): void {
@@ -347,9 +359,9 @@ export class OpenEditorsProvider
       }
     }
   }
-  
-  // New method to check if provider is fully initialized
+
+  // Method to check if provider is fully initialized
   public isInitialized(): boolean {
-    return this.initialized;
+    return this.initialized
   }
 }
