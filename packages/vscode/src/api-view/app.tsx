@@ -8,6 +8,7 @@ import '@ui/styles/styles.css'
 
 function App() {
   const [providers, set_providers] = useState<any[]>([])
+  const [api_key, set_api_key] = useState<string>('')
   const [default_fim_model, set_default_fim_model] = useState<string>('')
   const [default_refactoring_model, set_default_refactoring_model] =
     useState<string>('')
@@ -21,6 +22,7 @@ function App() {
       const message = event.data
       if (message.command == 'configuration') {
         set_providers(message.providers)
+        set_api_key(message.api_key)
         set_default_fim_model(message.default_fim_model)
         set_default_refactoring_model(message.default_refactoring_model)
         set_default_apply_changes_model(message.default_apply_changes_model)
@@ -30,6 +32,14 @@ function App() {
     window.addEventListener('message', handleMessage)
     return () => window.removeEventListener('message', handleMessage)
   }, [])
+
+  const handle_api_key_change = (api_key: string) => {
+    vscode.postMessage({
+      command: 'update_api_key',
+      api_key
+    })
+    set_api_key(api_key)
+  }
 
   const handle_fim_model_change = (model: string) => {
     vscode.postMessage({
@@ -64,9 +74,11 @@ function App() {
   return (
     <Main
       providers={providers}
+      api_key={api_key}
       default_fim_model={default_fim_model}
       default_refactoring_model={default_refactoring_model}
       default_apply_changes_model={default_apply_changes_model}
+      on_api_key_change={handle_api_key_change}
       on_fim_model_change={handle_fim_model_change}
       on_refactoring_model_change={handle_refactoring_model_change}
       on_apply_changes_model_change={handle_apply_changes_model_change}

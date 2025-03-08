@@ -8,9 +8,11 @@ type Props = {
   default_fim_model: string
   default_refactoring_model: string
   default_apply_changes_model: string
+  api_key: string
   on_fim_model_change: (model: string) => void
   on_refactoring_model_change: (model: string) => void
   on_apply_changes_model_change: (model: string) => void
+  on_api_key_change: (apiKey: string) => void
   open_providers_settings: () => void
 }
 
@@ -28,8 +30,29 @@ export const Main: React.FC<Props> = (props) => {
 
   return (
     <div className={styles.container}>
+      <Separator size="small" />
+
+      <div className={styles['form-group']}>
+        <div className={styles['form-field']}>
+          <label>API key</label>
+          <input
+            value={props.api_key}
+            onChange={(e) => props.on_api_key_change(e.target.value)}
+            placeholder="Enter your API key"
+          />
+          {!props.api_key && (
+            <div className={styles.hint}>
+              Create yours in{' '}
+              <a href="https://aistudio.google.com/app/apikey">AI Studio</a>.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <Separator size="large" />
+
       <div className={styles.header}>
-        Select default models for given features:
+        Select default model for each feature:
       </div>
 
       <Separator size="medium" />

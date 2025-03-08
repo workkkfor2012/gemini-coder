@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.191",
+  "version": "1.0.192",
   "publisher": "robertpiosik",
   "repository": {
     "type": "git",
@@ -218,7 +218,7 @@
         "geminiCoder.apiKey": {
           "type": "string",
           "scope": "resource",
-          "description": "API key to use with built-in Gemini models. Get yours here: https://aistudio.google.com/app/apikey",
+          "markdownDescription": "Create yours in [AI Studio](https://aistudio.google.com/app/apikey).",
           "default": ""
         },
         "geminiCoder.temperature": {

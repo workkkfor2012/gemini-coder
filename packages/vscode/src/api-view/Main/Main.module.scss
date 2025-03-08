@@ -10,6 +10,53 @@
   font-size: 13px;
 }
 
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  label {
+    font-size: 13px;
+    color: var(--vscode-foreground);
+  }
+
+  input {
+    width: 100%;
+    padding: 4px;
+    font-family: system-ui, sans-serif;
+    font-size: 13px;
+    background-color: var(--vscode-input-background);
+    color: var(--vscode-input-foreground);
+    border: 1px solid var(--vscode-input-border);
+    border-radius: 2px;
+
+    &:focus {
+      outline: 1px solid var(--vscode-focusBorder);
+      outline-offset: -1px;
+    }
+  }
+}
+
+.hint {
+  font-size: 11px;
+  color: var(--vscode-descriptionForeground);
+
+  a {
+    color: var(--vscode-textLink-foreground);
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
 .model-group {
   display: flex;
   flex-direction: column;

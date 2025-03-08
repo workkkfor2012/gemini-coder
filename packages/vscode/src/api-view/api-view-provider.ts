@@ -32,6 +32,7 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
       if (message.command == 'get_configuration') {
         const config = vscode.workspace.getConfiguration('geminiCoder')
         const providers = config.get('providers', [])
+        const api_key = config.get('apiKey', '')
         const default_fim_model = this.model_manager.get_default_fim_model()
         const default_refactoring_model =
           this.model_manager.get_default_refactoring_model()
@@ -41,10 +42,15 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
         webview_view.webview.postMessage({
           command: 'configuration',
           providers,
+          api_key,
           default_fim_model,
           default_refactoring_model,
           default_apply_changes_model
         })
+      } else if (message.command == 'update_api_key') {
+        await vscode.workspace
+          .getConfiguration('geminiCoder')
+          .update('apiKey', message.api_key, true)
       } else if (message.command == 'update_fim_model') {
         await this.model_manager.set_default_fim_model(message.model)
       } else if (message.command == 'update_refactoring_model') {
