@@ -4,6 +4,7 @@
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
   "version": "1.0.194",
   "publisher": "robertpiosik",
+  "homepage": "https://gemini-coder.netlify.app/",
   "repository": {
     "type": "git",
     "url": "https://github.com/robertpiosik/gemini-coder/tree/master/packages/vscode"
