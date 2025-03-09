@@ -4,11 +4,13 @@ layout: home
 nav_order: 1
 ---
 
-# The 2M context coding assistant
+# Welcome to Gemini Coder
 {: .fs-9 }
 
-Gemini Coder is an open-source AI coding assistant for VS Code. With emphasis put on context accuracy, it lets you reliably pull the best outputs among all the available tools and avoid over-spent on excessive tokens.
+The 2M context coding assistant. 
 {: .fs-6 .fw-300 }
+
+With emphasis put on context accuracy, Gemini Coder lets you reliably pull the best outputs among all the available tools and avoid over-spent on excessive tokens.
 
 [Install now](https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View it on GitHub](https://github.com/robertpiosik/gemini-coder){: .btn .fs-5 .mb-4 .mb-md-0 }
