@@ -1,0 +1,9 @@
+title: Gemini Coder
+description: A starter template for a Jeykll site using the Just the Docs theme!
+theme: just-the-docs
+
+url: https://robertpiosik.github.io/gemini-coder
+
+aux_links:
+  GitHub: https://github.com/robertpiosik/gemini-coder
+  Marketplace: https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder
