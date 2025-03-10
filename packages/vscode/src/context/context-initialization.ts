@@ -68,13 +68,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
       // Update the badge on the workspace files view
       gemini_coder_file_tree_view.badge = {
         value: total_token_count,
-        tooltip: `${total_token_count} tokens (including checked open editors)`
-      }
-
-      // Also update the badge on the open editors view with the same count
-      gemini_coder_open_editors_view.badge = {
-        value: total_token_count,
-        tooltip: `${total_token_count} tokens (including checked workspace files)`
+        tooltip: `${total_token_count} tokens`
       }
     }
 
