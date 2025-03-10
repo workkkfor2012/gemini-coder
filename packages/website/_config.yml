@@ -29,8 +29,9 @@ callouts:
     title: New
     color: green
   note:
-    title: Tip
     color: green
   warning:
     title: Warning
     color: red
+
+aux_links_new_tab: true

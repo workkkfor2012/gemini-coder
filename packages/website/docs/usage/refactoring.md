@@ -42,3 +42,9 @@ Here are some effective refactoring instructions:
 
 {: .note }
 For complex refactorings across multiple files, consider using the Chat feature which provides more interactive guidance.
+
+## Tips
+
+### Thinking model
+
+We suggest you using Gemini 2.0 Thinking for its greater output tokens limit (64k) and great reliability on the task.

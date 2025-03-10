@@ -22,3 +22,9 @@ Gemini Coder's Apply Changes feature helps you implement AI-suggested modificati
 - **Apply Changes with Model Selection** (`Gemini Coder: Apply Changes to this File with...`): Lets you select which model to use for applying changes.
 - **Apply Changes to Clipboard** (`Gemini Coder: Apply Changes to Clipboard`): Instead of applying changes directly with API, copies the apply changes prompt to your clipboard for use in other tools.
 - **Change Default Model** (`Gemini Coder: Change Default Apply Changes Model`): Configure which model should be used as the default for applying changes.
+
+## Tips
+
+### Thinking model
+
+We suggest you using Gemini 2.0 Thinking for its greater output tokens limit (64k) and great reliability on the task.
