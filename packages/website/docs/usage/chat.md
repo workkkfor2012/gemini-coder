@@ -11,7 +11,7 @@ Gemini Coder's Chat feature provides a seamless way to interact with various AI 
 
 ## Browser Extension
 
-The browser extension establishes a WebSocket connection with VS Code, allowing the direct launching of chat sessions with your selected context.
+The browser extension establishes a WebSocket connection with VS Code, allowing the direct launching of chat sessions with your selected context and prompt.
 
 - [Chrome Extension](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Firefox Add-on](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
