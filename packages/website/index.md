@@ -7,10 +7,8 @@ nav_order: 1
 # Meet Gemini Coder
 {: .fs-9 }
 
-The 2M context AI coding assistant.
+The 2M context AI coding assistant. Free and open source.
 {: .fs-6 .fw-300 }
-
-With emphasis put on context accuracy, Gemini Coder lets you reliably generate the best outputs among all the available tools and avoid over-spent on excessive tokens.
 
 [Install now](/docs/installation.html){: .btn .btn-primary .btn-blue .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View it on GitHub](https://github.com/robertpiosik/gemini-coder){: .btn .fs-5 .mb-4 .mb-md-0 }
@@ -19,7 +17,14 @@ With emphasis put on context accuracy, Gemini Coder lets you reliably generate t
 
 ## Take charge of the context
 
-Gemini Coder works best for users knowing their codebases - automated context search is unreliable and does not look for valuable examples of your team's conventions.
+Other AI coding tools try to "guess" what context matters, often getting it wrong or at a high cost in token usage and speed. Gemini Coder works differently:
+
+- **You decide** which files provide relevant context
+- **You control** what examples of code patterns to include
+- **You determine** how much context to send
+- **You see** exactly how many tokens you're sending
+
+The result? More accurate responses, fewer hallucinations, and better alignment with your team's coding practices.
 
 ## Features
 

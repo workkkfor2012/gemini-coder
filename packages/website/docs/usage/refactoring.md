@@ -3,34 +3,50 @@ title: Refactoring
 layout: home
 parent: Usage
 nav_order: 4
+description: Transform your code with instruction using Gemini Coder's AI-powered refactoring capabilities
 ---
 
 # Refactoring
 
-Gemini Coder's refactoring feature allows you to modify the current file based on natural language instructions. This is perfect for modernizing code, implementing design patterns, or changing implementation approaches without having to rewrite everything manually.
+Gemini Coder's refactoring feature allows you to modify the current file based on instruction. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file must be regenerated.
 
-## How It Works
+## How it works
 
-1. **Select Context**: Choose relevant files to provide the AI with necessary context about your codebase.
-2. **Choose Target File**: Open the file you want to refactor in the editor.
-3. **Run Command**: Execute one of the refactoring commands and provide your instruction.
-4. **Review Changes**: The AI will generate a complete new version of your file with the requested changes.
+### Select Context
 
-## Available Commands
+Choose relevant files to provide the AI with necessary context about your codebase.
 
-- **Refactor this File** (`Gemini Coder: Refactor this File`): Refactors the current file using the default model.
-- **Refactor with Model Selection** (`Gemini Coder: Refactor this File with...`): Lets you select which model to use for refactoring.
-- **Refactor to Clipboard** (`Gemini Coder: Refactor to Clipboard`): Instead of applying changes directly, copies the refactoring prompt to your clipboard for use in other tools.
-- **Change Default Model** (`Gemini Coder: Change Default Refactoring Model`): Configure which model should be used as the default for refactoring.
+### Choose Target File
 
-## Best Practices
+Open the file you want to refactor in the editor.
 
-1. **Be Specific**: Clearly describe what aspects of the code should change and why.
-2. **Select Text**: Optionally select specific code blocks to focus the refactoring on particular sections.
-3. **Include Context**: Select relevant files that contain patterns, conventions, or dependencies that should inform the refactoring.
-4. **Review Changes**: Always carefully review the AI-generated changes before committing them.
+### Run Command
 
-## Example Instructions
+Execute one of the refactoring commands and provide your instruction.
+
+### Review Changes
+
+The AI will generate a complete new version of your file with the requested changes.
+
+## Best practices
+
+### Be Specific
+
+Clearly describe what aspects of the code should change and why.
+
+### Select Text
+
+Optionally select specific code blocks to focus the refactoring on particular sections.
+
+### Include Context
+
+Select relevant files that contain patterns, conventions, or dependencies that should inform the refactoring.
+
+### Review Changes
+
+Always carefully review the AI-generated changes before committing them.
+
+## Example instructions
 
 Here are some effective refactoring instructions:
 
@@ -40,11 +56,20 @@ Here are some effective refactoring instructions:
 - "Extract the duplicate logic into reusable functions"
 - "Refactor to follow the SOLID principles, focusing on single responsibility"
 
-{: .note }
-For complex refactorings across multiple files, consider using the Chat feature which provides more interactive guidance.
+## Available commands
 
-## Tips
+### `Gemini Coder: Refactor this File`
 
-### Thinking model
+Refactors the current file using the default model.
 
-We suggest you using Gemini 2.0 Thinking for its greater output tokens limit (64k) and great reliability on the task.
+### `Gemini Coder: Refactor this File with...`
+
+Lets you select which model to use for refactoring.
+
+### `Gemini Coder: Refactor to Clipboard`
+
+Instead of applying changes directly, copies the refactoring prompt to your clipboard for use in other tools.
+
+### `Gemini Coder: Change Default Refactoring Model`
+
+Configure which model should be used as the default for refactoring.
