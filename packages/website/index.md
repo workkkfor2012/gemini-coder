@@ -7,7 +7,7 @@ nav_order: 1
 # Meet Gemini Coder
 {: .fs-9 }
 
-The 2M context AI coding assistant. Free and open source.
+The 2M context AI coding assistant. Free and open source (MIT).
 {: .fs-6 .fw-300 }
 
 [Install now](/docs/installation.html){: .btn .btn-primary .btn-blue .fs-5 .mb-4 .mb-md-0 .mr-2 }
