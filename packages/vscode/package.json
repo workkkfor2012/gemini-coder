@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context AI coding assistant",
   "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.197",
+  "version": "1.0.198",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {
@@ -62,6 +62,11 @@
     },
     "commands": [
       {
+        "command": "geminiCoder.copyContext",
+        "title": "Gemini Coder: Copy Context",
+        "icon": "$(copy)"
+      },
+      {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
         "icon": "$(check-all)"
@@ -100,10 +105,6 @@
         "command": "geminiCoder.createFile",
         "title": "Create File",
         "icon": "$(new-file)"
-      },
-      {
-        "command": "geminiCoder.copyContext",
-        "title": "Gemini Coder: Copy Context"
       },
       {
         "command": "geminiCoder.fimCompletionWith",
@@ -173,6 +174,11 @@
     ],
     "menus": {
       "view/title": [
+        {
+          "command": "geminiCoder.copyContext",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@1"
+        },
         {
           "command": "geminiCoder.checkAll",
           "when": "view == geminiCoderViewWorkspace",

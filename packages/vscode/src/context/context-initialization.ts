@@ -82,31 +82,28 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Register the commands
     context.subscriptions.push(
-      vscode.commands.registerCommand(
-        'geminiCoder.copyContext',
-        async () => {
-          let context_text = ''
+      vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
+        let context_text = ''
 
-          try {
-            context_text = await files_collector.collect_files()
-          } catch (error: any) {
-            console.error('Error collecting files:', error)
-            vscode.window.showErrorMessage(
-              'Error collecting files: ' + error.message
-            )
-            return
-          }
-
-          if (context_text == '') {
-            vscode.window.showWarningMessage('No files selected or open.')
-            return
-          }
-
-          context_text = `\n${context_text}\n`
-          await vscode.env.clipboard.writeText(context_text)
-          vscode.window.showInformationMessage(`Context copied to clipboard.`)
+        try {
+          context_text = await files_collector.collect_files()
+        } catch (error: any) {
+          console.error('Error collecting files:', error)
+          vscode.window.showErrorMessage(
+            'Error collecting files: ' + error.message
+          )
+          return
         }
-      ),
+
+        if (context_text == '') {
+          vscode.window.showWarningMessage('No files selected or open.')
+          return
+        }
+
+        context_text = `<files>\n${context_text}</files>\n`
+        await vscode.env.clipboard.writeText(context_text)
+        vscode.window.showInformationMessage(`Context copied to clipboard.`)
+      }),
       // Existing workspace commands
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()
