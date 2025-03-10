@@ -102,7 +102,7 @@
         "icon": "$(new-file)"
       },
       {
-        "command": "geminiCoder.copyContextCommand",
+        "command": "geminiCoder.copyContext",
         "title": "Gemini Coder: Copy Context"
       },
       {
@@ -194,14 +194,14 @@
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.closeAllEditors",
-          "when": "view == geminiCoderViewOpenEditors",
-          "group": "navigation@4"
-        },
-        {
           "command": "geminiCoder.saveAll",
           "when": "view == geminiCoderViewOpenEditors",
           "group": "navigation@3"
+        },
+        {
+          "command": "geminiCoder.closeAllEditors",
+          "when": "view == geminiCoderViewOpenEditors",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [

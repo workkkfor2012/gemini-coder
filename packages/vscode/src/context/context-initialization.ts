@@ -83,7 +83,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     // Register the commands
     context.subscriptions.push(
       vscode.commands.registerCommand(
-        'geminiCoder.copyContextCommand',
+        'geminiCoder.copyContext',
         async () => {
           let context_text = ''
 
