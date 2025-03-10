@@ -27,12 +27,6 @@ The workspace view shows all files in your project and allows batch selections. 
 
 ---
 
-## Related features
-
-### Total tokens badge
-
-Activity bar icon's badge shows approximate number of selected tokens. The count does not take into account additional XML tags wrapping each file `...`.
-
 ## Available Commands
 
 ### `Gemini Coder: Copy Context`

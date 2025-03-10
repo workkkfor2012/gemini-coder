@@ -14,43 +14,37 @@ Gemini Coder's Chat feature provides a seamless way to interact with various AI 
 
 ## Workflow
 
-### Select Context
+1.  **Select Context** — Choose relevant files opening them or using the Workspace view.
+2.  **Write Your Prompt** — Enter your instruction.
+3.  **Choose Chat Provider** — Select one or more chatbots for hands-free initialization.
+4.  **Interact** — Enter follow-up prompts in the web browser or start over with corrected context and prompt (better results).
+5.  **Apply changes** — After getting response from the AI platform, you can use the [Apply Changes](/docs/usage/applying-changes.html) feature to integrate the suggested changes to each modified file.
 
-Choose relevant files using the Context View to include in your conversation.
+---
 
-### Write Your Prompt
+## Supported AI chatbots
 
-Enter your instruction in the chat input area.
+Gemini Coder integrates with numerous popular chatbots. AI Studio supports applying additional configuration (model, system instructions, temperature) specified in presets.
 
-### Choose Chat Provider
+| Chatbot        | Initialization | Model | System Instructions | Temperature | Max input tokens |
+| -------------- | :------------: | :---: | :-----------------: | :---------: | :--------------: |
+| **AI Studio**  |       ✅       |  ✅   |         ✅          |     ✅      |      1-2M\*      |
+| **Gemini**     |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| ChatGPT        |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| Claude         |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| GitHub Copilot |       ✅       |  ❌   |         ❌          |     ❌      |     8-17k\*      |
+| Grok           |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| DeepSeek       |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| Mistral        |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
+| Open WebUI     |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
 
-Select one or more AI platforms to initialize with your context and prompt.
+\* Depends on factors like used model and plan.
 
-### Interact
-
-The extension opens or activates browser tabs with the selected providers, automatically sending your context and prompt.
-
-### Apply changes
-
-After getting response from the AI platform, you can use the [Apply Changes](/docs/usage/applying-changes.html) feature to integrate the suggested changes into your code.
-
-## Supported Chats
-
-Gemini Coder integrates with numerous AI platforms:
-
-- **AI Studio**: Google's developer platform for Gemini models
-- **Gemini**: Google's consumer AI platform
-- **ChatGPT**: OpenAI's chat platform
-- **Claude**: Anthropic's AI assistant
-- **GitHub Copilot**: Microsoft's AI programming assistant
-- **Grok**: xAI's conversational AI
-- **DeepSeek**: AI research platform
-- **Mistral**: Mistral AI's platform
-- **Open WebUI**: Self-hosted interface for various models
+---
 
 ## Presets
 
-The extension allows you to create presets of web chat configuration for different use cases.
+Preset is a web chat configuration for specialized use case.
 
 Each preset can include:
 
@@ -60,9 +54,13 @@ Each preset can include:
 - Temperature setting
 - Custom system instructions
 
+---
+
 ## Browser Extension
 
-The [browser extension](/docs/installation.html#browser-extension) establishes a WebSocket connection with VS Code, allowing the direct launching of chat sessions with your selected context and prompt.
+The [browser extension](/docs/installation.html#browser-extension) establishes a WebSocket connection with VS Code, allowing hands-free chat initialization with your selected context and prompt.
+
+---
 
 ## Best Practices
 
