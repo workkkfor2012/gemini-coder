@@ -2,7 +2,7 @@
 title: Fill-In-the-Middle (FIM)
 layout: home
 parent: Usage
-nav_order: 2
+nav_order: 3
 ---
 
 # Fill-In-the-Middle (FIM)

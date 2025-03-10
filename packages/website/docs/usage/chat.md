@@ -2,7 +2,7 @@
 title: Chat
 layout: home
 parent: Usage
-nav_order: 5
+nav_order: 2
 ---
 
 # Chat
