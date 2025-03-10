@@ -8,16 +8,16 @@ description: Connect VS Code with web-based AI platforms for seamless code assis
 
 # Chat
 
-Gemini Coder's Chat feature provides a seamless way to interact with various AI platforms directly from VS Code. By connecting your editor with web-based AI services, you can send code context and prompts without constant copy-pasting, while taking advantage of the superior experiences these platforms offer (tabs, public sharing, canvas, etc.).
+Gemini Coder's Chat feature provides a seamless way to interact with various AI platforms directly from VS Code. By connecting your editor with web-based AI services, you can send code context and prompts without constant copy-pasting, while taking advantage of the superior developer experience (tabs, public sharing, canvas, etc.).
 
 ---
 
 ## Workflow
 
-1.  **Select Context** — Choose relevant files opening them or using the Workspace view.
+1.  **Select Context** — Choose relevant files by opening them or selecting in the Workspace view.
 2.  **Write Your Prompt** — Enter your instruction.
 3.  **Choose Chat Provider** — Select one or more chatbots for hands-free initialization.
-4.  **Interact** — Enter follow-up prompts in the web browser or start over with corrected context and prompt (better results).
+4.  **Interact** — Enter follow-up prompts in the web browser or start over with updated context and prompt (better results).
 5.  **Apply changes** — After getting response from the AI platform, you can use the [Apply Changes](/docs/usage/applying-changes.html) feature to integrate the suggested changes to each modified file.
 
 ---
