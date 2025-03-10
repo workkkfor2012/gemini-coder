@@ -3,9 +3,21 @@ title: Usage
 layout: home
 has_children: true
 nav_order: 2
-description: Hot to use Gemini Coder's features
+description: How to use Gemini Coder's features
 ---
 
 # Usage
 
-Gemini Coder is a complete suite of tools for your AI-assisted software development workflow.
+Gemini Coder provides a comprehensive suite of AI-powered tools to enhance your development workflow in VS Code. These tools are designed to help you write, refactor, and understand code more efficiently.
+
+## Main Features
+
+1. **Context Management**: Select and manage which files are included in your AI prompts.
+2. **Web Chat Integration**: Open web-based AI platforms directly from VS Code.
+3. **Fill-In-the-Middle (FIM)**: Insert AI-generated code completions at your cursor position.
+4. **Refactoring**: Modify any file based on instruction.
+5. **Applying Changes**: Integrate AI-suggested file updates.
+
+Each feature is designed to streamline your development process by reducing manual work and leveraging AI capabilities for coding tasks.
+
+Explore the subpages for detailed instructions on using each feature.
