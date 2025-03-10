@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { apply_changes_instruction } from '../constants/instructions'
 
 export function apply_changes_to_clipboard_command(
   file_tree_provider: any,
@@ -15,35 +15,13 @@ export function apply_changes_to_clipboard_command(
       }
 
       const document = editor.document
-      const document_path = document.uri.fsPath
       const document_text = document.getText()
 
       const instruction = await vscode.env.clipboard.readText()
 
-      // Create files collector instance
-      const files_collector = new FilesCollector(
-        file_tree_provider,
-        open_editors_provider
-      )
-      let context_text = ''
-
-      try {
-        // Collect files excluding the current document
-        context_text = await files_collector.collect_files({
-          exclude_path: document_path
-        })
-      } catch (error: any) {
-        console.error('Error collecting files:', error)
-        vscode.window.showErrorMessage(
-          'Error collecting files: ' + error.message
-        )
-        return
-      }
-
-      const current_file_path = vscode.workspace.asRelativePath(document.uri)
-      const files = `<files>\n${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
-      const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated file only, without explanations or any other text. ${instruction}`
-      const content = `${files}\n${apply_changes_instruction}`
+      const file_content = `<file>\n<![CDATA[\n${document_text}\n]]>\n</file>`
+      const apply_changes_prompt = `${apply_changes_instruction} ${instruction}`
+      const content = `${file_content}\n${apply_changes_prompt}`
 
       await vscode.env.clipboard.writeText(content)
       vscode.window.showInformationMessage(

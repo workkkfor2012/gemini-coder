@@ -4,22 +4,22 @@ layout: home
 nav_order: 1
 ---
 
-# Welcome to Gemini Coder
+# Meet Gemini Coder
 {: .fs-9 }
 
-The 2M context coding assistant. 
+The 2M context AI coding assistant.
 {: .fs-6 .fw-300 }
 
-With emphasis put on context accuracy, Gemini Coder lets you reliably pull the best outputs among all the available tools and avoid over-spent on excessive tokens.
+With emphasis put on context accuracy, Gemini Coder lets you reliably generate the best outputs among all the available tools and avoid over-spent on excessive tokens.
 
-[Install now](https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder){: .btn .btn-primary .fs-5 .mb-4 .mb-md-0 .mr-2 }
+[Install now](/docs/installation.html){: .btn .btn-primary .btn-blue .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View it on GitHub](https://github.com/robertpiosik/gemini-coder){: .btn .fs-5 .mb-4 .mb-md-0 }
 
 ---
 
 ## Take charge of the context
 
-Gemini Coder works best for users knowing their codebases - automated context search is unreliable and does not look for valuable examples of yours team's conventions.
+Gemini Coder works best for users knowing their codebases - automated context search is unreliable and does not look for valuable examples of your team's conventions.
 
 ## Features
 
@@ -36,3 +36,7 @@ Gemini Coder works best for users knowing their codebases - automated context se
   - DeepSeek
   - Mistral
   - Open WebUI
+
+## Kind words from users
+
+- _The copying of files is now very convenient!_ -- <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details" target="_blank">Maxim Fomin</a>

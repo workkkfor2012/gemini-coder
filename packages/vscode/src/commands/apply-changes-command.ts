@@ -5,8 +5,8 @@ import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
-import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
+import { apply_changes_instruction } from '../constants/instructions'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -112,7 +112,6 @@ export function apply_changes_command(params: {
     }
 
     const document = editor.document
-    const document_path = document.uri.fsPath
     const document_text = document.getText()
 
     const clipboard_text = await vscode.env.clipboard.readText()
@@ -167,29 +166,9 @@ export function apply_changes_command(params: {
     const system_instructions = provider.systemInstructions
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
-    // Create files collector instance with both providers
-    const files_collector = new FilesCollector(
-      params.file_tree_provider,
-      params.open_editors_provider
-    )
-    
-    let context_text = ''
-
-    try {
-      // Collect files excluding the current document
-      context_text = await files_collector.collect_files({
-        exclude_path: document_path
-      })
-    } catch (error: any) {
-      console.error('Error collecting files:', error)
-      vscode.window.showErrorMessage('Error collecting files: ' + error.message)
-      return
-    }
-
-    const current_file_path = vscode.workspace.asRelativePath(document.uri)
-    const apply_changes_instruction = `User requested refactor of file "${current_file_path}". In your response send fully updated <file> only, without explanations or any other text. ${instruction}`
-    const files = `<files>${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
-    const content = `${files}\n${apply_changes_instruction}`
+    const apply_changes_prompt = `${apply_changes_instruction} ${instruction}`
+    const file_content = `<file>\n<![CDATA[\n${document_text}\n]]>\n</file>`
+    const content = `${file_content}\n${apply_changes_prompt}`
     const messages = [
       ...(system_instructions
         ? [{ role: 'system', content: system_instructions }]
