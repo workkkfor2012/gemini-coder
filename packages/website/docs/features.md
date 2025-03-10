@@ -1,18 +1,16 @@
 ---
-title: Usage
+title: Features
 layout: home
 has_children: true
-nav_order: 2
+nav_order: 3
 description: How to use Gemini Coder's features
 ---
 
-# Usage
+# Features
 
 Gemini Coder provides a comprehensive suite of AI-powered tools to enhance your development workflow in VS Code. These tools are designed to help you write, refactor, and understand code more efficiently.
 
 ---
-
-## Main Features
 
 ### Context
 

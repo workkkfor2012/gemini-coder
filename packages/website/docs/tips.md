@@ -1,14 +1,13 @@
 ---
-title: Tips & Best Practices
+title: Tips
 layout: home
-parent: Usage
-nav_order: 6
+nav_order: 4
 description: Collection of tips and best practices for using Gemini Coder effectively
 ---
 
-# Tips & Best Practices
+# Tips
 
-A comprehensive collection of tips and best practices to help you get the most out of Gemini Coder.
+Here are some tips and best practices for using Gemini Coder effectively.
 
 ---
 

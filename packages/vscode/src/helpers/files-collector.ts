@@ -25,6 +25,7 @@ export class FilesCollector {
   async collect_files(params?: {
     disable_xml?: boolean
     exclude_path?: string
+    active_path?: string
   }): Promise<string> {
     // Get checked files from both providers
     const workspace_files = this.file_tree_provider.getCheckedFiles()
@@ -56,8 +57,15 @@ export class FilesCollector {
           // Just add the content without XML wrapping, used for context counting so that it matches values shown in file tree
           collected_text += content
         } else {
-          // Use XML format with CDATA and workspace-relative path
-          collected_text += `<file path="${relative_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
+          const is_active = params?.active_path == file_path
+          collected_text += `<file path="${relative_path}"${
+            is_active ? ' active' : ''
+          }>
+<![CDATA[
+${content}
+]]>
+</file>
+`
         }
       } catch (error) {
         console.error(`Error reading file ${file_path}:`, error)

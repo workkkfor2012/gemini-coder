@@ -104,8 +104,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             this.open_editors_provider
           )
 
+          // Get the active text editor
+          const active_editor = vscode.window.activeTextEditor
+          const active_path = active_editor?.document.uri.fsPath
+
           // Collect files
-          const context_text = await files_collector.collect_files()
+          const context_text = await files_collector.collect_files({
+            active_path
+          })
 
           // Construct the final text
           let text = `${

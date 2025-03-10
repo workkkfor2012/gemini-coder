@@ -1,7 +1,7 @@
 ---
 title: Refactoring
 layout: home
-parent: Usage
+parent: Features
 nav_order: 4
 description: Transform your code with instruction using Gemini Coder's AI-powered refactoring capabilities
 ---
@@ -9,6 +9,19 @@ description: Transform your code with instruction using Gemini Coder's AI-powere
 # Refactoring
 
 Gemini Coder's refactoring feature allows you to modify the current file based on instruction. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file must be regenerated.
+
+_The structure of generated message:_
+
+```
+<files>
+  <file path="...">...</file>
+  ...
+</files>
+User requested refactor of a file "[PATH]". In your response send fully updated file only, without explanations or any other text.
+[Refactoring instructions]
+```
+
+---
 
 ## How it works
 

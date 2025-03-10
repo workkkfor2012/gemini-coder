@@ -1,7 +1,7 @@
 ---
 title: Applying changes
 layout: home
-parent: Usage
+parent: Features
 nav_order: 5
 description: Learn how to apply AI-suggested code changes to your files using Gemini Coder's Apply Changes feature
 ---
@@ -9,6 +9,16 @@ description: Learn how to apply AI-suggested code changes to your files using Ge
 # Applying changes
 
 Gemini Coder's Apply Changes feature helps you implement AI-suggested modifications to your code. When AI tools suggest partial updates to your file (like changing specific sections while preserving others), this feature helps transform those suggestions into a complete updated file.
+
+_The structure of generated message:_
+
+```
+<file>...</file>
+User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
+[Clipboard-stored file changes instructions]
+```
+
+---
 
 ## How It Works
 

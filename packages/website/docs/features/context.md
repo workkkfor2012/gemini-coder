@@ -1,7 +1,7 @@
 ---
 title: Context
 layout: home
-parent: Usage
+parent: Features
 nav_order: 1
 description: Manage which files are included in your AI prompts with Gemini Coder's powerful context control features
 ---
@@ -12,6 +12,15 @@ Gemini Coder allows you to granularly control which files are included when usin
 
 {: .note }
 For the best results keep context focused on task at hand. A good pracitice is including other files helping understand your team's coding conventions.
+
+_The structure of context:_
+
+```
+<files>
+  <file path="...">...</file>
+  ...
+</files>
+```
 
 ---
 
@@ -24,8 +33,6 @@ The open editors view shows your currently open files. Configuration option `Gem
 ### Workspace
 
 The workspace view shows all files in your project and allows batch selections. Gitignored files and non-code files are automatically excluded. You can exclude additional file extensions by adjusting configuration option `Gemini Coder: Ignored Extensions`.
-
----
 
 ## Available Commands
 

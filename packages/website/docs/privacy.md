@@ -7,13 +7,13 @@ description: Gemini Coder's privacy policy and data handling practices
 
 # Privacy
 
-Gemini Coder is designed with emphasis on user privacy.
+Gemini Coder does not collect any user data.
 
 ---
 
 ## Core privacy principles
 
-### No data collecting
+### No data collection
 
 Neither the VS Code extension nor the browser connector sends any of your code or prompts to any servers.
 

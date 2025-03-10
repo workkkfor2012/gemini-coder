@@ -1,7 +1,7 @@
 ---
 title: Chat
 layout: home
-parent: Usage
+parent: Features
 nav_order: 2
 description: Connect VS Code with web-based AI platforms for seamless code assistance using Gemini Coder's Chat feature
 ---
@@ -9,6 +9,18 @@ description: Connect VS Code with web-based AI platforms for seamless code assis
 # Chat
 
 Gemini Coder's Chat feature provides a seamless way to interact with various AI platforms directly from VS Code. By connecting your editor with web-based AI services, you can send code context and prompts without constant copy-pasting, while taking advantage of the superior developer experience (tabs, public sharing, canvas, etc.).
+
+_The structure of generated message:_
+
+```
+<files>
+  ...
+  <file path="...">...</file>
+  <file path="..." active>...</file>
+  ...
+</files>
+[Your prompt]
+```
 
 ---
 
@@ -20,11 +32,9 @@ Gemini Coder's Chat feature provides a seamless way to interact with various AI 
 4.  **Interact** — Enter follow-up prompts in the web browser or start over with updated context and prompt (better results).
 5.  **Apply changes** — After getting response from the AI platform, you can use the [Apply Changes](/docs/usage/applying-changes.html) feature to integrate the suggested changes to each modified file.
 
----
+## Chatbot compatibility
 
-## Supported AI chatbots
-
-Gemini Coder integrates with numerous popular chatbots. AI Studio supports applying additional configuration (model, system instructions, temperature) specified in presets.
+Gemini Coder integrates with numerous popular chatbots with varying support for preset-defined initialization params.
 
 | Chatbot        | Initialization | Model | System Instructions | Temperature | Max input tokens |
 | -------------- | :------------: | :---: | :-----------------: | :---------: | :--------------: |
@@ -38,9 +48,7 @@ Gemini Coder integrates with numerous popular chatbots. AI Studio supports apply
 | Mistral        |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
 | Open WebUI     |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
 
-\* Depends on factors like used model and plan.
-
----
+\* Depends on factors like used model and subscription plan.
 
 ## Presets
 
@@ -54,13 +62,9 @@ Each preset can include:
 - Temperature setting
 - Custom system instructions
 
----
-
 ## Browser Extension
 
 The [browser extension](/docs/installation.html#browser-extension) establishes a WebSocket connection with VS Code, allowing hands-free chat initialization with your selected context and prompt.
-
----
 
 ## Best Practices
 

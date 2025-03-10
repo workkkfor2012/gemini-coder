@@ -68,8 +68,9 @@ export function web_chat_with_command(
       let context_text = ''
 
       try {
-        // Collect files
-        context_text = await files_collector.collect_files()
+        const active_editor = vscode.window.activeTextEditor
+        const active_path = active_editor?.document.uri.fsPath
+        context_text = await files_collector.collect_files({ active_path })
       } catch (error: any) {
         console.error('Error collecting files:', error)
         vscode.window.showErrorMessage(
@@ -171,8 +172,9 @@ export function web_chat_command(
     let context_text = ''
 
     try {
-      // Collect files
-      context_text = await files_collector.collect_files()
+      const active_editor = vscode.window.activeTextEditor
+      const active_path = active_editor?.document.uri.fsPath
+      context_text = await files_collector.collect_files({ active_path })
     } catch (error: any) {
       console.error('Error collecting files:', error)
       vscode.window.showErrorMessage('Error collecting files: ' + error.message)
