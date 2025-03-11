@@ -2,11 +2,13 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '@/services/websocket-manager'
 import { Presets } from '../../../ui/src/components/Presets'
+import { autocomplete_instruction_external } from '@/constants/instructions'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   public static readonly viewType = 'geminiCoderViewChat'
   private _webview_view: vscode.WebviewView | undefined
   private _config_listener: vscode.Disposable | undefined
+  private _has_active_editor: boolean = false
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -39,6 +41,25 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     // Register the disposable
     this._context.subscriptions.push(this._config_listener)
+
+    // Add window.onDidChangeActiveTextEditor listener
+    const update_editor_state = () => {
+      const has_active_editor = !!vscode.window.activeTextEditor
+      if (has_active_editor !== this._has_active_editor) {
+        this._has_active_editor = has_active_editor
+        if (this._webview_view) {
+          this._webview_view.webview.postMessage({
+            command: 'editorStateChanged',
+            hasActiveEditor: has_active_editor
+          })
+        }
+      }
+    }
+
+    vscode.window.onDidChangeActiveTextEditor(() =>
+      setTimeout(update_editor_state, 100)
+    )
+    update_editor_state() // Initial state
   }
 
   public async resolveWebviewView(
@@ -105,9 +126,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         })
       } else if (message.command == 'saveExpandedPresets') {
         this._context.globalState.update('expandedPresets', message.indices)
-      } else if (message.command == 'sendPrompt') {
+      } // In chat-view-provider.ts, inside the 'sendPrompt' message handler
+      else if (message.command == 'sendPrompt') {
         try {
-          // Create files collector instance with both providers
           const files_collector = new FilesCollector(
             this.file_tree_provider,
             this.open_editors_provider
@@ -116,21 +137,58 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           // Get the active text editor
           const active_editor = vscode.window.activeTextEditor
           const active_path = active_editor?.document.uri.fsPath
-
-          // Collect files
-          const context_text = await files_collector.collect_files({
-            active_path
-          })
-
-          // Construct the final text
-          let text = `${context_text ? `\n${context_text}\n` : ''}${
-            message.instruction
-          }`
-
-          this.websocket_server_instance.initialize_chats(
-            text,
-            message.preset_names
+          const is_fim_mode = this._context.globalState.get<boolean>(
+            'isFimMode',
+            false
           )
+
+          if (is_fim_mode && active_editor) {
+            // FIM mode structure
+            const document = active_editor.document
+            const position = active_editor.selection.active
+
+            // Get text before and after cursor
+            const text_before_cursor = document.getText(
+              new vscode.Range(new vscode.Position(0, 0), position)
+            )
+            const text_after_cursor = document.getText(
+              new vscode.Range(
+                position,
+                document.positionAt(document.getText().length)
+              )
+            )
+
+            // Collect context files excluding current document
+            const context_text = await files_collector.collect_files({
+              exclude_path: active_path
+            })
+
+            // Construct FIM format text
+            const text = `<files>\n${context_text}\n<file path="${vscode.workspace.asRelativePath(
+              document.uri
+            )}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${
+              message.instruction
+            }`
+
+            this.websocket_server_instance.initialize_chats(
+              text,
+              message.preset_names
+            )
+          } else {
+            // Regular chat mode (existing code)
+            const context_text = await files_collector.collect_files({
+              active_path
+            })
+
+            let text = `${context_text ? `\n${context_text}\n` : ''}${
+              message.instruction
+            }`
+
+            this.websocket_server_instance.initialize_chats(
+              text,
+              message.preset_names
+            )
+          }
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)
           vscode.window.showErrorMessage(
@@ -139,21 +197,59 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         }
       } else if (message.command == 'copyPrompt') {
         try {
-          // Create files collector instance with both providers
           const files_collector = new FilesCollector(
             this.file_tree_provider,
             this.open_editors_provider
           )
 
-          // Collect files
-          const context_text = await files_collector.collect_files()
+          // Get current FIM mode state and active editor
+          const is_fim_mode = this._context.globalState.get<boolean>(
+            'isFimMode',
+            false
+          )
+          const active_editor = vscode.window.activeTextEditor
 
-          // Construct the final text
-          let text = `${context_text ? `\n${context_text}\n` : ''}${
-            message.instruction
-          }`
+          if (is_fim_mode && active_editor) {
+            // FIM mode copying logic
+            const document = active_editor.document
+            const position = active_editor.selection.active
+            const active_path = document.uri.fsPath
 
-          vscode.env.clipboard.writeText(text)
+            // Get text before and after cursor
+            const text_before_cursor = document.getText(
+              new vscode.Range(new vscode.Position(0, 0), position)
+            )
+            const text_after_cursor = document.getText(
+              new vscode.Range(
+                position,
+                document.positionAt(document.getText().length)
+              )
+            )
+
+            // Collect context files excluding current document
+            const context_text = await files_collector.collect_files({
+              exclude_path: active_path
+            })
+
+            // Construct FIM format text
+            const text = `<files>\n${context_text}\n<file path="${vscode.workspace.asRelativePath(
+              document.uri
+            )}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${
+              message.instruction
+            }`
+
+            vscode.env.clipboard.writeText(text)
+          } else {
+            // Regular chat mode copying (existing logic)
+            const context_text = await files_collector.collect_files()
+            let text = `${context_text ? `\n${context_text}\n` : ''}${
+              message.instruction
+            }`
+            vscode.env.clipboard.writeText(text)
+          }
+
+          // Show success message
+          vscode.window.showInformationMessage('Prompt copied to clipboard!')
         } catch (error: any) {
           console.error('Error processing chat instruction:', error)
           vscode.window.showErrorMessage(
@@ -225,10 +321,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           'isFimMode',
           false
         )
-        webview_view.webview.postMessage({
-          command: 'fimMode',
-          enabled: is_fim_mode
-        })
+        const has_active_editor = !!vscode.window.activeTextEditor
+        // Exit fim mode if no editor is active
+        if (is_fim_mode && !has_active_editor) {
+          this._context.globalState.update('isFimMode', false)
+          webview_view.webview.postMessage({
+            command: 'fimMode',
+            enabled: false
+          })
+        } else {
+          webview_view.webview.postMessage({
+            command: 'fimMode',
+            enabled: is_fim_mode
+          })
+        }
       } else if (message.command == 'saveFimMode') {
         this._context.globalState.update('isFimMode', message.enabled)
       }
@@ -238,6 +344,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     webview_view.webview.postMessage({
       command: 'connectionStatus',
       connected: this.websocket_server_instance.is_connected_with_browser()
+    })
+    // Send initial editor state after webview is ready
+    webview_view.webview.postMessage({
+      command: 'editorStateChanged',
+      hasActiveEditor: this._has_active_editor
     })
   }
 

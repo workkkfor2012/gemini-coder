@@ -24,6 +24,7 @@ type Props = {
   on_expanded_presets_change: (expanded_indices: number[]) => void
   is_fim_mode: boolean
   on_fim_mode_click: () => void
+  has_active_editor: boolean
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -72,6 +73,12 @@ export const Main: React.FC<Props> = (props) => {
     props.copy_to_clipboard(current_instruction)
   }
 
+  const handle_fim_mode_click = () => {
+    if (props.has_active_editor) {
+      props.on_fim_mode_click()
+    }
+  }
+
   return (
     <div className={styles.container}>
       <UiStatus is_connected={props.is_connected} />
@@ -88,7 +95,8 @@ export const Main: React.FC<Props> = (props) => {
             : 'Initialize chats'
         }
         is_fim_mode={props.is_fim_mode}
-        on_fim_mode_click={props.on_fim_mode_click}
+        on_fim_mode_click={handle_fim_mode_click}
+        has_active_editor={props.has_active_editor}
       />
       {!props.is_connected && (
         <>

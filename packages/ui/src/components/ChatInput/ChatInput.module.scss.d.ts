@@ -6,6 +6,7 @@ declare const styles: {
   readonly "footer__modes": string;
   readonly "footer__modes__button": string;
   readonly "footer__modes__button--active": string;
+  readonly "footer__modes__button--disabled": string;
   readonly "textarea": string;
 };
 export = styles;

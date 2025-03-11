@@ -12,6 +12,7 @@ type Props = {
   submit_disabled_title?: string
   is_fim_mode: boolean
   on_fim_mode_click: () => void
+  has_active_editor: boolean
 }
 
 export const ChatInput: React.FC<Props> = (props) => {
@@ -58,7 +59,9 @@ export const ChatInput: React.FC<Props> = (props) => {
       <TextareaAutosize
         ref={textarea_ref}
         placeholder={
-          props.is_fim_mode ? 'Enter optional instructions' : 'Ask anything'
+          props.is_fim_mode && props.has_active_editor
+            ? 'Enter optional instructions'
+            : 'Ask anything'
         }
         value={props.value}
         onChange={handle_input_change}
@@ -74,9 +77,17 @@ export const ChatInput: React.FC<Props> = (props) => {
           <button
             onClick={props.on_fim_mode_click}
             className={cn(styles.footer__modes__button, {
-              [styles['footer__modes__button--active']]: props.is_fim_mode
+              [styles['footer__modes__button--active']]:
+                props.is_fim_mode && props.has_active_editor,
+              [styles['footer__modes__button--disabled']]:
+                !props.has_active_editor
             })}
-            title="Generate code at cursor position"
+            title={
+              props.has_active_editor
+                ? 'Generate code at cursor position'
+                : 'Open any file to generate code at cursor position'
+            }
+            disabled={!props.has_active_editor}
           >
             <div className={cn('codicon', 'codicon-insert')} />
             FIM

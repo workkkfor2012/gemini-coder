@@ -51,6 +51,15 @@
         background-color: var(--vscode-toolbar-hoverBackground);
       }
 
+      &--disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+
+        &:hover {
+          background-color: transparent;
+        }
+      }
+
       &--active {
         background-color: var(--vscode-button-background);
         color: var(--vscode-button-foreground);

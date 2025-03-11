@@ -15,7 +15,8 @@ function App() {
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
   const [expanded_presets, set_expanded_presets] = useState<number[]>([])
-  const [is_fim_mode, set_is_fim_mode] = useState<boolean>(false)
+  const [is_fim_mode, set_is_fim_mode] = useState<boolean>()
+  const [has_active_editor, set_has_active_editor] = useState<boolean>()
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
@@ -53,12 +54,22 @@ function App() {
         case 'fimMode':
           set_is_fim_mode(message.enabled)
           break
+        case 'editorStateChanged':
+          set_has_active_editor(message.hasActiveEditor)
+          if (!message.hasActiveEditor && is_fim_mode) {
+            set_is_fim_mode(false)
+            vscode.postMessage({
+              command: 'saveFimMode',
+              enabled: false
+            })
+          }
+          break
       }
     }
 
     window.addEventListener('message', handle_message)
     return () => window.removeEventListener('message', handle_message)
-  }, [])
+  }, [is_fim_mode])
 
   const handle_initialize_chats = (params: {
     instruction: string
@@ -148,7 +159,9 @@ function App() {
     normal_mode_instruction === undefined ||
     fim_mode_instruction === undefined ||
     is_connected === undefined ||
-    presets === undefined
+    presets === undefined ||
+    is_fim_mode === undefined ||
+    has_active_editor === undefined
   ) {
     return null
   }
@@ -168,7 +181,8 @@ function App() {
       on_selected_presets_change={handle_presets_selection_change}
       on_expanded_presets_change={handle_expanded_presets_change}
       open_settings={handle_open_settings}
-      is_fim_mode={is_fim_mode}
+      has_active_editor={has_active_editor}
+      is_fim_mode={is_fim_mode && has_active_editor}
       on_fim_mode_click={handle_fim_mode_click}
     />
   )
