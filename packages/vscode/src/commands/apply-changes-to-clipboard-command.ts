@@ -19,7 +19,7 @@ export function apply_changes_to_clipboard_command(
 
       const instruction = await vscode.env.clipboard.readText()
 
-      const file_content = `<file>\n<![CDATA[\n${document_text}\n]]>\n</file>`
+      const file_content = `<file><![CDATA[${document_text}]]></file>`
       const apply_changes_prompt = `${apply_changes_instruction} ${instruction}`
       const content = `${file_content}\n${apply_changes_prompt}`
 

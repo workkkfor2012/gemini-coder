@@ -164,9 +164,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             })
 
             // Construct FIM format text
-            const text = `<files>\n${context_text}\n<file path="${vscode.workspace.asRelativePath(
+            const text = `<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
               document.uri
-            )}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${
+            )}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]></file>\n</files>\n${autocomplete_instruction_external} ${
               message.instruction
             }`
 
@@ -232,9 +232,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             })
 
             // Construct FIM format text
-            const text = `<files>\n${context_text}\n<file path="${vscode.workspace.asRelativePath(
+            const text = `<files>${context_text}\n<file path="${vscode.workspace.asRelativePath(
               document.uri
-            )}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${
+            )}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]></file>\n</files>\n${autocomplete_instruction_external} ${
               message.instruction
             }`
 
@@ -337,6 +337,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         }
       } else if (message.command == 'saveFimMode') {
         this._context.globalState.update('isFimMode', message.enabled)
+      } else if (message.command == 'requestEditorState') {
+        webview_view.webview.postMessage({
+          command: 'editorStateChanged',
+          hasActiveEditor: this._has_active_editor
+        });
       }
     })
 

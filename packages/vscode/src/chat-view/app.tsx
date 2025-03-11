@@ -26,6 +26,7 @@ function App() {
     vscode.postMessage({ command: 'getSelectedPresets' })
     vscode.postMessage({ command: 'getExpandedPresets' })
     vscode.postMessage({ command: 'getFimMode' })
+    vscode.postMessage({ command: 'requestEditorState' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data

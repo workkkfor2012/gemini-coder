@@ -167,7 +167,7 @@ export function apply_changes_command(params: {
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
     const apply_changes_prompt = `${apply_changes_instruction} ${instruction}`
-    const file_content = `<file>\n<![CDATA[\n${document_text}\n]]>\n</file>`
+    const file_content = `<file><![CDATA[${document_text}]]></file>`
     const content = `${file_content}\n${apply_changes_prompt}`
     const messages = [
       ...(system_instructions

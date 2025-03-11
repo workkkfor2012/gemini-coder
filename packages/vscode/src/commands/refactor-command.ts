@@ -215,7 +215,7 @@ export function refactor_command(params: {
       refactor_instruction += ` ${instruction}`
     }
 
-    const all_files = `<files>${collected_files}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>`
+    const all_files = `<files>${collected_files}\n<file path="${current_file_path}"><![CDATA[${document_text}]]></file>\n</files>`
     const content = `${all_files}\n${refactor_instruction}`
 
     const messages = [

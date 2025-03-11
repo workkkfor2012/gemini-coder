@@ -42,10 +42,10 @@ export function fim_completion_to_clipboard_command(
         })
 
         const payload = {
-          before: `<files>\n${collected_files}<file path="${vscode.workspace.asRelativePath(
+          before: `<files>${collected_files}<file path="${vscode.workspace.asRelativePath(
             document.uri
-          )}">\n<![CDATA[\n${text_before_cursor}`,
-          after: `${text_after_cursor}\n]]>\n</file>\n</files>`
+          )}"><![CDATA[${text_before_cursor}`,
+          after: `${text_after_cursor}]]></file>\n</files>`
         }
 
         const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction_external}`
