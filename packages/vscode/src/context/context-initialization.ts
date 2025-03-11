@@ -104,6 +104,12 @@ export function context_initialization(context: vscode.ExtensionContext): {
         await vscode.env.clipboard.writeText(context_text)
         vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),
+      vscode.commands.registerCommand(
+        'geminiCoder.copyContextWithIcon',
+        async () => {
+          await vscode.commands.executeCommand('geminiCoder.copyContext')
+        }
+      ),
       // Existing workspace commands
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
         file_tree_provider!.clearChecks()

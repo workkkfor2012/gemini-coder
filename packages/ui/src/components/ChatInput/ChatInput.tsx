@@ -10,6 +10,8 @@ type Props = {
   on_copy: () => void
   is_connected: boolean
   submit_disabled_title?: string
+  is_fim_mode: boolean
+  on_fim_mode_click: () => void
 }
 
 export const ChatInput: React.FC<Props> = (props) => {
@@ -55,7 +57,9 @@ export const ChatInput: React.FC<Props> = (props) => {
     <div className={styles.container} onClick={handle_container_click}>
       <TextareaAutosize
         ref={textarea_ref}
-        placeholder="Ask anything"
+        placeholder={
+          props.is_fim_mode ? 'Enter optional instructions' : 'Ask anything'
+        }
         value={props.value}
         onChange={handle_input_change}
         onKeyDown={handle_key_down}
@@ -66,15 +70,31 @@ export const ChatInput: React.FC<Props> = (props) => {
         maxRows={12}
       />
       <div className={styles.footer}>
-        <div></div>
+        <div className={styles.footer__modes}>
+          <button
+            onClick={props.on_fim_mode_click}
+            className={cn(styles.footer__modes__button, {
+              [styles['footer__modes__button--active']]: props.is_fim_mode
+            })}
+            title="Generate code at cursor position"
+          >
+            <div className={cn('codicon', 'codicon-insert')} />
+            FIM
+          </button>
+        </div>
         <div className={styles.footer__actions}>
-          <button onClick={props.on_copy}>
+          <button
+            className={styles.footer__actions__button}
+            onClick={props.on_copy}
+            title="Copy to clipboard"
+          >
             <div className={cn('codicon', 'codicon-copy')} />
           </button>
           <button
+            className={styles.footer__actions__button}
             onClick={handle_submit}
             disabled={!props.is_connected}
-            title={props.submit_disabled_title}
+            title={props.submit_disabled_title || 'Send'}
           >
             <div className={cn('codicon', 'codicon-send')} />
           </button>

@@ -13,6 +13,7 @@ function App() {
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
   const [expanded_presets, set_expanded_presets] = useState<number[]>([])
+  const [is_fim_mode, set_is_fim_mode] = useState<boolean>(false)
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
@@ -20,6 +21,7 @@ function App() {
     vscode.postMessage({ command: 'getPresets' })
     vscode.postMessage({ command: 'getSelectedPresets' })
     vscode.postMessage({ command: 'getExpandedPresets' })
+    vscode.postMessage({ command: 'getFimMode' })
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data
@@ -41,6 +43,9 @@ function App() {
           break
         case 'expandedPresets':
           set_expanded_presets(message.indices)
+          break
+        case 'fimMode':
+          set_is_fim_mode(message.enabled)
           break
       }
     }
@@ -116,6 +121,14 @@ function App() {
     })
   }
 
+  const handle_fim_mode_click = () => {
+    vscode.postMessage({
+      command: 'saveFimMode',
+      enabled: !is_fim_mode
+    })
+    set_is_fim_mode(!is_fim_mode)
+  }
+
   if (
     initial_prompt === undefined ||
     is_connected === undefined ||
@@ -138,6 +151,8 @@ function App() {
       on_selected_presets_change={handle_presets_selection_change}
       on_expanded_presets_change={handle_expanded_presets_change}
       open_settings={handle_open_settings}
+      is_fim_mode={is_fim_mode}
+      on_fim_mode_click={handle_fim_mode_click}
     />
   )
 }

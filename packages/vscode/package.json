@@ -63,7 +63,11 @@
     "commands": [
       {
         "command": "geminiCoder.copyContext",
-        "title": "Gemini Coder: Copy Context",
+        "title": "Gemini Coder: Copy Context"
+      },
+      {
+        "command": "geminiCoder.copyContextWithIcon",
+        "title": "Copy Context",
         "icon": "$(copy)"
       },
       {
@@ -175,7 +179,7 @@
     "menus": {
       "view/title": [
         {
-          "command": "geminiCoder.copyContext",
+          "command": "geminiCoder.copyContextWithIcon",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@1"
         },
@@ -317,6 +321,15 @@
               "promptPrefix": "",
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
+              "temperature": 0.5,
+              "systemInstructions": "You are an AI coding assistant."
+            },
+            {
+              "name": "AI Studio with Flash Thinking Exp",
+              "chatbot": "AI Studio",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "gemini-2.0-flash-thinking-exp-01-21",
               "temperature": 0.5,
               "systemInstructions": "You are an AI coding assistant."
             },

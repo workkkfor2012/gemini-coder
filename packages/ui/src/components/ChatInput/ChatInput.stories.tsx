@@ -11,7 +11,9 @@ export const Empty = () => (
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
-    is_submit_disabled={false}
+    is_connected={true}
+    is_fim_mode={false}
+    on_fim_mode_click={() => console.log('FIM Mode Clicked')}
   />
 )
 
@@ -22,7 +24,9 @@ export const WithText = () => (
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
-    is_submit_disabled={false}
+    is_connected={true}
+    is_fim_mode={false}
+    on_fim_mode_click={() => console.log('FIM Mode Clicked')}
   />
 )
 
@@ -33,8 +37,10 @@ export const DisabledSubmit = () => (
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
-    is_submit_disabled={true}
+    is_connected={false}
     submit_disabled_title="Cannot submit at this time"
+    is_fim_mode={false}
+    on_fim_mode_click={() => console.log('FIM Mode Clicked')}
   />
 )
 
@@ -45,7 +51,9 @@ export const MultilineText = () => (
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
-    is_submit_disabled={false}
+    is_connected={true}
+    is_fim_mode={false}
+    on_fim_mode_click={() => console.log('FIM Mode Clicked')}
   />
 )
 
@@ -56,6 +64,8 @@ export const LongText = () => (
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
-    is_submit_disabled={false}
+    is_connected={true}
+    is_fim_mode={false}
+    on_fim_mode_click={() => console.log('FIM Mode Clicked')}
   />
 )

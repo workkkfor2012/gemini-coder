@@ -29,6 +29,10 @@
     flex-direction: column;
     border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
 
+    &--disabled {
+      opacity: 0.5;
+    }
+
     &__header {
       display: flex;
       justify-content: space-between;
@@ -45,6 +49,10 @@
           font-weight: 600;
         }
 
+        &--disabled {
+          opacity: 0.5;
+        }
+
         > span {
           cursor: pointer;
         }
@@ -58,6 +66,18 @@
       }
     }
 
+    &__info {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 6px;
+      margin: 4px 0;
+      background: var(--vscode-inputValidation-infoBackground);
+      border-radius: 5px;
+      color: var(--vscode-inputValidation-infoForeground);
+      font-size: 0.9em;
+    }
+
     &__details {
       display: flex;
       flex-direction: column;
@@ -65,6 +85,11 @@
       background: var(--vscode-editor-background);
       border-radius: 5px;
       margin-bottom: 8px;
+
+      &--disabled {
+        opacity: 0.5;
+        pointer-events: none;
+      }
 
       &__actions {
         display: flex;

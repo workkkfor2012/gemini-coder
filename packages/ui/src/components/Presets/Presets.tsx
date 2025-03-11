@@ -24,6 +24,7 @@ export namespace Presets {
     on_edit_presets: () => void
     expanded_presets: number[]
     on_expanded_presets_change: (expanded_indices: number[]) => void
+    is_fim_mode?: boolean
   }
 }
 
@@ -46,6 +47,13 @@ const DetailField = ({
       </span>
     </div>
   )
+}
+
+const is_preset_disabled_in_fim = (
+  is_fim_mode: boolean | undefined,
+  preset: Presets.Preset
+): boolean => {
+  return !!is_fim_mode && !!(preset.prompt_prefix || preset.prompt_suffix)
 }
 
 export const Presets: React.FC<Presets.Props> = (props) => {
@@ -91,7 +99,9 @@ export const Presets: React.FC<Presets.Props> = (props) => {
               <div
                 className={cn(styles.presets__item__header__title, {
                   [styles['presets__item__header__title--default']]:
-                    props.selected_presets?.includes(preset.name)
+                    props.selected_presets?.includes(preset.name),
+                  [styles['presets__item__header__title--disabled']]:
+                    is_preset_disabled_in_fim(props.is_fim_mode, preset)
                 })}
               >
                 <span>{preset.name}</span>
@@ -109,42 +119,59 @@ export const Presets: React.FC<Presets.Props> = (props) => {
             </div>
 
             {props.expanded_presets.includes(i) && (
-              <div className={styles.presets__item__details}>
-                <div className={styles.presets__item__details__actions}>
-                  <IconButton
-                    codicon_icon="send"
-                    on_click={() => props.on_preset_click?.(preset.name)}
-                  />
-                  <label>
-                    Use by default
-                    <input
-                      type="checkbox"
-                      checked={
-                        props.selected_presets?.includes(preset.name) || false
-                      }
-                      onChange={() => handle_checkbox_change(preset.name)}
-                    />
-                  </label>
-                </div>
+              <>
+                {is_preset_disabled_in_fim(props.is_fim_mode, preset) && (
+                  <div className={styles.presets__item__info}>
+                    <span className="codicon codicon-info" />
+                    <span>Unavailable in FIM due to prefix/suffix</span>
+                  </div>
+                )}
 
-                <div className={styles.presets__item__details__row}>
-                  <DetailField label="Chatbot" value={preset.chatbot} />
-                  <DetailField label="Model" value={preset.model} />
-                  <DetailField label="Temperature" value={preset.temperature} />
-                  <DetailField
-                    label="Prompt Prefix"
-                    value={preset.prompt_prefix}
-                  />
-                  <DetailField
-                    label="Prompt Suffix"
-                    value={preset.prompt_suffix}
-                  />
-                  <DetailField
-                    label="System Instructions"
-                    value={preset.system_instructions}
-                  />
+                <div
+                  className={cn(styles.presets__item__details, {
+                    [styles['presets__item__details--disabled']]:
+                      is_preset_disabled_in_fim(props.is_fim_mode, preset)
+                  })}
+                >
+                  <div className={styles.presets__item__details__actions}>
+                    <IconButton
+                      codicon_icon="send"
+                      on_click={() => props.on_preset_click?.(preset.name)}
+                    />
+                    <label>
+                      Use by default
+                      <input
+                        type="checkbox"
+                        checked={
+                          props.selected_presets?.includes(preset.name) || false
+                        }
+                        onChange={() => handle_checkbox_change(preset.name)}
+                      />
+                    </label>
+                  </div>
+
+                  <div className={styles.presets__item__details__row}>
+                    <DetailField label="Chatbot" value={preset.chatbot} />
+                    <DetailField label="Model" value={preset.model} />
+                    <DetailField
+                      label="Temperature"
+                      value={preset.temperature}
+                    />
+                    <DetailField
+                      label="Prompt Prefix"
+                      value={preset.prompt_prefix}
+                    />
+                    <DetailField
+                      label="Prompt Suffix"
+                      value={preset.prompt_suffix}
+                    />
+                    <DetailField
+                      label="System Instructions"
+                      value={preset.system_instructions}
+                    />
+                  </div>
                 </div>
-              </div>
+              </>
             )}
           </div>
         ))}

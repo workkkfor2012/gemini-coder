@@ -211,6 +211,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           'workbench.action.openSettings',
           'geminiCoder.presets'
         )
+      } else if (message.command == 'getFimMode') {
+        const is_fim_mode = this._context.globalState.get<boolean>(
+          'isFimMode',
+          false
+        )
+        webview_view.webview.postMessage({
+          command: 'fimMode',
+          enabled: is_fim_mode
+        })
+      } else if (message.command == 'saveFimMode') {
+        this._context.globalState.update('isFimMode', message.enabled)
       }
     })
 

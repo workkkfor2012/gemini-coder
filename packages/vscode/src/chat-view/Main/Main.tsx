@@ -21,6 +21,8 @@ type Props = {
   expanded_presets: number[]
   on_selected_presets_change: (selected_names: string[]) => void
   on_expanded_presets_change: (expanded_indices: number[]) => void
+  is_fim_mode: boolean
+  on_fim_mode_click: () => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -32,11 +34,9 @@ export const Main: React.FC<Props> = (props) => {
   }
 
   const handle_submit = async () => {
-    // If no presets are selected, show the picker
     if (props.selected_presets.length == 0) {
       const selected_names = await props.show_preset_picker(instruction)
       if (selected_names.length > 0) {
-        // Update the selected presets through the callback
         props.on_selected_presets_change(selected_names)
         props.initialize_chats({
           instruction,
@@ -55,18 +55,10 @@ export const Main: React.FC<Props> = (props) => {
     props.copy_to_clipboard(instruction)
   }
 
-  // Find preset index by name
-  const getPresetIndexByName = (name: string): number => {
-    const index = props.presets.findIndex((preset) => preset.name === name)
-    return index !== -1 ? index : -1
-  }
-
   return (
     <div className={styles.container}>
       <UiStatus is_connected={props.is_connected} />
-
       <UiSeparator size="small" />
-
       <UiChatInput
         value={instruction}
         on_change={handle_input_change}
@@ -78,8 +70,9 @@ export const Main: React.FC<Props> = (props) => {
             ? 'WebSocket connection not established. Please install the browser extension.'
             : 'Initialize chats'
         }
+        is_fim_mode={props.is_fim_mode}
+        on_fim_mode_click={props.on_fim_mode_click}
       />
-
       {!props.is_connected && (
         <>
           <UiSeparator size="large" />
@@ -102,9 +95,7 @@ export const Main: React.FC<Props> = (props) => {
           </div>
         </>
       )}
-
       <UiSeparator size="large" />
-
       <UiPresets
         presets={props.presets}
         disabled={!props.is_connected}
@@ -119,6 +110,7 @@ export const Main: React.FC<Props> = (props) => {
             preset_names: [name]
           })
         }}
+        is_fim_mode={props.is_fim_mode}
       />
     </div>
   )
