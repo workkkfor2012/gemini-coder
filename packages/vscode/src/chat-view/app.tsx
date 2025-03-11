@@ -8,7 +8,9 @@ import '@vscode/codicons/dist/codicon.css'
 import '@ui/styles/styles.css'
 
 function App() {
-  const [initial_prompt, set_initial_prompt] = useState<string>()
+  const [normal_mode_instruction, set_normal_mode_instruction] =
+    useState<string>()
+  const [fim_mode_instruction, set_fim_mode_instruction] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
@@ -17,6 +19,7 @@ function App() {
 
   useEffect(() => {
     vscode.postMessage({ command: 'getLastPrompt' })
+    vscode.postMessage({ command: 'getLastFimPrompt' })
     vscode.postMessage({ command: 'getConnectionStatus' })
     vscode.postMessage({ command: 'getPresets' })
     vscode.postMessage({ command: 'getSelectedPresets' })
@@ -27,7 +30,10 @@ function App() {
       const message = event.data
       switch (message.command) {
         case 'initialPrompt':
-          set_initial_prompt(message.instruction)
+          set_normal_mode_instruction(message.instruction)
+          break
+        case 'initialFimPrompt':
+          set_fim_mode_instruction(message.instruction)
           break
         case 'connectionStatus':
           set_is_connected(message.connected)
@@ -93,10 +99,19 @@ function App() {
   }
 
   const handle_instruction_change = (instruction: string) => {
-    vscode.postMessage({
-      command: 'saveChatInstruction',
-      instruction
-    })
+    if (is_fim_mode) {
+      vscode.postMessage({
+        command: 'saveFimInstruction',
+        instruction
+      })
+      set_fim_mode_instruction(instruction)
+    } else {
+      vscode.postMessage({
+        command: 'saveChatInstruction',
+        instruction
+      })
+      set_normal_mode_instruction(instruction)
+    }
   }
 
   const handle_presets_selection_change = (selected_names: string[]) => {
@@ -130,7 +145,8 @@ function App() {
   }
 
   if (
-    initial_prompt === undefined ||
+    normal_mode_instruction === undefined ||
+    fim_mode_instruction === undefined ||
     is_connected === undefined ||
     presets === undefined
   ) {
@@ -139,7 +155,8 @@ function App() {
 
   return (
     <Main
-      initial_instruction={initial_prompt}
+      initial_normal_instruction={normal_mode_instruction}
+      initial_fim_instruction={fim_mode_instruction}
       initialize_chats={handle_initialize_chats}
       show_preset_picker={handle_show_preset_picker}
       copy_to_clipboard={handle_copy_to_clipboard}

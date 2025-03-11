@@ -14,7 +14,8 @@ type Props = {
   copy_to_clipboard: (instruction: string) => void
   on_instruction_change: (instruction: string) => void
   open_settings: () => void
-  initial_instruction: string
+  initial_normal_instruction: string
+  initial_fim_instruction: string
   is_connected: boolean
   presets: UiPresets.Preset[]
   selected_presets: string[]
@@ -26,33 +27,49 @@ type Props = {
 }
 
 export const Main: React.FC<Props> = (props) => {
-  const [instruction, set_instruction] = useState(props.initial_instruction)
+  // Separate state for normal and FIM mode instructions
+  const [normal_instruction, set_normal_instruction] = useState(
+    props.initial_normal_instruction
+  )
+  const [fim_instruction, set_fim_instruction] = useState(
+    props.initial_fim_instruction
+  )
+
+  // Current instruction is determined by mode
+  const current_instruction = props.is_fim_mode
+    ? fim_instruction
+    : normal_instruction
 
   const handle_input_change = (value: string) => {
-    set_instruction(value)
+    // Update the appropriate instruction based on current mode
+    if (props.is_fim_mode) {
+      set_fim_instruction(value)
+    } else {
+      set_normal_instruction(value)
+    }
     props.on_instruction_change(value)
   }
 
   const handle_submit = async () => {
     if (props.selected_presets.length == 0) {
-      const selected_names = await props.show_preset_picker(instruction)
+      const selected_names = await props.show_preset_picker(current_instruction)
       if (selected_names.length > 0) {
         props.on_selected_presets_change(selected_names)
         props.initialize_chats({
-          instruction,
+          instruction: current_instruction,
           preset_names: selected_names
         })
       }
     } else {
       props.initialize_chats({
-        instruction,
+        instruction: current_instruction,
         preset_names: props.selected_presets
       })
     }
   }
 
   const handle_copy = () => {
-    props.copy_to_clipboard(instruction)
+    props.copy_to_clipboard(current_instruction)
   }
 
   return (
@@ -60,7 +77,7 @@ export const Main: React.FC<Props> = (props) => {
       <UiStatus is_connected={props.is_connected} />
       <UiSeparator size="small" />
       <UiChatInput
-        value={instruction}
+        value={current_instruction}
         on_change={handle_input_change}
         on_submit={handle_submit}
         on_copy={handle_copy}
@@ -106,7 +123,7 @@ export const Main: React.FC<Props> = (props) => {
         on_edit_presets={props.open_settings}
         on_preset_click={(name) => {
           props.initialize_chats({
-            instruction: instruction,
+            instruction: current_instruction,
             preset_names: [name]
           })
         }}

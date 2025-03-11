@@ -64,8 +64,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           command: 'initialPrompt',
           instruction: last_instruction
         })
+      } else if (message.command == 'getLastFimPrompt') {
+        const last_fim_instruction =
+          this._context.globalState.get<string>('lastFimPrompt') || ''
+        webview_view.webview.postMessage({
+          command: 'initialFimPrompt',
+          instruction: last_fim_instruction
+        })
       } else if (message.command == 'saveChatInstruction') {
         this._context.globalState.update('lastChatPrompt', message.instruction)
+      } else if (message.command == 'saveFimInstruction') {
+        this._context.globalState.update('lastFimPrompt', message.instruction)
       } else if (message.command == 'getConnectionStatus') {
         // Send current connection status when requested by the webview
         webview_view.webview.postMessage({
@@ -114,9 +123,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
 
           // Construct the final text
-          let text = `${
-            context_text ? `<files>\n${context_text}</files>\n` : ''
-          }${message.instruction}`
+          let text = `${context_text ? `\n${context_text}\n` : ''}${
+            message.instruction
+          }`
 
           this.websocket_server_instance.initialize_chats(
             text,
@@ -140,9 +149,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           const context_text = await files_collector.collect_files()
 
           // Construct the final text
-          let text = `${
-            context_text ? `<files>\n${context_text}</files>\n` : ''
-          }${message.instruction}`
+          let text = `${context_text ? `\n${context_text}\n` : ''}${
+            message.instruction
+          }`
 
           vscode.env.clipboard.writeText(text)
         } catch (error: any) {
