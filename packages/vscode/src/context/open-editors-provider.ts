@@ -199,6 +199,7 @@ export class OpenEditorsProvider
             file_path,
             vscode.TreeItemCheckboxState.Unchecked
           )
+
           // Only remove from set if not in preview mode - keep tracking preview files
           if (!this.preview_tabs.get(file_path)) {
             this.opened_from_workspace_view.delete(file_path)
@@ -215,6 +216,9 @@ export class OpenEditorsProvider
         this.file_token_counts.delete(file_path)
       }
     }
+
+    // Force a complete tree refresh
+    this._on_did_change_tree_data.fire()
   }
 
   // New method to clean up closed files from workspace view tracking

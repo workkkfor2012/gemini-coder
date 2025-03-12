@@ -207,8 +207,8 @@ export class WorkspaceProvider
     // Remove from tracking set - we'll process it now regardless
     if (was_opened_from_workspace_view) {
       this.opened_from_workspace_view.delete(file_path)
-    } else {
-      // Mark as checked when file is unpinned - if it wasn't opened from workspace view
+    } else if (this.attach_open_files) {
+      // Only mark as checked when file is unpinned if attach_open_files is true
       this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
       // Clear token count to recalculate
@@ -230,6 +230,9 @@ export class WorkspaceProvider
 
   // Handle newly opened files in workspace view
   private handle_newly_opened_files(): void {
+    // Only auto-check new files if the setting is enabled
+    if (!this.attach_open_files) return
+    
     const open_file_paths = this.get_open_editors()
 
     for (const uri of open_file_paths) {
