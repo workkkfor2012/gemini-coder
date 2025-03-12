@@ -103,11 +103,11 @@ export const Main: React.FC<Props> = (props) => {
           <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
-              For hands-free chat initialization, consider installing our{' '}
-              <a href="https://github.com/robertpiosik/gemini-coder/tree/master/packages/browser">
-                open-source
-              </a>
-              , 100% local browser extension.
+              Consider installing our{' '}
+              <a href="https://gemini-coder.netlify.app/docs/installation#browser-extension">
+                browser extension
+              </a>{' '}
+              for hands-free chat initialization.
             </span>
 
             <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">

@@ -78,7 +78,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
       // Update the badge on the workspace files view
       gemini_coder_file_tree_view.badge = {
         value: total_token_count,
-        tooltip: `${total_token_count} tokens`
+        tooltip: `${total_token_count} tokens in the context`
       }
     }
 

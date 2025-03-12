@@ -10,7 +10,7 @@ nav_order: 1
 The 2M context AI coding assistant
 {: .fs-6 .fw-300 }
 
-All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context with other features like Fill-In-the-Middle (FIM) completions or file refactoring. With our Apply Changes feature integrating AI suggested modifications is a <a href="https://www.youtube.com/watch?v=g1RWEcARUF4" target="_blank">walk in the park</a>!
+All-in-one, universal, free and open-source AI coding toolkit with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context with other features like Fill-In-the-Middle (FIM) completions or file refactoring. With our Apply Changes feature integrating AI suggested modifications is a <a href="https://www.youtube.com/watch?v=g1RWEcARUF4" target="_blank">walk in the park</a>!
 
 [Install now](/docs/installation.html){: .btn .btn-primary .btn-blue .fs-5 .mb-4 .mb-md-0 .mr-2 }
 [View it on GitHub](https://github.com/robertpiosik/gemini-coder){: .btn .fs-5 .mb-4 .mb-md-0 }

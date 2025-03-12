@@ -80,22 +80,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     webview_view.webview.onDidReceiveMessage(async (message) => {
       if (message.command == 'getLastPrompt') {
         const last_instruction =
-          this._context.globalState.get<string>('lastChatPrompt') || ''
+          this._context.workspaceState.get<string>('lastChatPrompt') || ''
         webview_view.webview.postMessage({
           command: 'initialPrompt',
           instruction: last_instruction
         })
       } else if (message.command == 'getLastFimPrompt') {
         const last_fim_instruction =
-          this._context.globalState.get<string>('lastFimPrompt') || ''
+          this._context.workspaceState.get<string>('lastFimPrompt') || ''
         webview_view.webview.postMessage({
           command: 'initialFimPrompt',
           instruction: last_fim_instruction
         })
       } else if (message.command == 'saveChatInstruction') {
-        this._context.globalState.update('lastChatPrompt', message.instruction)
+        this._context.workspaceState.update(
+          'lastChatPrompt',
+          message.instruction
+        )
       } else if (message.command == 'saveFimInstruction') {
-        this._context.globalState.update('lastFimPrompt', message.instruction)
+        this._context.workspaceState.update(
+          'lastFimPrompt',
+          message.instruction
+        )
       } else if (message.command == 'getConnectionStatus') {
         // Send current connection status when requested by the webview
         webview_view.webview.postMessage({
@@ -180,9 +186,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               active_path
             })
 
-            let text = `${context_text ? `\n${context_text}\n` : ''}${
-              message.instruction
-            }`
+            let text = `${
+              context_text ? `<files>${context_text}\n</files>` : ''
+            }${message.instruction}`
 
             this.websocket_server_instance.initialize_chats(
               text,
@@ -317,14 +323,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           'geminiCoder.presets'
         )
       } else if (message.command == 'getFimMode') {
-        const is_fim_mode = this._context.globalState.get<boolean>(
+        const is_fim_mode = this._context.workspaceState.get<boolean>(
           'isFimMode',
           false
         )
         const has_active_editor = !!vscode.window.activeTextEditor
         // Exit fim mode if no editor is active
         if (is_fim_mode && !has_active_editor) {
-          this._context.globalState.update('isFimMode', false)
+          this._context.workspaceState.update('isFimMode', false)
           webview_view.webview.postMessage({
             command: 'fimMode',
             enabled: false
@@ -336,12 +342,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           })
         }
       } else if (message.command == 'saveFimMode') {
-        this._context.globalState.update('isFimMode', message.enabled)
+        this._context.workspaceState.update('isFimMode', message.enabled)
       } else if (message.command == 'requestEditorState') {
         webview_view.webview.postMessage({
           command: 'editorStateChanged',
           hasActiveEditor: this._has_active_editor
-        });
+        })
       }
     })
 

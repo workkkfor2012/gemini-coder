@@ -9,6 +9,7 @@
 .browser-extension-message {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 4px;
   border-radius: 8px;
   border: 1px solid var(--vscode-panel-border);
