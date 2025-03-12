@@ -4,6 +4,7 @@ import { FileItem } from './workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
 import { OpenEditorsProvider } from './open-editors-provider'
 import { ignored_extensions } from './ignored-extensions'
+import { SharedFileState } from './shared-file-state'
 
 export function context_initialization(context: vscode.ExtensionContext): {
   file_tree_provider: WorkspaceProvider | undefined
@@ -24,6 +25,15 @@ export function context_initialization(context: vscode.ExtensionContext): {
       workspace_root,
       ignored_extensions
     )
+
+    // Initialize shared state
+    const sharedState = SharedFileState.getInstance()
+    sharedState.setProviders(file_tree_provider, open_editors_provider)
+
+    // Add shared state to disposables
+    context.subscriptions.push({
+      dispose: () => sharedState.dispose()
+    })
 
     // Create two separate tree views
     gemini_coder_file_tree_view = vscode.window.createTreeView(
@@ -100,7 +110,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
           return
         }
 
-        context_text = `<files>\n${context_text}</files>\n`
+        context_text = `\n${context_text}\n`
         await vscode.env.clipboard.writeText(context_text)
         vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),
@@ -155,6 +165,16 @@ export function context_initialization(context: vscode.ExtensionContext): {
       // Update token count after checkbox changes
       await update_activity_bar_badge_token_count()
     })
+
+    // Subscribe to the onDidChangeCheckedFiles events from both providers
+    context.subscriptions.push(
+      file_tree_provider.onDidChangeCheckedFiles(() => {
+        update_activity_bar_badge_token_count()
+      }),
+      open_editors_provider.onDidChangeCheckedFiles(() => {
+        update_activity_bar_badge_token_count()
+      })
+    )
 
     // Update badge when configuration changes
     context.subscriptions.push(

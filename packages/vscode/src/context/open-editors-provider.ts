@@ -153,9 +153,14 @@ export class OpenEditorsProvider
     this.opened_from_workspace_view.add(filePath)
   }
 
+  // Add this near the top of the file
+  private _onDidChangeCheckedFiles = new vscode.EventEmitter<void>()
+  readonly onDidChangeCheckedFiles = this._onDidChangeCheckedFiles.event
+
   public dispose(): void {
     this.tab_change_handler.dispose()
     this.file_change_watcher.dispose() // Dispose the file watcher
+    this._onDidChangeCheckedFiles.dispose()
   }
 
   refresh(): void {
@@ -405,6 +410,7 @@ export class OpenEditorsProvider
     }
   }
 
+  // Modify the updateCheckState method
   async updateCheckState(
     item: FileItem,
     state: vscode.TreeItemCheckboxState
@@ -412,11 +418,7 @@ export class OpenEditorsProvider
     const key = item.resourceUri.fsPath
     this.checked_items.set(key, state)
 
-    // Open the file in non-preview mode if it's being checked
-    if (state === vscode.TreeItemCheckboxState.Checked) {
-      await this.openFileInNonPreviewMode(item.resourceUri)
-    }
-
+    this._onDidChangeCheckedFiles.fire()
     this.refresh()
   }
 

@@ -22,6 +22,14 @@ export class WorkspaceProvider
   private file_token_counts: Map<string, number> = new Map() // Cache token counts
   private directory_token_counts: Map<string, number> = new Map() // Cache directory token counts
   private config_change_handler: vscode.Disposable
+  private _onDidChangeCheckedFiles = new vscode.EventEmitter<void>()
+  readonly onDidChangeCheckedFiles = this._onDidChangeCheckedFiles.event
+  // Track which files were opened from workspace view to prevent auto-checking
+  private opened_from_workspace_view: Set<string> = new Set()
+  // Track which tabs are currently in preview mode
+  private preview_tabs: Map<string, boolean> = new Map()
+  // Tab change handler
+  private tab_change_handler: vscode.Disposable
 
   constructor(workspace_root: string) {
     this.workspace_root = workspace_root
@@ -50,12 +58,200 @@ export class WorkspaceProvider
         }
       }
     )
+
+    // Initialize the preview tabs map with current tabs
+    this.updatePreviewTabsState()
+
+    // Listen for tab changes to update the preview tabs state
+    this.tab_change_handler = vscode.window.tabGroups.onDidChangeTabs((e) => {
+      this.handleTabChanges(e)
+      this.handleNewlyOpenedFiles()
+    })
   }
 
   public dispose(): void {
     this.watcher.dispose()
     this.gitignore_watcher.dispose()
     this.config_change_handler.dispose()
+    this._onDidChangeCheckedFiles.dispose()
+    if (this.tab_change_handler) {
+      this.tab_change_handler.dispose()
+    }
+  }
+
+  // Update the preview tabs state
+  private updatePreviewTabsState(): void {
+    // Clear the current state
+    this.preview_tabs.clear()
+
+    // Get current state of all tabs
+    vscode.window.tabGroups.all.forEach((tabGroup) => {
+      tabGroup.tabs.forEach((tab) => {
+        if (tab.input instanceof vscode.TabInputText) {
+          const uri = tab.input.uri
+          this.preview_tabs.set(uri.fsPath, !!tab.isPreview)
+        }
+      })
+    })
+  }
+
+  // Handle tab changes and detect preview to normal transitions
+  private handleTabChanges(e: vscode.TabChangeEvent): void {
+    // Process tabs that were changed
+    for (const tab of e.changed) {
+      // Only track text tabs
+      if (tab.input instanceof vscode.TabInputText) {
+        const filePath = tab.input.uri.fsPath
+        const wasPreview = this.preview_tabs.get(filePath)
+        const isNowPreview = !!tab.isPreview
+
+        // If the file was in preview mode and now is not
+        if (wasPreview && !isNowPreview) {
+          this.handleFileUnpinned(filePath)
+        }
+
+        // Update preview state
+        this.preview_tabs.set(filePath, isNowPreview)
+      }
+    }
+
+    // Process tabs that were opened
+    for (const tab of e.opened) {
+      if (tab.input instanceof vscode.TabInputText) {
+        this.preview_tabs.set(tab.input.uri.fsPath, !!tab.isPreview)
+      }
+    }
+
+    // Remove closed tabs from tracking
+    for (const tab of e.closed) {
+      if (tab.input instanceof vscode.TabInputText) {
+        this.preview_tabs.delete(tab.input.uri.fsPath)
+      }
+    }
+  }
+
+  // Handle when a file is "unpinned" (goes from preview to normal mode)
+  private handleFileUnpinned(filePath: string): void {
+    // Skip files not in workspace
+    if (!filePath.startsWith(this.workspace_root)) return
+
+    // Get relative path to check gitignore
+    const relativePath = path.relative(this.workspace_root, filePath)
+    if (this.is_excluded(relativePath)) return
+
+    const extension = path.extname(filePath).toLowerCase().replace('.', '')
+    if (this.ignored_extensions.has(extension)) return
+
+    // Skip if already checked
+    if (
+      this.checked_items.get(filePath) === vscode.TreeItemCheckboxState.Checked
+    )
+      return
+
+    // Check if this file was opened from workspace view
+    const wasOpenedFromWorkspaceView =
+      this.opened_from_workspace_view.has(filePath)
+
+    // Remove from tracking set - we'll process it now regardless
+    if (wasOpenedFromWorkspaceView) {
+      this.opened_from_workspace_view.delete(filePath)
+    } else {
+      // Mark as checked when file is unpinned - if it wasn't opened from workspace view
+      this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+
+      // Clear token count to recalculate
+      this.file_token_counts.delete(filePath)
+
+      // Update parent directories
+      let dir_path = path.dirname(filePath)
+      while (dir_path.startsWith(this.workspace_root)) {
+        this.update_parent_state(dir_path)
+        dir_path = path.dirname(dir_path)
+      }
+    }
+  }
+
+  // Mark files opened from workspace view
+  markOpenedFromWorkspaceView(filePath: string): void {
+    this.opened_from_workspace_view.add(filePath)
+  }
+
+  // Handle newly opened files in workspace view
+  private handleNewlyOpenedFiles(): void {
+    const openFilePaths = this.getOpenEditors()
+
+    for (const uri of openFilePaths) {
+      const filePath = uri.fsPath
+
+      // Skip files not in workspace
+      if (!filePath.startsWith(this.workspace_root)) continue
+
+      // Get relative path to check gitignore
+      const relativePath = path.relative(this.workspace_root, filePath)
+      if (this.is_excluded(relativePath)) continue
+
+      const extension = path.extname(filePath).toLowerCase().replace('.', '')
+      if (this.ignored_extensions.has(extension)) continue
+
+      // Check if this is a new file that isn't in our map yet
+      if (!this.checked_items.has(filePath)) {
+        // Don't auto-check if the file was opened from workspace view or is in preview mode
+        if (
+          this.opened_from_workspace_view.has(filePath) ||
+          this.preview_tabs.get(filePath)
+        ) {
+          // The file was opened from workspace view, so keep its current state
+          // or set to unchecked if no state exists
+          this.checked_items.set(
+            filePath,
+            vscode.TreeItemCheckboxState.Unchecked
+          )
+          
+          // Only remove from set if not in preview mode - keep tracking preview files
+          if (!this.preview_tabs.get(filePath)) {
+            this.opened_from_workspace_view.delete(filePath)
+          }
+        } else {
+          // Auto-check new files opened directly if not in preview mode
+          this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+          
+          // Update parent directories
+          let dir_path = path.dirname(filePath)
+          while (dir_path.startsWith(this.workspace_root)) {
+            this.update_parent_state(dir_path)
+            dir_path = path.dirname(dir_path)
+          }
+        }
+
+        // Clear token count for this file to force recalculation
+        this.file_token_counts.delete(filePath)
+        
+        // Fire event to notify listeners
+        this._onDidChangeCheckedFiles.fire()
+      }
+    }
+
+    // Refresh the tree view
+    this.refresh()
+  }
+
+  // Get all currently open editor URIs
+  private getOpenEditors(): vscode.Uri[] {
+    const openUris: vscode.Uri[] = []
+    
+    vscode.window.tabGroups.all.forEach((tabGroup) => {
+      tabGroup.tabs.forEach((tab) => {
+        if (tab.input instanceof vscode.TabInputText) {
+          openUris.push(tab.input.uri)
+        }
+      })
+    })
+    
+    return openUris
+  }
+
+  public getWorkspaceRoot(): string {
+    return this.workspace_root
   }
 
   private on_file_system_changed(): void {
@@ -363,6 +559,7 @@ export class WorkspaceProvider
       dir_path = path.dirname(dir_path)
     }
 
+    this._onDidChangeCheckedFiles.fire()
     this.refresh()
   }
 
