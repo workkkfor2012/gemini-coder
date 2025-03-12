@@ -374,7 +374,7 @@ export class OpenEditorsProvider
         vscode.TreeItemCollapsibleState.None,
         false, // not a directory
         checkbox_state,
-        false, // not git ignored
+        false, // isGitIgnored is now irrelevant as we're skipping ignored files
         false, // not a symlink
         true, // is an open file
         token_count,
@@ -441,6 +441,9 @@ export class OpenEditorsProvider
 
     // Fire the event with undefined to force full tree refresh
     this._onDidChangeTreeData.fire(undefined)
+
+    // Fire the checked files change event to trigger synchronization with workspace view
+    this._onDidChangeCheckedFiles.fire()
   }
 
   async checkAll(): Promise<void> {
@@ -463,6 +466,9 @@ export class OpenEditorsProvider
 
     // Fire the event with undefined to force full tree refresh
     this._onDidChangeTreeData.fire(undefined)
+
+    // Fire the checked files change event to trigger synchronization with workspace view
+    this._onDidChangeCheckedFiles.fire()
   }
 
   getCheckedFiles(): string[] {
@@ -492,6 +498,9 @@ export class OpenEditorsProvider
     }
 
     this.refresh()
+
+    // Fire the checked files change event to trigger synchronization
+    this._onDidChangeCheckedFiles.fire()
   }
 
   // Add this method to the OpenEditorsProvider class
@@ -525,6 +534,9 @@ export class OpenEditorsProvider
         this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
       }
     }
+
+    // Fire the checked files change event to trigger synchronization
+    this._onDidChangeCheckedFiles.fire()
   }
 
   // Method to check if provider is fully initialized

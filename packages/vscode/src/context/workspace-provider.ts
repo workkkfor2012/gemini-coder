@@ -107,7 +107,7 @@ export class WorkspaceProvider
 
         // If the file was in preview mode and now is not
         if (wasPreview && !isNowPreview) {
-          this.handleFileUnpinned(filePath)
+          this.handleFileOutPreview(filePath)
         }
 
         // Update preview state
@@ -130,8 +130,7 @@ export class WorkspaceProvider
     }
   }
 
-  // Handle when a file is "unpinned" (goes from preview to normal mode)
-  private handleFileUnpinned(filePath: string): void {
+  private handleFileOutPreview(filePath: string): void {
     // Skip files not in workspace
     if (!filePath.startsWith(this.workspace_root)) return
 
