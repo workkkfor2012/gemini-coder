@@ -17,6 +17,7 @@ async function process_stream_chunk(
   accumulated_content: string,
   last_log_time: number,
   provider_name: string,
+  verbose: boolean,
   on_chunk?: StreamCallback
 ): Promise<{
   updated_buffer: string
@@ -51,7 +52,7 @@ async function process_stream_chunk(
             }
 
             const current_time = Date.now()
-            if (current_time - updated_last_log_time >= 1000) {
+            if (verbose && current_time - updated_last_log_time >= 1000) {
               console.log(
                 `[Gemini Coder] ${provider_name} Streaming tokens:`,
                 updated_accumulated_content
@@ -88,6 +89,9 @@ export async function make_api_request(
     let last_log_time = Date.now()
     let buffer = ''
 
+    const config = vscode.workspace.getConfiguration()
+    const verbose = config.get<boolean>('geminiCoder.verbose', false)
+
     const response: AxiosResponse<NodeJS.ReadableStream> = await axios.post(
       provider.endpointUrl,
       request_body,
@@ -109,6 +113,7 @@ export async function make_api_request(
           accumulated_content,
           last_log_time,
           provider.name,
+          verbose,
           on_chunk
         )
         buffer = processing_result.updated_buffer
@@ -133,13 +138,16 @@ export async function make_api_request(
           }
         }
 
-
         let content = accumulated_content.trim()
 
         const regex = /^```(\w+)?\n([\s\S]*?)\n```$/
         const match = content.match(regex)
         if (match) {
           content = match[2]
+        }
+
+        if (verbose) {
+          console.log('[Gemini Coder] Combined code received:', content)
         }
 
         resolve(content)

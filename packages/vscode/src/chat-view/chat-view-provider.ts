@@ -187,7 +187,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             })
 
             let text = `${
-              context_text ? `<files>${context_text}\n</files>` : ''
+              context_text ? `<files>${context_text}</files>\n` : ''
             }${message.instruction}`
 
             this.websocket_server_instance.initialize_chats(
