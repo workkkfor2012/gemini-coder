@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context AI coding assistant",
-  "description": "Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.200",
+  "description": "All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for Gemini. Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
+  "version": "1.0.201",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {

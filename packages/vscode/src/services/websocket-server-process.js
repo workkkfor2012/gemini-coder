@@ -49,18 +49,6 @@ function notify_vscode_clients() {
   })
 }
 
-// Send ping to all connected clients
-function ping_clients() {
-  connections.forEach((ws) => {
-    if (ws.readyState == WebSocket.OPEN) {
-      ws.send(JSON.stringify({ action: 'ping' }))
-    }
-  })
-}
-
-// Start periodic ping
-setInterval(ping_clients, 10000) // Send ping every 10 seconds
-
 // Log server start information
 console.log(`Starting WebSocket server process (PID: ${process.pid})`)
 
