@@ -9,9 +9,9 @@ export function open_file_from_workspace_command(
     async (uri: vscode.Uri) => {
       if (open_editors_provider) {
         // Mark file as opened from workspace view
-        open_editors_provider.markOpenedFromWorkspaceView(uri.fsPath)
+        open_editors_provider.mark_opened_from_workspace_view(uri.fsPath)
       }
-      
+
       // Then open the file using VS Code's built-in command
       await vscode.commands.executeCommand('vscode.open', uri)
     }

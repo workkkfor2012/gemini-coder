@@ -159,7 +159,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     // Handle checkbox state changes asynchronously for open editors
     gemini_coder_open_editors_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
-        await open_editors_provider!.updateCheckState(item, state)
+        await open_editors_provider!.update_check_state(item, state)
       }
 
       // Update token count after checkbox changes
@@ -187,7 +187,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
             // Update the OpenEditorsProvider with the new setting value
             if (open_editors_provider) {
-              open_editors_provider.updateAttachOpenFilesSetting(
+              open_editors_provider.update_attach_open_files_setting(
                 attachOpenFiles
               )
             }

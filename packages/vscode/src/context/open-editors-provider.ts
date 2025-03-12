@@ -6,12 +6,12 @@ import { FileItem } from './workspace-provider'
 export class OpenEditorsProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
 {
-  private _onDidChangeTreeData: vscode.EventEmitter<
+  private _on_did_change_tree_data: vscode.EventEmitter<
     FileItem | undefined | null | void
   > = new vscode.EventEmitter<FileItem | undefined | null | void>()
   readonly onDidChangeTreeData: vscode.Event<
     FileItem | undefined | null | void
-  > = this._onDidChangeTreeData.event
+  > = this._on_did_change_tree_data.event
 
   private workspace_root: string
   private checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
@@ -27,6 +27,8 @@ export class OpenEditorsProvider
   private non_preview_files: Set<string> = new Set()
   // Track which tabs are currently in preview mode
   private preview_tabs: Map<string, boolean> = new Map()
+  private _on_did_change_checked_files = new vscode.EventEmitter<void>()
+  readonly onDidChangeCheckedFiles = this._on_did_change_checked_files.event
 
   constructor(workspace_root: string, ignored_extensions: Set<string>) {
     this.workspace_root = workspace_root
@@ -37,11 +39,11 @@ export class OpenEditorsProvider
     this.attach_open_files = config.get('attachOpenFiles', true)
 
     // Initialize the preview tabs map with current tabs
-    this.updatePreviewTabsState()
+    this.update_preview_tabs_state()
 
     // Listen for tab changes to update open file checks
     this.tab_change_handler = vscode.window.tabGroups.onDidChangeTabs((e) => {
-      this.handleTabChanges(e)
+      this.handle_tab_changes(e)
       this.refresh()
     })
 
@@ -49,29 +51,29 @@ export class OpenEditorsProvider
     this.file_change_watcher = vscode.workspace.onDidChangeTextDocument((e) => {
       if (e.document.isDirty) return // Only process saved changes
 
-      const filePath = e.document.uri.fsPath
+      const file_path = e.document.uri.fsPath
       // Clear token count for this file to force recalculation
-      this.file_token_counts.delete(filePath)
-      this._onDidChangeTreeData.fire()
+      this.file_token_counts.delete(file_path)
+      this._on_did_change_tree_data.fire()
     })
 
     // Initial auto-check of all open editors
     // We'll use setTimeout to ensure VS Code has fully loaded editors
     setTimeout(() => {
-      this.autoCheckOpenEditors()
+      this.auto_check_open_editors()
       this.initialized = true
-      this._onDidChangeTreeData.fire() // Fire event to refresh view
+      this._on_did_change_tree_data.fire() // Fire event to refresh view
     }, 500) // Small delay to ensure VS Code has loaded all editors
   }
 
   // New method to update the preview tabs state
-  private updatePreviewTabsState(): void {
+  private update_preview_tabs_state(): void {
     // Clear the current state
     this.preview_tabs.clear()
 
     // Get current state of all tabs
-    vscode.window.tabGroups.all.forEach((tabGroup) => {
-      tabGroup.tabs.forEach((tab) => {
+    vscode.window.tabGroups.all.forEach((tab_group) => {
+      tab_group.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
           const uri = tab.input.uri
           this.preview_tabs.set(uri.fsPath, !!tab.isPreview)
@@ -81,22 +83,22 @@ export class OpenEditorsProvider
   }
 
   // New method to handle tab changes and detect preview to normal transitions
-  private handleTabChanges(e: vscode.TabChangeEvent): void {
+  private handle_tab_changes(e: vscode.TabChangeEvent): void {
     // Process tabs that were changed
     for (const tab of e.changed) {
       // Only track text tabs
       if (tab.input instanceof vscode.TabInputText) {
-        const filePath = tab.input.uri.fsPath
-        const wasPreview = this.preview_tabs.get(filePath)
-        const isNowPreview = !!tab.isPreview
+        const file_path = tab.input.uri.fsPath
+        const was_preview = this.preview_tabs.get(file_path)
+        const is_now_preview = !!tab.isPreview
 
         // If the file was in preview mode and now is not
-        if (wasPreview && !isNowPreview) {
-          this.handleFileUnpinned(filePath)
+        if (was_preview && !is_now_preview) {
+          this.handle_file_unpinned(file_path)
         }
 
         // Update preview state
-        this.preview_tabs.set(filePath, isNowPreview)
+        this.preview_tabs.set(file_path, is_now_preview)
       }
     }
 
@@ -116,122 +118,121 @@ export class OpenEditorsProvider
   }
 
   // Modified method to handle when a file is "unpinned" (goes from preview to normal mode)
-  private handleFileUnpinned(filePath: string): void {
+  private handle_file_unpinned(file_path: string): void {
     // Only proceed if the setting is enabled
     if (!this.attach_open_files) return
 
     // Skip files not in workspace
-    if (!filePath.startsWith(this.workspace_root)) return
+    if (!file_path.startsWith(this.workspace_root)) return
 
-    const extension = path.extname(filePath).toLowerCase().replace('.', '')
+    const extension = path.extname(file_path).toLowerCase().replace('.', '')
     if (this.ignored_extensions.has(extension)) return
 
     // Skip if already checked
     if (
-      this.checked_items.get(filePath) === vscode.TreeItemCheckboxState.Checked
+      this.checked_items.get(file_path) === vscode.TreeItemCheckboxState.Checked
     )
       return
 
     // Check if this file was opened from workspace view
-    const wasOpenedFromWorkspaceView =
-      this.opened_from_workspace_view.has(filePath)
+    const was_opened_from_workspace_view =
+      this.opened_from_workspace_view.has(file_path)
 
     // Remove from tracking set - we'll process it now regardless
-    if (wasOpenedFromWorkspaceView) {
-      this.opened_from_workspace_view.delete(filePath)
+    if (was_opened_from_workspace_view) {
+      this.opened_from_workspace_view.delete(file_path)
     }
 
     // Mark as checked when file is unpinned - even if it was opened from workspace view
-    this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+    this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
     // Clear token count to recalculate
-    this.file_token_counts.delete(filePath)
+    this.file_token_counts.delete(file_path)
   }
 
   // Mark files opened from workspace view
-  markOpenedFromWorkspaceView(filePath: string): void {
-    this.opened_from_workspace_view.add(filePath)
+  mark_opened_from_workspace_view(file_path: string): void {
+    this.opened_from_workspace_view.add(file_path)
   }
-
-  // Add this near the top of the file
-  private _onDidChangeCheckedFiles = new vscode.EventEmitter<void>()
-  readonly onDidChangeCheckedFiles = this._onDidChangeCheckedFiles.event
 
   public dispose(): void {
     this.tab_change_handler.dispose()
     this.file_change_watcher.dispose() // Dispose the file watcher
-    this._onDidChangeCheckedFiles.dispose()
+    this._on_did_change_checked_files.dispose()
   }
 
   refresh(): void {
     // Clean up closed files from checked_items
-    this.cleanUpClosedFiles()
+    this.clean_up_closed_files()
 
     // Handle newly opened files (this is the new part)
-    this.handleNewlyOpenedFiles()
+    this.handle_newly_opened_files()
 
     // Trigger view update
-    this._onDidChangeTreeData.fire()
+    this._on_did_change_tree_data.fire()
   }
 
   // Modified method to handle newly opened files
-  private handleNewlyOpenedFiles(): void {
+  private handle_newly_opened_files(): void {
     // Only auto-check new files if the setting is enabled
     if (!this.attach_open_files) return
 
-    const openFilePaths = this.getOpenEditors()
+    const open_file_paths = this.get_open_editors()
 
-    for (const uri of openFilePaths) {
-      const filePath = uri.fsPath
+    for (const uri of open_file_paths) {
+      const file_path = uri.fsPath
 
       // Skip files not in workspace
-      if (!filePath.startsWith(this.workspace_root)) continue
+      if (!file_path.startsWith(this.workspace_root)) continue
 
-      const extension = path.extname(filePath).toLowerCase().replace('.', '')
+      const extension = path.extname(file_path).toLowerCase().replace('.', '')
       if (this.ignored_extensions.has(extension)) continue
 
       // Check if this is a new file that isn't in our map yet
-      if (!this.checked_items.has(filePath)) {
+      if (!this.checked_items.has(file_path)) {
         // Don't auto-check if the file was opened from workspace view or is in preview mode
         if (
-          this.opened_from_workspace_view.has(filePath) ||
-          this.preview_tabs.get(filePath)
+          this.opened_from_workspace_view.has(file_path) ||
+          this.preview_tabs.get(file_path)
         ) {
           this.checked_items.set(
-            filePath,
+            file_path,
             vscode.TreeItemCheckboxState.Unchecked
           )
           // Only remove from set if not in preview mode - keep tracking preview files
-          if (!this.preview_tabs.get(filePath)) {
-            this.opened_from_workspace_view.delete(filePath)
+          if (!this.preview_tabs.get(file_path)) {
+            this.opened_from_workspace_view.delete(file_path)
           }
         } else {
           // Auto-check new files opened through other means and not in preview mode
-          this.checked_items.set(filePath, vscode.TreeItemCheckboxState.Checked)
+          this.checked_items.set(
+            file_path,
+            vscode.TreeItemCheckboxState.Checked
+          )
         }
 
         // Clear token count for this file to force recalculation
-        this.file_token_counts.delete(filePath)
+        this.file_token_counts.delete(file_path)
       }
     }
   }
 
   // New method to clean up closed files from workspace view tracking
-  private cleanUpClosedFiles(): void {
-    const openFilePaths = new Set(
-      this.getOpenEditors().map((uri) => uri.fsPath)
+  private clean_up_closed_files(): void {
+    const open_file_paths = new Set(
+      this.get_open_editors().map((uri) => uri.fsPath)
     )
 
     // Filter out entries that are no longer open
-    const keysToDelete: string[] = []
-    this.checked_items.forEach((state, filePath) => {
-      if (!openFilePaths.has(filePath)) {
-        keysToDelete.push(filePath)
+    const keys_to_delete: string[] = []
+    this.checked_items.forEach((state, file_path) => {
+      if (!open_file_paths.has(file_path)) {
+        keys_to_delete.push(file_path)
       }
     })
 
     // Remove closed files from checked_items
-    keysToDelete.forEach((key) => {
+    keys_to_delete.forEach((key) => {
       this.checked_items.delete(key)
       // Also remove from workspace view tracking
       this.opened_from_workspace_view.delete(key)
@@ -242,7 +243,7 @@ export class OpenEditorsProvider
     })
 
     // Clear token count for closed files
-    keysToDelete.forEach((key) => {
+    keys_to_delete.forEach((key) => {
       this.file_token_counts.delete(key)
     })
   }
@@ -281,15 +282,15 @@ export class OpenEditorsProvider
       return []
     }
 
-    return this.createOpenEditorItems()
+    return this.create_open_editor_items()
   }
 
-  private getOpenEditors(): vscode.Uri[] {
+  private get_open_editors(): vscode.Uri[] {
     const open_files: vscode.Uri[] = []
 
     // Add files from all tab groups
-    vscode.window.tabGroups.all.forEach((tabGroup) => {
-      tabGroup.tabs.forEach((tab) => {
+    vscode.window.tabGroups.all.forEach((tab_group) => {
+      tab_group.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
           open_files.push(tab.input.uri)
           // Also update our preview tabs tracking
@@ -302,7 +303,7 @@ export class OpenEditorsProvider
   }
 
   // Calculate token count for a file
-  private async calculateFileTokens(file_path: string): Promise<number> {
+  private async calculate_file_tokens(file_path: string): Promise<number> {
     // Check if we've already calculated this file
     if (this.file_token_counts.has(file_path)) {
       return this.file_token_counts.get(file_path)!
@@ -326,9 +327,9 @@ export class OpenEditorsProvider
   }
 
   // In createOpenEditorItems method of OpenEditorsProvider class
-  async createOpenEditorItems(): Promise<FileItem[]> {
+  async create_open_editor_items(): Promise<FileItem[]> {
     const items: FileItem[] = []
-    const open_files = this.getOpenEditors()
+    const open_files = this.get_open_editors()
 
     for (const file_uri of open_files) {
       const file_path = file_uri.fsPath
@@ -365,7 +366,7 @@ export class OpenEditorsProvider
       )
 
       // Create description with relative path and token count
-      const token_count = await this.calculateFileTokens(file_path)
+      const token_count = await this.calculate_file_tokens(file_path)
       const description = relative_path ? `${relative_path}` : ''
 
       const item = new FileItem(
@@ -388,43 +389,43 @@ export class OpenEditorsProvider
   }
 
   // Modified helper method to open a file in non-preview mode without pinning
-  private async openFileInNonPreviewMode(uri: vscode.Uri): Promise<void> {
-    const filePath = uri.fsPath
+  private async open_file_in_non_preview_mode(uri: vscode.Uri): Promise<void> {
+    const file_path = uri.fsPath
 
     // Skip if we've already tried to open this file in non-preview mode
-    if (this.non_preview_files.has(filePath)) {
+    if (this.non_preview_files.has(file_path)) {
       return
     }
 
     // Mark that we've tried to open this file in non-preview mode
-    this.non_preview_files.add(filePath)
+    this.non_preview_files.add(file_path)
 
     try {
       // Open the file in non-preview mode
       await vscode.window.showTextDocument(uri, { preview: false })
     } catch (error) {
       console.error(
-        `Error opening file in non-preview mode for ${filePath}:`,
+        `Error opening file in non-preview mode for ${file_path}:`,
         error
       )
     }
   }
 
   // Modify the updateCheckState method
-  async updateCheckState(
+  async update_check_state(
     item: FileItem,
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
     const key = item.resourceUri.fsPath
     this.checked_items.set(key, state)
 
-    this._onDidChangeCheckedFiles.fire()
+    this._on_did_change_checked_files.fire()
     this.refresh()
   }
 
   clearChecks(): void {
     // Instead of clearing the map, explicitly set each open editor to unchecked
-    const open_files = this.getOpenEditors()
+    const open_files = this.get_open_editors()
 
     for (const uri of open_files) {
       const file_path = uri.fsPath
@@ -440,14 +441,14 @@ export class OpenEditorsProvider
     this.file_token_counts.clear()
 
     // Fire the event with undefined to force full tree refresh
-    this._onDidChangeTreeData.fire(undefined)
+    this._on_did_change_tree_data.fire(undefined)
 
     // Fire the checked files change event to trigger synchronization with workspace view
-    this._onDidChangeCheckedFiles.fire()
+    this._on_did_change_checked_files.fire()
   }
 
   async checkAll(): Promise<void> {
-    const open_files = this.getOpenEditors()
+    const open_files = this.get_open_editors()
 
     for (const uri of open_files) {
       const file_path = uri.fsPath
@@ -465,10 +466,10 @@ export class OpenEditorsProvider
     this.file_token_counts.clear()
 
     // Fire the event with undefined to force full tree refresh
-    this._onDidChangeTreeData.fire(undefined)
+    this._on_did_change_tree_data.fire(undefined)
 
     // Fire the checked files change event to trigger synchronization with workspace view
-    this._onDidChangeCheckedFiles.fire()
+    this._on_did_change_checked_files.fire()
   }
 
   getCheckedFiles(): string[] {
@@ -500,11 +501,11 @@ export class OpenEditorsProvider
     this.refresh()
 
     // Fire the checked files change event to trigger synchronization
-    this._onDidChangeCheckedFiles.fire()
+    this._on_did_change_checked_files.fire()
   }
 
   // Add this method to the OpenEditorsProvider class
-  public updateAttachOpenFilesSetting(value: boolean): void {
+  public update_attach_open_files_setting(value: boolean): void {
     if (this.attach_open_files == value) {
       return
     }
@@ -512,10 +513,10 @@ export class OpenEditorsProvider
     this.refresh()
   }
 
-  private async autoCheckOpenEditors(): Promise<void> {
+  private async auto_check_open_editors(): Promise<void> {
     if (!this.attach_open_files) return
 
-    const open_files = this.getOpenEditors()
+    const open_files = this.get_open_editors()
 
     for (const uri of open_files) {
       const file_path = uri.fsPath
@@ -527,16 +528,16 @@ export class OpenEditorsProvider
       if (this.ignored_extensions.has(extension)) continue
 
       // Check if the file is in preview mode
-      const isPreview = this.preview_tabs.get(file_path)
+      const is_preview = this.preview_tabs.get(file_path)
 
       // Only auto-check if not already set by user and not in preview mode
-      if (!this.checked_items.has(file_path) && !isPreview) {
+      if (!this.checked_items.has(file_path) && !is_preview) {
         this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
       }
     }
 
     // Fire the checked files change event to trigger synchronization
-    this._onDidChangeCheckedFiles.fire()
+    this._on_did_change_checked_files.fire()
   }
 
   // Method to check if provider is fully initialized

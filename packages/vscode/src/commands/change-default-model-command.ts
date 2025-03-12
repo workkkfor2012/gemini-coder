@@ -38,12 +38,13 @@ export function change_default_model_command(
 
   return vscode.commands.registerCommand(config.command_id, async () => {
     const userConfig = vscode.workspace.getConfiguration()
-    const user_providers = userConfig.get<Provider[]>('geminiCoder.providers') || []
+    const user_providers =
+      userConfig.get<Provider[]>('geminiCoder.providers') || []
     const all_providers = [...BUILT_IN_PROVIDERS, ...user_providers]
-    
+
     // Get current default model from global state
     let current_default_model: string
-    
+
     switch (model_type) {
       case 'fim':
         current_default_model = modelManager.get_default_fim_model()
@@ -86,16 +87,18 @@ export function change_default_model_command(
         // Update in global state instead of configuration
         switch (model_type) {
           case 'fim':
-            await modelManager.setDefaultFimModel(selected_provider)
+            await modelManager.set_default_fim_model(selected_provider)
             break
           case 'refactoring':
-            await modelManager.setDefaultRefactoringModel(selected_provider)
+            await modelManager.set_default_refactoring_model(selected_provider)
             break
           case 'apply_changes':
-            await modelManager.setDefaultApplyChangesModel(selected_provider)
+            await modelManager.set_default_apply_changes_model(
+              selected_provider
+            )
             break
         }
-        
+
         vscode.window.showInformationMessage(
           `Default ${config.display_name} model changed to: ${selected_provider}`
         )

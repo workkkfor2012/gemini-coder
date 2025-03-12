@@ -232,7 +232,7 @@ export class SharedFileState {
       contextValue: 'openEditor'
     }
 
-    await this.open_editors_provider.updateCheckState(fake_item, state)
+    await this.open_editors_provider.update_check_state(fake_item, state)
   }
 
   // Update a file check state in workspace
