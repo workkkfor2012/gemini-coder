@@ -30,11 +30,17 @@ export class WorkspaceProvider
   private preview_tabs: Map<string, boolean> = new Map()
   // Tab change handler
   private tab_change_handler: vscode.Disposable
+  // Track attachOpenFiles setting
+  private attach_open_files: boolean = true
 
   constructor(workspace_root: string) {
     this.workspace_root = workspace_root
     this.load_all_gitignore_files() // Load all .gitignore files on initialization
     this.load_ignored_extensions()
+
+    // Load user preference for automatically attaching open files
+    const config = vscode.workspace.getConfiguration('geminiCoder')
+    this.attach_open_files = config.get('attachOpenFiles', true)
 
     // Create a file system watcher for general file changes
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
@@ -52,9 +58,17 @@ export class WorkspaceProvider
     // Listen for configuration changes
     this.config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
-          this.load_ignored_extensions()
-          this.refresh()
+        if (event.affectsConfiguration('geminiCoder')) {
+          if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+            const config = vscode.workspace.getConfiguration('geminiCoder')
+            this.update_attach_open_files_setting(
+              config.get('attachOpenFiles', true)
+            )
+          }
+          if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+            this.load_ignored_extensions()
+            this.refresh()
+          }
         }
       }
     )
@@ -97,6 +111,52 @@ export class WorkspaceProvider
 
   // Handle tab changes and detect preview to normal transitions
   private handle_tab_changes(e: vscode.TabChangeEvent): void {
+    // Process closed tabs first
+    if (this.attach_open_files) {
+      for (const tab of e.closed) {
+        if (tab.input instanceof vscode.TabInputText) {
+          const file_path = tab.input.uri.fsPath
+
+          // Skip files not in workspace
+          if (!file_path.startsWith(this.workspace_root)) continue
+
+          // Get relative path to check gitignore
+          const relative_path = path.relative(this.workspace_root, file_path)
+          if (this.is_excluded(relative_path)) continue
+
+          const extension = path
+            .extname(file_path)
+            .toLowerCase()
+            .replace('.', '')
+          if (this.ignored_extensions.has(extension)) continue
+
+          // Only uncheck if it was checked and not opened from workspace view
+          if (
+            this.checked_items.get(file_path) ===
+              vscode.TreeItemCheckboxState.Checked &&
+            !this.opened_from_workspace_view.has(file_path)
+          ) {
+            this.checked_items.set(
+              file_path,
+              vscode.TreeItemCheckboxState.Unchecked
+            )
+
+            // Update parent directories
+            let dir_path = path.dirname(file_path)
+            while (dir_path.startsWith(this.workspace_root)) {
+              this.update_parent_state(dir_path)
+              dir_path = path.dirname(dir_path)
+            }
+
+            this._on_did_change_checked_files.fire()
+          }
+
+          // Clean up tracking
+          this.preview_tabs.delete(file_path)
+        }
+      }
+    }
+
     // Process tabs that were changed
     for (const tab of e.changed) {
       // Only track text tabs
@@ -119,13 +179,6 @@ export class WorkspaceProvider
     for (const tab of e.opened) {
       if (tab.input instanceof vscode.TabInputText) {
         this.preview_tabs.set(tab.input.uri.fsPath, !!tab.isPreview)
-      }
-    }
-
-    // Remove closed tabs from tracking
-    for (const tab of e.closed) {
-      if (tab.input instanceof vscode.TabInputText) {
-        this.preview_tabs.delete(tab.input.uri.fsPath)
       }
     }
   }
@@ -785,7 +838,7 @@ export class WorkspaceProvider
     const config = vscode.workspace.getConfiguration('geminiCoder')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
-      .map((ext) => ext.toLowerCase().replace(/^\\./, ''))
+      .map((ext) => ext.toLowerCase().replace(/^\./, ''))
 
     // Combine hardcoded and configured extensions
     this.ignored_extensions = new Set([
@@ -812,6 +865,15 @@ export class WorkspaceProvider
     }
     this.refresh()
     this._on_did_change_checked_files.fire()
+  }
+
+  // Update the setting when it changes
+  public update_attach_open_files_setting(value: boolean): void {
+    if (this.attach_open_files === value) {
+      return
+    }
+    this.attach_open_files = value
+    this.refresh()
   }
 }
 
