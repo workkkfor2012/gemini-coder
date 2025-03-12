@@ -292,6 +292,7 @@ export class WorkspaceProvider
   clearChecks(): void {
     this.checked_items.clear()
     this.refresh()
+    this._onDidChangeCheckedFiles.fire()
   }
 
   getTreeItem(element: FileItem): vscode.TreeItem {
@@ -807,6 +808,7 @@ export class WorkspaceProvider
       }
     }
     this.refresh()
+    this._onDidChangeCheckedFiles.fire()
   }
 }
 
