@@ -37,7 +37,20 @@ export const ChatInput: React.FC<Props> = (props) => {
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key == 'Enter' && e.shiftKey) {
       e.preventDefault()
-      props.on_change(props.value + '\n')
+      const textarea = e.currentTarget
+      const start = textarea.selectionStart
+      const end = textarea.selectionEnd
+
+      // Create new value with newline inserted at cursor position
+      const newValue =
+        props.value.substring(0, start) + '\n' + props.value.substring(end)
+
+      props.on_change(newValue)
+
+      // Set cursor position after the inserted newline
+      setTimeout(() => {
+        textarea.selectionStart = textarea.selectionEnd = start + 1
+      }, 0)
     } else if (e.key == 'Enter' && !e.shiftKey) {
       e.preventDefault()
       handle_submit()
