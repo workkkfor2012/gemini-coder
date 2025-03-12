@@ -1,8 +1,8 @@
-# Gemini Coder
+# Gemini Coder - the 2M context AI coding assistant
 
-All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for Gemini. Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!
+All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context with other features like Fill-In-the-Middle (FIM) completions or file refactoring. With our Apply Changes feature integrating AI suggested modifications is a no-brainer!
 
-Supports all gemini models with your own API key out of the box, all the other OpenAI API compatible providers and all major web chatbots: AI Studio, Gemini, ChatGPT, Claude, GitHub Copilot Mistral, DeepSeek and more.
+Supports all Gemini models with your own API key out of the box, all the other OpenAI API compatible providers and all major web chatbots: AI Studio, Gemini, ChatGPT, Claude, GitHub Copilot Mistral, DeepSeek and more.
 
 [![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/vscode/resources/screencast.gif)]()
 

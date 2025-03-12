@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the 2M context AI coding assistant",
-  "description": "All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for Gemini. Granularly pick context and initalize web chats, hands-free! Use the same big context for FIM code completions and file refactorings, whenever you need something context aware!",
-  "version": "1.0.201",
+  "description": "All-in-one, universal, free and open-source (MIT) AI coding toolkit with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context with other features like Fill-In-the-Middle (FIM) completions or file refactoring. With our Apply Changes feature integrating AI suggested modifications is a no-brainer!",
+  "version": "1.0.202",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {
