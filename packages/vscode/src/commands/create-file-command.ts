@@ -46,9 +46,6 @@ export function create_file_command() {
         const document = await vscode.workspace.openTextDocument(file_path)
         await vscode.window.showTextDocument(document)
 
-        // Show success message
-        vscode.window.showInformationMessage(`Created file: ${file_name}`)
-
         // Refresh the workspace tree view
         vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')
       } catch (error: any) {

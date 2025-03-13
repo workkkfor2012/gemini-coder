@@ -1,6 +1,6 @@
 # Gemini Coder - the 2M context AI coding assistant
 
-All-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context using API with Fill-In-the-Middle (FIM) completions and file refactoring. With our Apply Changes feature integrating AI suggested modifications is a walk in the park!
+All-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context using API with Fill-In-the-Middle (FIM) completions and file refactoring. With the Apply Changes feature integrating AI suggested modifications is a walk in the park!
 
 Supports all Gemini models with your own API key out of the box and all the other OpenAI API compatible providers.
 

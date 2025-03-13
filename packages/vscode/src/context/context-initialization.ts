@@ -110,7 +110,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
           return
         }
 
-        context_text = `\n${context_text}\n`
+        context_text = `<files>\n${context_text}</files>\n`
         await vscode.env.clipboard.writeText(context_text)
         vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),

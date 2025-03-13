@@ -43,9 +43,6 @@ export function create_folder_command() {
           vscode.Uri.file(new_folder_path)
         )
 
-        // Show success message
-        vscode.window.showInformationMessage(`Created folder: ${folder_name}`)
-
         // Refresh the workspace tree view
         vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')
       } catch (error: any) {

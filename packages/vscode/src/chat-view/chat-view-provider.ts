@@ -184,7 +184,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
               const active_editor = vscode.window.activeTextEditor
               const active_path = active_editor?.document.uri.fsPath
-              const is_fim_mode = this._context.globalState.get<boolean>(
+              const is_fim_mode = this._context.workspaceState.get<boolean>(
                 'isFimMode',
                 false
               )
@@ -207,20 +207,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   exclude_path: active_path
                 })
 
-                const text = `<files>${context_text}\n<file><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${message.instruction}`
+                // relative path
+                const workspace_folder =
+                  vscode.workspace.workspaceFolders?.[0].uri.fsPath
+                const relative_path = active_path!.replace(
+                  workspace_folder + '/',
+                  ''
+                )
+
+                const text = `<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${message.instruction}`
 
                 this.websocket_server_instance.initialize_chats(
                   text,
                   message.preset_names
                 )
-              } else {
+              } else if (!is_fim_mode) {
                 const context_text = await files_collector.collect_files({
                   active_path
                 })
 
-                const text = `${context_text ? `<files>${context_text}</files>\n` : ''}${
-                  message.instruction
-                }`
+                const text = `${
+                  context_text ? `<files>\n${context_text}</files>\n` : ''
+                }${message.instruction}`
 
                 this.websocket_server_instance.initialize_chats(
                   text,
@@ -236,7 +244,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 this.open_editors_provider
               )
 
-              const is_fim_mode = this._context.globalState.get<boolean>(
+              const is_fim_mode = this._context.workspaceState.get<boolean>(
                 'isFimMode',
                 false
               )
@@ -261,14 +269,25 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   exclude_path: active_path
                 })
 
-                const text = `${context_text}\n<![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}\n\n${autocomplete_instruction_external} ${message.instruction}`
+                // relative path
+                const workspace_folder =
+                  vscode.workspace.workspaceFolders?.[0].uri.fsPath
+                const relative_path = active_path.replace(
+                  workspace_folder + '/',
+                  ''
+                )
+
+                const text = `<files>\n${context_text}<file path="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n123${autocomplete_instruction_external} ${message.instruction}`
 
                 await vscode.env.clipboard.writeText(text)
-              } else {
-                const context_text = await files_collector.collect_files()
-                const text = `${context_text ? `\n${context_text}\n` : ''}${
-                  message.instruction
-                }`
+              } else if (!is_fim_mode) {
+                const active_path = active_editor?.document.uri.fsPath
+                const context_text = await files_collector.collect_files({
+                  active_path
+                })
+                const text = `${
+                  context_text ? `<files>\n${context_text}</files>\n` : ''
+                }${message.instruction}`
                 await vscode.env.clipboard.writeText(text)
               }
 
@@ -440,6 +459,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _get_html_for_webview(webview: vscode.Webview) {
+    const resources_uri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extension_uri, 'resources')
+    )
+
     const script_uri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extension_uri, 'out', 'chat.js')
     )
@@ -450,6 +473,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script>
+          window.resources_uri = "${resources_uri}";
+        </script>
       </head>
       <body>
           <div id="root"></div>

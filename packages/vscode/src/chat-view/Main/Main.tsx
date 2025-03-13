@@ -2,7 +2,7 @@ import { useState } from 'react'
 import styles from './Main.module.scss'
 import { Presets as UiPresets } from '@ui/components/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/ChatInput'
-import { Status as UiStatus } from '@ui/components/Status'
+import { ChatHeader as UiChatHeader } from '@ui/components/ChatHeader'
 import { Separator as UiSeparator } from '@ui/components/Separator'
 
 type Props = {
@@ -81,7 +81,7 @@ export const Main: React.FC<Props> = (props) => {
 
   return (
     <div className={styles.container}>
-      <UiStatus is_connected={props.is_connected} />
+      <UiChatHeader />
       <UiSeparator size="small" />
       <UiChatInput
         value={current_instruction}

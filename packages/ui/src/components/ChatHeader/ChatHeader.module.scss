@@ -1,0 +1,57 @@
+// @type
+
+.container {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.links {
+  display: flex;
+  gap: 3px;
+  font-size: 0.85em;
+  color: var(--vscode-descriptionForeground);
+
+  > a {
+    text-decoration: none;
+    color: var(--vscode-descriptionForeground);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  > span {
+    opacity: 0.7;
+  }
+}
+
+.tooltipContainer {
+  position: relative;
+
+  a {
+    text-decoration: none;
+    color: var(--vscode-descriptionForeground);
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+}
+
+.tooltip {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: 0;
+  padding: 4px;
+  background-color: var(--vscode-editor-background);
+  border: 1px solid var(--vscode-editorWidget-border);
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  transition: opacity 0.3s;
+  pointer-events: none;
+  width: 90px;
+
+  img {
+    display: flex;
+  }
+}
