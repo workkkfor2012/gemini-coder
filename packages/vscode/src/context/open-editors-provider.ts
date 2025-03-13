@@ -94,7 +94,7 @@ export class OpenEditorsProvider
 
         // If the file was in preview mode and now is not
         if (was_preview && !is_now_preview) {
-          this.handle_file_unpinned(file_path)
+          this.handle_file_out_of_preview_state(file_path)
         }
 
         // Update preview state
@@ -117,8 +117,7 @@ export class OpenEditorsProvider
     }
   }
 
-  // Modified method to handle when a file is "unpinned" (goes from preview to normal mode)
-  private handle_file_unpinned(file_path: string): void {
+  private handle_file_out_of_preview_state(file_path: string): void {
     // Only proceed if the setting is enabled
     if (!this.attach_open_files) return
 

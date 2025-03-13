@@ -32,6 +32,8 @@ export class WorkspaceProvider
   private tab_change_handler: vscode.Disposable
   // Track attachOpenFiles setting
   private attach_open_files: boolean = true
+  // Track directories that have some but not all children checked
+  private partially_checked_dirs: Set<string> = new Set()
 
   constructor(workspace_root: string) {
     this.workspace_root = workspace_root
@@ -232,7 +234,7 @@ export class WorkspaceProvider
   private handle_newly_opened_files(): void {
     // Only auto-check new files if the setting is enabled
     if (!this.attach_open_files) return
-    
+
     const open_file_paths = this.get_open_editors()
 
     for (const uri of open_file_paths) {
@@ -350,16 +352,17 @@ export class WorkspaceProvider
 
   clearChecks(): void {
     this.checked_items.clear()
+    this.partially_checked_dirs.clear()
     this.refresh()
     this._on_did_change_checked_files.fire()
   }
 
   getTreeItem(element: FileItem): vscode.TreeItem {
     const key = element.resourceUri.fsPath
-    const checkbox_state =
+    const checkboxState =
       this.checked_items.get(key) ?? vscode.TreeItemCheckboxState.Unchecked
 
-    element.checkboxState = checkbox_state
+    element.checkboxState = checkboxState
 
     // Get token count and add it to description
     const token_count = element.tokenCount
@@ -377,6 +380,17 @@ export class WorkspaceProvider
       } else {
         element.description = formatted_token_count
       }
+    }
+
+    // Add visual indicator for partially checked directories
+    if (element.isDirectory && this.partially_checked_dirs.has(key)) {
+      // Add an indicator to the description
+      element.description = element.description
+        ? `${element.description} ✓`
+        : '✓'
+
+      // You could also add an icon overlay or modify the tooltip
+      element.tooltip = `${element.tooltip || ''} (Partially selected)`
     }
 
     return element
@@ -605,6 +619,13 @@ export class WorkspaceProvider
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
     const key = item.resourceUri.fsPath
+
+    // If a partially checked directory is clicked, check it completely
+    if (item.isDirectory && this.partially_checked_dirs.has(key)) {
+      state = vscode.TreeItemCheckboxState.Checked
+      this.partially_checked_dirs.delete(key)
+    }
+
     this.checked_items.set(key, state)
 
     if (item.isDirectory) {
@@ -629,6 +650,7 @@ export class WorkspaceProvider
       if (this.is_excluded(relative_dir_path)) {
         // If directory is excluded, ensure it's unchecked
         this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Unchecked)
+        this.partially_checked_dirs.delete(dir_path)
         return
       }
 
@@ -637,6 +659,7 @@ export class WorkspaceProvider
       })
 
       let all_checked = true
+      let any_checked = false
       let has_non_ignored_child = false
 
       for (const entry of dir_entries) {
@@ -658,24 +681,40 @@ export class WorkspaceProvider
           this.checked_items.get(sibling_path) ??
           vscode.TreeItemCheckboxState.Unchecked
 
+        const is_partial =
+          entry.isDirectory() && this.partially_checked_dirs.has(sibling_path)
+
         if (state !== vscode.TreeItemCheckboxState.Checked) {
           all_checked = false
-          break
+        }
+
+        if (state === vscode.TreeItemCheckboxState.Checked || is_partial) {
+          any_checked = true
         }
       }
 
       if (has_non_ignored_child) {
         if (all_checked) {
           this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Checked)
+          this.partially_checked_dirs.delete(dir_path)
+        } else if (any_checked) {
+          // Partial state: some but not all children are checked
+          this.checked_items.set(
+            dir_path,
+            vscode.TreeItemCheckboxState.Unchecked
+          )
+          this.partially_checked_dirs.add(dir_path)
         } else {
           this.checked_items.set(
             dir_path,
             vscode.TreeItemCheckboxState.Unchecked
           )
+          this.partially_checked_dirs.delete(dir_path)
         }
       } else {
         // If no non-ignored children, set parent to unchecked
         this.checked_items.set(dir_path, vscode.TreeItemCheckboxState.Unchecked)
+        this.partially_checked_dirs.delete(dir_path)
       }
     } catch (error) {
       console.error(`Error updating parent state for ${dir_path}:`, error)
@@ -757,6 +796,7 @@ export class WorkspaceProvider
   public async setCheckedFiles(file_paths: string[]): Promise<void> {
     // Clear existing checks
     this.checked_items.clear()
+    this.partially_checked_dirs.clear()
 
     // For each file in filePaths, set its checkboxState to Checked
     for (const file_path of file_paths) {
@@ -857,6 +897,7 @@ export class WorkspaceProvider
     for (const item of top_level_items) {
       const key = item.resourceUri.fsPath
       this.checked_items.set(key, vscode.TreeItemCheckboxState.Checked)
+      this.partially_checked_dirs.delete(key) // Ensure partially checked state is cleared when checking all
 
       if (item.isDirectory) {
         await this.update_directory_check_state(

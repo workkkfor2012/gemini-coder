@@ -167,7 +167,8 @@ export function apply_changes_command(params: {
     const verbose = config.get<boolean>('geminiCoder.verbose')
 
     const apply_changes_prompt = `${apply_changes_instruction} ${instruction}`
-    const file_content = `<file><![CDATA[${document_text}]]></file>`
+    const file_path = vscode.workspace.asRelativePath(document.uri)
+    const file_content = `<file path="${file_path}"><![CDATA[${document_text}]]></file>`
     const content = `${file_content}\n${apply_changes_prompt}`
     const messages = [
       ...(system_instructions

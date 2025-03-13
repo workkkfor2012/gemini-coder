@@ -2,6 +2,20 @@ import { useState, useEffect } from 'react'
 import ReactDOM from 'react-dom/client'
 import { Main } from './Main'
 import { Presets as UiPresets } from '@ui/components/Presets'
+import {
+  WebviewMessage,
+  ExtensionMessage,
+  InitialPromptMessage,
+  InitialFimPromptMessage,
+  ConnectionStatusMessage,
+  PresetsMessage,
+  SelectedPresetsMessage,
+  PresetsSelectedFromPickerMessage,
+  ExpandedPresetsMessage,
+  FimModeMessage,
+  EditorStateChangedMessage
+} from './types/messages'
+
 const vscode = acquireVsCodeApi()
 
 import '@vscode/codicons/dist/codicon.css'
@@ -19,50 +33,61 @@ function App() {
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
 
   useEffect(() => {
-    vscode.postMessage({ command: 'getLastPrompt' })
-    vscode.postMessage({ command: 'getLastFimPrompt' })
-    vscode.postMessage({ command: 'getConnectionStatus' })
-    vscode.postMessage({ command: 'getPresets' })
-    vscode.postMessage({ command: 'getSelectedPresets' })
-    vscode.postMessage({ command: 'getExpandedPresets' })
-    vscode.postMessage({ command: 'getFimMode' })
-    vscode.postMessage({ command: 'requestEditorState' })
+    vscode.postMessage({ command: 'GET_LAST_PROMPT' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_LAST_FIM_PROMPT' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_CONNECTION_STATUS' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_PRESETS' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_SELECTED_PRESETS' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_EXPANDED_PRESETS' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_FIM_MODE' } as WebviewMessage)
+    vscode.postMessage({ command: 'REQUEST_EDITOR_STATE' } as WebviewMessage)
 
     const handle_message = (event: MessageEvent) => {
-      const message = event.data
+      const message = event.data as ExtensionMessage
       switch (message.command) {
-        case 'initialPrompt':
-          set_normal_mode_instruction(message.instruction)
+        case 'INITIAL_PROMPT':
+          set_normal_mode_instruction(
+            (message as InitialPromptMessage).instruction
+          )
           break
-        case 'initialFimPrompt':
-          set_fim_mode_instruction(message.instruction)
+        case 'INITIAL_FIM_PROMPT':
+          set_fim_mode_instruction(
+            (message as InitialFimPromptMessage).instruction
+          )
           break
-        case 'connectionStatus':
-          set_is_connected(message.connected)
+        case 'CONNECTION_STATUS':
+          set_is_connected((message as ConnectionStatusMessage).connected)
           break
-        case 'presets':
-          set_presets(message.presets)
+        case 'PRESETS':
+          set_presets((message as PresetsMessage).presets)
           break
-        case 'selectedPresets':
-          set_selected_presets(message.names)
+        case 'SELECTED_PRESETS':
+          set_selected_presets((message as SelectedPresetsMessage).names)
           break
-        case 'selectedPresetsFromPicker':
-          set_selected_presets(message.names)
+        case 'PRESETS_SELECTED_FROM_PICKER':
+          set_selected_presets(
+            (message as PresetsSelectedFromPickerMessage).names
+          )
           break
-        case 'expandedPresets':
-          set_expanded_presets(message.indices)
+        case 'EXPANDED_PRESETS':
+          set_expanded_presets((message as ExpandedPresetsMessage).indices)
           break
-        case 'fimMode':
-          set_is_fim_mode(message.enabled)
+        case 'FIM_MODE':
+          set_is_fim_mode((message as FimModeMessage).enabled)
           break
-        case 'editorStateChanged':
-          set_has_active_editor(message.hasActiveEditor)
-          if (!message.hasActiveEditor && is_fim_mode) {
+        case 'EDITOR_STATE_CHANGED':
+          set_has_active_editor(
+            (message as EditorStateChangedMessage).hasActiveEditor
+          )
+          if (
+            !(message as EditorStateChangedMessage).hasActiveEditor &&
+            is_fim_mode
+          ) {
             set_is_fim_mode(false)
             vscode.postMessage({
-              command: 'saveFimMode',
+              command: 'SAVE_FIM_MODE',
               enabled: false
-            })
+            } as WebviewMessage)
           }
           break
       }
@@ -77,10 +102,10 @@ function App() {
     preset_names: string[]
   }) => {
     vscode.postMessage({
-      command: 'sendPrompt',
+      command: 'SEND_PROMPT',
       instruction: params.instruction,
       preset_names: params.preset_names
-    })
+    } as WebviewMessage)
   }
 
   const handle_show_preset_picker = (
@@ -88,71 +113,71 @@ function App() {
   ): Promise<string[]> => {
     return new Promise((resolve) => {
       const messageHandler = (event: MessageEvent) => {
-        const message = event.data
-        if (message.command == 'presetsSelectedFromPicker') {
+        const message = event.data as ExtensionMessage
+        if (message.command === 'PRESETS_SELECTED_FROM_PICKER') {
           window.removeEventListener('message', messageHandler)
-          resolve(message.names)
+          resolve((message as PresetsSelectedFromPickerMessage).names)
         }
       }
       window.addEventListener('message', messageHandler)
 
       vscode.postMessage({
-        command: 'showPresetPicker',
+        command: 'SHOW_PRESET_PICKER',
         instruction
-      })
+      } as WebviewMessage)
     })
   }
 
   const handle_copy_to_clipboard = (instruction: string) => {
     vscode.postMessage({
-      command: 'copyPrompt',
+      command: 'COPY_PROMPT',
       instruction
-    })
+    } as WebviewMessage)
   }
 
   const handle_instruction_change = (instruction: string) => {
     if (is_fim_mode) {
       vscode.postMessage({
-        command: 'saveFimInstruction',
+        command: 'SAVE_FIM_INSTRUCTION',
         instruction
-      })
+      } as WebviewMessage)
       set_fim_mode_instruction(instruction)
     } else {
       vscode.postMessage({
-        command: 'saveChatInstruction',
+        command: 'SAVE_CHAT_INSTRUCTION',
         instruction
-      })
+      } as WebviewMessage)
       set_normal_mode_instruction(instruction)
     }
   }
 
   const handle_presets_selection_change = (selected_names: string[]) => {
     vscode.postMessage({
-      command: 'saveSelectedPresets',
+      command: 'SAVE_SELECTED_PRESETS',
       names: selected_names
-    })
+    } as WebviewMessage)
     set_selected_presets(selected_names)
   }
 
   const handle_expanded_presets_change = (expanded_indices: number[]) => {
     vscode.postMessage({
-      command: 'saveExpandedPresets',
+      command: 'SAVE_EXPANDED_PRESETS',
       indices: expanded_indices
-    })
+    } as WebviewMessage)
     set_expanded_presets(expanded_indices)
   }
 
   const handle_open_settings = () => {
     vscode.postMessage({
-      command: 'openSettings'
-    })
+      command: 'OPEN_SETTINGS'
+    } as WebviewMessage)
   }
 
   const handle_fim_mode_click = () => {
     vscode.postMessage({
-      command: 'saveFimMode',
+      command: 'SAVE_FIM_MODE',
       enabled: !is_fim_mode
-    })
+    } as WebviewMessage)
     set_is_fim_mode(!is_fim_mode)
   }
 
