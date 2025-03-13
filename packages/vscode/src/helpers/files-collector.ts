@@ -30,7 +30,7 @@ export class FilesCollector {
     // Get checked files from both providers
     const workspace_files = this.file_tree_provider.getCheckedFiles()
     const open_editor_files =
-      this.open_editors_provider?.getCheckedFiles() || []
+      this.open_editors_provider?.get_checked_files() || []
 
     // Combine and deduplicate files
     const context_files = Array.from(

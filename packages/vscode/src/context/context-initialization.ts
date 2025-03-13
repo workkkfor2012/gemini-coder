@@ -133,14 +133,14 @@ export function context_initialization(context: vscode.ExtensionContext): {
       vscode.commands.registerCommand(
         'geminiCoder.clearChecksOpenEditors',
         () => {
-          open_editors_provider!.clearChecks()
+          open_editors_provider!.clear_checks()
           update_activity_bar_badge_token_count()
         }
       ),
       vscode.commands.registerCommand(
         'geminiCoder.checkAllOpenEditors',
         async () => {
-          await open_editors_provider!.checkAll()
+          await open_editors_provider!.check_all()
           update_activity_bar_badge_token_count()
         }
       )
@@ -233,7 +233,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     context.subscriptions.push(
       open_editors_provider.onDidChangeTreeData(() => {
         // Update the badge after the open editors provider refreshes
-        if (open_editors_provider!.isInitialized()) {
+        if (open_editors_provider!.is_initialized()) {
           update_activity_bar_badge_token_count()
         }
       })

@@ -2,15 +2,14 @@ import * as vscode from 'vscode'
 import { ModelManager } from '../services/model-manager'
 
 export class ApiViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'geminiCoderViewApi'
   private _webview_view: vscode.WebviewView | undefined
-  private model_manager: ModelManager
+  private _model_manager: ModelManager
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
     private readonly context: vscode.ExtensionContext
   ) {
-    this.model_manager = new ModelManager(context)
+    this._model_manager = new ModelManager(context)
   }
 
   public resolveWebviewView(
@@ -33,11 +32,11 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
         const config = vscode.workspace.getConfiguration('geminiCoder')
         const providers = config.get('providers', [])
         const api_key = config.get('apiKey', '')
-        const default_fim_model = this.model_manager.get_default_fim_model()
+        const default_fim_model = this._model_manager.get_default_fim_model()
         const default_refactoring_model =
-          this.model_manager.get_default_refactoring_model()
+          this._model_manager.get_default_refactoring_model()
         const default_apply_changes_model =
-          this.model_manager.get_default_apply_changes_model()
+          this._model_manager.get_default_apply_changes_model()
 
         webview_view.webview.postMessage({
           command: 'configuration',
@@ -52,11 +51,11 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
           .getConfiguration('geminiCoder')
           .update('apiKey', message.api_key, true)
       } else if (message.command == 'update_fim_model') {
-        await this.model_manager.set_default_fim_model(message.model)
+        await this._model_manager.set_default_fim_model(message.model)
       } else if (message.command == 'update_refactoring_model') {
-        await this.model_manager.set_default_refactoring_model(message.model)
+        await this._model_manager.set_default_refactoring_model(message.model)
       } else if (message.command == 'update_apply_changes_model') {
-        await this.model_manager.set_default_apply_changes_model(message.model)
+        await this._model_manager.set_default_apply_changes_model(message.model)
       } else if (message.command == 'open_providers_settings') {
         vscode.commands.executeCommand(
           'workbench.action.openSettings',

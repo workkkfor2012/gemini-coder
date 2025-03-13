@@ -10,7 +10,6 @@ import {
 } from './types/messages'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
-  public static readonly viewType = 'geminiCoderViewChat'
   private _webview_view: vscode.WebviewView | undefined
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
@@ -69,7 +68,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  public async resolveWebviewView(
+  async resolveWebviewView(
     webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken

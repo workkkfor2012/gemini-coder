@@ -74,7 +74,7 @@ export class SharedFileState {
       // Get checked files from both providers
       const workspace_checked_files = this.workspace_provider.getCheckedFiles()
       const open_editors_checked_files =
-        this.open_editors_provider.getCheckedFiles()
+        this.open_editors_provider.get_checked_files()
 
       // Get all open editor file paths for existence checking
       const open_editor_uris = this.get_open_editor_uris()
@@ -272,7 +272,7 @@ export class SharedFileState {
 
     const workspace_checked_files = this.workspace_provider.getCheckedFiles()
     const open_editors_checked_files =
-      this.open_editors_provider.getCheckedFiles()
+      this.open_editors_provider.get_checked_files()
 
     // Union of both sets
     this.checked_files = new Set([
