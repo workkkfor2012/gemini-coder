@@ -207,7 +207,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   exclude_path: active_path
                 })
 
-                const text = `${context_text}\n<![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}\n\n${autocomplete_instruction_external} ${message.instruction}`
+                const text = `<files>${context_text}\n<file><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${message.instruction}`
 
                 this.websocket_server_instance.initialize_chats(
                   text,
@@ -218,7 +218,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   active_path
                 })
 
-                const text = `${context_text ? `${context_text}\n` : ''}${
+                const text = `${context_text ? `<files>${context_text}</files>` : ''}${
                   message.instruction
                 }`
 
