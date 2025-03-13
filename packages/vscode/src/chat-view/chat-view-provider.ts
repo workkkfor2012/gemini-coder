@@ -218,7 +218,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   active_path
                 })
 
-                const text = `${context_text ? `<files>${context_text}</files>` : ''}${
+                const text = `${context_text ? `<files>${context_text}</files>\n` : ''}${
                   message.instruction
                 }`
 

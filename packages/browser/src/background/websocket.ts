@@ -3,6 +3,7 @@ import { update_extension_icon } from './icon'
 import { handle_messages } from './message-handler'
 import { CONFIG } from './config'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
+import browser from 'webextension-polyfill'
 
 // Store WebSocket instance and connection state
 let websocket: WebSocket | null = null
@@ -44,8 +45,12 @@ export async function connect_websocket() {
       return
     }
 
+    // Get manifest data for version
+    const manifest = browser.runtime.getManifest()
+    const version = manifest.version
+
     websocket = new WebSocket(
-      `ws://localhost:${DEFAULT_PORT}?token=${SECURITY_TOKENS.BROWSERS}`
+      `ws://localhost:${DEFAULT_PORT}?token=${SECURITY_TOKENS.BROWSERS}&version=${version}`
     )
 
     websocket.onopen = () => {

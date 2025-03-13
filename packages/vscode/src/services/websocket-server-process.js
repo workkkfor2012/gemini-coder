@@ -12,7 +12,8 @@ const SECURITY_TOKEN_BROWSERS = SECURITY_TOKENS.BROWSERS
 const SECURITY_TOKEN_VSCODE = SECURITY_TOKENS.VSCODE
 
 const vscode_clients = new Set()
-const browser_clients = new Set()
+let current_browser_client = null
+const connections = new Set()
 
 // Create HTTP server
 const server = http.createServer((req, res) => {
@@ -32,14 +33,13 @@ const server = http.createServer((req, res) => {
 
 // Create WebSocket server
 const wss = new WebSocket.WebSocketServer({ server })
-const connections = new Set()
 
 // Notify VS Code clients about browser connection status
 function notify_vscode_clients() {
-  const has_connected_browsers = browser_clients.size > 0
+  const has_connected_browser = current_browser_client !== null
   const message = JSON.stringify({
     action: 'browser-connection-status',
-    has_connected_browsers
+    has_connected_browsers: has_connected_browser
   })
 
   vscode_clients.forEach((client) => {
@@ -49,13 +49,14 @@ function notify_vscode_clients() {
   })
 }
 
-// Send ping to all browser clients
+// Send ping to browser client
 function ping_clients() {
-  browser_clients.forEach((ws) => {
-    if (ws.readyState == WebSocket.OPEN) {
-      ws.send(JSON.stringify({ action: 'ping' }))
-    }
-  })
+  if (
+    current_browser_client &&
+    current_browser_client.ws.readyState == WebSocket.OPEN
+  ) {
+    current_browser_client.ws.send(JSON.stringify({ action: 'ping' }))
+  }
 }
 
 // Start periodic ping
@@ -79,10 +80,24 @@ wss.on('connection', (ws, request) => {
   const is_browser_client = token == SECURITY_TOKEN_BROWSERS
 
   if (is_browser_client) {
-    browser_clients.add(ws)
-    console.log(
-      `Browser client connected. Total browsers: ${browser_clients.size}`
-    )
+    // Extract version from URL parameters
+    const version = url.searchParams.get('version') || 'unknown'
+
+    // Check if there is already a connected browser client
+    if (
+      current_browser_client &&
+      current_browser_client.ws.readyState === WebSocket.OPEN
+    ) {
+      console.log(
+        `Rejecting new browser client (version: ${version}) - another browser is already connected`
+      )
+      ws.close(1000, 'Another browser client is already connected')
+      return
+    }
+
+    // Store the new browser client
+    current_browser_client = { ws, version }
+    console.log(`Browser client connected (version: ${version})`)
     notify_vscode_clients() // Notify when a browser connects
   } else {
     vscode_clients.add(ws)
@@ -91,7 +106,7 @@ wss.on('connection', (ws, request) => {
     ws.send(
       JSON.stringify({
         action: 'browser-connection-status',
-        has_connected_browsers: browser_clients.size > 0
+        has_connected_browsers: current_browser_client !== null
       })
     )
   }
@@ -126,13 +141,16 @@ wss.on('connection', (ws, request) => {
 
   // Handle client disconnection
   ws.on('close', () => {
-    if (is_browser_client) {
-      browser_clients.delete(ws)
-      console.log(
-        `Browser client disconnected. Total browsers: ${browser_clients.size}`
-      )
-      notify_vscode_clients() // Notify when a browser disconnects
-    } else {
+    if (
+      is_browser_client &&
+      current_browser_client &&
+      current_browser_client.ws === ws
+    ) {
+      const version = current_browser_client.version
+      current_browser_client = null
+      console.log(`Browser client disconnected (version: ${version})`)
+      notify_vscode_clients() // Notify when the browser disconnects
+    } else if (!is_browser_client) {
       vscode_clients.delete(ws)
       console.log('VS Code client disconnected')
     }
@@ -141,13 +159,16 @@ wss.on('connection', (ws, request) => {
 
   ws.on('error', (error) => {
     console.error('WebSocket error:', error)
-    if (is_browser_client) {
-      browser_clients.delete(ws)
-      console.log(
-        `Browser client error disconnect. Total browsers: ${browser_clients.size}`
-      )
-      notify_vscode_clients() // Notify when a browser disconnects due to error
-    } else {
+    if (
+      is_browser_client &&
+      current_browser_client &&
+      current_browser_client.ws === ws
+    ) {
+      const version = current_browser_client.version
+      current_browser_client = null
+      console.log(`Browser client error disconnect (version: ${version})`)
+      notify_vscode_clients() // Notify when the browser disconnects due to error
+    } else if (!is_browser_client) {
       vscode_clients.delete(ws)
     }
     connections.delete(ws)
@@ -177,7 +198,7 @@ function shutdown() {
   })
   connections.clear()
   vscode_clients.clear()
-  browser_clients.clear()
+  current_browser_client = null
 
   // Close server
   wss.close()

@@ -17,7 +17,9 @@ export function handle_messages(message: WebSocketMessage) {
 /**
  * Handle initializing chats from VS Code
  */
-async function handle_initialize_chats_message(message: InitializeChatsMessage) {
+async function handle_initialize_chats_message(
+  message: InitializeChatsMessage
+) {
   // Store the prompt in extension storage for content script to access
   await browser.storage.local.set({ message })
 
@@ -25,7 +27,7 @@ async function handle_initialize_chats_message(message: InitializeChatsMessage) 
     for (const chat of message.chats) {
       browser.tabs.create({
         url: `${chat.url}#gemini-coder`,
-        active: !message.open_in_background
+        active: true
       })
     }
   }
