@@ -15,7 +15,7 @@ Gemini Coder does not collect any user data.
 
 ### No data collection
 
-Neither the VS Code extension nor the browser connector sends any of your code or prompts to any servers.
+Neither the VS Code extension nor the web browser connector sends any of your code or prompts to any servers.
 
 ### Local processing
 
@@ -23,8 +23,8 @@ Context selection and management happens entirely within your local VS Code envi
 
 ### Direct API connections
 
-When using API-based features like Fill-In-the-Middle (FIM) or Refactoring, your selected context and instructions are sent directly to the API provider you've configured (e.g., Google's Gemini API).
+When using API-based features (Fill-In-the-Middle (FIM), Refactoring or Apply Changes), your selected context and instructions are sent directly to the provider (e.g., Gemini API).
 
 ### Browser integration
 
-The browser connector establishes a local WebSocket connection between VS Code and your browser, with no intermediate servers involved.
+The web browser connector extension establishes a WebSocket connection between VS Code and itself.

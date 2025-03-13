@@ -2,7 +2,9 @@
 
 All-in-one, universal, free and open-source AI coding toolkit with first class support for AI Studio and Gemini API. Granularly pick context and initalize chats in the web browser, hands-free! Use the same context using API with Fill-In-the-Middle (FIM) completions and file refactoring. With our Apply Changes feature integrating AI suggested modifications is a walk in the park!
 
-Supports all Gemini models with your own API key out of the box, all the other OpenAI API compatible providers and all major web chatbots: AI Studio, Gemini, ChatGPT, Claude, GitHub Copilot Mistral, DeepSeek and more.
+Supports all Gemini models with your own API key out of the box and all the other OpenAI API compatible providers.
+
+The Connector browser extension supports all major chatbots: AI Studio, Gemini, ChatGPT, Claude, GitHub Copilot Mistral, DeepSeek and more.
 
 [![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/vscode/resources/screencast.gif)]()
 
