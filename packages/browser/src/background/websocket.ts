@@ -1,5 +1,4 @@
 import { WebSocketMessage } from '@shared/types/websocket-message'
-import { update_extension_icon } from './icon'
 import { handle_messages } from './message-handler'
 import { CONFIG } from './config'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
@@ -31,7 +30,6 @@ export async function connect_websocket() {
   }
 
   is_reconnecting = true
-  update_extension_icon({ connected: false })
 
   try {
     // Check server health before attempting WebSocket connection
@@ -56,7 +54,6 @@ export async function connect_websocket() {
     websocket.onopen = () => {
       console.log('Connected with the VS Code!')
       is_reconnecting = false
-      update_extension_icon({ connected: true })
     }
 
     websocket.onmessage = async (event) => {
@@ -69,18 +66,15 @@ export async function connect_websocket() {
       console.log('Disconnected from VS Code, attempting to reconnect...')
       websocket = null
       is_reconnecting = false
-      update_extension_icon({ connected: false })
       setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
     }
 
     websocket.onerror = () => {
       is_reconnecting = false
       websocket = null
-      update_extension_icon({ connected: false })
     }
   } catch (error) {
     is_reconnecting = false
-    update_extension_icon({ connected: false })
     setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
   }
 }

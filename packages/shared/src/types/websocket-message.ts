@@ -12,4 +12,22 @@ export type InitializeChatsMessage = {
   chats: Chat[]
 }
 
-export type WebSocketMessage = InitializeChatsMessage
+export type UpdateSavedWebsitesMessage = {
+  action: 'update-saved-websites'
+  websites: Array<{
+    url: string
+    title: string
+    content: string
+    favicon?: string
+  }>
+}
+
+export type BrowserConnectionStatusMessage = {
+  action: 'browser-connection-status'
+  has_connected_browsers: boolean
+}
+
+export type WebSocketMessage = 
+  | InitializeChatsMessage
+  | UpdateSavedWebsitesMessage
+  | BrowserConnectionStatusMessage

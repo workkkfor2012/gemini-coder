@@ -7,13 +7,11 @@ export type Website = {
   title: string
   content: string
   favicon?: string
-  is_enabled: boolean
 }
 
 type Props = {
   websites: Website[]
   on_delete: (url: string) => void
-  on_toggle_enabled: (url: string, is_enabled: boolean) => void
   on_link_click: (url: string) => void
 }
 
@@ -41,14 +39,6 @@ export const SavedWebsites: React.FC<Props> = (props) => {
           </div>
 
           <div className={styles.item__actions}>
-            <input
-              type="checkbox"
-              checked={website.is_enabled}
-              onChange={(e) =>
-                props.on_toggle_enabled(website.url, e.target.checked)
-              }
-              title="Controls visibility in the editor"
-            />
             <button
               className={cn(
                 styles.item__actions__button,
