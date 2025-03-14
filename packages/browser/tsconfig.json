@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2017",
-    "lib": ["dom", "es2017"],
+    "target": "es2020",
+    "lib": ["dom", "es2020"],
     "module": "commonjs",
     "outDir": "out",
     "sourceMap": true,
@@ -12,8 +12,9 @@
     "types": ["chrome", "webextension-polyfill"],
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["../shared/src/*"]
+      "@shared/*": ["../shared/src/*"],
+      "@ui/*": ["../ui/src/*"]
     }
   },
-  "include": ["src/**/*.ts", "../shared/src/**/*.ts"]
+  "include": ["src/**/*", "../shared/src/**/*", "../ui/src/**/*"]
 }

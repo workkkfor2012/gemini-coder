@@ -9,7 +9,7 @@ module.exports = (_, argv) => {
 
   const plugins = [
     new MiniCssExtractPlugin({
-      filename: '[name].css',
+      filename: '[name].css'
     }),
     new CopyWebpackPlugin({
       patterns: [
@@ -27,9 +27,12 @@ module.exports = (_, argv) => {
 
   return {
     entry: {
-      'send-prompt-content-script': './src/content-scripts/send-prompt-content-script.ts',
-      'background': './src/background/main.ts',
-      'popup': './src/views/popup/App.tsx'
+      'send-prompt-content-script':
+        './src/content-scripts/send-prompt-content-script.ts',
+      'get-parsed-html-content-script':
+        './src/content-scripts/get-parsed-html-content-script.ts',
+      background: './src/background/main.ts',
+      popup: './src/views/popup/App.tsx'
     },
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -44,8 +47,24 @@ module.exports = (_, argv) => {
         },
         {
           test: /\.css$/,
-          use: [MiniCssExtractPlugin.loader, 'css-loader'],
+          use: [MiniCssExtractPlugin.loader, 'css-loader']
         },
+        {
+          test: /\.scss$/,
+          use: [
+            MiniCssExtractPlugin.loader,
+            {
+              loader: 'css-loader',
+              options: {
+                modules: {
+                  localIdentName: '[name]__[local]__[hash:base64:5]'
+                },
+                importLoaders: 1
+              }
+            },
+            'sass-loader'
+          ]
+        }
       ]
     },
     resolve: {

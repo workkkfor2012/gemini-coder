@@ -11,14 +11,9 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "alarms"],
+  "permissions": ["storage", "alarms", "activeTab"],
   "host_permissions": ["http://localhost:55155/", "ws://localhost:55155/"],
   "action": {
-    "default_icon": {
-      "16": "icons/icon16.png",
-      "48": "icons/icon48.png",
-      "128": "icons/icon128.png"
-    },
     "default_title": "Gemini Coder Connector",
     "default_popup": "popup.html"
   },
@@ -40,6 +35,10 @@
         "http://openwebui/"
       ],
       "js": ["send-prompt-content-script.js"]
+    },
+    {
+      "matches": ["<all_urls>"],
+      "js": ["get-parsed-html-content-script.js"]
     }
   ]
 }

@@ -1,0 +1,71 @@
+// @type
+
+.container {
+  width: 100%;
+}
+
+.item {
+  padding: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #dddddd;
+}
+
+.favicon {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  object-fit: contain;
+}
+
+.title {
+  cursor: pointer;
+  flex-grow: 1;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 8px;
+  color: #333333;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.actions {
+  display: flex;
+  gap: 4px;
+
+  &__button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+
+    &:hover {
+      text-decoration: underline;
+    }
+
+    &:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+
+    &--delete:hover {
+      color: red;
+    }
+    
+  }
+}
+
+.empty {
+  padding: 16px;
+  text-align: center;
+  color: #777777;
+  font-style: italic;
+}
