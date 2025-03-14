@@ -5,7 +5,7 @@ export type StoredWebsite = {
   title: string
   content: string
   favicon?: string // Base64 encoded favicon
-  date: number // Adding a date to sort by most recently saved
+  is_enabled: boolean
 }
 
 export type Website = {
@@ -13,6 +13,7 @@ export type Website = {
   title: string
   content: string
   favicon?: string // Base64 encoded favicon
+  is_enabled?: boolean
 }
 
 // Initialize localforage instance for website data
@@ -30,7 +31,7 @@ export const use_websites_store = () => {
         title: website.title,
         content: website.content,
         favicon: website.favicon,
-        date: Date.now()
+        is_enabled: !!website.is_enabled
       }
       await websites_store.setItem(website.url, stored_website)
       return true
@@ -40,9 +41,31 @@ export const use_websites_store = () => {
     }
   }
 
+  const toggle_website_enabled = async (
+    url: string,
+    is_enabled: boolean
+  ): Promise<boolean> => {
+    try {
+      const website = await get_website(url)
+      if (website) {
+        website.is_enabled = is_enabled
+        await websites_store.setItem(url, website)
+        return true
+      }
+      return false
+    } catch (error) {
+      console.error('Error toggling website enabled state:', error)
+      return false
+    }
+  }
+
   const get_website = async (url: string): Promise<StoredWebsite | null> => {
     try {
       const stored = await websites_store.getItem<StoredWebsite>(url)
+      // Handle legacy websites that don't have is_enabled property
+      if (stored && stored.is_enabled === undefined) {
+        stored.is_enabled = true
+      }
       return stored
     } catch (error) {
       console.error('Error getting website:', error)
@@ -54,10 +77,13 @@ export const use_websites_store = () => {
     const websites: StoredWebsite[] = []
     try {
       await websites_store.iterate<StoredWebsite, void>((value) => {
+        // Handle legacy websites that don't have is_enabled property
+        if (value.is_enabled === undefined) {
+          value.is_enabled = true
+        }
         websites.push(value)
       })
-      // Sort by most recently saved
-      return websites.sort((a, b) => b.date - a.date)
+      return websites
     } catch (error) {
       console.error('Error getting all websites:', error)
       return []
@@ -78,6 +104,7 @@ export const use_websites_store = () => {
     store_website,
     get_website,
     get_all_websites,
-    delete_website
+    delete_website,
+    toggle_website_enabled
   }
 }

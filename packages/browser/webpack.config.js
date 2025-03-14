@@ -16,7 +16,7 @@ module.exports = (_, argv) => {
         { from: 'src/manifest.json', to: 'manifest.json' },
         { from: 'src/icons', to: 'icons' },
         { from: 'src/views/popup/index.html', to: 'popup.html' },
-        { from: 'src/views/popup/popup.css', to: 'popup.css' }
+        { from: 'src/views/popup/index.css', to: 'index.css' }
       ]
     })
   ]

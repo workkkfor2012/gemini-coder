@@ -1,12 +1,12 @@
 declare const styles: {
-  readonly "actions": string;
-  readonly "actions__button": string;
-  readonly "actions__button--delete": string;
   readonly "container": string;
-  readonly "empty": string;
-  readonly "favicon": string;
   readonly "item": string;
-  readonly "title": string;
+  readonly "item__actions": string;
+  readonly "item__actions__button": string;
+  readonly "item__actions__button--remove": string;
+  readonly "item__left": string;
+  readonly "item__left__favicon": string;
+  readonly "item__left__title": string;
 };
 export = styles;
 
