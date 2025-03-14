@@ -73,7 +73,7 @@ export const ChatInput: React.FC<Props> = (props) => {
         ref={textarea_ref}
         placeholder={
           props.is_fim_mode && props.has_active_editor
-            ? 'Enter optional instructions'
+            ? 'Enter optional suggestions'
             : 'Ask anything'
         }
         value={props.value}

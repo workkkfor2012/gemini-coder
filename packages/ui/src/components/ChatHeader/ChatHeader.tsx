@@ -15,11 +15,11 @@ export const ChatHeader: React.FC = () => {
   return (
     <div className={styles.container}>
       <div className={styles.links}>
-        <a href="https://gemini-coder.netlify.app/">Docs</a>
+        <a href="https://bit.ly/gemini-coder-docs-from-vs-code">Docs</a>
         <span>·</span>
-        <a href="https://github.com/robertpiosik/gemini-coder">GitHub</a>
+        <a href="https://bit.ly/gemini-coder-github-from-vs-code">GitHub</a>
         <span>·</span>
-        <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details">
+        <a href="https://bit.ly/gemini-coder-guestbook-from-vs-code">
           Guestbook
         </a>
         <span>·</span>
@@ -28,7 +28,7 @@ export const ChatHeader: React.FC = () => {
           onMouseEnter={handle_mouse_enter}
           onMouseLeave={handle_mouse_leave}
         >
-          <a href="https://buymeacoffee.com/robertpiosik">Donate</a>
+          <a href="bit.ly/donate-to-gemini-coder-from-vs-code">Donate</a>
           {show_donate_image && (
             <div className={styles.tooltip}>
               <img

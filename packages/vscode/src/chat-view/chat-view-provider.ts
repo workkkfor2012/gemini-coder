@@ -215,7 +215,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   ''
                 )
 
-                const text = `<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external} ${message.instruction}`
+                const text = `<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+                  message.instruction
+                    ? ` Follow suggestions: ${message.instruction}`
+                    : ''
+                }`
 
                 this.websocket_server_instance.initialize_chats(
                   text,
@@ -277,7 +281,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   ''
                 )
 
-                const text = `<files>\n${context_text}<file path="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n123${autocomplete_instruction_external} ${message.instruction}`
+                const text = `<files>\n${context_text}<file path="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n123${autocomplete_instruction_external}${
+                  message.instruction
+                    ? ` Follow suggestions: ${message.instruction}`
+                    : ''
+                }`
 
                 await vscode.env.clipboard.writeText(text)
               } else if (!is_fim_mode) {
