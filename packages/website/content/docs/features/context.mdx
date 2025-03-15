@@ -1,17 +1,13 @@
----
-title: Context
-layout: home
-parent: Features
-nav_order: 1
-description: Manage which files are included in your AI prompts with Gemini Coder's powerful context control features
----
+import { Callout } from 'nextra/components'
 
 # Context
 
 Gemini Coder allows you to granularly control which files are included when using API features (FIM, Refactor, Apply changes) and chat. The extension provides two context related views that effectively replace the original Explorer view - list of open editors and workspace tree. To better understand the "weight" of each folder and file the extension calculates approximate token count where each character is counted as 0.25 tokens.
 
-{: .note }
-For the best results keep context focused on task at hand. A good pracitice is including other files helping understand your team's coding conventions.
+<Callout type="info">
+  For the best results keep context focused on task at hand. A good practice is
+  including other files helping understand your team's coding conventions.
+</Callout>
 
 _The structure of context:_
 
@@ -21,8 +17,6 @@ _The structure of context:_
   ...
 </files>
 ```
-
----
 
 ## Views
 
@@ -36,6 +30,6 @@ The workspace view shows all files in your project and allows batch selections. 
 
 ## Available Commands
 
-### `Gemini Coder: Copy Context`
+##### `Gemini Coder: Copy Context`
 
 Use the command to copy the current context to the clipboard. This is useful for grabbing context for use in other tools.

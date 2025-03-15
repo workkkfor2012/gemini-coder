@@ -1,0 +1,24 @@
+:root {
+  --nextra-content-width: 900px;
+  --x-color-nextra-bg: transparent;
+}
+
+.nextra-toc {
+  display: none;
+}
+
+footer {
+  white-space: pre;
+}
+
+article p a {
+  color: #0070f3;
+}
+
+article p a:hover {
+  text-decoration: underline;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}

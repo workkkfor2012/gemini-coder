@@ -1,0 +1,18 @@
+---
+asIndexPage: true
+---
+
+import { Cards } from 'nextra/components'
+import { MDXRemote } from 'nextra/mdx-remote'
+import { createIndexPage, getPageMap } from 'nextra/page-map'
+
+# Installation
+
+To get started with Gemini Coder, you'll need to install the VS Code extension and the browser connector.
+
+<MDXRemote
+  compiledSource={await createIndexPage(await getPageMap('/docs/installation'))}
+  components={{
+    Cards
+  }}
+/>

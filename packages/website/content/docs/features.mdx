@@ -1,0 +1,18 @@
+---
+asIndexPage: true
+---
+
+import { Cards } from 'nextra/components'
+import { MDXRemote } from 'nextra/mdx-remote'
+import { createIndexPage, getPageMap } from 'nextra/page-map'
+
+# Features
+
+Gemini Coder provides a comprehensive suite of AI-powered tools to enhance your development workflow in VS Code. These tools are designed to help you write, refactor, and understand code more efficiently.
+
+<MDXRemote
+  compiledSource={await createIndexPage(await getPageMap('/docs/features'))}
+  components={{
+    Cards
+  }}
+/>
