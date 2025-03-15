@@ -20,6 +20,8 @@ const footer = (
 )
 
 export default async function RootLayout({ children }) {
+  const page_map = await getPageMap()
+
   return (
     <html lang="en" dir="ltr" suppressHydrationWarning>
       <body>
@@ -28,7 +30,7 @@ export default async function RootLayout({ children }) {
           sidebar={{
             toggleButton: false
           }}
-          pageMap={await getPageMap()}
+          pageMap={page_map}
           docsRepositoryBase="https://github.com/robertpiosik/gemini-coder/tree/master/packages/docs"
           footer={footer}
         >
