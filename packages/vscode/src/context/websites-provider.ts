@@ -3,6 +3,8 @@ import * as vscode from 'vscode'
 
 // Custom tree item for websites
 export class WebsiteItem extends vscode.TreeItem {
+  public readonly tokenCount: number
+  
   constructor(
     public readonly title: string,
     public readonly url: string,
@@ -13,11 +15,14 @@ export class WebsiteItem extends vscode.TreeItem {
   ) {
     super(title, vscode.TreeItemCollapsibleState.None)
 
-    // Set tooltip to show URL on hover
-    this.tooltip = url
+    // Calculate token count for this website (simple approximation)
+    this.tokenCount = Math.floor(content.length / 4)
 
-    // Set description to URL for display in the tree
-    this.description = url
+    // Set tooltip to show URL on hover
+    this.tooltip = `${url} (${this.tokenCount} tokens)`
+
+    // Set description to URL and token count for display in the tree
+    this.description = `${url} (${this.tokenCount} tokens)`
 
     // Set icon based on favicon if available, otherwise use generic icon
     if (favicon) {
@@ -94,6 +99,13 @@ export class WebsitesProvider
         this._checked_websites.get(website.url) ===
         vscode.TreeItemCheckboxState.Checked
     )
+  }
+
+  // Get total token count of checked websites
+  get_checked_websites_token_count(): number {
+    return this.get_checked_websites()
+      .map(website => Math.floor(website.content.length / 4))
+      .reduce((sum, count) => sum + count, 0)
   }
 
   // Update checkbox state for a website

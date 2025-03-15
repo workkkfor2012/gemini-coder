@@ -21,76 +21,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   let gemini_coder_open_editors_view: vscode.TreeView<FileItem>
   let gemini_coder_websites_view: vscode.TreeView<WebsiteItem>
 
-  // Create websites provider regardless of workspace
-  websites_provider = new WebsitesProvider()
-
-  // Create websites tree view
-  gemini_coder_websites_view = vscode.window.createTreeView(
-    'geminiCoderViewWebsites',
-    {
-      treeDataProvider: websites_provider,
-      manageCheckboxStateManually: true
-    }
-  )
-
-  // Handle checkbox state changes for websites
-  gemini_coder_websites_view.onDidChangeCheckboxState(async (e) => {
-    for (const [item, state] of e.items) {
-      await websites_provider!.update_check_state(item as WebsiteItem, state)
-    }
-  })
-
-  // Register website preview command
-  context.subscriptions.push(
-    vscode.commands.registerCommand(
-      'geminiCoder.previewWebsite',
-      async (website: WebsiteItem) => {
-        const panel = vscode.window.createWebviewPanel(
-          'websitePreview',
-          website.title,
-          vscode.ViewColumn.One,
-          { enableScripts: false }
-        )
-
-        // Create a simple HTML preview
-        panel.webview.html = `
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>${website.title}</title>
-          <style>
-            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: var(--vscode-editor-foreground); }
-            h1 { color: var(--vscode-editor-foreground); }
-            a { color: var(--vscode-textLink-foreground); }
-            pre { background-color: var(--vscode-editor-background); padding: 10px; overflow: auto; }
-          </style>
-        </head>
-        <body>
-          <h1>${website.title}</h1>
-          <p><a href="${website.url}" target="_blank">${website.url}</a></p>
-          <hr>
-          <pre>${escapeHtml(website.content)}</pre>
-        </body>
-        </html>
-      `
-      }
-    )
-  )
-
-  // Helper function to escape HTML content
-  function escapeHtml(unsafe: string): string {
-    return unsafe
-      .replace(/&/g, '&amp;')
-      .replace(/</g, '&lt;')
-      .replace(/>/g, '&gt;')
-      .replace(/"/g, '&quot;')
-      .replace(/'/g, '&#039;')
-  }
-
   // Add websites provider to disposables
-  context.subscriptions.push(websites_provider, gemini_coder_websites_view)
 
   if (workspace_folders) {
     const workspace_root = workspace_folders[0].uri.fsPath
@@ -100,6 +31,56 @@ export function context_initialization(context: vscode.ExtensionContext): {
       workspace_root,
       ignored_extensions
     )
+    websites_provider = new WebsitesProvider()
+
+    // Create websites tree view
+    gemini_coder_websites_view = vscode.window.createTreeView(
+      'geminiCoderViewWebsites',
+      {
+        treeDataProvider: websites_provider,
+        manageCheckboxStateManually: true
+      }
+    )
+    context.subscriptions.push(websites_provider, gemini_coder_websites_view)
+
+    // Create FilesCollector instance that can collect from both providers and websites provider
+    const files_collector = new FilesCollector(
+      file_tree_provider,
+      open_editors_provider,
+      websites_provider
+    )
+
+    const update_activity_bar_badge_token_count = async () => {
+      let context_text = ''
+
+      try {
+        // Use FilesCollector to get all files and websites
+        context_text = await files_collector.collect_files({
+          disable_xml: true
+        })
+      } catch (error) {
+        console.error('Error collecting files and websites:', error)
+        return
+      }
+
+      // Calculate tokens from the collected context
+      const total_token_count = Math.floor(context_text.length / 4)
+
+      // Update the badge on the workspace files view
+      gemini_coder_file_tree_view.badge = {
+        value: total_token_count,
+        tooltip: `${total_token_count} tokens in the context`
+      }
+    }
+
+    // Handle checkbox state changes for websites
+    gemini_coder_websites_view.onDidChangeCheckboxState(async (e) => {
+      for (const [item, state] of e.items) {
+        await websites_provider!.update_check_state(item as WebsiteItem, state)
+      }
+      // Update token count when website checkboxes change
+      await update_activity_bar_badge_token_count()
+    })
 
     // Initialize shared state
     const sharedState = SharedFileState.getInstance()
@@ -128,35 +109,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
       }
     )
 
-    // Create FilesCollector instance that can collect from both providers
-    const files_collector = new FilesCollector(
-      file_tree_provider,
-      open_editors_provider
-    )
-
-    const update_activity_bar_badge_token_count = async () => {
-      let context_text = ''
-
-      try {
-        // Use FilesCollector to get all files
-        context_text = await files_collector.collect_files({
-          disable_xml: true
-        })
-      } catch (error) {
-        console.error('Error collecting files:', error)
-        return
-      }
-
-      // Calculate tokens from the collected context
-      const total_token_count = Math.floor(context_text.length / 4)
-
-      // Update the badge on the workspace files view
-      gemini_coder_file_tree_view.badge = {
-        value: total_token_count,
-        tooltip: `${total_token_count} tokens in the context`
-      }
-    }
-
     // Add providers and treeViews to ensure proper disposal
     context.subscriptions.push(
       file_tree_provider,
@@ -173,15 +125,17 @@ export function context_initialization(context: vscode.ExtensionContext): {
         try {
           context_text = await files_collector.collect_files()
         } catch (error: any) {
-          console.error('Error collecting files:', error)
+          console.error('Error collecting files and websites:', error)
           vscode.window.showErrorMessage(
-            'Error collecting files: ' + error.message
+            'Error collecting files and websites: ' + error.message
           )
           return
         }
 
         if (context_text == '') {
-          vscode.window.showWarningMessage('No files selected or open.')
+          vscode.window.showWarningMessage(
+            'No files or websites selected or open.'
+          )
           return
         }
 
@@ -218,6 +172,41 @@ export function context_initialization(context: vscode.ExtensionContext): {
           await open_editors_provider!.check_all()
           update_activity_bar_badge_token_count()
         }
+      ),
+      vscode.commands.registerCommand(
+        'geminiCoder.previewWebsite',
+        async (website: WebsiteItem) => {
+          const panel = vscode.window.createWebviewPanel(
+            'websitePreview',
+            website.title,
+            vscode.ViewColumn.One,
+            { enableScripts: false }
+          )
+
+          // Create a simple HTML preview
+          panel.webview.html = `
+            <!DOCTYPE html>
+            <html lang="en">
+            <head>
+              <meta charset="UTF-8">
+              <meta name="viewport" content="width=device-width, initial-scale=1.0">
+              <title>${website.title}</title>
+              <style>
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: var(--vscode-editor-foreground); }
+                h1 { color: var(--vscode-editor-foreground); }
+                a { color: var(--vscode-textLink-foreground); }
+                pre { background-color: var(--vscode-editor-background); padding: 10px; overflow: auto; }
+              </style>
+            </head>
+            <body>
+              <h1>${website.title}</h1>
+              <p><a href="${website.url}" target="_blank">${website.url}</a></p>
+              <hr>
+              <pre>${website.content}</pre>
+            </body>
+            </html>
+          `
+        }
       )
     )
 
@@ -247,6 +236,10 @@ export function context_initialization(context: vscode.ExtensionContext): {
         update_activity_bar_badge_token_count()
       }),
       open_editors_provider.onDidChangeCheckedFiles(() => {
+        update_activity_bar_badge_token_count()
+      }),
+      // Also subscribe to websites provider changes
+      websites_provider.onDidChangeCheckedWebsites(() => {
         update_activity_bar_badge_token_count()
       })
     )
