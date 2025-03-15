@@ -3,8 +3,8 @@ import * as vscode from 'vscode'
 
 // Custom tree item for websites
 export class WebsiteItem extends vscode.TreeItem {
-  public readonly tokenCount: number
-  
+  public readonly token_count: number
+
   constructor(
     public readonly title: string,
     public readonly url: string,
@@ -16,18 +16,21 @@ export class WebsiteItem extends vscode.TreeItem {
     super(title, vscode.TreeItemCollapsibleState.None)
 
     // Calculate token count for this website (simple approximation)
-    this.tokenCount = Math.floor(content.length / 4)
+    this.token_count = Math.floor(content.length / 4)
+    const formatted_token_count =
+      this.token_count >= 1000
+        ? `${Math.floor(this.token_count / 1000)}k`
+        : `${this.token_count}`
 
     // Set tooltip to show URL on hover
-    this.tooltip = `${url} (${this.tokenCount} tokens)`
+    this.tooltip = `${url} (${formatted_token_count} tokens)`
 
-    // Set description to URL and token count for display in the tree
-    this.description = `${url} (${this.tokenCount} tokens)`
+    this.description = formatted_token_count
 
     // Set icon based on favicon if available, otherwise use generic icon
     if (favicon) {
-      // Use favicon data URI if provided
-      this.iconPath = favicon
+      // Create a proper Uri from the data URI
+      this.iconPath = vscode.Uri.parse(favicon)
     } else {
       // Use generic web icon
       this.iconPath = new vscode.ThemeIcon('globe')
@@ -62,8 +65,19 @@ export class WebsitesProvider
 
   // Update websites from WebSocket message
   update_websites(websites: Website[]): void {
+    // Create a set of URLs in the new list of websites
+    const new_website_urls = new Set(websites.map((website) => website.url))
+
+    // Remove checkbox states for websites that are no longer in the list
+    for (const url of this._checked_websites.keys()) {
+      if (!new_website_urls.has(url)) {
+        this._checked_websites.delete(url)
+      }
+    }
+
     this._websites = websites
     this._onDidChangeTreeData.fire()
+    this._onDidChangeCheckedWebsites.fire() // Notify about potential checkbox changes
   }
 
   // TreeDataProvider implementation
@@ -104,7 +118,7 @@ export class WebsitesProvider
   // Get total token count of checked websites
   get_checked_websites_token_count(): number {
     return this.get_checked_websites()
-      .map(website => Math.floor(website.content.length / 4))
+      .map((website) => Math.floor(website.content.length / 4))
       .reduce((sum, count) => sum + count, 0)
   }
 

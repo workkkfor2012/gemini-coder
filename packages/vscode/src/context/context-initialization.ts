@@ -195,15 +195,17 @@ export function context_initialization(context: vscode.ExtensionContext): {
               <meta name="viewport" content="width=device-width, initial-scale=1.0">
               <title>${website.title}</title>
               <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: var(--vscode-editor-foreground); }
+                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.4; max-width: 700px; margin: 0 auto; padding: 40px; color: var(--vscode-editor-foreground); }
+                body > *:first-child { margin-top: 0; }
+                body > *:last-child { margin-bottom: 0; }
                 h1 { color: var(--vscode-editor-foreground); }
                 a { color: var(--vscode-textLink-foreground); }
-                pre { background-color: var(--vscode-editor-background); padding: 10px; overflow: auto; }
+                hr { height: 1px; border: none; background-color: var(--vscode-editor-foreground); }
               </style>
             </head>
             <body>
               <h1>${website.title}</h1>
-              <p><a href="${website.url}" target="_blank">${website.url}</a></p>
+              <p>🔗 <a href="${website.url}" target="_blank">${website.url}</a></p>
               <hr>
               <div>${rendered_content}</div>
             </body>
@@ -243,6 +245,10 @@ export function context_initialization(context: vscode.ExtensionContext): {
       }),
       // Also subscribe to websites provider changes
       websites_provider.onDidChangeCheckedWebsites(() => {
+        update_activity_bar_badge_token_count()
+      }),
+      // Fixes badge not updating when websites list changes
+      websites_provider.onDidChangeTreeData(() => {
         update_activity_bar_badge_token_count()
       })
     )
