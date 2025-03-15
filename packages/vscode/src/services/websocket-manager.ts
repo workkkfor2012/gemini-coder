@@ -136,7 +136,7 @@ export class WebSocketManager {
           this.has_connected_browsers = message.has_connected_browsers
           this._on_connection_status_change.fire(this.has_connected_browsers)
         } else if (message.action == 'update-saved-websites') {
-          this.websites_provider?.updateWebsites(
+          this.websites_provider?.update_websites(
             (message as UpdateSavedWebsitesMessage).websites
           )
         }

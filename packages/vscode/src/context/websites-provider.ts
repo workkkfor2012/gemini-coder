@@ -1,12 +1,5 @@
+import { Website } from '@shared/types/websocket-message'
 import * as vscode from 'vscode'
-
-// Define a type for website data based on the message structure
-export type Website = {
-  url: string
-  title: string
-  content: string
-  favicon?: string
-}
 
 // Custom tree item for websites
 export class WebsiteItem extends vscode.TreeItem {
@@ -14,7 +7,9 @@ export class WebsiteItem extends vscode.TreeItem {
     public readonly title: string,
     public readonly url: string,
     public readonly content: string,
-    public readonly favicon?: string
+    public readonly favicon?: string,
+    public checkboxState: vscode.TreeItemCheckboxState = vscode
+      .TreeItemCheckboxState.Unchecked
   ) {
     super(title, vscode.TreeItemCollapsibleState.None)
 
@@ -48,21 +43,31 @@ export class WebsitesProvider
   implements vscode.TreeDataProvider<WebsiteItem>, vscode.Disposable
 {
   private _websites: Website[] = []
+  private _checked_websites: Map<string, vscode.TreeItemCheckboxState> =
+    new Map()
   private _onDidChangeTreeData = new vscode.EventEmitter<
     WebsiteItem | undefined | null | void
   >()
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event
 
+  private _onDidChangeCheckedWebsites = new vscode.EventEmitter<void>()
+  readonly onDidChangeCheckedWebsites = this._onDidChangeCheckedWebsites.event
+
   constructor() {}
 
   // Update websites from WebSocket message
-  updateWebsites(websites: Website[]): void {
+  update_websites(websites: Website[]): void {
     this._websites = websites
     this._onDidChangeTreeData.fire()
   }
 
   // TreeDataProvider implementation
   getTreeItem(element: WebsiteItem): vscode.TreeItem {
+    // Get the checkbox state or default to unchecked
+    const checkbox_state =
+      this._checked_websites.get(element.url) ??
+      vscode.TreeItemCheckboxState.Unchecked
+    element.checkboxState = checkbox_state
     return element
   }
 
@@ -74,24 +79,36 @@ export class WebsitesProvider
             website.title || website.url,
             website.url,
             website.content,
-            website.favicon
+            website.favicon,
+            this._checked_websites.get(website.url) ??
+              vscode.TreeItemCheckboxState.Unchecked
           )
       )
     )
   }
 
-  // Returns the number of websites
-  getWebsiteCount(): number {
-    return this._websites.length
+  // Get checked websites
+  get_checked_websites(): Website[] {
+    return this._websites.filter(
+      (website) =>
+        this._checked_websites.get(website.url) ===
+        vscode.TreeItemCheckboxState.Checked
+    )
   }
 
-  // Return all website data
-  getAllWebsites(): Website[] {
-    return [...this._websites]
+  // Update checkbox state for a website
+  async update_check_state(
+    item: WebsiteItem,
+    state: vscode.TreeItemCheckboxState
+  ): Promise<void> {
+    this._checked_websites.set(item.url, state)
+    this._onDidChangeCheckedWebsites.fire()
+    this._onDidChangeTreeData.fire()
   }
 
   // Dispose of event emitters
   dispose(): void {
     this._onDidChangeTreeData.dispose()
+    this._onDidChangeCheckedWebsites.dispose()
   }
 }

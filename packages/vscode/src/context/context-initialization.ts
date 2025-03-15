@@ -28,9 +28,17 @@ export function context_initialization(context: vscode.ExtensionContext): {
   gemini_coder_websites_view = vscode.window.createTreeView(
     'geminiCoderViewWebsites',
     {
-      treeDataProvider: websites_provider
+      treeDataProvider: websites_provider,
+      manageCheckboxStateManually: true
     }
   )
+
+  // Handle checkbox state changes for websites
+  gemini_coder_websites_view.onDidChangeCheckboxState(async (e) => {
+    for (const [item, state] of e.items) {
+      await websites_provider!.update_check_state(item as WebsiteItem, state)
+    }
+  })
 
   // Register website preview command
   context.subscriptions.push(
