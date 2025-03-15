@@ -3,19 +3,86 @@ import { WorkspaceProvider } from './workspace-provider'
 import { FileItem } from './workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
 import { OpenEditorsProvider } from './open-editors-provider'
+import { WebsitesProvider, WebsiteItem } from './websites-provider'
 import { ignored_extensions } from './ignored-extensions'
 import { SharedFileState } from './shared-file-state'
 
 export function context_initialization(context: vscode.ExtensionContext): {
   file_tree_provider: WorkspaceProvider | undefined
   open_editors_provider: OpenEditorsProvider | undefined
+  websites_provider: WebsitesProvider | undefined
 } {
   const workspace_folders = vscode.workspace.workspaceFolders
 
   let file_tree_provider: WorkspaceProvider | undefined
   let open_editors_provider: OpenEditorsProvider | undefined
+  let websites_provider: WebsitesProvider | undefined
   let gemini_coder_file_tree_view: vscode.TreeView<FileItem>
   let gemini_coder_open_editors_view: vscode.TreeView<FileItem>
+  let gemini_coder_websites_view: vscode.TreeView<WebsiteItem>
+
+  // Create websites provider regardless of workspace
+  websites_provider = new WebsitesProvider()
+
+  // Create websites tree view
+  gemini_coder_websites_view = vscode.window.createTreeView(
+    'geminiCoderViewWebsites',
+    {
+      treeDataProvider: websites_provider
+    }
+  )
+
+  // Register website preview command
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'geminiCoder.previewWebsite',
+      async (website: WebsiteItem) => {
+        const panel = vscode.window.createWebviewPanel(
+          'websitePreview',
+          website.title,
+          vscode.ViewColumn.One,
+          { enableScripts: false }
+        )
+
+        // Create a simple HTML preview
+        panel.webview.html = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1.0">
+          <title>${website.title}</title>
+          <style>
+            body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; line-height: 1.6; max-width: 800px; margin: 0 auto; padding: 20px; color: var(--vscode-editor-foreground); }
+            h1 { color: var(--vscode-editor-foreground); }
+            a { color: var(--vscode-textLink-foreground); }
+            pre { background-color: var(--vscode-editor-background); padding: 10px; overflow: auto; }
+          </style>
+        </head>
+        <body>
+          <h1>${website.title}</h1>
+          <p><a href="${website.url}" target="_blank">${website.url}</a></p>
+          <hr>
+          <pre>${escapeHtml(website.content)}</pre>
+        </body>
+        </html>
+      `
+      }
+    )
+  )
+
+  // Helper function to escape HTML content
+  function escapeHtml(unsafe: string): string {
+    return unsafe
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;')
+  }
+
+  // Add websites provider to disposables
+  context.subscriptions.push(websites_provider, gemini_coder_websites_view)
 
   if (workspace_folders) {
     const workspace_root = workspace_folders[0].uri.fsPath
@@ -251,6 +318,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   return {
     file_tree_provider: file_tree_provider,
-    open_editors_provider: open_editors_provider
+    open_editors_provider: open_editors_provider,
+    websites_provider: websites_provider
   }
 }

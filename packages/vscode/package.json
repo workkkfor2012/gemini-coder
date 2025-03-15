@@ -49,6 +49,10 @@
           "name": "Workspace"
         },
         {
+          "id": "geminiCoderViewWebsites",
+          "name": "Websites"
+        },
+        {
           "id": "geminiCoderViewChat",
           "name": "Chat",
           "type": "webview"
@@ -174,6 +178,10 @@
         "command": "geminiCoder.createFolder",
         "title": "Create Folder",
         "icon": "$(new-folder)"
+      },
+      {
+        "command": "geminiCoder.previewWebsite",
+        "title": "Preview Website Content"
       }
     ],
     "menus": {

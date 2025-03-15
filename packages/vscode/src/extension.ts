@@ -31,8 +31,13 @@ let websocket_server_instance: WebSocketManager | null = null
 export function activate(context: vscode.ExtensionContext) {
   websocket_server_instance = new WebSocketManager(context)
 
-  const { file_tree_provider, open_editors_provider } =
+  const { file_tree_provider, open_editors_provider, websites_provider } =
     context_initialization(context)
+
+  // Connect WebSocketManager with WebsitesProvider
+  if (websocket_server_instance && websites_provider) {
+    websocket_server_instance.set_websites_provider(websites_provider)
+  }
 
   // Status bar
   create_refactor_status_bar_item(context)

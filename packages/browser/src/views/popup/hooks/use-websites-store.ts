@@ -1,4 +1,6 @@
+import { UpdateSavedWebsitesMessage } from '@/types/messages'
 import localforage from 'localforage'
+import browser from 'webextension-polyfill'
 
 export type StoredWebsite = {
   url: string
@@ -23,6 +25,30 @@ export const websites_store = localforage.createInstance({
 })
 
 export const use_websites_store = () => {
+  // Notify background script about website changes
+  const notify_website_changes = async () => {
+    try {
+      const websites = await get_all_websites()
+      // Convert StoredWebsite[] to Website[] for sending
+      const websites_to_send: Website[] = websites.map((site) => ({
+        url: site.url,
+        title: site.title,
+        content: site.content,
+        favicon: site.favicon
+      }))
+
+      const message: UpdateSavedWebsitesMessage = {
+        action: 'update-saved-websites',
+        websites: websites_to_send
+      }
+
+      // Send message to background script
+      await browser.runtime.sendMessage(message)
+    } catch (error) {
+      console.error('Error notifying website changes:', error)
+    }
+  }
+
   const store_website = async (website: Website) => {
     try {
       // Get all existing websites to determine the next order value
@@ -43,6 +69,9 @@ export const use_websites_store = () => {
       }
 
       await websites_store.setItem(website.url, stored_website)
+
+      // Notify background script about the change
+      await notify_website_changes()
       return true
     } catch (error) {
       console.error('Error storing website:', error)
@@ -89,6 +118,9 @@ export const use_websites_store = () => {
   const delete_website = async (url: string): Promise<boolean> => {
     try {
       await websites_store.removeItem(url)
+
+      // Notify background script about the change
+      await notify_website_changes()
       return true
     } catch (error) {
       console.error('Error deleting website:', error)
@@ -109,6 +141,9 @@ export const use_websites_store = () => {
           await websites_store.setItem(orderedUrls[i], website)
         }
       }
+
+      // Notify background script about the change
+      await notify_website_changes()
       return true
     } catch (error) {
       console.error('Error updating websites order:', error)
