@@ -17,6 +17,7 @@ The Connector browser extension supports all major chatbots: AI Studio, Gemini, 
 - File refactoring with instruction.
 - API provider agnostic, read more in "Set up custom providers" section below.
 - Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted).
+- Saved contexts for quick selection of file sets.
 
 ## How to use FIM completions
 
@@ -57,6 +58,7 @@ The Connector browser extension supports all major chatbots: AI Studio, Gemini, 
 #### Context Management
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context
+- `Gemini Coder: Select Saved Context` - Apply a saved context from configuration
 
 ## Set up custom providers
 
@@ -82,6 +84,31 @@ The extension supports any OpenAI API compatible providers for FIM completions a
     },
   ],
 ```
+
+## Saved contexts
+
+Quickly restore checkbox states with saved contexts. You can configure them in `.vscode/gemini-coder.json` following the example below.
+
+```json
+{
+  "savedContexts": [
+    {
+      "name": "Backend only",
+      "paths": ["packages/server/src"]
+    },
+    {
+      "name": "Frontend only",
+      "paths": ["packages/client/src"]
+    }
+  ]
+}
+```
+
+To use saved contexts:
+
+1. In the file tree's actions toolbar find icon "Select Saved Context"
+2. Select a saved context
+3. The selected files and folders will be automatically checked
 
 ## License
 

@@ -71,6 +71,15 @@
         "icon": "$(copy)"
       },
       {
+        "command": "geminiCoder.selectSavedContext",
+        "title": "Gemini Coder: Select Saved Context"
+      },
+      {
+        "command": "geminiCoder.selectSavedContextWithIcon",
+        "title": "Select Saved Context",
+        "icon": "$(checklist)"
+      },
+      {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
         "icon": "$(check-all)"
@@ -184,14 +193,19 @@
           "group": "navigation@1"
         },
         {
-          "command": "geminiCoder.checkAll",
+          "command": "geminiCoder.selectSavedContextWithIcon",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.clearChecks",
+          "command": "geminiCoder.checkAll",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@3"
+        },
+        {
+          "command": "geminiCoder.clearChecks",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@4"
         },
         {
           "command": "geminiCoder.checkAllOpenEditors",
