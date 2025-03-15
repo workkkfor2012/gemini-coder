@@ -6,15 +6,16 @@ import { OpenEditorsProvider } from './open-editors-provider'
 import { WebsitesProvider, WebsiteItem } from './websites-provider'
 import { ignored_extensions } from './ignored-extensions'
 import { SharedFileState } from './shared-file-state'
+import { marked } from 'marked'
 
 export function context_initialization(context: vscode.ExtensionContext): {
-  file_tree_provider: WorkspaceProvider | undefined
+  workspace_provider: WorkspaceProvider | undefined
   open_editors_provider: OpenEditorsProvider | undefined
   websites_provider: WebsitesProvider | undefined
 } {
   const workspace_folders = vscode.workspace.workspaceFolders
 
-  let file_tree_provider: WorkspaceProvider | undefined
+  let workspace_provider: WorkspaceProvider | undefined
   let open_editors_provider: OpenEditorsProvider | undefined
   let websites_provider: WebsitesProvider | undefined
   let gemini_coder_file_tree_view: vscode.TreeView<FileItem>
@@ -26,7 +27,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   if (workspace_folders) {
     const workspace_root = workspace_folders[0].uri.fsPath
     const workspace_name = workspace_folders[0].name
-    file_tree_provider = new WorkspaceProvider(workspace_root)
+    workspace_provider = new WorkspaceProvider(workspace_root)
     open_editors_provider = new OpenEditorsProvider(
       workspace_root,
       ignored_extensions
@@ -45,7 +46,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Create FilesCollector instance that can collect from both providers and websites provider
     const files_collector = new FilesCollector(
-      file_tree_provider,
+      workspace_provider,
       open_editors_provider,
       websites_provider
     )
@@ -84,7 +85,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Initialize shared state
     const sharedState = SharedFileState.getInstance()
-    sharedState.setProviders(file_tree_provider, open_editors_provider)
+    sharedState.setProviders(workspace_provider, open_editors_provider)
 
     // Add shared state to disposables
     context.subscriptions.push({
@@ -95,7 +96,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     gemini_coder_file_tree_view = vscode.window.createTreeView(
       'geminiCoderViewWorkspace',
       {
-        treeDataProvider: file_tree_provider,
+        treeDataProvider: workspace_provider,
         manageCheckboxStateManually: true
       }
     )
@@ -111,7 +112,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Add providers and treeViews to ensure proper disposal
     context.subscriptions.push(
-      file_tree_provider,
+      workspace_provider,
       open_editors_provider,
       gemini_coder_file_tree_view,
       gemini_coder_open_editors_view
@@ -151,11 +152,11 @@ export function context_initialization(context: vscode.ExtensionContext): {
       ),
       // Existing workspace commands
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
-        file_tree_provider!.clearChecks()
+        workspace_provider!.clearChecks()
         update_activity_bar_badge_token_count()
       }),
       vscode.commands.registerCommand('geminiCoder.checkAll', async () => {
-        await file_tree_provider!.check_all()
+        await workspace_provider!.check_all()
         update_activity_bar_badge_token_count()
       }),
       // New open editors commands
@@ -183,6 +184,8 @@ export function context_initialization(context: vscode.ExtensionContext): {
             { enableScripts: false }
           )
 
+          const rendered_content = marked.parse(website.content)
+
           // Create a simple HTML preview
           panel.webview.html = `
             <!DOCTYPE html>
@@ -202,7 +205,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
               <h1>${website.title}</h1>
               <p><a href="${website.url}" target="_blank">${website.url}</a></p>
               <hr>
-              <pre>${website.content}</pre>
+              <div>${rendered_content}</div>
             </body>
             </html>
           `
@@ -213,7 +216,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     // Handle checkbox state changes asynchronously for file tree
     gemini_coder_file_tree_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
-        await file_tree_provider!.updateCheckState(item, state)
+        await workspace_provider!.updateCheckState(item, state)
       }
 
       // Update token count after checkbox changes
@@ -232,7 +235,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Subscribe to the onDidChangeCheckedFiles events from both providers
     context.subscriptions.push(
-      file_tree_provider.onDidChangeCheckedFiles(() => {
+      workspace_provider.onDidChangeCheckedFiles(() => {
         update_activity_bar_badge_token_count()
       }),
       open_editors_provider.onDidChangeCheckedFiles(() => {
@@ -294,7 +297,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
     // Fix for issue when the collapsed item has some of its children selected
     gemini_coder_file_tree_view.onDidCollapseElement(() => {
-      file_tree_provider!.refresh()
+      workspace_provider!.refresh()
     })
 
     // Set up event listener for when the open editors provider initializes
@@ -318,7 +321,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   }
 
   return {
-    file_tree_provider: file_tree_provider,
+    workspace_provider: workspace_provider,
     open_editors_provider: open_editors_provider,
     websites_provider: websites_provider
   }

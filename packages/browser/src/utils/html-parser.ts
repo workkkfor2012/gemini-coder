@@ -114,6 +114,7 @@ export namespace HtmlParser {
         const title = article.title || title_element_text
         let content = turndown_service.turndown(article.content)
         content = strip_markdown_links(content)
+        content = remove_markdown_images(content)
 
         return {
           title,
@@ -130,4 +131,8 @@ export namespace HtmlParser {
 // Replace "[TEXT](URL)" with "[TEXT]()"
 const strip_markdown_links = (text: string) => {
   return text.replace(/\[([^\]]*)\]\(([^)]*)\)/g, (_, text) => `[${text}]()`)
+}
+
+const remove_markdown_images = (text: string) => {
+  return text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, '')
 }
