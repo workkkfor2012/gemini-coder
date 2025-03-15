@@ -106,9 +106,9 @@ Quickly restore checkbox states with saved contexts. You can configure them in `
 
 To use saved contexts:
 
-1. In the file tree's actions toolbar find icon "Select Saved Context"
-2. Select a saved context
-3. The selected files and folders will be automatically checked
+1. In the file tree's actions toolbar find icon "Select Saved Context".
+2. Edit examples or select a saved context.
+3. The selected files and folders will be automatically checked.
 
 ## License
 
