@@ -104,18 +104,18 @@ export const Popup: React.FC = () => {
   }
 
   return (
-    <div className="popup-container">
+    <div>
       <SavedWebsites
         websites={saved_websites}
         on_delete={remove_saved_page}
         on_link_click={open_website_in_new_tab}
       />
 
-      <div>
+      <div className="actions">
         {!is_loading && (
-          <div>
+          <>
             {parsed_html ? (
-              <div className="actions">
+              <div>
                 {!is_saved ? (
                   <button onClick={save_current_page} className="save-button">
                     Use for context
@@ -132,7 +132,7 @@ export const Popup: React.FC = () => {
             ) : (
               <p>No content could be parsed from this page.</p>
             )}
-          </div>
+          </>
         )}
       </div>
     </div>
