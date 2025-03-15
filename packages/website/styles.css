@@ -1,10 +1,6 @@
 :root {
-  --nextra-content-width: 900px;
-  --x-color-nextra-bg: transparent;
-}
-
-.nextra-toc {
-  display: none;
+  --nextra-content-width: 1200px;
+  --x-color-nextra-bg: white;
 }
 
 footer {
