@@ -66,8 +66,8 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
   const handle_checkbox_change = (name: string) => {
     if (props.on_selected_presets_change) {
-      const new_selected = props.selected_presets?.includes(name)
-        ? props.selected_presets.filter((n) => n !== name)
+      const new_selected = props.selected_presets.includes(name)
+        ? props.selected_presets.filter((n) => n != name)
         : [...(props.selected_presets || []), name]
       props.on_selected_presets_change(new_selected)
     }
@@ -89,92 +89,105 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           [styles['presets--disabled']]: props.disabled
         })}
       >
-        {props.presets.map((preset, i) => (
-          <div key={i} className={styles.presets__item}>
-            <div
-              className={styles.presets__item__header}
-              onClick={() => toggle_expand(i)}
-              role="button"
-            >
+        {props.presets.map((preset, i) => {
+          const is_disabled_in_fim = is_preset_disabled_in_fim(
+            props.is_fim_mode,
+            preset
+          )
+
+          return (
+            <div key={i} className={styles.presets__item}>
               <div
-                className={cn(styles.presets__item__header__title, {
-                  [styles['presets__item__header__title--default']]:
-                    props.selected_presets?.includes(preset.name),
-                  [styles['presets__item__header__title--disabled']]:
-                    is_preset_disabled_in_fim(props.is_fim_mode, preset)
-                })}
+                className={styles.presets__item__header}
+                onClick={() => toggle_expand(i)}
+                role="button"
               >
-                <span>{preset.name}</span>
-              </div>
-              <div className={styles.presets__item__header__right}>
                 <div
-                  className={cn(
-                    'codicon',
-                    props.expanded_presets.includes(i)
-                      ? 'codicon-chevron-up'
-                      : 'codicon-chevron-down'
-                  )}
-                />
-              </div>
-            </div>
-
-            {props.expanded_presets.includes(i) && (
-              <>
-                {is_preset_disabled_in_fim(props.is_fim_mode, preset) && (
-                  <div className={styles.presets__item__info}>
-                    <span className="codicon codicon-info" />
-                    <span>Unavailable in FIM due to prefix/suffix</span>
-                  </div>
-                )}
-
-                <div
-                  className={cn(styles.presets__item__details, {
-                    [styles['presets__item__details--disabled']]:
-                      is_preset_disabled_in_fim(props.is_fim_mode, preset)
+                  className={cn(styles.presets__item__header__title, {
+                    [styles['presets__item__header__title--default']]:
+                      props.selected_presets.includes(preset.name),
+                    [styles['presets__item__header__title--disabled']]:
+                      is_disabled_in_fim
                   })}
+                  onClick={(e) => {
+                    if (is_disabled_in_fim) return
+                    e.stopPropagation()
+                    props.on_preset_click(preset.name)
+                  }}
                 >
-                  <div className={styles.presets__item__details__actions}>
-                    <IconButton
-                      codicon_icon="send"
-                      on_click={() => props.on_preset_click?.(preset.name)}
-                    />
-                    <label>
-                      Use by default
-                      <input
-                        type="checkbox"
-                        checked={
-                          props.selected_presets?.includes(preset.name) || false
-                        }
-                        onChange={() => handle_checkbox_change(preset.name)}
-                      />
-                    </label>
-                  </div>
-
-                  <div className={styles.presets__item__details__row}>
-                    <DetailField label="Chatbot" value={preset.chatbot} />
-                    <DetailField label="Model" value={preset.model} />
-                    <DetailField
-                      label="Temperature"
-                      value={preset.temperature}
-                    />
-                    <DetailField
-                      label="Prompt Prefix"
-                      value={preset.prompt_prefix}
-                    />
-                    <DetailField
-                      label="Prompt Suffix"
-                      value={preset.prompt_suffix}
-                    />
-                    <DetailField
-                      label="System Instructions"
-                      value={preset.system_instructions}
-                    />
-                  </div>
+                  <span>{preset.name}</span>
                 </div>
-              </>
-            )}
-          </div>
-        ))}
+                <div className={styles.presets__item__header__right}>
+                  <div
+                    className={cn(
+                      'codicon',
+                      props.expanded_presets.includes(i)
+                        ? 'codicon-chevron-up'
+                        : 'codicon-chevron-down'
+                    )}
+                  />
+                </div>
+              </div>
+
+              {props.expanded_presets.includes(i) && (
+                <>
+                  {is_disabled_in_fim && (
+                    <div className={styles.presets__item__info}>
+                      <span className="codicon codicon-info" />
+                      <span>Unavailable in FIM due to prefix/suffix</span>
+                    </div>
+                  )}
+
+                  <div
+                    className={cn(styles.presets__item__details, {
+                      [styles['presets__item__details--disabled']]:
+                        is_disabled_in_fim
+                    })}
+                  >
+                    <div className={styles.presets__item__details__actions}>
+                      <IconButton
+                        codicon_icon="send"
+                        on_click={() => props.on_preset_click(preset.name)}
+                      />
+                      <label>
+                        Use by default
+                        <input
+                          type="checkbox"
+                          checked={
+                            props.selected_presets.includes(preset.name) ||
+                            false
+                          }
+                          onChange={() => handle_checkbox_change(preset.name)}
+                        />
+                      </label>
+                    </div>
+
+                    <div className={styles.presets__item__details__row}>
+                      <DetailField label="Chatbot" value={preset.chatbot} />
+                      <DetailField label="Model" value={preset.model} />
+                      <DetailField
+                        label="Temperature"
+                        value={preset.temperature}
+                      />
+                      <DetailField
+                        label="Prompt Prefix"
+                        value={preset.prompt_prefix}
+                      />
+                      <DetailField
+                        label="Prompt Suffix"
+                        value={preset.prompt_suffix}
+                      />
+                      <DetailField
+                        label="System Instructions"
+                        value={preset.system_instructions}
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
+          )
+        })}
         <div className={styles.presets__edit}>
           <Button on_click={props.on_edit_presets}>Edit Presets</Button>
         </div>

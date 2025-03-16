@@ -1,15 +1,11 @@
 ---
-title: Privacy
-layout: home
-nav_order: 10
-description: Gemini Coder's privacy policy and data handling practices
+sidebar_position: 5
+hide_table_of_contents: true
 ---
 
 # Privacy
 
 Gemini Coder does not collect any user data.
-
----
 
 ## Core privacy principles
 

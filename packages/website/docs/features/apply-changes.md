@@ -1,24 +1,19 @@
 ---
-title: Applying changes
-layout: home
-parent: Features
-nav_order: 5
-description: Learn how to apply AI-suggested code changes to your files using Gemini Coder's Apply Changes feature
+hide_table_of_contents: true
+sidebar_position: 5
 ---
 
-# Applying changes
+# Apply changes
 
 Gemini Coder's Apply Changes feature helps you implement AI-suggested modifications to your code. When AI tools suggest partial updates to your file (like changing specific sections while preserving others), this feature helps transform those suggestions into a complete updated file.
 
-_The structure of generated message:_
+_Structure of the generated message:_
 
 ```
 <file>...</file>
 User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
-[Clipboard-stored file changes instructions]
+[Clipboard-stored instructions]
 ```
-
----
 
 ## How It Works
 
@@ -40,18 +35,18 @@ The AI will process the suggestions and generate a complete updated file with al
 
 ## Available Commands
 
-### `Gemini Coder: Apply Changes to this File`
+##### `Gemini Coder: Apply Changes to this File`
 
 Applies changes to the current file using the default model.
 
-### `Gemini Coder: Apply Changes to this File with...`
+##### `Gemini Coder: Apply Changes to this File with...`
 
 Lets you select which model to use for applying changes.
 
-### `Gemini Coder: Apply Changes to Clipboard`
+##### `Gemini Coder: Apply Changes to Clipboard`
 
 Instead of applying changes directly with API, copies the apply changes prompt to your clipboard for use in other tools.
 
-### `Gemini Coder: Change Default Apply Changes Model`
+##### `Gemini Coder: Change Default Apply Changes Model`
 
 Configure which model should be used as the default for applying changes.

@@ -6,10 +6,10 @@
   border-radius: 5px;
   background-color: var(--vscode-input-background);
   cursor: text;
+  border: 1px solid var(--vscode-commandCenter-inactiveBorder);
 
   &:focus-within {
-    outline: 1px solid var(--vscode-focusBorder);
-    outline-offset: -1px;
+    border-color: var(--vscode-commandCenter-activeBorder);
   }
 }
 

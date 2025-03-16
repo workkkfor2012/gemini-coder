@@ -1,36 +1,42 @@
 ---
-title: Chat
-layout: home
-parent: Features
-nav_order: 2
-description: Connect VS Code with web-based AI platforms for seamless code assistance using Gemini Coder's Chat feature
+hide_table_of_contents: true
+sidebar_position: 2
 ---
 
 # Chat
 
-Gemini Coder's Chat feature provides a seamless way to interact with various AI platforms directly from VS Code. By connecting your editor with web-based AI services, you can send code context and prompts without constant copy-pasting, while taking advantage of the superior developer experience (tabs, public sharing, canvas, etc.).
+Chat view is a conventient way to generate messages with context and instructions.
 
-_The structure of generated message:_
+With the [browser integration](/docs/installation/web-browser-integration), chats are initialized hands-free. Gemini Coder Connector supports AI Studio, Gemini and 10+ other popular chatbots.
 
-```
-<files>
-  ...
-  <file path="...">...</file>
-  <file path="..." active>...</file>
-  ...
-</files>
-[Your prompt]
-```
+:::tip
 
----
+Instead of submitting follow-up messages in the chatbot consider starting over from VS Code with refined instructions.
+
+:::
+
+:::tip
+
+To save response generation time and fit in max output size limits AI will often skip unchanged fragments in its generations. Don't worry, just copy such truncated code and [integrate it](/docs/features/apply-changes) with the original file.
+
+:::
 
 ## Workflow
 
-1.  **Select Context** — Choose relevant files by opening them or selecting in the Workspace view.
-2.  **Write Your Prompt** — Enter your instruction.
-3.  **Choose Chat Provider** — Select one or more chatbots for hands-free initialization.
-4.  **Interact** — Enter follow-up prompts in the web browser or start over with updated context and prompt (better results).
-5.  **Apply changes** — After getting response from the AI platform, you can use the [Apply Changes](/docs/usage/applying-changes.html) feature to integrate the suggested changes to each modified file.
+1. **Select Context:**
+   Choose relevant files by opening them or selecting in the Workspace view.
+
+2. **Write Your Prompt:**
+   Enter your instruction.
+
+3. **Choose Chat Provider:**
+   Select one or more chatbots for hands-free initialization.
+
+4. **Interact:**
+   Enter follow-up prompts in the web browser or refine context and instructions (better results).
+
+5. **Apply changes:**
+   After getting response from the AI platform, you can use the [Apply Changes](/docs/features/apply-changes) feature to integrate the suggested changes to each modified file.
 
 ## Chatbot compatibility
 
@@ -62,10 +68,6 @@ Each preset can include:
 - Temperature setting
 - Custom system instructions
 
-## Browser Extension
-
-The [browser extension](/docs/installation.html#browser-extension) establishes a WebSocket connection with VS Code, allowing hands-free chat initialization with your selected context and prompt.
-
 ## Best Practices
 
 ### Focused Context
@@ -86,14 +88,14 @@ Create presets for specific tasks (debugging, refactoring, explaining) with appr
 
 ## Available Commands
 
-### `Gemini Coder: Web Chat`
+##### `Gemini Coder: Web Chat`
 
 Opens a chat session in your browser with the current context and prompt.
 
-### `Gemini Coder: Web Chat with...`
+##### `Gemini Coder: Web Chat with...`
 
 Lets you select which AI platform to use for your chat session.
 
-### `Gemini Coder: Chat to Clipboard`
+##### `Gemini Coder: Chat to Clipboard`
 
 Instead of opening a chat directly, copies the context and prompt to your clipboard for manual pasting.

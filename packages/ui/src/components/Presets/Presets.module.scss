@@ -36,14 +36,16 @@
     &__header {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
       min-height: 24px;
       cursor: pointer;
 
       &__title {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 4px 16px 4px 0;
+        padding: 4px 0;
+
+        &:hover {
+          text-decoration: underline;
+        }
 
         &--default {
           font-weight: 600;
@@ -51,6 +53,10 @@
 
         &--disabled {
           opacity: 0.5;
+
+          &:hover {
+            text-decoration: none;
+          }
         }
 
         > span {

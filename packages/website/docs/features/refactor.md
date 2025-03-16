@@ -1,16 +1,13 @@
 ---
-title: Refactoring
-layout: home
-parent: Features
-nav_order: 4
-description: Transform your code with instruction using Gemini Coder's AI-powered refactoring capabilities
+hide_table_of_contents: true
+sidebar_position: 4
 ---
 
-# Refactoring
+# Refactor
 
-Gemini Coder's refactoring feature allows you to modify the current file based on instruction. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file must be regenerated.
+Gemini Coder's refactoring feature allows you to modify the current file based on a natural language instructions. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file must be regenerated.
 
-_The structure of generated message:_
+_Structure of the generated message:_
 
 ```
 <files>
@@ -20,8 +17,6 @@ _The structure of generated message:_
 User requested refactor of a file "[PATH]". In your response send fully updated file only, without explanations or any other text.
 [Refactoring instructions]
 ```
-
----
 
 ## How it works
 
@@ -71,18 +66,18 @@ Here are some effective refactoring instructions:
 
 ## Available commands
 
-### `Gemini Coder: Refactor this File`
+##### `Gemini Coder: Refactor this File`
 
 Refactors the current file using the default model.
 
-### `Gemini Coder: Refactor this File with...`
+##### `Gemini Coder: Refactor this File with...`
 
 Lets you select which model to use for refactoring.
 
-### `Gemini Coder: Refactor to Clipboard`
+##### `Gemini Coder: Refactor to Clipboard`
 
 Instead of applying changes directly, copies the refactoring prompt to your clipboard for use in other tools.
 
-### `Gemini Coder: Change Default Refactoring Model`
+##### `Gemini Coder: Change Default Refactoring Model`
 
 Configure which model should be used as the default for refactoring.

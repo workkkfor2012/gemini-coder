@@ -1,14 +1,41 @@
-# Documentation
+# Website
 
-This directory contains the source files for the documentation website.
+This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
-## Development
+### Installation
 
-To run the documentation website locally:
+```
+$ yarn
+```
 
-1.  Install Jekyll: `gem install bundler && bundle install`.
-2.  Run the Jekyll server: `bundle exec jekyll serve`.
+### Local Development
 
-This will start a local server at `http://localhost:4000`.
+```
+$ yarn start
+```
 
-Build static site with `bundle exec jekyll build`.
+This command starts a local development server and opens up a browser window. Most changes are reflected live without having to restart the server.
+
+### Build
+
+```
+$ yarn build
+```
+
+This command generates static content into the `build` directory and can be served using any static contents hosting service.
+
+### Deployment
+
+Using SSH:
+
+```
+$ USE_SSH=true yarn deploy
+```
+
+Not using SSH:
+
+```
+$ GIT_USER=<Your GitHub username> yarn deploy
+```
+
+If you are using GitHub pages for hosting, this command is a convenient way to build the website and push to the `gh-pages` branch.

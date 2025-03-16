@@ -1,15 +1,11 @@
 ---
-title: Tips
-layout: home
-nav_order: 4
-description: Collection of tips and best practices for using Gemini Coder effectively
+sidebar_position: 6
+hide_table_of_contents: true
 ---
 
 # Tips
 
 Here are some tips and best practices for using Gemini Coder effectively.
-
----
 
 ## Context
 
@@ -45,4 +41,4 @@ Here are some tips and best practices for using Gemini Coder effectively.
 ## Applying changes
 
 - Review the suggested changes carefully before applying
-- Use Gemini 2.0 Thinking for its larger output lenghts, code generation speed and reliability
+- Use Gemini 2.0 Thinking for its larger output lengths, code generation speed and reliabilitya

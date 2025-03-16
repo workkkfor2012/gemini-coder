@@ -7,6 +7,7 @@ import { WebsitesProvider, WebsiteItem } from './websites-provider'
 import { ignored_extensions } from './ignored-extensions'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
+import { select_saved_context } from './saved-contexts'
 
 export function context_initialization(context: vscode.ExtensionContext): {
   workspace_provider: WorkspaceProvider | undefined
@@ -148,6 +149,19 @@ export function context_initialization(context: vscode.ExtensionContext): {
         'geminiCoder.copyContextWithIcon',
         async () => {
           await vscode.commands.executeCommand('geminiCoder.copyContext')
+        }
+      ),
+      vscode.commands.registerCommand(
+        'geminiCoder.selectSavedContext',
+        async () => {
+          await select_saved_context(file_tree_provider)
+          update_activity_bar_badge_token_count()
+        }
+      ),
+      vscode.commands.registerCommand(
+        'geminiCoder.selectSavedContextWithIcon',
+        async () => {
+          await vscode.commands.executeCommand('geminiCoder.selectSavedContext')
         }
       ),
       // Existing workspace commands
