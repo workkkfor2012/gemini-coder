@@ -112,10 +112,4 @@ To use saved contexts:
 
 ## License
 
-MIT
-
-This is not an official Google product.
-
-## Author
-
-[Robert Piosik](https://buymeacoffee.com/robertpiosik)
+Copyright (c) 2025, [Robert Piosik](https://buymeacoffee.com/robertpiosik). (MIT License)
