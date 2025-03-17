@@ -71,7 +71,7 @@ const config: Config = {
           position: 'left',
           label: 'Documentation',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
+        // {to: '/blog', label: 'Blog', position: 'left'},
         {
           href: 'https://buymeacoffee.com/robertpiosik',
           label: 'Buy me a coffee',

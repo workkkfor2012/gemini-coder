@@ -16,8 +16,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         You decide which files provide relevant context. Select only what
-        matters for more accurate responses, fewer hallucinations, and better
-        alignment with your team's coding practices.
+        matters for accurate and fast responses.
       </>
     )
   },
@@ -26,9 +25,8 @@ const FeatureList: FeatureItem[] = [
     Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
     description: (
       <>
-        Connect directly with AI platforms like AI Studio, Gemini, ChatGPT,
-        Claude, GitHub Copilot, and more. Send context and prompts without
-        constant copy-pasting while enjoying the superior web experience.
+        Hands-free chat initializations in AI Studio, Gemini, ChatGPT, Claude,
+        GitHub Copilot, and more.
       </>
     )
   },
@@ -38,8 +36,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Use Fill-In-the-Middle completions, refactor entire files, and apply
-        AI-suggested changes with ease. Configure with Gemini or other OpenAI
-        API compatible providers of your choice.
+        AI-suggested changes with ease.
       </>
     )
   }
