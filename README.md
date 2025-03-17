@@ -1,4 +1,13 @@
-# Gemini Coder - the 2M context AI coding assistant
+<h1 align="center">
+  <br>
+    <img src="https://github.com/user-attachments/assets/b36d5d8d-63b4-4008-91de-fb19c3a16405" alt="logo" width="150">
+  <br>
+  Stripe for Visual Studio Code
+  <br>
+  <br>
+</h1>
+
+<h4 align="center">Build, test, and use Stripe inside your editor.</h4>
 
 Gemini Coder is an all-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API.
 
