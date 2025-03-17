@@ -73,15 +73,20 @@ const config: Config = {
         },
         // {to: '/blog', label: 'Blog', position: 'left'},
         {
+          href: 'https://github.com/robertpiosik/gemini-coder',
+          label: 'GitHub',
+          position: 'right',
+        },{
+          href: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details',
+          label: 'Rate',
+          position: 'right',
+        },
+        {
           href: 'https://buymeacoffee.com/robertpiosik',
           label: 'Buy me a coffee',
           position: 'right',
         },
-        {
-          href: 'https://github.com/robertpiosik/gemini-coder',
-          label: 'GitHub',
-          position: 'right',
-        },
+        
       ],
     },
     footer: {

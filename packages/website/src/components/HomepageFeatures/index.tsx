@@ -5,14 +5,12 @@ import styles from './styles.module.css'
 
 type FeatureItem = {
   title: string
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>
   description: ReactNode
 }
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Take Control of Context',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'You own the context',
     description: (
       <>
         You decide which files provide relevant context. Select only what
@@ -21,8 +19,7 @@ const FeatureList: FeatureItem[] = [
     )
   },
   {
-    title: 'Seamless Chat Integration',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Web browser integration',
     description: (
       <>
         Hands-free chat initializations in AI Studio, Gemini, ChatGPT, Claude,
@@ -31,23 +28,19 @@ const FeatureList: FeatureItem[] = [
     )
   },
   {
-    title: 'Powerful API Features',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'API features',
     description: (
       <>
-        Use Fill-In-the-Middle completions, refactor entire files, and apply
+        Use Fill-In-the-Middle (FIM) completions, refactor entire files, and apply
         AI-suggested changes with ease.
       </>
     )
   }
 ]
 
-function Feature({ title, Svg, description }: FeatureItem) {
+function Feature({ title, description }: FeatureItem) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>

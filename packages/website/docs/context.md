@@ -17,7 +17,7 @@ The extension provides context related views that mimic the original Explorer vi
 
 - open editors
 - workspace tree
-- websites (usable with the web browser integration)
+- websites (managed by the web browser integration)
 
 To better understand the "weight" of each item the extension calculates approximate token count where each character is counted as 0.25 tokens.
 
@@ -30,7 +30,7 @@ _The structure of context:_
 
 ```
 <files>
-  <text title="">...</text>   (website from the web browser integration)
+  <text title="">...</text>   (websites managed by the web browser integration)
   <file path="...">...</file>
   ...
 </files>

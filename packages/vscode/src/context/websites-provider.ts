@@ -25,8 +25,8 @@ export class WebsiteItem extends vscode.TreeItem {
 
     // Set tooltip to show URL on hover
     this.tooltip = is_selection
-      ? `${url} - ${formatted_token_count} tokens (text selection)`
-      : `${url} - ${formatted_token_count} tokens`
+      ? `${title} - ${formatted_token_count} tokens (text selection)`
+      : `${title} - ${formatted_token_count} tokens`
 
     // Add "(selection)" to description if this is a selection
     this.description = is_selection
