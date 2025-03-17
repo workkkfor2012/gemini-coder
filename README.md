@@ -1,15 +1,14 @@
-<div align="center">
-    <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="125">
+<div >
+    <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
-  <h3>The 2M context AI coding assistant</h3>
   <br>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
   <br>
   <br>
 </div>
 
-# Introduction
+## Introduction
 
 Gemini Coder is an all-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API.
 
