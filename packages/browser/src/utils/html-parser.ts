@@ -134,5 +134,8 @@ const strip_markdown_links = (text: string) => {
 }
 
 const remove_markdown_images = (text: string) => {
-  return text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, '')
+  // First remove the image markdown
+  const without_images = text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, '')
+  // Then remove any resulting empty lines (two or more consecutive newlines)
+  return without_images.replace(/\n{3,}/g, '\n\n')
 }
