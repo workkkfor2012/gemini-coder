@@ -2,6 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
+  <h4>The 2M context AI coding assistant.</h4>
   <br>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
   <br>
