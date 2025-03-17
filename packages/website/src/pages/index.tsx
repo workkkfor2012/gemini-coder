@@ -16,7 +16,7 @@ function HomepageHeader() {
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">{siteConfig.tagline}</p>
+        <p className="hero__subtitle">All-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API.</p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
