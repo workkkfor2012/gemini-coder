@@ -6,7 +6,7 @@ import type * as Preset from '@docusaurus/preset-classic';
 
 const config: Config = {
   title: 'Gemini Coder',
-  tagline: 'the 2M context AI coding assistant',
+  tagline: 'The 2M context AI coding assistant',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
