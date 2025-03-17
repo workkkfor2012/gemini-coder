@@ -5,15 +5,21 @@ sidebar_position: 3
 
 # Context
 
-Gemini Coder allows you to granularly control which files are included when using API features (FIM, file refactoring) and chat. The extension provides three context related views that effectively replace the original Explorer view for common uses like opening editors or creating files:
+What sets Gemini Coder apart from other AI coding assistants is its focus on context, as the right context is everything you need for AI's usability in everyday work.
+
+> ## The right context is everything you need.
+>
+> — Gemini Coder
+
+The extension gives the programmer full power of what data is sent in each message, to a single token. Our design choice values traditional, careful programming and lets you squeeze maximum from AI capabilities.
+
+The extension provides context related views that mimic the original Explorer view for common uses like opening editors or creating files:
 
 - open editors
 - workspace tree
-- websites
+- websites (usable with the web browser integration)
 
 To better understand the "weight" of each item the extension calculates approximate token count where each character is counted as 0.25 tokens.
-
-Selection of available websites for the context is possible in the popup of the [web browser integration](/docs/installation/web-browser-integration).
 
 :::tip
 For the best results keep context focused on task at hand. A good practice is
@@ -24,7 +30,7 @@ _The structure of context:_
 
 ```
 <files>
-  <text title="">...</text>   (website)
+  <text title="">...</text>   (website from the web browser integration)
   <file path="...">...</file>
   ...
 </files>
