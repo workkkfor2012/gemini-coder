@@ -16,6 +16,7 @@ export type Website = {
   url: string
   title: string
   content: string
+  is_selection?: boolean
   favicon?: string
 }
 

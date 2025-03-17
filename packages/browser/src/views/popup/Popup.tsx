@@ -13,6 +13,7 @@ export const Popup: React.FC = () => {
   const [saved_websites, set_saved_websites] = useState<StoredWebsite[]>([])
   const [is_saved, set_is_saved] = useState<boolean>(false)
   const [favicon, set_favicon] = useState<string>('')
+  const [is_selection, set_is_selection] = useState<boolean>(false)
 
   const websites_store_hook = use_websites_store()
 
@@ -38,7 +39,7 @@ export const Popup: React.FC = () => {
           if (tab.id) {
             browser.tabs
               .sendMessage(tab.id, {
-                action: 'get-parsed-html'
+                action: 'get-page-data'
               })
               .catch((error) => {
                 console.error('Error sending message to tab:', error)
@@ -52,10 +53,13 @@ export const Popup: React.FC = () => {
 
     // Listen for parsed HTML response
     const message_listener = (message: any) => {
-      if (message && message.action === 'parsed-html') {
+      if (message && message.action === 'page-data') {
         set_parsed_html(message.parsed_html)
         if (message.favicon) {
           set_favicon(message.favicon)
+        }
+        if (message.is_selection) {
+          set_is_selection(true)
         }
         set_is_loading(false)
       }
@@ -79,7 +83,8 @@ export const Popup: React.FC = () => {
         url: current_url,
         title: page_title,
         content: parsed_html.content,
-        favicon
+        favicon,
+        is_selection
       })
 
       if (success) {
@@ -118,7 +123,7 @@ export const Popup: React.FC = () => {
               <div>
                 {!is_saved ? (
                   <button onClick={save_current_page} className="save-button">
-                    Use for context
+                    {is_selection ? 'Use selected text' : 'Use for context'}
                   </button>
                 ) : (
                   <button

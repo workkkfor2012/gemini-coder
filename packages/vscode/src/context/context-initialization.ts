@@ -154,7 +154,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
       vscode.commands.registerCommand(
         'geminiCoder.selectSavedContext',
         async () => {
-          await select_saved_context(file_tree_provider)
+          await select_saved_context(workspace_provider)
           update_activity_bar_badge_token_count()
         }
       ),

@@ -54,7 +54,7 @@ Gemini Coder integrates with numerous popular chatbots with varying support for 
 | Mistral        |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
 | Open WebUI     |       ✅       |  ❌   |         ❌          |     ❌      |        ?         |
 
-\* Depends on factors like used model and subscription plan.
+\* Depends on factors like selected model and subscription plan.
 
 ## Presets
 

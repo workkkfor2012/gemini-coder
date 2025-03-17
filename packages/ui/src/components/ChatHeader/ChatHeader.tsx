@@ -8,11 +8,9 @@ export const ChatHeader: React.FC = () => {
         <span>·</span>
         <a href="https://bit.ly/gemini-coder-github-from-vs-code">GitHub</a>
         <span>·</span>
-        <a href="https://bit.ly/gemini-coder-guestbook-from-vs-code">
-          Guestbook
-        </a>
+        <a href="https://bit.ly/gemini-coder-guestbook-from-vs-code">Rate</a>
         <span>·</span>
-        <a href="bit.ly/donate-to-gemini-coder-from-vs-code">Donate</a>
+        <a href="bit.ly/donate-to-gemini-coder-from-vs-code">Buy me a coffee</a>
       </div>
     </div>
   )

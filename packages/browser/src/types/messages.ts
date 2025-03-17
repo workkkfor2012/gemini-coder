@@ -1,13 +1,15 @@
 import { Website } from '@/views/popup/hooks/use-websites-store'
 import { HtmlParser } from '../utils/html-parser'
 
-export type GetParsedHtmlMessage = {
-  action: 'get-parsed-html'
+export type GetPageDataMessage = {
+  action: 'get-page-data'
 }
 
-export type ParsedHtmlMessage = {
-  action: 'parsed-html'
+export type PageDataMessage = {
+  action: 'page-data'
   parsed_html: HtmlParser.ParsedResult | null
+  favicon?: string
+  is_selection?: boolean
 }
 
 export type UpdateSavedWebsitesMessage = {
@@ -16,6 +18,6 @@ export type UpdateSavedWebsitesMessage = {
 }
 
 export type Message =
-  | GetParsedHtmlMessage
-  | ParsedHtmlMessage
+  | GetPageDataMessage
+  | PageDataMessage
   | UpdateSavedWebsitesMessage

@@ -88,17 +88,18 @@ export async function connect_websocket() {
  * Send saved websites to the WebSocket server
  */
 export function send_saved_websites(websites: Website[]) {
-  if (websocket?.readyState === WebSocket.OPEN) {
-    const websitesToSend = websites.map((site) => ({
+  if (websocket?.readyState == WebSocket.OPEN) {
+    const websites_to_send = websites.map((site) => ({
       url: site.url,
       title: site.title,
       content: site.content,
-      favicon: site.favicon
+      favicon: site.favicon,
+      is_selection: site.is_selection
     }))
 
     const message = {
       action: 'update-saved-websites',
-      websites: websitesToSend
+      websites: websites_to_send
     }
 
     console.log(message)

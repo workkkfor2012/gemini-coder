@@ -9,9 +9,10 @@ export class WebsiteItem extends vscode.TreeItem {
     public readonly title: string,
     public readonly url: string,
     public readonly content: string,
-    public readonly favicon?: string,
+    public readonly favicon: string,
     public checkboxState: vscode.TreeItemCheckboxState = vscode
-      .TreeItemCheckboxState.Unchecked
+      .TreeItemCheckboxState.Unchecked,
+    public readonly is_selection: boolean
   ) {
     super(title, vscode.TreeItemCollapsibleState.None)
 
@@ -23,9 +24,14 @@ export class WebsiteItem extends vscode.TreeItem {
         : `${this.token_count}`
 
     // Set tooltip to show URL on hover
-    this.tooltip = `${url} (${formatted_token_count} tokens)`
+    this.tooltip = is_selection
+      ? `${url} - ${formatted_token_count} tokens (text selection)`
+      : `${url} - ${formatted_token_count} tokens`
 
-    this.description = formatted_token_count
+    // Add "(selection)" to description if this is a selection
+    this.description = is_selection
+      ? `${formatted_token_count} (text selection)`
+      : formatted_token_count
 
     // Set icon based on favicon if available, otherwise use generic icon
     if (favicon) {
@@ -98,9 +104,10 @@ export class WebsitesProvider
             website.title || website.url,
             website.url,
             website.content,
-            website.favicon,
+            website.favicon || '',
             this._checked_websites.get(website.url) ??
-              vscode.TreeItemCheckboxState.Unchecked
+              vscode.TreeItemCheckboxState.Unchecked,
+            website.is_selection || false
           )
       )
     )

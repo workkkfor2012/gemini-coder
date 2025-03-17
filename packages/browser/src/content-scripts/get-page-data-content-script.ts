@@ -43,22 +43,39 @@ const get_favicon_base64 = async (favicon_url: string): Promise<string> => {
 }
 
 browser.runtime.onMessage.addListener((message: any, _, __): any => {
-  if (message && message.action == 'get-parsed-html') {
+  if (message && message.action == 'get-page-data') {
     ;(async () => {
       const html = document.documentElement.outerHTML
-      const result = await HtmlParser.parse({
-        html,
-        url: document.location.href
-      })
+
+      // Check if there's any text selected on the page
+      const selection = window.getSelection()
+      const selection_text = selection?.toString().trim()
+
+      let result
+      let is_selection = false
+
+      if (selection_text && selection_text.length > 0) {
+        is_selection = true
+        result = {
+          title: document.title,
+          content: selection_text
+        }
+      } else {
+        result = await HtmlParser.parse({
+          html,
+          url: document.location.href
+        })
+      }
 
       // Get and encode favicon
       const favicon_url = get_favicon_url(html)
       const favicon_base64 = await get_favicon_base64(favicon_url)
 
       browser.runtime.sendMessage({
-        action: 'parsed-html',
+        action: 'page-data',
         parsed_html: result || null,
-        favicon: favicon_base64
+        favicon: favicon_base64,
+        is_selection: is_selection
       })
     })()
   }

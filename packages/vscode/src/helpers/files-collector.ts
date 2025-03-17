@@ -42,6 +42,20 @@ export class FilesCollector {
     )
     let collected_text = ''
 
+    // Add content from checked websites
+    if (this.websites_provider) {
+      const checked_websites = this.websites_provider.get_checked_websites()
+
+      for (const website of checked_websites) {
+        if (params?.disable_xml) {
+          // Just add the content without XML wrapping for token counting
+          collected_text += website.content
+        } else {
+          collected_text += `<text title="${website.title}">\n<![CDATA[\n${website.content}\n]]>\n</text>\n`
+        }
+      }
+    }
+
     // Process each checked file
     for (const file_path of context_files) {
       if (params?.exclude_path && params.exclude_path == file_path) continue
@@ -68,20 +82,6 @@ export class FilesCollector {
         }
       } catch (error) {
         console.error(`Error reading file ${file_path}:`, error)
-      }
-    }
-
-    // Add content from checked websites
-    if (this.websites_provider) {
-      const checked_websites = this.websites_provider.get_checked_websites()
-
-      for (const website of checked_websites) {
-        if (params?.disable_xml) {
-          // Just add the content without XML wrapping for token counting
-          collected_text += website.content
-        } else {
-          collected_text += `<text title="${website.title}">\n<![CDATA[\n${website.content}\n]]>\n</text>\n`
-        }
       }
     }
 

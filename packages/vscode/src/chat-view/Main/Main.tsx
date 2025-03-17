@@ -103,11 +103,11 @@ export const Main: React.FC<Props> = (props) => {
           <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
-              Gemini Coder uses web browser for chats. Consider installing{' '}
+              Consider installing{' '}
               <a href="https://gemini-coder.netlify.app/docs/installation#browser-extension">
-                browser extension
+                web browser integration
               </a>{' '}
-              for hands-free inititalization.
+              for hands-free chat inititalizations.
             </span>
 
             <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
@@ -117,11 +117,6 @@ export const Main: React.FC<Props> = (props) => {
             <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
               - Install for Firefox
             </a>
-
-            <span>
-              Run Presets simultaneously, battle different platforms and compare
-              results!
-            </span>
           </div>
         </>
       )}

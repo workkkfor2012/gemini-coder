@@ -7,6 +7,7 @@ export type Website = {
   title: string
   content: string
   favicon?: string
+  is_selection?: boolean
 }
 
 type Props = {
