@@ -4,11 +4,9 @@ hide_table_of_contents: true
 
 # Web browser integration
 
-For the hands-free chat initialization and enhanced context by selected websites, you'll need to install the **Gemini Coder Connector**. This extension connect to a WebSocket server run in a VS Code process, enabling automatic launching of chats with your selected context and prompt over localhost.
+For the hands-free chat initialization and enhancing context with selected websites, you'll need to install the **Gemini Coder Connector**. This extension connect to a WebSocket server run in a VS Code's managed process, enabling automatic launching of chats with your selected context and prompt over localhost.
 
-The connector extension is completely [open source](https://github.com/robertpiosik/gemini-coder/tree/master/packages/browser).
-
-## Installation Links
+The connector extension is [open source](https://github.com/robertpiosik/gemini-coder/tree/master/packages/browser).
 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)

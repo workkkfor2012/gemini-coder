@@ -5,18 +5,22 @@ hide_table_of_contents: true
 
 # Privacy
 
-TLDR; Gemini Coder does not collect any user data.
+Gemini Coder does not collect any personal data or usage statistics.
 
 ## Core principles
 
-### No data collection
+### Open source
 
-Neither the VS Code extension nor the web browser integration sends any of your code or instructions to any servers and does not track usage.
+The entire codebase is open source and available on GitHub for public review.
 
-### Direct API communication
+### No tracking
 
-When using API-based features (FIM, Refactoring or Apply Changes) your messages are sent directly to the provider (e.g. Gemini API).
+Neither the VS Code extension nor the web browser integration track its usage.
 
-### Local WebSocket server
+### API communication
 
-The VS Code extension sets up the WebSocket server locally on your system, which orchestrates message flow between all VS Code processes and the web browser integration extension.
+When using API-based features (FIM, Refactoring or Apply Changes) your messages are sent directly to the provider's endpoint (e.g. Gemini API).
+
+### Web browser communication
+
+The VS Code extension sets up the WebSocket server locally on your system, which orchestrates message flow between all VS Code processes and the web browser integration.

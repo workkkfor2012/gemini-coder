@@ -15,25 +15,25 @@ User requested refactor of a file. In your response send fully updated <file> on
 [Clipboard-stored instructions]
 ```
 
-## How It Works
+## How it works
 
-### Copy AI Suggestions
+### Copy AI suggestions
 
 When an AI suggests changes in chat, copy the output for the given file to your clipboard.
 
-### Open Target File
+### Open target file
 
 Make sure the file you want to modify is open and active in the editor.
 
-### Run Command
+### Run command
 
 Execute one of the Apply Changes commands.
 
-### Review Updates
+### Review updates
 
 The AI will process the suggestions and generate a complete updated file with all changes properly applied.
 
-## Available Commands
+## Available commands
 
 ##### `Gemini Coder: Apply Changes to this File`
 

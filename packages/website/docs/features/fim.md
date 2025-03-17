@@ -23,11 +23,11 @@ Somewhere in files you encountered the <fill missing code> symbol. Send the miss
 
 ## How it works
 
-### Select Context
+### Select context
 
 Click on the Gemini icon in the activity bar and choose relevant files for context.
 
-### Position Cursor
+### Position cursor
 
 Place your cursor where you need code inserted in an open file.
 
@@ -43,7 +43,7 @@ AI generated code is inserted at the cursor's position.
 Bind `Gemini Coder: FIM Completion` to a keyboard shortcut for fastest access.
 :::
 
-## Available Commands
+## Available commands
 
 ##### `Gemini Coder: FIM Completion`
 

@@ -68,25 +68,25 @@ Each preset can include:
 - Temperature setting
 - Custom system instructions
 
-## Best Practices
+## Best practices
 
-### Focused Context
+### Focused context
 
 Select only relevant files to avoid overwhelming the AI with irrelevant information.
 
-### Clear Instructions
+### Clear instructions
 
 Frame your questions specifically, mentioning any constraints or requirements.
 
-### Multiple Providers
+### Multiple providers
 
 Compare responses across different AI platforms for challenging problems.
 
-### Leverage Presets
+### Leverage presets
 
 Create presets for specific tasks (debugging, refactoring, explaining) with appropriate prompt prefixes and suffixes.
 
-## Available Commands
+## Available commands
 
 ##### `Gemini Coder: Web Chat`
 

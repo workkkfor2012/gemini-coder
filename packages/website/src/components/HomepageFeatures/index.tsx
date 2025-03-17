@@ -28,7 +28,7 @@ const FeatureList: FeatureItem[] = [
     )
   },
   {
-    title: 'API features',
+    title: 'Powerful API features',
     description: (
       <>
         Use Fill-In-the-Middle (FIM) completions, refactor entire files, and apply

@@ -38,7 +38,7 @@ _The structure of context:_
 
 ## Views
 
-### Open Editors
+### Open editors
 
 The open editors view shows your currently open files. Configuration option `Gemini Coder: Attach Open Files` determines if newly opened files are automatically included in the context.
 
@@ -50,7 +50,7 @@ The workspace view shows all files in your project and allows batch selections. 
 
 The websites view shows websites selected in the popup of the [web browser integration](/docs/installation/web-browser-integration).
 
-## Available Commands
+## Available commands
 
 ##### `Gemini Coder: Copy Context`
 

@@ -20,37 +20,37 @@ User requested refactor of a file "[PATH]". In your response send fully updated 
 
 ## How it works
 
-### Select Context
+### Select context
 
 Choose relevant files to provide the AI with necessary context about your codebase.
 
-### Choose Target File
+### Choose target file
 
 Open the file you want to refactor in the editor.
 
-### Run Command
+### Run command
 
 Execute one of the refactoring commands and provide your instruction.
 
-### Review Changes
+### Review changes
 
 The AI will generate a complete new version of your file with the requested changes.
 
 ## Best practices
 
-### Be Specific
+### Be specific
 
 Clearly describe what aspects of the code should change and why.
 
-### Select Text
+### Select text
 
 Optionally select specific code blocks to focus the refactoring on particular sections.
 
-### Include Context
+### Include context
 
 Select relevant files that contain patterns, conventions, or dependencies that should inform the refactoring.
 
-### Review Changes
+### Review changes
 
 Always carefully review the AI-generated changes before committing them.
 
