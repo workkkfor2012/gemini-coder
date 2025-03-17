@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "The 2M context AI coding assistant.",
-  "version": "1.0.220",
+  "version": "1.0.221",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {

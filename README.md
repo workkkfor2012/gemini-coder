@@ -1,42 +1,45 @@
-<h1 align="center">
+<div style="text-align: center">
+    <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="125">
   <br>
-    <img src="https://github.com/user-attachments/assets/b36d5d8d-63b4-4008-91de-fb19c3a16405" alt="logo" width="150">
+  <h1>Gemini Coder</h1>
+  <h3>The 2M context AI coding assistant</h3>
   <br>
-  Stripe for Visual Studio Code
+  <a href="https://gemini-coder.netlify.app/">Documentation</a>
   <br>
   <br>
-</h1>
+</div>
 
-<h4 align="center">Build, test, and use Stripe inside your editor.</h4>
+# Introduction
 
 Gemini Coder is an all-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API.
 
-The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click copy them and hit Apply changes ✨.
+The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click copy them and hit _Apply changes_ ✨.
 
-Supports all Gemini models with your own API key out of the box and all the other OpenAI API compatible providers.
+## Own the context
 
-The Connector browser extension supports all major chatbots: AI Studio, Gemini, ChatGPT, Claude, GitHub Copilot Mistral, DeepSeek and more.
+Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 
-[![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/vscode/resources/screencast.gif)]()
+- **You select** which folders/files provide relevant context
+- **You control** what examples of coding conventions to include
+- **You know** how much tokens is used with API calls and web chats at any moment
+
+The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Features
 
-- Workspace explorer tree for context selection.
-- Automatically initialized web chats in Gemini & AI Studio (and more).
-- FIM completions at the cursor position.
-- Applying suggested code changes.
-- File refactoring with instruction.
-- API provider agnostic, read more in "Set up custom providers" section below.
-- Supports other web chats as well: ChatGPT, Claude, Github Copilot, DeepSeek, Open WebUI (self-hosted).
-- Saved contexts for quick selection of file sets.
-
-## How to use FIM completions
-
-1.  Open the Context View and select all relevant folders/files you want to attach as context in each request.
-2.  Place the cursor where you want to insert code completion.
-3.  Open the Command Palette (`Ctrl+Shift+P`).
-4.  Type `Gemini Coder: FIM Completion`.
-5.  Bind command to a key combination of your choice in `Preferences: Open Keyboard Shortcuts`, e.g., `Ctrl+P` for `Gemini Coder: FIM Completion`.
+- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying AI suggested changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
+- Configure additional OpenAI API compatible AI providers.
+- Full control over [context](https://gemini-coder.netlify.app/docs/context) sent in API requests and chats.
+- Initialize web chats hands-free. [Web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) supports all popular chatbots:
+  - [AI Studio](https://aistudio.google.com/app/prompts/new_chat)
+  - [Gemini](https://gemini.google.com/app)
+  - [ChatGPT](https://chatgpt.com/)
+  - [Claude](https://claude.ai/new)
+  - [GitHub Copilot](https://github.com/copilot)
+  - [Grok](https://grok.com/)
+  - [DeepSeek](https://chat.deepseek.com/)
+  - [Mistral](https://chat.mistral.ai/chat)
+  - Open WebUI (localhost)
 
 ## Commands
 
@@ -61,19 +64,19 @@ The Connector browser extension supports all major chatbots: AI Studio, Gemini, 
 - `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
 - `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes
 
-#### Chat Interactions
+#### Chat
 
-- `Gemini Coder: Web Chat` - Open web chat with context
-- `Gemini Coder: Chat to Clipboard` - Create chat content with context to clipboard
+- `Gemini Coder: Web Chat` - Enter instructions and open web chat hands-free
+- `Gemini Coder: Chat to Clipboard` - Copy chat prompt (context and instructions) to clipboard
 
-#### Context Management
+#### Context
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context
-- `Gemini Coder: Select Saved Context` - Apply a saved context from configuration
+- `Gemini Coder: Select Saved Context` - Restore checbox states in the workspace tree
 
 ## Set up custom providers
 
-The extension supports any OpenAI API compatible providers for FIM completions and applying changes to files.
+The extension supports OpenAI API compatible model providers for API actions.
 
 ```json
   "geminiCoder.providers": [
@@ -98,7 +101,7 @@ The extension supports any OpenAI API compatible providers for FIM completions a
 
 ## Saved contexts
 
-Quickly restore checkbox states with saved contexts. You can configure them in `.vscode/gemini-coder.json` following the example below.
+Quickly restore checkbox states. You can configure them creating `.vscode/gemini-coder.json` in the workspace root and following the example below.
 
 ```json
 {
@@ -117,10 +120,10 @@ Quickly restore checkbox states with saved contexts. You can configure them in `
 
 To use saved contexts:
 
-1. In the file tree's actions toolbar find icon "Select Saved Context".
-2. Edit examples or select a saved context.
-3. The selected files and folders will be automatically checked.
+1. In the workspace view actions toolbar find discette icon.
+2. Select a context.
+3. Paths listed in the selected context are checked.
 
 ## License
 
-Copyright (c) 2025, [Robert Piosik](https://buymeacoffee.com/robertpiosik). (MIT License)
+Copyright (c) 2025 [Robert Piosik](https://buymeacoffee.com/robertpiosik). MIT License.
