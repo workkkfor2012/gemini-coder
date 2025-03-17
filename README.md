@@ -1,4 +1,4 @@
-<div style="text-align: center">
+<div align="center">
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="125">
   <br>
   <h1>Gemini Coder</h1>
