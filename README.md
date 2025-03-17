@@ -15,7 +15,7 @@ Gemini Coder is an all-in-one, universal, free and open-source AI coding assista
 
 The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click, copy them and hit _Apply changes_ ✨.
 
-## Own the context
+## You own the context
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 

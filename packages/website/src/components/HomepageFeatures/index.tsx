@@ -10,7 +10,7 @@ type FeatureItem = {
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Own the context',
+    title: 'You own the context',
     description: (
       <>
         You decide which files provide relevant context. Select only what
