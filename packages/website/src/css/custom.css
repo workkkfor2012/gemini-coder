@@ -63,6 +63,7 @@
 }
 
 html[data-theme="dark"] .hero {
+  color: white;
   background-image: linear-gradient(
     to bottom right,
     #6a4a8d 10%,
