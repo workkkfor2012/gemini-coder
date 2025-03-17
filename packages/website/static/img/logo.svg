@@ -12,9 +12,9 @@
       gradientUnits="userSpaceOnUse"
       gradientTransform="matrix(16.1326 5.4553 -43.70045 129.2322 1.588 6.503)"
     >
-      <stop offset=".067" stop-color="#9168C0" />
-      <stop offset=".343" stop-color="#319749" />
-      <stop offset=".672" stop-color="#3ecc5f" />
+      <stop offset=".2" stop-color="#9168C0" />
+      <stop offset=".3" stop-color="#319749" />
+      <stop offset=".6" stop-color="#42de67" />
     </radialGradient>
   </defs>
 </svg>

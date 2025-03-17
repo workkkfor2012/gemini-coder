@@ -52,3 +52,21 @@
   width: 100%;
   margin: 0 auto;
 }
+
+.hero {
+  background-image: linear-gradient(
+    to bottom right,
+    #9168c0 10%,
+    #319749 30%,
+    #42de67 80%
+  );
+}
+
+html[data-theme="dark"] .hero {
+  background-image: linear-gradient(
+    to bottom right,
+    #6a4a8d 10%,
+    #277539 30%,
+    #3cb959 80%
+  );
+}
