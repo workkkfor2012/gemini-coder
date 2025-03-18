@@ -61,7 +61,8 @@ const config = [
           }
         ]
       })
-    ]
+    ],
+    stats: 'errors-only'
   },
   // Chat webview configuration (browser environment)
   {
@@ -75,6 +76,9 @@ const config = [
       path: path.resolve(__dirname, 'out'),
       filename: '[name].js',
       devtoolModuleFilenameTemplate: '../[resource-path]'
+    },
+    performance: {
+      hints: false
     },
     devtool: 'source-map',
     resolve: {
@@ -129,7 +133,8 @@ const config = [
           ]
         }
       ]
-    }
+    },
+    stats: 'errors-only'
   },
   {
     name: 'api',
@@ -196,7 +201,8 @@ const config = [
           ]
         }
       ]
-    }
+    },
+    stats: 'errors-only'
   }
 ]
 
