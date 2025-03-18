@@ -541,6 +541,7 @@
   "dependencies": {
     "@vscode/codicons": "^0.0.36",
     "axios": "^1.7.7",
+    "bufferutil": "^4.0.9",
     "classnames": "^2.5.1",
     "ignore": "^6.0.2",
     "marked": "^15.0.7",
@@ -549,6 +550,7 @@
     "react-autosize-textarea": "^7.1.0",
     "react-dom": "^18.2.0",
     "ui": "workspace:*",
+    "utf-8-validate": "^6.0.5",
     "ws": "^8.18.0"
   }
 }
