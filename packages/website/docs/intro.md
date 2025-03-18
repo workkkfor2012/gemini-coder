@@ -7,6 +7,8 @@ hide_table_of_contents: true
 
 The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click, copy them and hit _Apply changes_ ✨.
 
+<img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Animation" />
+
 ## You own the context
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
