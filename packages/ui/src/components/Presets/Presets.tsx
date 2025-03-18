@@ -24,7 +24,8 @@ export namespace Presets {
     on_edit_presets: () => void
     expanded_presets: number[]
     on_expanded_presets_change: (expanded_indices: number[]) => void
-    is_fim_mode?: boolean
+    is_fim_mode: boolean
+    on_preset_copy: (name: string) => void
   }
 }
 
@@ -94,6 +95,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
             props.is_fim_mode,
             preset
           )
+          const has_affixes = !!(preset.prompt_prefix || preset.prompt_suffix)
 
           return (
             <div key={i} className={styles.presets__item}>
@@ -145,10 +147,22 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                     })}
                   >
                     <div className={styles.presets__item__details__actions}>
-                      <IconButton
-                        codicon_icon="send"
-                        on_click={() => props.on_preset_click(preset.name)}
-                      />
+                      <div
+                        className={styles.presets__item__details__actions__left}
+                      >
+                        <IconButton
+                          codicon_icon="send"
+                          on_click={() => props.on_preset_click(preset.name)}
+                          title="Send"
+                        />
+                        {has_affixes && (
+                          <IconButton
+                            codicon_icon="copy"
+                            on_click={() => props.on_preset_copy!(preset.name)}
+                            title="Copy to clipboard"
+                          />
+                        )}
+                      </div>
                       <label>
                         Use by default
                         <input

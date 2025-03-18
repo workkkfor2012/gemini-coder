@@ -73,6 +73,24 @@ export const Main: React.FC<Props> = (props) => {
     props.copy_to_clipboard(current_instruction)
   }
 
+  const handle_preset_copy = (preset_name: string) => {
+    // Get the preset by name
+    const preset = props.presets.find((p) => p.name == preset_name)
+
+    if (preset) {
+      // Apply prefix and suffix if they exist
+      let modified_instruction = current_instruction
+      if (preset.prompt_prefix) {
+        modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
+      }
+      if (preset.prompt_suffix) {
+        modified_instruction = `${modified_instruction} ${preset.prompt_suffix}`
+      }
+
+      props.copy_to_clipboard(modified_instruction)
+    }
+  }
+
   const handle_fim_mode_click = () => {
     if (props.has_active_editor) {
       props.on_fim_mode_click()
@@ -135,6 +153,7 @@ export const Main: React.FC<Props> = (props) => {
             preset_names: [name]
           })
         }}
+        on_preset_copy={handle_preset_copy}
         is_fim_mode={props.is_fim_mode}
       />
     </div>

@@ -102,10 +102,14 @@
         justify-content: space-between;
         margin-bottom: 8px;
 
+        &__left {
+          display: flex;
+          gap: 4px;
+        }
+
         > label {
           display: flex;
           align-items: center;
-          justify-content: space-between;
           gap: 4px;
           cursor: pointer;
           order: 1;
