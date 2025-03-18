@@ -4,30 +4,40 @@ import { InitializeChatsMessage } from '@shared/types/websocket-message'
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
 
+// Extract batch ID from URL hash if available
+const hash = window.location.hash
+const hash_prefix = '#gemini-coder'
+const is_gemini_coder_hash = hash.startsWith(hash_prefix)
+const batch_id = is_gemini_coder_hash
+  ? hash.substring(hash_prefix.length + 1) || 'default'
+  : ''
+
 const ai_studio_url =
   'https://aistudio.google.com/prompts/new_chat#gemini-coder'
-const is_ai_studio = current_url == ai_studio_url
+const is_ai_studio = current_url.includes(
+  'aistudio.google.com/prompts/new_chat'
+)
 
 const gemini_url = 'https://gemini.google.com/app#gemini-coder'
-const is_gemini = current_url == gemini_url
+const is_gemini = current_url.includes('gemini.google.com/app')
 
 const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
-const is_chatgpt = current_url == chatgpt_url
+const is_chatgpt = current_url.includes('chatgpt.com/')
 
 const claude_url = 'https://claude.ai/new#gemini-coder'
-const is_claude = current_url == claude_url
+const is_claude = current_url.includes('claude.ai/new')
 
 const github_copilot_url = 'https://github.com/copilot#gemini-coder'
-const is_github_copilot = current_url == github_copilot_url
+const is_github_copilot = current_url.includes('github.com/copilot')
 
 const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
-const is_deepseek = current_url == deepseek_url
+const is_deepseek = current_url.includes('chat.deepseek.com/')
 
 const mistral_url = 'https://chat.mistral.ai/chat#gemini-coder'
-const is_mistral = current_url == mistral_url
+const is_mistral = current_url.includes('chat.mistral.ai/chat')
 
 const grok_url = 'https://grok.com/#gemini-coder'
-const is_grok = current_url == grok_url
+const is_grok = current_url.includes('grok.com/')
 
 // No need for special handling
 // const huggingchat_url = 'https://huggingface.co/chat/'
@@ -45,9 +55,18 @@ export const get_textarea_element = () => {
     [deepseek_url]: 'textarea',
     [mistral_url]: 'textarea'
   } as any
-  const selector = chatbot_selectors[current_url]
+
+  // Find the appropriate selector based on the URL without the hash
+  let selector = null
+  for (const [url, sel] of Object.entries(chatbot_selectors)) {
+    if (current_url.includes(url.split('#')[0])) {
+      selector = sel
+      break
+    }
+  }
+
   const active_element = selector
-    ? (document.querySelector(selector) as HTMLElement)
+    ? (document.querySelector(selector as string) as HTMLElement)
     : (document.activeElement as HTMLElement)
   return active_element
 }
@@ -211,19 +230,35 @@ const apply_settings_and_submit = async (params: {
 }
 
 const main = async () => {
-  if (window.location.hash != '#gemini-coder') return
+  if (!is_gemini_coder_hash) return
 
+  // Remove the hash from the URL to avoid reloading the content script if the page is refreshed
   history.replaceState(
     null,
     '',
     window.location.pathname + window.location.search
   )
 
-  const storage = await browser.storage.local.get('message')
-  const message = storage.message as InitializeChatsMessage
-  const current_chat = message.chats.find(
-    (chat) => chat.url == document.location.href
-  )!
+  // Get the message using the batch ID from the hash
+  const storage_key = `chat-init:${batch_id}`
+  const storage = await browser.storage.local.get(storage_key)
+  const message = storage[storage_key] as InitializeChatsMessage
+
+  if (!message) {
+    console.error(
+      'Chat initialization message not found for batch ID:',
+      batch_id
+    )
+    return
+  }
+
+  const base_url = window.location.href.split('#')[0]
+  const current_chat = message.chats.find((chat) => chat.url.includes(base_url))
+
+  if (!current_chat) {
+    console.error('Chat configuration not found for this URL:', base_url)
+    return
+  }
 
   // Quirks mitigation
   if (is_ai_studio) {
@@ -342,6 +377,9 @@ const main = async () => {
     model: current_chat.model,
     text: message.text
   })
+
+  // Clean up the storage entry after using it
+  await browser.storage.local.remove(storage_key)
 }
 
 window.onload = main

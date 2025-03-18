@@ -3,11 +3,12 @@
   "author": "Robert Piosik",
   "name": "Gemini Coder Connector",
   "short_name": "gemini-coder-connector",
-  "description": "Helper extension for Gemini Coder, the 2M context AI coding assistant.",
-  "version": "0.1.30",
+  "description": "Browser connector for Gemini Coder VS Code extension. Enables hands-free chat initialization and using any website in context.",
+  "version": "0.1.31",
   "homepage_url": "https://github.com/robertpiosik/gemini-coder",
   "icons": {
     "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
