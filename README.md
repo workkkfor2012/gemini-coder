@@ -41,6 +41,15 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
 
+## Quick Start
+
+1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
+2. Open VS Code and navigate to settings
+3. Search for "Gemini Coder" and paste your API key
+4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Gemini Coder" to see available commands
+5. Select files/folders in the workspace explorer to include as context
+6. Start using FIM completions, refactoring, or web chat features!
+
 ## Commands
 
 #### FIM Completions
@@ -123,6 +132,10 @@ To use saved contexts:
 1. In the workspace view actions toolbar find discette icon.
 2. Select a context.
 3. Paths listed in the selected context are checked.
+
+## Contributing
+
+All contributions are welcome. Feel free to submit pull requests or create issues and discussions.
 
 ## License
 
