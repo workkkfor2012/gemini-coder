@@ -1,20 +1,40 @@
-<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 16 16">
-  <path
-    d="M16 8.016A8.522 8.522 0 008.016 16h-.032A8.521 8.521 0 000 8.016v-.032A8.521 8.521 0 007.984 0h.032A8.522 8.522 0 0016 7.984v.032z"
-    fill="url(#prefix__paint0_radial_980_20147)"
-  />
+<svg
+  viewBox="0 0 122 128"
+  xmlns="http://www.w3.org/2000/svg"
+>
   <defs>
-    <radialGradient
-      id="prefix__paint0_radial_980_20147"
-      cx="0"
-      cy="0"
-      r="1"
-      gradientUnits="userSpaceOnUse"
-      gradientTransform="matrix(16.1326 5.4553 -43.70045 129.2322 1.588 6.503)"
-    >
-      <stop offset=".2" stop-color="#9168C0" />
-      <stop offset=".3" stop-color="#319749" />
-      <stop offset=".6" stop-color="#42de67" />
-    </radialGradient>
+    <!-- Gradient for the largest star -->
+    <linearGradient id="gradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="30%" stop-color="#9168C0" />
+      <stop offset="55%" stop-color="#319749" />
+      <stop offset="75%" stop-color="#42de67" />
+    </linearGradient>
+    
+    <!-- Gradient for the medium star -->
+    <linearGradient id="gradient2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="20%" stop-color="#42de67" />
+      <stop offset="50%" stop-color="#36B755" />
+      <stop offset="90%" stop-color="#319749" />
+    </linearGradient>
+    
+    <!-- Gradient for the smallest star -->
+    <linearGradient id="gradient3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="20%" stop-color="#42de67" />
+      <stop offset="50%" stop-color="#36B755" />
+      <stop offset="90%" stop-color="#319749" />
+    </linearGradient>
   </defs>
+  
+  <path
+    d="M43.6998 80.07C43.7798 79.88 51.7898 61.21 73.0998 48.46L79.2198 44.8L73.0998 41.13C51.7898 28.39 43.7798 9.71996 43.7098 9.53996L39.7898 0.0799561L35.8298 9.52996C35.7498 9.71996 27.7398 28.39 6.4298 41.14L0.299805 44.8L6.4198 48.46C27.7298 61.21 35.7398 79.88 35.8198 80.07L39.7398 89.51L43.6998 80.07Z"
+    fill="url(#gradient1)"
+  />
+  <path
+    d="M114.92 67.26C101.6 60.68 96.5802 51.13 96.5402 51.05L93.2302 44.49L89.8702 51.04C89.8202 51.13 84.8002 60.68 71.4802 67.27L64.7002 70.62L71.4802 73.97C84.7702 80.54 89.8002 90.05 89.8702 90.2L93.1702 96.75L96.5302 90.2C96.5802 90.11 101.6 80.56 114.92 73.97L121.7 70.62L114.92 67.26Z"
+    fill="url(#gradient2)"
+  />
+  <path
+    d="M64.1801 80.8199L60.7501 72.2799L57.2601 80.8099C57.2201 80.8999 53.2301 90.4199 42.7201 96.9199L37.5801 100.1L42.7201 103.27C53.1801 109.74 57.1801 119.19 57.2601 119.38L60.6901 127.91L64.1801 119.38C64.2201 119.28 68.2001 109.77 78.7201 103.27L83.8601 100.1L78.7201 96.9199C68.2001 90.4199 64.2101 80.9099 64.1801 80.8199Z"
+    fill="url(#gradient3)"
+  />
 </svg>
