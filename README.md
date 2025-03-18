@@ -9,7 +9,7 @@
   <br>
 </div>
 
-[![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/media/walkthrough.gif)]()
+[![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif)]()
 
 ## Introduction
 
