@@ -9,6 +9,8 @@
   <br>
 </div>
 
+[![ScreenCast](https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/vscode/resources/walkthrough.gif)]()
+
 ## Introduction
 
 The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click, copy them and hit _Apply changes_ ✨.

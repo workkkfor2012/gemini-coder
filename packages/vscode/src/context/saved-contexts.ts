@@ -44,11 +44,11 @@ export async function select_saved_context(
       config.savedContexts = [
         {
           name: 'Backend only',
-          paths: ['packages/server/src']
+          paths: ['packages/server/src/types', 'packages/server/src/utils']
         },
         {
           name: 'Frontend only',
-          paths: ['packages/client/src']
+          paths: ['packages/client/src/styles', 'packages/client/src/helpers']
         }
       ]
 
@@ -147,9 +147,7 @@ async function create_example_config(
 
   try {
     fs.writeFileSync(config_path, JSON.stringify(example_config, null, 2))
-    vscode.window.showInformationMessage(
-      'Example config created at .vscode/gemini-coder.json'
-    )
+    vscode.window.showInformationMessage('Example config has been created.')
     return config_path
   } catch (error: any) {
     vscode.window.showErrorMessage(
