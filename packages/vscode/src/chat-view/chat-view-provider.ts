@@ -11,6 +11,7 @@ import {
 import { WebsitesProvider } from '../context/websites-provider'
 import { OpenEditorsProvider } from '@/context/open-editors-provider'
 import { WorkspaceProvider } from '@/context/workspace-provider'
+import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
@@ -235,9 +236,16 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   active_path
                 })
 
+                // Apply prefixes and suffixes to the instruction
+                const modified_instruction =
+                  apply_preset_affixes_to_instruction(
+                    message.instruction,
+                    message.preset_names
+                  )
+
                 const text = `${
                   context_text ? `<files>\n${context_text}</files>\n` : ''
-                }${message.instruction}`
+                }${modified_instruction}`
 
                 this.websocket_server_instance.initialize_chats(
                   text,

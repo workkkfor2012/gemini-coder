@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
+import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
 
 export function web_chat_with_command(
   context: vscode.ExtensionContext,
@@ -79,9 +80,15 @@ export function web_chat_with_command(
         return
       }
 
+      // Apply prefixes and suffixes to the instruction
+      const modified_instruction = apply_preset_affixes_to_instruction(
+        instruction,
+        [selected_preset.label]
+      )
+
       const final_text = `${
         context_text ? `<files>\n${context_text}</files>\n` : ''
-      }${instruction}`
+      }${modified_instruction}`
 
       // Initialize chat with selected preset name
       websocket_server_instance.initialize_chats(final_text, [
@@ -181,9 +188,15 @@ export function web_chat_command(
       return
     }
 
+    // Apply prefixes and suffixes to the instruction
+    const modified_instruction = apply_preset_affixes_to_instruction(
+      instruction,
+      selected_names
+    )
+
     const final_text = `${
       context_text ? `<files>\n${context_text}</files>\n` : ''
-    }${instruction}`
+    }${modified_instruction}`
 
     // Initialize chats with selected preset names
     websocket_server_instance.initialize_chats(final_text, selected_names)
