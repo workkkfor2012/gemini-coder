@@ -15,7 +15,7 @@
 }
 
 .textarea {
-  padding: 8px;
+  padding: 5px 7px;
   font-family: sans-serif;
   font-size: inherit;
   line-height: 1.5;
@@ -30,15 +30,10 @@
   overflow-wrap: break-word;
   word-break: break-word;
   letter-spacing: normal;
-  box-sizing: border-box; /* Ensure padding is included in width/height */
-  margin: 0; /* Reset default margins */
-  
+
   &:focus {
     outline: none;
   }
-
-  /* This ensures consistent padding even with scrollbar */
-  scrollbar-gutter: stable;
 }
 
 .highlight_container {
@@ -47,7 +42,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 8px;
+  padding: 5px 7px;
   font-family: sans-serif;
   font-size: inherit;
   line-height: 1.5;
@@ -55,28 +50,18 @@
   white-space: pre-wrap;
   overflow-wrap: break-word;
   word-break: break-word;
-  overflow-y: auto; /* Changed from hidden to auto to match textarea */
+  overflow-y: auto;
   overflow-x: hidden;
   z-index: 0;
   color: transparent;
   letter-spacing: normal;
-  box-sizing: border-box; /* Ensure padding is included in width/height */
-  margin: 0; /* Reset default margins */
-
-  /* This ensures the highlight container accounts for scrollbar space */
-  scrollbar-gutter: stable;
-}
-
-.highlight_container_with_scrollbar {
-  /* Apply right padding when scrollbar is present 
-     Typical scrollbar width is ~17px but can vary by browser and OS */
-  padding-right: calc(8px + 17px);
+  margin: 0;
 }
 
 .selection_keyword {
   background-color: var(--vscode-editor-selectionBackground, #264f78);
   border-radius: 3px;
-  padding: 0 1px; /* Small padding to prevent tight wrapping */
+  padding: 0 1px;
 }
 
 .footer {
@@ -87,7 +72,7 @@
   gap: 16px;
   justify-content: space-between;
 
-  &__modes {
+  &__left {
     display: flex;
     gap: 4px;
 
@@ -95,13 +80,22 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 2px 6px;
+      padding: 6px;
+      height: 20px;
       border-radius: 5px;
       color: var(--vscode-icon-foreground);
-      font-size: 11px;
+      font-size: 12px;
 
       &:hover {
         background-color: var(--vscode-toolbar-hoverBackground);
+      }
+
+      &--fim {
+        padding-left: 0;
+      }
+
+      &--selection > span {
+        padding-bottom: 2px;
       }
 
       &--disabled {
@@ -124,7 +118,7 @@
     }
   }
 
-  &__actions {
+  &__right {
     flex-shrink: 0;
     display: flex;
     gap: 4px;

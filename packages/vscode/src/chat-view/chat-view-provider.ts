@@ -17,6 +17,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
+  private _has_active_selection: boolean = false
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -65,6 +66,37 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       setTimeout(update_editor_state, 100)
     )
     update_editor_state()
+
+    // Add selection change listener
+    vscode.window.onDidChangeTextEditorSelection((event) => {
+      const has_selection = !event.textEditor.selection.isEmpty
+      if (has_selection !== this._has_active_selection) {
+        this._has_active_selection = has_selection
+        if (this._webview_view) {
+          this._send_message<ExtensionMessage>({
+            command: 'EDITOR_SELECTION_CHANGED',
+            hasSelection: has_selection
+          })
+        }
+      }
+    })
+
+    const update_selection_state = () => {
+      const activeTextEditor = vscode.window.activeTextEditor
+      const has_selection = activeTextEditor ? !activeTextEditor.selection.isEmpty : false
+      this._has_active_selection = has_selection
+      if (this._webview_view) {
+        this._send_message<ExtensionMessage>({
+          command: 'EDITOR_SELECTION_CHANGED',
+          hasSelection: has_selection
+        })
+      }
+    }
+
+    vscode.window.onDidChangeActiveTextEditor(() =>
+      setTimeout(update_selection_state, 100)
+    )
+    update_selection_state()
   }
 
   private _send_message<T extends ExtensionMessage>(message: T) {
@@ -460,6 +492,14 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               })
               break
             }
+
+            case 'REQUEST_EDITOR_SELECTION_STATE': {
+              this._send_message<ExtensionMessage>({
+                command: 'EDITOR_SELECTION_CHANGED',
+                hasSelection: this._has_active_selection
+              })
+              break
+            }
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
@@ -479,6 +519,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     this._send_message<ExtensionMessage>({
       command: 'EDITOR_STATE_CHANGED',
       hasActiveEditor: this._has_active_editor
+    })
+    this._send_message<ExtensionMessage>({
+      command: 'EDITOR_SELECTION_CHANGED',
+      hasSelection: this._has_active_selection
     })
   }
 

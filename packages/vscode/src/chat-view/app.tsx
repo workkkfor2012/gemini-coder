@@ -13,7 +13,8 @@ import {
   PresetsSelectedFromPickerMessage,
   ExpandedPresetsMessage,
   FimModeMessage,
-  EditorStateChangedMessage
+  EditorStateChangedMessage,
+  EditorSelectionChangedMessage
 } from './types/messages'
 
 const vscode = acquireVsCodeApi()
@@ -31,6 +32,7 @@ function App() {
   const [expanded_presets, set_expanded_presets] = useState<number[]>([])
   const [is_fim_mode, set_is_fim_mode] = useState<boolean>()
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
+  const [has_active_selection, set_has_active_selection] = useState<boolean>(false)
 
   useEffect(() => {
     vscode.postMessage({ command: 'GET_LAST_PROMPT' } as WebviewMessage)
@@ -89,6 +91,11 @@ function App() {
               enabled: false
             } as WebviewMessage)
           }
+          break
+        case 'EDITOR_SELECTION_CHANGED':
+          set_has_active_selection(
+            (message as EditorSelectionChangedMessage).hasSelection
+          )
           break
       }
     }
@@ -210,6 +217,7 @@ function App() {
       has_active_editor={has_active_editor}
       is_fim_mode={is_fim_mode && has_active_editor}
       on_fim_mode_click={handle_fim_mode_click}
+      has_active_selection={has_active_selection}
     />
   )
 }

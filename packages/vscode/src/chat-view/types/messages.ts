@@ -86,6 +86,10 @@ export interface RequestEditorStateMessage extends BaseMessage {
   command: 'REQUEST_EDITOR_STATE'
 }
 
+export interface RequestEditorSelectionStateMessage extends BaseMessage {
+  command: 'REQUEST_EDITOR_SELECTION_STATE'
+}
+
 /**
  * Messages from extension to webview:
  */
@@ -145,6 +149,11 @@ export interface EditorStateChangedMessage extends BaseMessage {
   hasActiveEditor: boolean
 }
 
+export interface EditorSelectionChangedMessage extends BaseMessage {
+  command: 'EDITOR_SELECTION_CHANGED'
+  hasSelection: boolean
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetLastPromptMessage
@@ -165,6 +174,7 @@ export type WebviewMessage =
   | GetFimModeMessage
   | SaveFimModeMessage
   | RequestEditorStateMessage
+  | RequestEditorSelectionStateMessage
 
 // Union type of all possible outgoing messages to webview
 export type ExtensionMessage =
@@ -177,3 +187,4 @@ export type ExtensionMessage =
   | ExpandedPresetsMessage
   | FimModeMessage
   | EditorStateChangedMessage
+  | EditorSelectionChangedMessage
