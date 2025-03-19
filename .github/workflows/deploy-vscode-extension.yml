@@ -1,0 +1,43 @@
+name: Deploy VS Code Extension
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'packages/vscode/package.json'
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Setup PNPM
+        uses: pnpm/action-setup@v2
+        with:
+          version: 8
+          run_install: false
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Build VS Code extension
+        run: |
+          cd packages/vscode
+          pnpm compile
+
+      - name: Publish VS Code Extension
+        run: |
+          cd packages/vscode
+          npx @vscode/vsce publish -p ${{ secrets.VSCE_PAT }}
+        env:
+          VSCE_PAT: ${{ secrets.VSCE_PAT }}
