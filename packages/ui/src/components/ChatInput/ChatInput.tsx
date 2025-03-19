@@ -21,8 +21,12 @@ export const ChatInput: React.FC<Props> = (props) => {
   const highlight_ref = useRef<HTMLDivElement>(null)
   const container_ref = useRef<HTMLDivElement>(null)
 
-  // Process text to highlight @selection
+  // Replace the existing get_highlighted_text function with this one
   const get_highlighted_text = (text: string) => {
+    if (props.is_fim_mode) {
+      return <span>{text}</span>
+    }
+
     const parts = text.split(/(@selection)/g)
     return parts.map((part, index) => {
       if (part == '@selection') {
