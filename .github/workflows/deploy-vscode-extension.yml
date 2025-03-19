@@ -6,7 +6,6 @@ on:
       - master
     paths:
       - 'packages/vscode/package.json'
-      - '.github/workflows/deploy-vscode-extension.yml'
   workflow_dispatch:
 
 jobs:
