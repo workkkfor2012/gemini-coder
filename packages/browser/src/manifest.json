@@ -3,7 +3,7 @@
   "author": "Robert Piosik",
   "name": "Gemini Coder Connector",
   "short_name": "gemini-coder-connector",
-  "description": "Browser connector for Gemini Coder VS Code extension. Enables hands-free chat initialization and adding websites to context.",
+  "description": "Browser integration for Gemini Coder VS Code extension. Enables hands-free chat initialization and adding websites to context.",
   "version": "0.1.32",
   "homepage_url": "https://github.com/robertpiosik/gemini-coder",
   "icons": {

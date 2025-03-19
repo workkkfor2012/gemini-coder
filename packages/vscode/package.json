@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
-  "description": "Free and open-source AI coding assistant with first class support for AI Studio and Gemini API.",
-  "version": "1.0.232",
+  "description": "Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.",
+  "version": "1.0.234",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {

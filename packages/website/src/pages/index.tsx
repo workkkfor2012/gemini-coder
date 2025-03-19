@@ -16,7 +16,9 @@ function HomepageHeader() {
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">Free and open-source AI coding assistant with first class support for AI Studio and Gemini API.</p>
+        <p className="hero__subtitle">
+          Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.
+        </p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
@@ -31,12 +33,8 @@ function HomepageHeader() {
 }
 
 export default function Home(): ReactNode {
-  const { siteConfig } = useDocusaurusContext()
   return (
-    <Layout
-      title=""
-      description=""
-    >
+    <Layout title="" description="">
       <HomepageHeader />
       <main>
         <HomepageFeatures />

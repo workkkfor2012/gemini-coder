@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
-  <h4>Free and open-source AI coding assistant with first class support for AI Studio and Gemini API</h4>
+  <h4>Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.</h4>
   <br>
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/visual-studio-marketplace/i/robertpiosik.gemini-coder" alt="Installs"></a>
@@ -21,6 +21,12 @@
 
 The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click, copy them and hit _Apply changes_ ✨.
 
+- Free and open source
+- [Community driven](https://en.wikipedia.org/wiki/Community-driven_development)
+- Works with your own API keys
+- VS Code Native UI
+- Easy to use, fast and lightweight (~1MB)
+
 ## You own the context
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
@@ -33,12 +39,12 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Features
 
-- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying AI suggested changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
-- Configure additional OpenAI API compatible AI providers.
-- Full control over [context](https://gemini-coder.netlify.app/docs/context) sent in API requests and chats.
-- Initialize web chats hands-free. [Web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) supports all popular chatbots:
-  - [AI Studio](https://aistudio.google.com/app/prompts/new_chat)
-  - [Gemini](https://gemini.google.com/app)
+## Features
+
+- Hand-picking [context](https://gemini-coder.netlify.app/docs/context) for chatbots.
+- Dedicated [web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) with support for:
+  - **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
+  - **[Gemini](https://gemini.google.com/app)**
   - [ChatGPT](https://chatgpt.com/)
   - [Claude](https://claude.ai/new)
   - [GitHub Copilot](https://github.com/copilot)
@@ -46,15 +52,24 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [DeepSeek](https://chat.deepseek.com/)
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
+- Presets for automatically prefixed and suffixed chat instructions, or specific model, temperature, system instructions and options, e.g. canvas set (support vary).
+- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying AI suggested changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
+- Compatible with OpenAI API.
 
-## Quick Start
+## Quick start for chat
 
-1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Open VS Code and navigate to settings
-3. Search for "Gemini Coder" and paste your API key
-4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Gemini Coder" to see available commands
-5. Select files/folders in the workspace explorer to include as context
-6. Start using FIM completions, refactoring, or web chat features!
+1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+2. Select files/folders for the context.
+3. Click copy icon from the toolbar.
+4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
+
+## Quick start for FIM completions
+
+1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
+2. Open VS Code and navigate to settings.
+3. Search for "Gemini Coder" and paste your API key.
+4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "FIM Completion".
+5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: FIM Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
 
 ## Commands
 

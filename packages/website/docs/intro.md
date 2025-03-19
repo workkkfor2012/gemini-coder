@@ -7,6 +7,12 @@ hide_table_of_contents: true
 
 The extension lets you granularly pick context and initalize chats in the web browser, hands-free! Use the same context using powerful API features: Fill-In-the-Middle (FIM) completions and file refactoring. To integrate AI suggested modifications to any file with a single click, copy them and hit _Apply changes_ ✨.
 
+- Free and open source
+- [Community driven](https://en.wikipedia.org/wiki/Community-driven_development)
+- Works with your own API keys
+- VS Code Native UI
+- Easy to use, fast and lightweight (~1MB)
+
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 
 ## You own the context
@@ -21,12 +27,10 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Features
 
-- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](/docs/features/fim), [file refactoring](/docs/features/refactor) and [applying AI suggested changes](/docs/features/apply-changes).
-- Configure additional OpenAI API compatible AI providers.
-- Full control over [context](/docs/context) sent in API requests and chats.
-- Initialize web chats hands-free. [Web browser integration](/docs/installation/web-browser-integration) supports all popular chatbots:
-  - [AI Studio](https://aistudio.google.com/app/prompts/new_chat)
-  - [Gemini](https://gemini.google.com/app)
+- Hand-picking [context](/docs/context) for chatbots.
+- Dedicated [web browser integration](/docs/installation/web-browser-integration) with support for:
+  - **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
+  - **[Gemini](https://gemini.google.com/app)**
   - [ChatGPT](https://chatgpt.com/)
   - [Claude](https://claude.ai/new)
   - [GitHub Copilot](https://github.com/copilot)
@@ -34,12 +38,6 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [DeepSeek](https://chat.deepseek.com/)
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
-
-## Quick Start
-
-1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey)
-2. Open VS Code and navigate to settings
-3. Search for "Gemini Coder" and paste your API key
-4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Gemini Coder" to see available commands
-5. Select files/folders in the workspace explorer to include as context
-6. Start using FIM completions, refactoring, or web chat features!
+- Presets for automatically prefixed and suffixed chat instructions, or specific model, temperature, system instructions and options, e.g. canvas set (support vary).
+- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](/docs/features/fim), [file refactoring](/docs/features/refactor) and [applying AI suggested changes](/docs/features/apply-changes).
+- Compatible with OpenAI API.
