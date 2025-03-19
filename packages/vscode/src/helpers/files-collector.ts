@@ -32,7 +32,7 @@ export class FilesCollector {
     active_path?: string
   }): Promise<string> {
     // Get checked files from both providers
-    const workspace_files = this.file_tree_provider.getCheckedFiles()
+    const workspace_files = this.file_tree_provider.get_checked_files()
     const open_editor_files =
       this.open_editors_provider?.get_checked_files() || []
 

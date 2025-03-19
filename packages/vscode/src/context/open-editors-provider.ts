@@ -240,7 +240,7 @@ export class OpenEditorsProvider
   // New method to check if a file is checked in workspace view
   private _is_file_checked_in_workspace(file_path: string): boolean {
     // Get checked files from workspace provider through SharedFileState
-    const workspace_checked_files = this._shared_state.getCheckedFiles()
+    const workspace_checked_files = this._shared_state.get_checked_files()
     return workspace_checked_files.includes(file_path)
   }
 
@@ -359,7 +359,7 @@ export class OpenEditorsProvider
     const open_files = this._get_open_editors()
 
     // Get all checked workspace files for reference
-    const workspace_checked_files = this._shared_state.getCheckedFiles()
+    const workspace_checked_files = this._shared_state.get_checked_files()
 
     for (const file_uri of open_files) {
       const file_path = file_uri.fsPath
@@ -579,7 +579,7 @@ export class OpenEditorsProvider
 
     const open_files = this._get_open_editors()
     // Get checked workspace files for reference
-    const workspace_checked_files = this._shared_state.getCheckedFiles()
+    const workspace_checked_files = this._shared_state.get_checked_files()
 
     for (const uri of open_files) {
       const file_path = uri.fsPath

@@ -23,6 +23,7 @@ The extension lets you granularly pick context and initalize chats in the web br
 
 - Free and open source
 - No API key requried
+- No usage tracking
 - Easy to use and lightweight (~1MB)
 - Works with all VS Code based editors (Cursor, Windsurf, VSCodium, etc.)
 

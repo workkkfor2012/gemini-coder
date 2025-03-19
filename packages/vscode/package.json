@@ -127,6 +127,11 @@
         "icon": "$(clear-all)"
       },
       {
+        "command": "geminiCoder.collapseFolders",
+        "title": "Collapse Folders",
+        "icon": "$(collapse-all)"
+      },
+      {
         "command": "geminiCoder.checkAllOpenEditors",
         "title": "Check All",
         "icon": "$(check-all)"
@@ -247,6 +252,11 @@
           "command": "geminiCoder.clearChecks",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@4"
+        },
+        {
+          "command": "geminiCoder.collapseFolders",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@5"
         },
         {
           "command": "geminiCoder.checkAllOpenEditors",

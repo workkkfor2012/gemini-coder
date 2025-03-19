@@ -72,7 +72,7 @@ export class SharedFileState {
 
     try {
       // Get checked files from both providers
-      const workspace_checked_files = this.workspace_provider.getCheckedFiles()
+      const workspace_checked_files = this.workspace_provider.get_checked_files()
       const open_editors_checked_files =
         this.open_editors_provider.get_checked_files()
 
@@ -169,7 +169,7 @@ export class SharedFileState {
     if (!this.workspace_provider) return false
 
     // Get all checked files from the workspace provider
-    const workspace_checked_files = this.workspace_provider.getCheckedFiles()
+    const workspace_checked_files = this.workspace_provider.get_checked_files()
 
     // Direct check if the file itself is checked
     if (workspace_checked_files.includes(file_path)) {
@@ -263,14 +263,14 @@ export class SharedFileState {
       contextValue: 'file'
     }
 
-    await this.workspace_provider.updateCheckState(fake_item, state)
+    await this.workspace_provider.update_check_state(fake_item, state)
   }
 
   // Update the merged set of checked files by recalculating from both providers
   private update_checked_files_set() {
     if (!this.workspace_provider || !this.open_editors_provider) return
 
-    const workspace_checked_files = this.workspace_provider.getCheckedFiles()
+    const workspace_checked_files = this.workspace_provider.get_checked_files()
     const open_editors_checked_files =
       this.open_editors_provider.get_checked_files()
 
@@ -281,11 +281,11 @@ export class SharedFileState {
     ])
   }
 
-  getCheckedFiles(): string[] {
+  get_checked_files(): string[] {
     return Array.from(this.checked_files)
   }
 
-  async updateCheckedFile(file_path: string, is_checked: boolean) {
+  async update_checked_file(file_path: string, is_checked: boolean) {
     if (is_checked) {
       this.checked_files.add(file_path)
       this.unchecked_in_open_editors.delete(file_path)

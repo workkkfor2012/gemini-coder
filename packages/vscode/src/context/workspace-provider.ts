@@ -226,7 +226,7 @@ export class WorkspaceProvider
   }
 
   // Mark files opened from workspace view
-  markOpenedFromWorkspaceView(file_path: string): void {
+  mark_opened_from_workspace_view(file_path: string): void {
     this.opened_from_workspace_view.add(file_path)
   }
 
@@ -350,7 +350,7 @@ export class WorkspaceProvider
     this._on_did_change_tree_data.fire()
   }
 
-  clearChecks(): void {
+  clear_checks(): void {
     this.checked_items.clear()
     this.partially_checked_dirs.clear()
     this.refresh()
@@ -614,7 +614,7 @@ export class WorkspaceProvider
     return items
   }
 
-  async updateCheckState(
+  async update_check_state(
     item: FileItem,
     state: vscode.TreeItemCheckboxState
   ): Promise<void> {
@@ -780,7 +780,7 @@ export class WorkspaceProvider
     }
   }
 
-  getCheckedFiles(): string[] {
+  get_checked_files(): string[] {
     return Array.from(this.checked_items.entries())
       .filter(
         ([file_path, state]) =>
@@ -793,7 +793,7 @@ export class WorkspaceProvider
       .map(([path, _]) => path)
   }
 
-  public async setCheckedFiles(file_paths: string[]): Promise<void> {
+  public async set_checked_files(file_paths: string[]): Promise<void> {
     // Clear existing checks
     this.checked_items.clear()
     this.partially_checked_dirs.clear()
