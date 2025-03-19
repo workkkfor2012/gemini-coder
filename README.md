@@ -4,6 +4,11 @@
   <h1>Gemini Coder</h1>
   <h4>Free and open-source AI coding assistant with first class support for AI Studio and Gemini API</h4>
   <br>
+  <img src="https://img.shields.io/badge/License-MIT-yellow.svg" alt="MIT License">
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/visual-studio-marketplace/i/robertpiosik.gemini-coder" alt="Installs"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details"><img src="https://img.shields.io/visual-studio-marketplace/r/robertpiosik.gemini-coder" alt="Rating"></a>
+  <a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-yellow.svg" alt="Buy Me A Coffee"></a>
+  <br>  <br>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
   <br>
   <br>

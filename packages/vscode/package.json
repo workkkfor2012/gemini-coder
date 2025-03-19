@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Free and open-source AI coding assistant with first class support for AI Studio and Gemini API.",
-  "version": "1.0.230",
+  "version": "1.0.231",
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {
