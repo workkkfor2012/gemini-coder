@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import styles from './ChatInput.module.scss'
 import TextareaAutosize from 'react-textarea-autosize'
 import cn from 'classnames'
@@ -17,6 +17,19 @@ type Props = {
 
 export const ChatInput: React.FC<Props> = (props) => {
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
+  const highlight_ref = useRef<HTMLDivElement>(null)
+  const container_ref = useRef<HTMLDivElement>(null)
+  
+  // Process text to highlight @selection
+  const getHighlightedText = (text: string) => {
+    const parts = text.split(/(@selection)/g)
+    return parts.map((part, index) => {
+      if (part == '@selection') {
+        return <span key={index} className={styles.selection_keyword}>{part}</span>
+      }
+      return <span key={index}>{part}</span>
+    })
+  }
 
   useEffect(() => {
     if (textarea_ref.current) {
@@ -66,9 +79,15 @@ export const ChatInput: React.FC<Props> = (props) => {
   const handle_container_click = () => {
     textarea_ref.current?.focus()
   }
-
+  
   return (
-    <div className={styles.container} onClick={handle_container_click}>
+    <div className={styles.container} onClick={handle_container_click} ref={container_ref}>
+      <div 
+        className={styles.highlight_container}
+        ref={highlight_ref}
+      >
+        {getHighlightedText(props.value)}
+      </div>
       <TextareaAutosize
         ref={textarea_ref}
         placeholder={
@@ -83,7 +102,6 @@ export const ChatInput: React.FC<Props> = (props) => {
         autoFocus
         className={styles.textarea}
         minRows={2}
-        maxRows={12}
       />
       <div className={styles.footer}>
         <div className={styles.footer__modes}>

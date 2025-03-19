@@ -73,6 +73,30 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  // Helper method to replace @selection with selected text
+  private _replace_selection_placeholder(instruction: string): string {
+    if (!instruction.includes('@selection')) {
+      return instruction
+    }
+
+    const active_editor = vscode.window.activeTextEditor
+    if (!active_editor || active_editor.selection.isEmpty) {
+      // If no selection, just return the original instruction
+      vscode.window.showInformationMessage(
+        'No text selected for @selection placeholder.'
+      )
+      return instruction.replace(/@selection/g, '')
+    }
+
+    const selected_text = active_editor.document.getText(
+      active_editor.selection
+    )
+    return instruction.replace(
+      /@selection/g,
+      `\n\`\`\`\n${selected_text}\n\`\`\`\n`
+    )
+  }
+
   async resolveWebviewView(
     webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
@@ -236,10 +260,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                   active_path
                 })
 
+                // Replace @selection with selected text if present
+                const instruction = this._replace_selection_placeholder(
+                  message.instruction
+                )
+
                 // Apply prefixes and suffixes to the instruction
                 const modified_instruction =
                   apply_preset_affixes_to_instruction(
-                    message.instruction,
+                    instruction,
                     message.preset_names
                   )
 
@@ -307,9 +336,15 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 const context_text = await files_collector.collect_files({
                   active_path
                 })
+
+                // Replace @selection with selected text if present
+                const instruction = this._replace_selection_placeholder(
+                  message.instruction
+                )
+
                 const text = `${
                   context_text ? `<files>\n${context_text}</files>\n` : ''
-                }${message.instruction}`
+                }${instruction}`
                 await vscode.env.clipboard.writeText(text)
               }
 
