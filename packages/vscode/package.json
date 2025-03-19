@@ -3,6 +3,13 @@
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.",
   "version": "1.0.235",
+  "scripts": {
+    "build": "npx vsce package --no-dependencies",
+    "vscode:prepublish": "npm run compile",
+    "compile": "webpack --config ./webpack.config.js",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
+  },
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
   "repository": {
@@ -521,13 +528,6 @@
         }
       }
     }
-  },
-  "scripts": {
-    "build": "vsce package --no-dependencies",
-    "vscode:prepublish": "npm run compile",
-    "compile": "webpack --config ./webpack.config.js",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
   },
   "devDependencies": {
     "@babel/core": "^7.24.0",
