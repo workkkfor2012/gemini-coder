@@ -39,8 +39,6 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Features
 
-## Features
-
 - Hand-picking [context](https://gemini-coder.netlify.app/docs/context) for chatbots.
 - Dedicated [web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) with support for:
   - **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
