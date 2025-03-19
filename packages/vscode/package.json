@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.",
-  "version": "1.0.240",
+  "version": "1.0.241",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -382,7 +382,7 @@
               "promptSuffix": "",
               "model": "gemini-2.0-flash",
               "temperature": 0.5,
-              "systemInstructions": "You are an AI coding assistant."
+              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
               "name": "AI Studio with Flash Thinking Exp",
@@ -391,7 +391,7 @@
               "promptSuffix": "",
               "model": "gemini-2.0-flash-thinking-exp-01-21",
               "temperature": 0.5,
-              "systemInstructions": "You are an AI coding assistant."
+              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
               "name": "AI Studio with Pro Exp",
@@ -400,7 +400,7 @@
               "promptSuffix": "",
               "model": "gemini-2.0-pro-exp-02-05",
               "temperature": 0.5,
-              "systemInstructions": "You are an AI coding assistant."
+              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
               "name": "Gemini",
@@ -537,7 +537,7 @@
             },
             "required": [
               "name",
-              "provider"
+              "chatbot"
             ]
           }
         }

@@ -1,25 +1,23 @@
-const WebSocket = require('ws')
-const http = require('http')
-const process = require('process')
+const WebSocket = require('ws') // ws works only with requrie
+import * as http from 'http'
+import * as process from 'process'
 
-const {
-  DEFAULT_PORT,
-  SECURITY_TOKENS
-} = require('../../../shared/src/constants/websocket')
+import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
+import { Website } from '@shared/types/websocket-message'
 
-const PORT = DEFAULT_PORT
-const SECURITY_TOKEN_BROWSERS = SECURITY_TOKENS.BROWSERS
-const SECURITY_TOKEN_VSCODE = SECURITY_TOKENS.VSCODE
+interface BrowserClient {
+  ws: WebSocket
+  version: string
+}
 
-const vscode_clients = new Set()
-let current_browser_client = null
-const connections = new Set()
+const vscode_clients: Set<WebSocket> = new Set()
+let current_browser_client: BrowserClient | null = null
+const connections: Set<WebSocket> = new Set()
 
-// Storage for saved websites
-let saved_websites = []
+let saved_websites: Website[] = []
 
 // Create HTTP server
-const server = http.createServer((req, res) => {
+const server = http.createServer((req: any, res: any) => {
   if (req.url == '/health') {
     res.writeHead(200, { 'Content-Type': 'application/json' })
     res.end(
@@ -35,10 +33,10 @@ const server = http.createServer((req, res) => {
 })
 
 // Create WebSocket server
-const wss = new WebSocket.WebSocketServer({ server })
+const wss = new WebSocket.Server({ server })
 
 // Notify VS Code clients about browser connection status
-function notify_vscode_clients() {
+function notify_vscode_clients(): void {
   const has_connected_browser = current_browser_client !== null
   const message = JSON.stringify({
     action: 'browser-connection-status',
@@ -53,7 +51,7 @@ function notify_vscode_clients() {
 }
 
 // Send saved websites to a client
-function send_saved_websites_to_client(client) {
+function send_saved_websites_to_client(client: WebSocket): void {
   if (saved_websites.length > 0 && client.readyState == WebSocket.OPEN) {
     client.send(
       JSON.stringify({
@@ -65,7 +63,7 @@ function send_saved_websites_to_client(client) {
 }
 
 // Send ping to browser client
-function ping_clients() {
+function ping_clients(): void {
   if (
     current_browser_client &&
     current_browser_client.ws.readyState == WebSocket.OPEN
@@ -81,18 +79,18 @@ setInterval(ping_clients, 10000) // Every 10 seconds
 console.log(`Starting WebSocket server process (PID: ${process.pid})`)
 
 // Handle WebSocket connections
-wss.on('connection', (ws, request) => {
+wss.on('connection', (ws: any, request: any) => {
   // Verify security token
-  const url = new URL(request.url || '', `http://localhost:${PORT}`)
+  const url = new URL(request.url || '', `http://localhost:${DEFAULT_PORT}`)
   const token = url.searchParams.get('token')
 
-  if (token != SECURITY_TOKEN_BROWSERS && token != SECURITY_TOKEN_VSCODE) {
+  if (token != SECURITY_TOKENS.BROWSERS && token != SECURITY_TOKENS.VSCODE) {
     ws.close(1008, 'Invalid security token')
     return
   }
 
   // Track if this is a browser connection
-  const is_browser_client = token == SECURITY_TOKEN_BROWSERS
+  const is_browser_client = token == SECURITY_TOKENS.BROWSERS
 
   if (is_browser_client) {
     // Extract version from URL parameters
@@ -101,7 +99,7 @@ wss.on('connection', (ws, request) => {
     // Check if there is already a connected browser client
     if (
       current_browser_client &&
-      current_browser_client.ws.readyState === WebSocket.OPEN
+      current_browser_client.ws.readyState == WebSocket.OPEN
     ) {
       console.log(
         `Rejecting new browser client (version: ${version}) - another browser is already connected`
@@ -124,7 +122,7 @@ wss.on('connection', (ws, request) => {
         has_connected_browsers: current_browser_client !== null
       })
     )
-    
+
     // Send saved websites to new VS Code client
     send_saved_websites_to_client(ws)
   }
@@ -132,7 +130,7 @@ wss.on('connection', (ws, request) => {
   connections.add(ws)
 
   // Handle messages from clients
-  ws.on('message', (message) => {
+  ws.on('message', (message: any) => {
     try {
       const msg_string = message.toString()
 
@@ -151,12 +149,11 @@ wss.on('connection', (ws, request) => {
             client.send(msg_string)
           }
         })
-      }
-      else if (msg_data.action == 'update-saved-websites') {
+      } else if (msg_data.action == 'update-saved-websites') {
         // Store the updated websites
         saved_websites = msg_data.websites
         console.log(`Received ${saved_websites.length} saved websites`)
-        
+
         // Forward to VS Code clients
         vscode_clients.forEach((client) => {
           if (client.readyState == WebSocket.OPEN) {
@@ -187,7 +184,7 @@ wss.on('connection', (ws, request) => {
     connections.delete(ws)
   })
 
-  ws.on('error', (error) => {
+  ws.on('error', (error: Error) => {
     console.error('WebSocket error:', error)
     if (
       is_browser_client &&
@@ -206,8 +203,8 @@ wss.on('connection', (ws, request) => {
 })
 
 // Start server
-server.listen(PORT, () => {
-  console.log(`WebSocket server is running on ws://localhost:${PORT}`)
+server.listen(DEFAULT_PORT, () => {
+  console.log(`WebSocket server is running on ws://localhost:${DEFAULT_PORT}`)
 })
 
 // Handle process signals for graceful shutdown
@@ -219,7 +216,7 @@ process.on('SIGTERM', () => {
   shutdown()
 })
 
-function shutdown() {
+function shutdown(): void {
   console.log('Shutting down WebSocket server...')
 
   // Close all connections

@@ -12,7 +12,7 @@ const config = [
     target: 'node',
     entry: {
       extension: './src/extension.ts',
-      'websocket-server-process': './src/services/websocket-server-process.js'
+      'websocket-server-process': './src/services/websocket-server-process.ts'
     },
     output: {
       path: path.resolve(__dirname, 'out'),
@@ -96,7 +96,7 @@ const config = [
           use: ['style-loader', 'css-loader']
         },
         {
-          test: /\.s[ac]ss$/i,
+          test: /\.scss$/i,
           use: [
             'style-loader',
             'css-loader',
@@ -105,7 +105,7 @@ const config = [
               options: {
                 implementation: require('sass-embedded'),
                 sassOptions: {
-                  silenceDeprecations: ["legacy-js-api"],
+                  silenceDeprecations: ['legacy-js-api']
                 }
               }
             }
@@ -148,6 +148,9 @@ const config = [
       filename: '[name].js',
       devtoolModuleFilenameTemplate: '../[resource-path]'
     },
+    performance: {
+      hints: false
+    },
     devtool: 'source-map',
     resolve: {
       extensions: ['.ts', '.tsx', '.js'],
@@ -173,7 +176,7 @@ const config = [
               options: {
                 implementation: require('sass-embedded'),
                 sassOptions: {
-                  silenceDeprecations: ["legacy-js-api"],
+                  silenceDeprecations: ['legacy-js-api']
                 }
               }
             }
