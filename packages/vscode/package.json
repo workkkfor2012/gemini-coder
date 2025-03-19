@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free. Use Fill-In-the-Middle and file refactoring with the selected context. Integrate AI suggested changes with a single click!",
-  "version": "1.0.245",
+  "version": "1.0.246",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
