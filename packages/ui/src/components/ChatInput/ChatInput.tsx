@@ -13,7 +13,7 @@ type Props = {
   is_fim_mode: boolean
   on_fim_mode_click: () => void
   has_active_editor: boolean
-  is_selection_placeholder_enabled: boolean
+  has_active_selection: boolean
 }
 
 export const ChatInput: React.FC<Props> = (props) => {
@@ -106,16 +106,17 @@ export const ChatInput: React.FC<Props> = (props) => {
     }, 0)
   }
 
-  const is_selection_placeholder_enabled = useMemo(() => {
+  const can_insert_selection_placeholder = useMemo(() => {
     if (
-      !props.is_selection_placeholder_enabled ||
-      props.value.includes('@selection')
+      !props.has_active_selection ||
+      props.value.includes('@selection') ||
+      props.is_fim_mode
     ) {
       return false
     } else {
       return true
     }
-  }, [props.is_selection_placeholder_enabled, props.value])
+  }, [props.has_active_selection, props.value])
 
   return (
     <div
@@ -165,7 +166,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             <div className={cn('codicon', 'codicon-insert')} />
             FIM
           </button>
-          {is_selection_placeholder_enabled && (
+          {can_insert_selection_placeholder && (
             <button
               onClick={insert_selection_placeholder}
               className={cn(

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import styles from './Main.module.scss'
 import { Presets as UiPresets } from '@ui/components/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/ChatInput'
@@ -116,7 +116,7 @@ export const Main: React.FC<Props> = (props) => {
         is_fim_mode={props.is_fim_mode}
         on_fim_mode_click={handle_fim_mode_click}
         has_active_editor={props.has_active_editor}
-        is_selection_placeholder_enabled={props.has_active_selection}
+        has_active_selection={props.has_active_selection}
       />
       {!props.is_connected && (
         <>
