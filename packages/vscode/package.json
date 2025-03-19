@@ -51,6 +51,14 @@
     "c#"
   ],
   "main": "out/extension.js",
+  "activationEvents": [],
+  "browser": "./dist/web/extension.js",
+  "capabilities": {
+    "virtualWorkspaces": true,
+    "untrustedWorkspaces": {
+      "supported": true
+    }
+  },
   "icon": "media/logo.png",
   "contributes": {
     "viewsContainers": {
