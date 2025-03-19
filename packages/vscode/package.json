@@ -4,11 +4,7 @@
   "description": "Copy context for chatbots or initialize them hands-free. Use FIM and file refactoring with hand-picked context.",
   "version": "1.0.235",
   "scripts": {
-    "build": "npx vsce package --no-dependencies",
-    "vscode:prepublish": "npm run compile",
-    "compile": "webpack --config ./webpack.config.js",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build": "npx vsce package --no-dependencies"
   },
   "publisher": "robertpiosik",
   "homepage": "https://gemini-coder.netlify.app/",
@@ -534,7 +530,6 @@
     "@babel/preset-env": "^7.24.0",
     "@babel/preset-react": "^7.23.3",
     "@babel/preset-typescript": "^7.23.3",
-    "@storybook/react": "^7.6.17",
     "@types/node": "20.x",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
@@ -547,7 +542,6 @@
     "mini-css-extract-plugin": "^2.9.0",
     "sass-embedded": "^1.86.0",
     "sass-loader": "^12.4.0",
-    "storybook": "^7.6.17",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.5.1",
     "typed-css-modules": "^0.9.1",
