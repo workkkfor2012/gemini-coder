@@ -6,6 +6,7 @@ on:
       - master
     paths:
       - 'packages/vscode/package.json'
+  workflow_dispatch:
 
 jobs:
   deploy:
@@ -24,16 +25,16 @@ jobs:
       - name: Setup PNPM
         uses: pnpm/action-setup@v2
         with:
-          version: 8
+          version: 9.6.0
           run_install: false
 
       - name: Install dependencies
-        run: pnpm install
+        run: pnpm i
 
       - name: Build VS Code extension
         run: |
           cd packages/vscode
-          pnpm compile
+          pnpm build
 
       - name: Publish VS Code Extension
         run: |
