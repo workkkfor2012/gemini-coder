@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
-  <h4>All-in-one, universal, free and open-source AI coding assistant with first class support for AI Studio and Gemini API</h4>
+  <h4>Free and open-source AI coding assistant with first class support for AI Studio and Gemini API</h4>
   <br>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
   <br>
