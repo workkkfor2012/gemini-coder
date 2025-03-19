@@ -6,4 +6,5 @@ export interface Provider {
   temperature?: number
   systemInstructions?: string
   instruction?: string
+  options?: string[]
 }

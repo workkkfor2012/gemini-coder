@@ -387,6 +387,15 @@
               "promptSuffix": ""
             },
             {
+              "name": "Gemini with canvas",
+              "chatbot": "Gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "options": [
+                "canvas"
+              ]
+            },
+            {
               "name": "ChatGPT",
               "chatbot": "ChatGPT",
               "promptPrefix": "",
@@ -451,7 +460,7 @@
                   "HuggingChat",
                   "Open WebUI"
                 ],
-                "description": "Choose supported chatbot"
+                "description": "Choose among supported chatbots."
               },
               "promptPrefix": {
                 "type": "string",
@@ -466,7 +475,7 @@
                   "Generate commit message based on changes:",
                   "Write tests for:"
                 ],
-                "description": "Prefix prepended to all prompts sent with this chat"
+                "description": "Prefix prepended to all prompts sent with this chat."
               },
               "promptSuffix": {
                 "type": "string",
@@ -485,15 +494,23 @@
               },
               "model": {
                 "type": "string",
-                "description": "Model to use (selected chatbots only, for available options, refer to extension's about page)"
+                "description": "Model to use."
+              },
+              "options": {
+                "type": "array",
+                "description": "Options to enable, e.g. canvas.",
+                "items": {
+                  "type": "string",
+                  "description": "Option name."
+                }
               },
               "temperature": {
                 "type": "number",
-                "description": "Temperature to use (selected chatbots only)"
+                "description": "Temperature to use."
               },
               "systemInstructions": {
                 "type": "string",
-                "description": "System instructions to use (selected chatbots only)"
+                "description": "System instructions to use."
               }
             },
             "required": [

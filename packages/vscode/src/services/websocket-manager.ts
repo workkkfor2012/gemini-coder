@@ -210,7 +210,8 @@ export class WebSocketManager {
             url: chatbot.url,
             model: preset.model,
             temperature: preset.temperature,
-            system_instructions: preset.systemInstructions
+            system_instructions: preset.systemInstructions,
+            options: preset.options
           }
         })
         .filter((chat) => chat !== null) // Filter out any null chats

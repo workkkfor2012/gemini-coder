@@ -1,5 +1,5 @@
 import browser from 'webextension-polyfill'
-import { InitializeChatsMessage } from '@shared/types/websocket-message'
+import { Chat, InitializeChatsMessage } from '@shared/types/websocket-message'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -71,17 +71,17 @@ export const get_textarea_element = () => {
   return active_element
 }
 
-const enter_text_and_send = async (
-  input_element: HTMLElement | null,
-  prompt: string
-) => {
-  if (input_element && input_element.isContentEditable) {
+const enter_message_and_send = async (params: {
+  input_element: HTMLElement | null
+  message: string
+}) => {
+  if (params.input_element && params.input_element.isContentEditable) {
     // Handle contenteditable element
-    input_element.innerText = prompt
+    params.input_element.innerText = params.message
     // Dispatch input and change events
-    input_element.dispatchEvent(new Event('input', { bubbles: true }))
-    input_element.dispatchEvent(new Event('change', { bubbles: true }))
-    const form = input_element.closest('form')
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
+    const form = params.input_element.closest('form')
     if (is_claude) {
       await new Promise((resolve) => {
         setTimeout(() => {
@@ -105,15 +105,18 @@ const enter_text_and_send = async (
         which: 13,
         bubbles: true
       })
-      input_element.dispatchEvent(enter_event)
+      params.input_element.dispatchEvent(enter_event)
     }
-  } else if (input_element && input_element.tagName == 'TEXTAREA') {
+  } else if (
+    params.input_element &&
+    params.input_element.tagName == 'TEXTAREA'
+  ) {
     // Handle input or textarea element
-    ;(input_element as HTMLTextAreaElement).value = prompt
+    ;(params.input_element as HTMLTextAreaElement).value = params.message
     // Dispatch input and change events
-    input_element.dispatchEvent(new Event('input', { bubbles: true }))
-    input_element.dispatchEvent(new Event('change', { bubbles: true }))
-    const form = input_element.closest('form')
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
+    const form = params.input_element.closest('form')
     if (form && !is_github_copilot) {
       requestAnimationFrame(() => {
         form.requestSubmit()
@@ -130,7 +133,7 @@ const enter_text_and_send = async (
         which: 13,
         bubbles: true
       })
-      input_element.dispatchEvent(enter_event)
+      params.input_element.dispatchEvent(enter_event)
     }
   }
 }
@@ -211,22 +214,39 @@ const set_model = async (model: string) => {
   }
 }
 
-const apply_settings_and_submit = async (params: {
-  text: string
-  system_instructions?: string
-  model?: string
-  temperature?: number
-}) => {
-  if (params.system_instructions) {
-    await enter_system_instructions(params.system_instructions)
+const enable_canvas_mode = async () => {
+  if (is_gemini) {
+    const canvas_button = document.querySelector(
+      'toolbox-drawer mat-icon[data-mat-icon-name="edit_note"]'
+    ) as HTMLElement
+    if (canvas_button) {
+      canvas_button.click()
+    } else {
+      console.warn('Canvas button not found')
+    }
   }
-  if (params.model) {
-    await set_model(params.model)
+}
+
+const initialize_chat = async (params: { message: string; chat: Chat }) => {
+  if (params.chat.system_instructions) {
+    await enter_system_instructions(params.chat.system_instructions)
   }
-  if (params.temperature) {
-    await set_temperature(params.temperature)
+  if (params.chat.model) {
+    await set_model(params.chat.model)
   }
-  enter_text_and_send(get_textarea_element(), params.text)
+  if (params.chat.temperature) {
+    await set_temperature(params.chat.temperature)
+  }
+
+  // Check for canvas option and enable it if necessary
+  if (params.chat.options && params.chat.options.includes('canvas')) {
+    await enable_canvas_mode()
+  }
+
+  enter_message_and_send({
+    input_element: get_textarea_element(),
+    message: params.message
+  })
 }
 
 const main = async () => {
@@ -279,7 +299,7 @@ const main = async () => {
     })
   } else if (is_gemini) {
     await new Promise(async (resolve) => {
-      while (!document.querySelector('bard-mode-switcher')) {
+      while (!document.querySelector('toolbox-drawer')) {
         await new Promise((resolve) => {
           setTimeout(() => {
             resolve(true)
@@ -371,11 +391,9 @@ const main = async () => {
     })
   }
 
-  await apply_settings_and_submit({
-    system_instructions: current_chat.system_instructions,
-    temperature: current_chat.temperature,
-    model: current_chat.model,
-    text: message.text
+  await initialize_chat({
+    message: message.text,
+    chat: current_chat
   })
 
   // Clean up the storage entry after using it

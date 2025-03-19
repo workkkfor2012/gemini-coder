@@ -13,6 +13,7 @@ export namespace Presets {
     model?: string
     temperature?: number
     system_instructions?: string
+    options?: string[]
   }
 
   export type Props = {
@@ -45,6 +46,27 @@ const DetailField = ({
       </span>
       <span className={styles.presets__item__details__row__field__value}>
         {value}
+      </span>
+    </div>
+  )
+}
+
+const DetailArrayField = ({
+  label,
+  values
+}: {
+  label: string
+  values: string[] | undefined
+}) => {
+  if (!values || values.length === 0) return null
+
+  return (
+    <div className={styles.presets__item__details__row__field}>
+      <span className={styles.presets__item__details__row__field__label}>
+        {label}
+      </span>
+      <span className={styles.presets__item__details__row__field__value}>
+        {values.join(', ')}
       </span>
     </div>
   )
@@ -194,6 +216,10 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                       <DetailField
                         label="System Instructions"
                         value={preset.system_instructions}
+                      />
+                      <DetailArrayField
+                        label="Options"
+                        values={preset.options}
                       />
                     </div>
                   </div>

@@ -1,8 +1,9 @@
-type Chat = {
+export type Chat = {
   url: string
   model?: string
   temperature?: number
   system_instructions?: string
+  options?: string[]
 }
 
 export type InitializeChatsMessage = {
