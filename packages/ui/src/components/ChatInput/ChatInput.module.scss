@@ -80,7 +80,7 @@
       display: flex;
       align-items: center;
       gap: 4px;
-      padding: 6px;
+      padding: 0 6px;
       height: 20px;
       border-radius: 5px;
       color: var(--vscode-icon-foreground);
@@ -91,7 +91,7 @@
       }
 
       &--fim {
-        padding-left: 0;
+        padding-left: 2px;
       }
 
       &--selection > span {
