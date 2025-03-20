@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
-  "description": "Copy context for chatbots or initialize them hands-free. Invoke FIM completion or refactor a file with the selected context. Integrate AI suggested changes across multiple files with a single click!",
-  "version": "1.0.250",
+  "description": "Copy context for chatbots or initialize them hands-free. Use cheap Gemini API for FIM completions, file refactoring and applying changes.",
+  "version": "1.0.251",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",

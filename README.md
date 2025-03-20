@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
-  <h4>Copy context for chatbots or initialize them hands-free. Invoke FIM completion or refactor a file with the selected context. Integrate AI suggested changes across multiple files with a single click!</h4>
+  <h4>Copy context for chatbots or initialize them hands-free. Use cheap Gemini API for FIM completions, file refactoring and applying changes.</h4>
   <br>
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
   <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/visual-studio-marketplace/i/robertpiosik.gemini-coder" alt="Installs"></a>
@@ -21,8 +21,8 @@
 
 The extension lets you granularly pick and copy context or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested modifications to any file with a single click, copy them and hit **Apply changes** ✨.
 
-- Lets you do all the coding for free
 - MIT license
+- No paid features
 - No usage tracking
 - Lightweight (~1MB)
 - Works with all VS Code based editors (Cursor, Windsurf, VSCodium, etc.)
