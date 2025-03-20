@@ -230,23 +230,23 @@
       },
       {
         "command": "geminiCoder.newFolder",
-        "title": "New Folder...",
-        "category": "Gemini Coder"
+        "title": "New Folder..."
       },
       {
         "command": "geminiCoder.newFile",
-        "title": "New File...",
-        "category": "Gemini Coder"
+        "title": "New File..."
       },
       {
         "command": "geminiCoder.rename",
-        "title": "Rename...",
-        "category": "Gemini Coder"
+        "title": "Rename..."
       },
       {
         "command": "geminiCoder.previewWebsite",
-        "title": "Preview Website Content",
-        "category": "Gemini Coder"
+        "title": "Preview Website Content"
+      },
+      {
+        "command": "geminiCoder.delete",
+        "title": "Delete"
       }
     ],
     "menus": {
@@ -316,12 +316,22 @@
         {
           "command": "geminiCoder.rename",
           "when": "view == geminiCoderViewWorkspace && !viewItem",
-          "group": "1_modification"
+          "group": "1_modification@1"
         },
         {
           "command": "geminiCoder.rename",
           "when": "view == geminiCoderViewWorkspace && viewItem == directory",
-          "group": "1_modification"
+          "group": "1_modification@1"
+        },
+        {
+          "command": "geminiCoder.delete",
+          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "group": "1_modification@2"
+        },
+        {
+          "command": "geminiCoder.delete",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "group": "1_modification@2"
         }
       ],
       "commandPalette": [
@@ -371,6 +381,10 @@
         },
         {
           "command": "geminiCoder.previewWebsite",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.delete",
           "when": "false"
         }
       ]
