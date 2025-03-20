@@ -8,7 +8,6 @@ import {
   web_chat_command,
   web_chat_with_command
 } from './commands/web-chat-command'
-import { apply_changes_to_clipboard_command } from './commands/apply-changes-to-clipboard-command'
 import { chat_to_clipboard_command } from './commands/chat-to-clipboard-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
@@ -128,10 +127,6 @@ export function activate(context: vscode.ExtensionContext) {
     change_default_model_command('fim', context),
     change_default_model_command('refactoring', context),
     change_default_model_command('apply_changes', context),
-    apply_changes_to_clipboard_command(
-      workspace_provider,
-      open_editors_provider
-    ),
     web_chat_command(
       context,
       workspace_provider,
