@@ -232,7 +232,7 @@ async function process_file(params: {
 /**
  * Create a new file if it doesn't exist
  */
-async function createFileIfNeeded(
+async function create_file_if_needed(
   filePath: string,
   content: string
 ): Promise<boolean> {
@@ -254,8 +254,10 @@ async function createFileIfNeeded(
   // Create the file
   fs.writeFileSync(full_path, content)
 
-  // Show success message
-  vscode.window.showInformationMessage(`Created new file: ${filePath}`)
+  // Open the file in editor
+  const document = await vscode.workspace.openTextDocument(full_path)
+  await vscode.window.showTextDocument(document)
+
   return true
 }
 
@@ -407,7 +409,10 @@ export function apply_changes_command(params: {
             file_progresses.forEach((p) => {
               if (p.total > 0) {
                 // Cap individual file progress at 100%
-                const file_progress_percentage = Math.min(p.received / p.total, 1.0)
+                const file_progress_percentage = Math.min(
+                  p.received / p.total,
+                  1.0
+                )
                 overall_progress += file_progress_percentage * progress_per_file
               }
             })
@@ -579,7 +584,7 @@ export function apply_changes_command(params: {
 
               // For new files, create them
               if (!change.document) {
-                await createFileIfNeeded(file.filePath, file.content)
+                await create_file_if_needed(file.filePath, file.content)
                 continue
               }
 
