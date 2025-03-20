@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
-  "description": "Copy context for chatbots or initialize them hands-free. Use Gemini API for FIM completions, file refactoring and applying AI suggested changes.",
-  "version": "1.0.255",
+  "description": "Copy context for chatbots or initialize them hands-free. Get FIM completions or refactor files with cheap Gemini API.",
+  "version": "1.0.256",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -309,6 +309,48 @@
           "command": "geminiCoder.createFolder",
           "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "inline@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "geminiCoder.createFolder",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.createFile",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.closeEditor",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.closeAllEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.checkAll",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.clearChecks",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.collapseFolders",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.checkAllOpenEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.clearChecksOpenEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.saveAll",
+          "when": "false"
         }
       ]
     },
