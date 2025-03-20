@@ -114,46 +114,42 @@ export function web_chat_command(
     }
 
     const config = vscode.workspace.getConfiguration()
-
-    // Get web chat presets
     const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
 
-    // Create quickpick items for presets
-    const preset_quick_pick_items = web_chat_presets.map((preset) => ({
-      label: preset.name,
-      description: `${preset.chatbot}${
-        preset.model ? ` - ${preset.model}` : ''
-      }`,
-      picked: false
-    }))
-
     // Get previously selected presets from globalState
-    const last_selected_names = context.globalState.get<string[]>(
+    let selected_names = context.globalState.get<string[]>(
       'selectedPresets',
       []
     )
 
-    // Set picked state based on previously selected preset names
-    preset_quick_pick_items.forEach((item) => {
-      item.picked = last_selected_names.includes(item.label)
-    })
+    // If no presets were previously selected, show the selection dialog
+    if (!selected_names.length) {
+      // Create quickpick items for presets
+      const preset_quick_pick_items = web_chat_presets.map((preset) => ({
+        label: preset.name,
+        description: `${preset.chatbot}${
+          preset.model ? ` - ${preset.model}` : ''
+        }`,
+        picked: false
+      }))
 
-    // Show quickpick with multi-select enabled
-    const selected_presets = await vscode.window.showQuickPick(
-      preset_quick_pick_items,
-      {
-        placeHolder: 'Select one or more chat presets',
-        canPickMany: true
+      // Show quickpick with multi-select enabled
+      const selected_presets = await vscode.window.showQuickPick(
+        preset_quick_pick_items,
+        {
+          placeHolder: 'Select one or more chat presets',
+          canPickMany: true
+        }
+      )
+
+      if (!selected_presets || selected_presets.length == 0) {
+        return // User cancelled or didn't select any presets
       }
-    )
 
-    if (!selected_presets || selected_presets.length == 0) {
-      return // User cancelled or didn't select any presets
+      // Save selected preset names to globalState
+      selected_names = selected_presets.map((preset) => preset.label)
+      await context.globalState.update('selectedPresets', selected_names)
     }
-
-    // Save selected preset names to globalState
-    const selected_names = selected_presets.map((preset) => preset.label)
-    await context.globalState.update('selectedPresets', selected_names)
 
     // Main Instruction Input
     let last_chat_prompt =
