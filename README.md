@@ -95,7 +95,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 #### Chat
 
 - `Gemini Coder: Web Chat` - Enter instructions and open web chat hands-free
-- `Gemini Coder: Chat to Clipboard` - Copy chat prompt (context and instructions) to clipboard
+- `Gemini Coder: Chat to Clipboard` - Enter instructions and copy to clipboard
 
 #### Context
 
