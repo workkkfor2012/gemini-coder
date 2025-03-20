@@ -1,7 +1,7 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
-  "description": "Copy context for chatbots or initialize them hands-free. Get FIM completions or refactor files with free Gemini API.",
+  "description": "Copy context for chatbots or initialize them hands-free. Get FIM completions, refactor any file or apply AI suggested changes with the free Gemini API.",
   "version": "1.0.256",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
@@ -108,7 +108,7 @@
         "command": "geminiCoder.selectSavedContext",
         "title": "Select Saved Context",
         "category": "Gemini Coder",
-        "icon": "$(save)"
+        "icon": "$(checklist)"
       },
       {
         "command": "geminiCoder.checkAll",
@@ -157,12 +157,6 @@
         "title": "Save All",
         "category": "Gemini Coder",
         "icon": "$(save-all)"
-      },
-      {
-        "command": "geminiCoder.newFile",
-        "title": "New File...",
-        "category": "Gemini Coder",
-        "icon": "$(new-file)"
       },
       {
         "command": "geminiCoder.fimCompletionWith",
@@ -237,8 +231,17 @@
       {
         "command": "geminiCoder.newFolder",
         "title": "New Folder...",
-        "category": "Gemini Coder",
-        "icon": "$(new-folder)"
+        "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.newFile",
+        "title": "New File...",
+        "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.rename",
+        "title": "Rename...",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.previewWebsite",
@@ -302,11 +305,23 @@
         },
         {
           "command": "geminiCoder.newFile",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory"
+          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "group": "1_creation@1"
         },
         {
           "command": "geminiCoder.newFolder",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory"
+          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "group": "1_creation@2"
+        },
+        {
+          "command": "geminiCoder.rename",
+          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "group": "1_modification"
+        },
+        {
+          "command": "geminiCoder.rename",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "group": "1_modification"
         }
       ],
       "commandPalette": [
@@ -348,6 +363,14 @@
         },
         {
           "command": "geminiCoder.saveAll",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.rename",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.previewWebsite",
           "when": "false"
         }
       ]

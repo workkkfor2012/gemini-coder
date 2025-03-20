@@ -23,6 +23,7 @@ import { save_all_command } from './commands/save-all-command'
 import { new_file_command } from './commands/new-file-command'
 import { open_file_from_workspace_command } from './commands/open-file-from-workspace-command'
 import { new_folder_command } from './commands/new-folder-command'
+import { rename_command } from './commands/rename-command'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -149,6 +150,7 @@ export function activate(context: vscode.ExtensionContext) {
     save_all_command(),
     new_file_command(),
     new_folder_command(),
+    rename_command(),
     {
       dispose: () => {
         if (websocket_server_instance) {
