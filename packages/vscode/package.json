@@ -304,6 +304,16 @@
           "group": "inline"
         },
         {
+          "command": "geminiCoder.rename",
+          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "group": "1_modification@1"
+        },
+        {
+          "command": "geminiCoder.delete",
+          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "group": "1_modification@2"
+        },
+        {
           "command": "geminiCoder.newFile",
           "when": "view == geminiCoderViewWorkspace && !viewItem",
           "group": "1_creation@1"

@@ -954,13 +954,6 @@ export class FileItem extends vscode.TreeItem {
 
     this.checkboxState = checkboxState
 
-    if (this.isSymbolicLink) {
-      // If it's a symlink, append to existing description
-      this.description = this.description
-        ? `${this.description} (symlink)`
-        : '(symlink)'
-    }
-
     // Set contextValue for open files to enable context menu actions
     if (this.isOpenFile) {
       this.contextValue = 'openEditor'
