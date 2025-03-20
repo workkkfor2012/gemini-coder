@@ -17,9 +17,10 @@ function HomepageHeader() {
           {siteConfig.title}
         </Heading>
         <p className="hero__subtitle">
-          Copy context for chatbots or initialize them hands-free. Use Gemini
-          API for FIM completions, file refactoring and applying AI suggested
-          changes.
+          Copy context for chatbots or initialize them hands-free.
+          <br />
+          Get FIM completions, refactor any file or apply AI suggested changes
+          with the free Gemini API.
         </p>
         <div className={styles.buttons}>
           <Link
