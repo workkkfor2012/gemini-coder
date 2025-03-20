@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 
-export function create_file_command() {
+export function new_file_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.createFile',
+    'geminiCoder.newFile',
     async (item?: vscode.TreeItem) => {
       // If item is not provided, we can't create a file
       if (!item?.resourceUri) {

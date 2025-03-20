@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 
-export function create_folder_command() {
+export function new_folder_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.createFolder',
+    'geminiCoder.newFolder',
     async (item?: vscode.TreeItem) => {
       // If item is not provided, we can't create a folder
       if (!item?.resourceUri) {
