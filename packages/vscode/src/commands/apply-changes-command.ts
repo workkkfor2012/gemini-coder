@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import axios from 'axios'
+import axios, { CancelToken } from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
 import { Provider } from '../types/provider'
@@ -19,7 +19,9 @@ interface ClipboardFile {
 /**
  * Parse clipboard text to check for multiple files format
  */
-function parse_clipboard_multiple_files(clipboardText: string): ClipboardFile[] {
+function parse_clipboard_multiple_files(
+  clipboardText: string
+): ClipboardFile[] {
   // Regex to match code blocks with file name headers
   const file_block_regex = /```(\w+)?\s*name=([^\s]+)\s*([\s\S]*?)```/g
   const files: ClipboardFile[] = []
@@ -144,17 +146,16 @@ async function get_selected_provider(
 /**
  * Process a single file with AI and apply changes
  */
-async function process_file(
-  params: {
-    provider: Provider;
-    filePath: string;
-    fileContent: string;
-    instruction: string;
-    system_instructions: string | undefined;
-    verbose: boolean;
-    onProgress?: (chunkLength: number, totalLength: number) => void;
-  }
-): Promise<string | null> {
+async function process_file(params: {
+  provider: Provider
+  filePath: string
+  fileContent: string
+  instruction: string
+  system_instructions?: string
+  verbose: boolean
+  cancelToken?: CancelToken // Add cancelToken parameter
+  onProgress?: (chunkLength: number, totalLength: number) => void
+}): Promise<string | null> {
   const apply_changes_prompt = `${apply_changes_instruction} ${params.instruction}`
   const file_content = `<file path="${params.filePath}"><![CDATA[${params.fileContent}]]></file>`
   const content = `${file_content}\n${apply_changes_prompt}`
@@ -176,11 +177,13 @@ async function process_file(
   }
 
   if (params.verbose) {
-    console.log(`[Gemini Coder] Apply Changes Prompt for ${params.filePath}:`, content)
+    console.log(
+      `[Gemini Coder] Apply Changes Prompt for ${params.filePath}:`,
+      content
+    )
   }
 
-  const cancel_token_source = axios.CancelToken.source()
-
+  // Use provided cancelToken instead of creating a new one
   try {
     let totalLength = params.fileContent.length // Use file content length as base for progress
     let receivedLength = 0
@@ -188,7 +191,7 @@ async function process_file(
     const refactored_content = await make_api_request(
       params.provider,
       body,
-      cancel_token_source.token,
+      params.cancelToken, // Use the passed cancelToken
       (chunk: string) => {
         // Update progress when receiving chunks
         receivedLength += chunk.length
@@ -212,6 +215,12 @@ async function process_file(
       end_with_new_line: true
     })
   } catch (error) {
+    // Check if this is a cancellation error
+    if (axios.isCancel(error)) {
+      return null
+    }
+
+    // For other errors, show the error message as before
     console.error(`Refactoring error for ${params.filePath}:`, error)
     vscode.window.showErrorMessage(
       `An error occurred during refactoring ${params.filePath}. See console for details.`
@@ -332,25 +341,34 @@ export function apply_changes_command(params: {
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Processing files',
+          title: 'Waiting for the updated files',
           cancellable: true
         },
         async (progress, token) => {
+          // Create a cancelToken that will be used for all API requests
+          const cancel_token_source = axios.CancelToken.source()
+
+          // Link VSCode cancellation token to our axios cancel token
+          token.onCancellationRequested(() => {
+            cancel_token_source.cancel('Cancelled by user.')
+          })
+
           const total_files = files.length
+          // Track progress state for each file
+          const file_previous_lengths = new Map<string, number>()
+          const progress_per_file = 100 / total_files
 
           for (let i = 0; i < files.length; i++) {
             if (token.isCancellationRequested) {
-              vscode.window.showInformationMessage('File processing cancelled.')
               return
             }
 
             const file = files[i]
-            const progress_per_file = 100 / total_files
+            // Reset progress tracking for new file
+            file_previous_lengths.set(file.filePath, 0)
 
             progress.report({
-              message: `Processing file ${i + 1}/${total_files}: ${
-                file.filePath
-              }`,
+              message: `${i + 1}/${total_files} ${file.filePath}`,
               increment: 0 // Start of file processing
             })
 
@@ -374,7 +392,7 @@ export function apply_changes_command(params: {
                 )
                 const document_text = document.getText()
 
-                // Process with AI using file.content as the instruction
+                // Pass cancelToken to process_file
                 const updated_content = await process_file({
                   provider,
                   filePath: file.filePath,
@@ -382,33 +400,44 @@ export function apply_changes_command(params: {
                   instruction: file.content,
                   system_instructions,
                   verbose: verbose || false,
+                  cancelToken: cancel_token_source.token,
                   onProgress: (receivedLength, totalLength) => {
-                    // Calculate progress within the current file
-                    // Cap the progress at 100% to prevent showing over 100%
+                    // Get previous length for this file to calculate actual increment
+                    const previous_length =
+                      file_previous_lengths.get(file.filePath) || 0
+                    const actual_increment = receivedLength - previous_length
+                    file_previous_lengths.set(file.filePath, receivedLength)
+
+                    // Calculate progress percentage for display
                     const progress_percentage = Math.min(
                       receivedLength / totalLength,
                       1.0
                     )
-                    const file_progress = progress_percentage * progress_per_file
+
+                    // Calculate actual increment as percentage of total progress
+                    const increment_percentage =
+                      (actual_increment / totalLength) * progress_per_file
 
                     progress.report({
-                      message: `Processing file ${i + 1}/${total_files}: ${
+                      message: `${Math.round(
+                        progress_percentage * 100
+                      )}% received... (${i + 1}/${total_files}: ${
                         file.filePath
-                      } (${Math.min(
-                        Math.round(progress_percentage * 100),
-                        100
-                      )}%)`,
-                      increment: file_progress
+                      })`,
+                      increment: increment_percentage
                     })
                   }
                 })
+
+                if (token.isCancellationRequested) {
+                  return
+                }
 
                 if (!updated_content) {
                   continue // Skip to next file if processing failed
                 }
 
                 if (updated_content == 'rate_limit') {
-                  const cancel_token_source = axios.CancelToken.source()
                   const body = {
                     messages: [
                       ...(system_instructions
@@ -474,6 +503,9 @@ export function apply_changes_command(params: {
                   )
                 }
               } catch (error) {
+                if (axios.isCancel(error)) {
+                  return
+                }
                 console.error(`Error processing file ${file.filePath}:`, error)
                 vscode.window.showErrorMessage(
                   `Error processing ${file.filePath}`
@@ -488,9 +520,11 @@ export function apply_changes_command(params: {
             }
           }
 
-          vscode.window.showInformationMessage(
-            `Processed ${total_files} ${total_files > 1 ? 'files' : 'file'}.`
-          )
+          if (!token.isCancellationRequested) {
+            vscode.window.showInformationMessage(
+              `Processed ${total_files} ${total_files > 1 ? 'files' : 'file'}.`
+            )
+          }
         }
       )
     } else {
@@ -508,6 +542,8 @@ export function apply_changes_command(params: {
       const file_path = vscode.workspace.asRelativePath(document.uri)
 
       let cancel_token_source = axios.CancelToken.source()
+      // Track previous length for progress calculation
+      let previousLength = 0
 
       vscode.window.withProgress(
         {
@@ -516,8 +552,9 @@ export function apply_changes_command(params: {
           cancellable: true
         },
         async (progress, token) => {
+          // Link VSCode cancellation token to our axios cancel token
           token.onCancellationRequested(() => {
-            cancel_token_source.cancel('Cancelled by user.')
+            cancel_token_source.cancel()
           })
 
           try {
@@ -528,28 +565,42 @@ export function apply_changes_command(params: {
               instruction,
               system_instructions,
               verbose: verbose || false,
+              cancelToken: cancel_token_source.token, // Pass the cancelToken
               onProgress: (receivedLength, totalLength) => {
-                // Calculate a percentage that will never exceed 100%
+                // Calculate actual increment since last progress report
+                const actualIncrement = receivedLength - previousLength
+                previousLength = receivedLength
+
+                // Calculate percentage for display
                 const progressPercentage = Math.min(
                   receivedLength / totalLength,
                   1.0
                 )
                 const percentage = Math.round(progressPercentage * 100)
 
+                // Calculate actual increment as percentage
+                const incrementPercentage =
+                  (actualIncrement / totalLength) * 100
+
                 progress.report({
                   message: `${percentage}% received...`,
-                  increment: Math.min(
-                    (receivedLength / totalLength) * 100,
-                    100 / totalLength
-                  ) // Cap increment to prevent exceeding 100%
+                  increment: incrementPercentage
                 })
               }
             })
 
+            if (token.isCancellationRequested) {
+              return
+            }
+
             if (!refactored_content) {
-              vscode.window.showErrorMessage(
-                'Applying changes failed. Please try again later.'
-              )
+              // If process_file returns null, it could be due to cancellation or an error
+              // Since we've already handled cancellation, we only show an error for non-cancellation cases
+              if (!token.isCancellationRequested) {
+                vscode.window.showErrorMessage(
+                  'Applying changes failed. Please try again later.'
+                )
+              }
               return
             } else if (refactored_content == 'rate_limit') {
               const body = {
@@ -609,6 +660,9 @@ export function apply_changes_command(params: {
 
             vscode.window.showInformationMessage(`Changes have been applied!`)
           } catch (error) {
+            if (axios.isCancel(error)) {
+              return
+            }
             console.error('Refactoring error:', error)
             vscode.window.showErrorMessage(
               'An error occurred during refactoring. See console for details.'
