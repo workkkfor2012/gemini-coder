@@ -35,11 +35,11 @@ The AI will process the suggestions and generate a complete updated file with al
 
 ## Available commands
 
-##### `Gemini Coder: Apply Changes to this File`
+##### `Gemini Coder: Apply Changes`
 
 Applies changes to the current file using the default model.
 
-##### `Gemini Coder: Apply Changes to this File with...`
+##### `Gemini Coder: Apply Changes with...`
 
 Lets you select which model to use for applying changes.
 

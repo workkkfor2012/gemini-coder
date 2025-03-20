@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free. Use cheap Gemini API for FIM completions, file refactoring and applying AI suggested changes.",
-  "version": "1.0.253",
+  "version": "1.0.254",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -187,11 +187,11 @@
       },
       {
         "command": "geminiCoder.applyChanges",
-        "title": "Gemini Coder: Apply Changes to this File"
+        "title": "Gemini Coder: Apply Changes"
       },
       {
         "command": "geminiCoder.applyChangesWith",
-        "title": "Gemini Coder: Apply Changes to this File with..."
+        "title": "Gemini Coder: Apply Changes with..."
       },
       {
         "command": "geminiCoder.webChat",

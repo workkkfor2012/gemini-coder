@@ -87,8 +87,8 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 #### Applying Changes
 
-- `Gemini Coder: Apply Changes to this File` - Apply changes suggested by AI using clipboard content
-- `Gemini Coder: Apply Changes to this File with...` - Apply changes with model selection
+- `Gemini Coder: Apply Changes` - Apply changes suggested by AI using clipboard content
+- `Gemini Coder: Apply Changes with...` - Apply changes with model selection
 - `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
 - `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes
 
