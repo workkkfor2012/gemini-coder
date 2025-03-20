@@ -406,9 +406,14 @@ export function apply_changes_command(params: {
             let overall_progress = 0
             file_progresses.forEach((p) => {
               if (p.total > 0) {
-                overall_progress += (p.received / p.total) * progress_per_file
+                // Cap individual file progress at 100%
+                const file_progress_percentage = Math.min(p.received / p.total, 1.0)
+                overall_progress += file_progress_percentage * progress_per_file
               }
             })
+
+            // Cap overall progress at 100%
+            overall_progress = Math.min(overall_progress, 100)
 
             // Update progress display
             progress.report({
