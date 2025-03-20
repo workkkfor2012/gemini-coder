@@ -206,7 +206,7 @@ async function process_file(params: {
         `Applying changes to ${params.filePath} failed. Please try again later.`
       )
       return null
-    } else if (refactored_content === 'rate_limit') {
+    } else if (refactored_content == 'rate_limit') {
       return 'rate_limit'
     }
 
@@ -237,7 +237,7 @@ async function createFileIfNeeded(
   content: string
 ): Promise<boolean> {
   // Check if we have a workspace folder
-  if (vscode.workspace.workspaceFolders?.length === 0) {
+  if (vscode.workspace.workspaceFolders?.length == 0) {
     vscode.window.showErrorMessage('No workspace folder open.')
     return false
   }
@@ -284,6 +284,7 @@ export function apply_changes_command(params: {
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
     const verbose = config.get<boolean>('geminiCoder.verbose')
+    const max_concurrency = 10
 
     // Get default model from global state instead of config
     const default_model_name = model_manager.get_default_apply_changes_model()
@@ -331,7 +332,7 @@ export function apply_changes_command(params: {
       // Handle multiple files
       const files = parse_clipboard_multiple_files(clipboard_text)
 
-      if (files.length === 0) {
+      if (files.length == 0) {
         vscode.window.showErrorMessage(
           'No valid file content found in clipboard.'
         )
@@ -354,176 +355,258 @@ export function apply_changes_command(params: {
           })
 
           const total_files = files.length
-          // Track progress state for each file
-          const file_previous_lengths = new Map<string, number>()
+
+          // Store document changes for applying in a second pass
+          type DocumentChange = {
+            document: vscode.TextDocument | null
+            content: string
+          }
+          const documentChanges: DocumentChange[] = []
+
+          // Track progress for each file
+          const file_progresses = new Map<
+            string,
+            { received: number; total: number }
+          >()
           const progress_per_file = 100 / total_files
 
-          for (let i = 0; i < files.length; i++) {
-            if (token.isCancellationRequested) {
-              return
+          // Initialize progress tracking for each file
+          files.forEach((file) => {
+            file_progresses.set(file.filePath, { received: 0, total: 0 })
+          })
+
+          // Function to update progress for a specific file
+          const updateFileProgress = (
+            filePath: string,
+            receivedLength: number,
+            totalLength: number
+          ) => {
+            const fileProgress = file_progresses.get(filePath) || {
+              received: 0,
+              total: 0
             }
+            const previousReceived = fileProgress.received
 
-            const file = files[i]
-            // Reset progress tracking for new file
-            file_previous_lengths.set(file.filePath, 0)
+            // Update progress for this file
+            fileProgress.received = receivedLength
+            fileProgress.total = totalLength
+            file_progresses.set(filePath, fileProgress)
 
-            progress.report({
-              message: `${i + 1}/${total_files} ${file.filePath}`,
-              increment: 0 // Start of file processing
+            // Calculate the increment since last update for this file
+            const increment = receivedLength - previousReceived
+
+            // Calculate percentage of total progress this increment represents
+            const incrementPercentage =
+              (increment / totalLength) * progress_per_file
+
+            // Calculate overall progress across all files
+            let overall_progress = 0
+            file_progresses.forEach((p) => {
+              if (p.total > 0) {
+                overall_progress += (p.received / p.total) * progress_per_file
+              }
             })
 
-            // Check if file exists in workspace
-            const file_exists = await vscode.workspace
-              .findFiles(file.filePath, null, 1)
-              .then((files) => files.length > 0)
-
-            if (file_exists) {
-              // File exists, open it and update with AI
-              const file_uri = vscode.Uri.file(
-                path.join(
-                  vscode.workspace.workspaceFolders![0].uri.fsPath,
-                  file.filePath
-                )
-              )
-
-              try {
-                const document = await vscode.workspace.openTextDocument(
-                  file_uri
-                )
-                const document_text = document.getText()
-
-                // Pass cancelToken to process_file
-                const updated_content = await process_file({
-                  provider,
-                  filePath: file.filePath,
-                  fileContent: document_text,
-                  instruction: file.content,
-                  system_instructions,
-                  verbose: verbose || false,
-                  cancelToken: cancel_token_source.token,
-                  onProgress: (receivedLength, totalLength) => {
-                    // Get previous length for this file to calculate actual increment
-                    const previous_length =
-                      file_previous_lengths.get(file.filePath) || 0
-                    const actual_increment = receivedLength - previous_length
-                    file_previous_lengths.set(file.filePath, receivedLength)
-
-                    // Calculate progress percentage for display
-                    const progress_percentage = Math.min(
-                      receivedLength / totalLength,
-                      1.0
-                    )
-
-                    // Calculate actual increment as percentage of total progress
-                    const increment_percentage =
-                      (actual_increment / totalLength) * progress_per_file
-
-                    progress.report({
-                      message: `${Math.round(
-                        progress_percentage * 100
-                      )}% received... (${i + 1}/${total_files}: ${
-                        file.filePath
-                      })`,
-                      increment: increment_percentage
-                    })
-                  }
-                })
-
-                if (token.isCancellationRequested) {
-                  return
-                }
-
-                if (!updated_content) {
-                  continue // Skip to next file if processing failed
-                }
-
-                if (updated_content == 'rate_limit') {
-                  const body = {
-                    messages: [
-                      ...(system_instructions
-                        ? [{ role: 'system', content: system_instructions }]
-                        : []),
-                      {
-                        role: 'user',
-                        content: `<file path="${file.filePath}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
-                      }
-                    ],
-                    model: provider.model,
-                    temperature: provider.temperature
-                  }
-
-                  const fallback_content = await handle_rate_limit_fallback(
-                    all_providers,
-                    default_model_name,
-                    body,
-                    cancel_token_source.token
-                  )
-
-                  if (!fallback_content) {
-                    continue // Skip to next file
-                  }
-
-                  // Apply the fallback content
-                  const editor = await vscode.window.showTextDocument(document)
-                  const cleaned_content = cleanup_api_response({
-                    content: fallback_content,
-                    end_with_new_line: true
-                  })
-
-                  await editor.edit((edit) => {
-                    edit.replace(
-                      new vscode.Range(
-                        document.positionAt(0),
-                        document.positionAt(document_text.length)
-                      ),
-                      cleaned_content
-                    )
-                  })
-
-                  await document.save()
-                  vscode.window.showInformationMessage(
-                    `Updated ${file.filePath} with fallback model.`
-                  )
-                } else {
-                  // Apply regular changes
-                  const editor = await vscode.window.showTextDocument(document)
-                  await editor.edit((edit) => {
-                    edit.replace(
-                      new vscode.Range(
-                        document.positionAt(0),
-                        document.positionAt(document_text.length)
-                      ),
-                      updated_content
-                    )
-                  })
-
-                  await document.save()
-                  vscode.window.showInformationMessage(
-                    `Updated ${file.filePath}`
-                  )
-                }
-              } catch (error) {
-                if (axios.isCancel(error)) {
-                  return
-                }
-                console.error(`Error processing file ${file.filePath}:`, error)
-                vscode.window.showErrorMessage(
-                  `Error processing ${file.filePath}`
-                )
-              }
-            } else {
-              // File doesn't exist, create it
-              await createFileIfNeeded(file.filePath, file.content)
-              progress.report({
-                increment: progress_per_file // Complete progress for this file
-              })
-            }
+            // Update progress display
+            progress.report({
+              message: `${Math.round(overall_progress)}% received...`,
+              increment: incrementPercentage
+            })
           }
 
-          if (!token.isCancellationRequested) {
+          try {
+            // Process all files in parallel batches
+            for (let i = 0; i < files.length; i += max_concurrency) {
+              if (token.isCancellationRequested) {
+                return
+              }
+
+              const batch = files.slice(i, i + max_concurrency)
+
+              // Create an array to hold the promises for this batch
+              const promises = batch.map(async (file) => {
+                try {
+                  // Check if file exists in workspace
+                  const file_exists = await vscode.workspace
+                    .findFiles(file.filePath, null, 1)
+                    .then((files) => files.length > 0)
+
+                  // For new files, just store the information for creation later
+                  if (!file_exists) {
+                    return {
+                      filePath: file.filePath,
+                      content: file.content,
+                      isNew: true
+                    }
+                  }
+
+                  // For existing files, process them with AI
+                  const file_uri = vscode.Uri.file(
+                    path.join(
+                      vscode.workspace.workspaceFolders![0].uri.fsPath,
+                      file.filePath
+                    )
+                  )
+
+                  const document = await vscode.workspace.openTextDocument(
+                    file_uri
+                  )
+                  const document_text = document.getText()
+
+                  // Process the file content with AI
+                  const updated_content = await process_file({
+                    provider,
+                    filePath: file.filePath,
+                    fileContent: document_text,
+                    instruction: file.content,
+                    system_instructions,
+                    verbose: verbose || false,
+                    cancelToken: cancel_token_source.token,
+                    onProgress: (receivedLength, totalLength) => {
+                      updateFileProgress(
+                        file.filePath,
+                        receivedLength,
+                        totalLength
+                      )
+                    }
+                  })
+
+                  // Handle errors and rate limits
+                  if (!updated_content) {
+                    throw new Error(
+                      `Failed to apply changes to ${file.filePath}`
+                    )
+                  }
+
+                  if (updated_content == 'rate_limit') {
+                    const body = {
+                      messages: [
+                        ...(system_instructions
+                          ? [{ role: 'system', content: system_instructions }]
+                          : []),
+                        {
+                          role: 'user',
+                          content: `<file path="${file.filePath}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
+                        }
+                      ],
+                      model: provider.model,
+                      temperature: provider.temperature
+                    }
+
+                    const fallback_content = await handle_rate_limit_fallback(
+                      all_providers,
+                      default_model_name,
+                      body,
+                      cancel_token_source.token
+                    )
+
+                    if (!fallback_content) {
+                      throw new Error(
+                        `Rate limit reached for ${file.filePath} and fallback failed`
+                      )
+                    }
+
+                    // Store the document and its new content for applying later
+                    return {
+                      document,
+                      content: cleanup_api_response({
+                        content: fallback_content,
+                        end_with_new_line: true
+                      }),
+                      isNew: false
+                    }
+                  } else {
+                    // Store the document and its new content for applying later
+                    return {
+                      document,
+                      content: updated_content,
+                      isNew: false
+                    }
+                  }
+                } catch (error: any) {
+                  // Re-throw the error to be caught by the Promise.all
+                  if (axios.isCancel(error)) {
+                    throw new Error('Operation cancelled')
+                  } else {
+                    console.error(
+                      `Error processing file ${file.filePath}:`,
+                      error
+                    )
+                    throw new Error(
+                      `Error processing ${file.filePath}: ${
+                        error.message || 'Unknown error'
+                      }`
+                    )
+                  }
+                }
+              })
+
+              // Wait for all promises in this batch and collect results
+              // If any promise rejects, the whole Promise.all will reject
+              const results = await Promise.all(promises)
+
+              // Store results to process after all files have been processed
+              for (const result of results) {
+                if (result.isNew) {
+                  // For new files, create them later
+                  documentChanges.push({
+                    document: null, // New files don't have a document yet
+                    content: result.content
+                  })
+                } else {
+                  // For existing files, store the document and new content
+                  documentChanges.push({
+                    document: result.document || null,
+                    content: result.content
+                  })
+                }
+              }
+            }
+
+            // Only apply changes if ALL files were processed successfully
+            // Apply all changes and create new files in a second pass
+            for (let i = 0; i < files.length; i++) {
+              const file = files[i]
+              const change = documentChanges[i]
+
+              // For new files, create them
+              if (!change.document) {
+                await createFileIfNeeded(file.filePath, file.content)
+                continue
+              }
+
+              // For existing files, apply the changes
+              const document = change.document
+              const editor = await vscode.window.showTextDocument(document)
+              await editor.edit((edit) => {
+                edit.replace(
+                  new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length)
+                  ),
+                  change.content
+                )
+              })
+              await document.save()
+            }
+
             vscode.window.showInformationMessage(
-              `Processed ${total_files} ${total_files > 1 ? 'files' : 'file'}.`
+              `Successfully processed ${total_files} ${
+                total_files > 1 ? 'files' : 'file'
+              }.`
             )
+          } catch (error: any) {
+            // If any file processing fails, cancel the entire operation
+            cancel_token_source.cancel('Operation failed')
+
+            // Show error message
+            if (error.message == 'Operation cancelled') {
+              vscode.window.showInformationMessage('Operation was cancelled.')
+            } else {
+              vscode.window.showErrorMessage(
+                `Operation failed and was aborted: ${error.message}`
+              )
+            }
           }
         }
       )
