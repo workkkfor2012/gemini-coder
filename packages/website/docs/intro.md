@@ -27,7 +27,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Features
 
-- Hand-picking [context](/docs/context) for chatbots.
+- Hand-picking [context](/docs/context) for chatbots and API features.
 - Dedicated [web browser integration](/docs/installation/web-browser-integration) with support for:
   - **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
   - **[Gemini](https://gemini.google.com/app)**
@@ -38,6 +38,6 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [DeepSeek](https://chat.deepseek.com/)
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
-- Presets for automatically prefixed and suffixed chat instructions, or specific model, temperature, system instructions and options, e.g. canvas set (support vary).
+- Special purpose chats with presets.
 - Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](/docs/features/fim), [file refactoring](/docs/features/refactor) and [applying AI suggested changes](/docs/features/apply-changes).
-- Compatible with OpenAI API.
+- Configure your favorite OpenAI API compatible providers.
