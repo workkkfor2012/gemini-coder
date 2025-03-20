@@ -163,22 +163,10 @@ export function context_initialization(context: vscode.ExtensionContext): {
         vscode.window.showInformationMessage(`Context copied to clipboard.`)
       }),
       vscode.commands.registerCommand(
-        'geminiCoder.copyContextWithIcon',
-        async () => {
-          await vscode.commands.executeCommand('geminiCoder.copyContext')
-        }
-      ),
-      vscode.commands.registerCommand(
         'geminiCoder.selectSavedContext',
         async () => {
           await select_saved_context(workspace_provider)
           update_activity_bar_badge_token_count()
-        }
-      ),
-      vscode.commands.registerCommand(
-        'geminiCoder.selectSavedContextWithIcon',
-        async () => {
-          await vscode.commands.executeCommand('geminiCoder.selectSavedContext')
         }
       ),
       vscode.commands.registerCommand(

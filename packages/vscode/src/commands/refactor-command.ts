@@ -199,7 +199,7 @@ export function refactor_command(params: {
       params.file_tree_provider,
       params.open_editors_provider
     )
-    
+
     const collected_files = await files_collector.collect_files({
       exclude_path: document_path
     })
@@ -324,6 +324,7 @@ export function refactor_command(params: {
 
           vscode.window.showInformationMessage(`Changes have been applied!`)
         } catch (error) {
+          if (axios.isCancel(error)) return
           console.error('Refactoring error:', error)
           vscode.window.showErrorMessage(
             'An error occurred during refactoring. See console for details.'

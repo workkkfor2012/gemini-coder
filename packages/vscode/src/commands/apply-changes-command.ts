@@ -185,8 +185,8 @@ async function process_file(params: {
 
   // Use provided cancelToken instead of creating a new one
   try {
-    let totalLength = params.fileContent.length // Use file content length as base for progress
-    let receivedLength = 0
+    let total_length = params.fileContent.length // Use file content length as base for progress
+    let received_length = 0
 
     const refactored_content = await make_api_request(
       params.provider,
@@ -194,9 +194,9 @@ async function process_file(params: {
       params.cancelToken, // Use the passed cancelToken
       (chunk: string) => {
         // Update progress when receiving chunks
-        receivedLength += chunk.length
+        received_length += chunk.length
         if (params.onProgress) {
-          params.onProgress(receivedLength, totalLength)
+          params.onProgress(received_length, total_length)
         }
       }
     )
@@ -242,17 +242,17 @@ async function createFileIfNeeded(
     return false
   }
 
-  const workspaceFolder = vscode.workspace.workspaceFolders![0].uri.fsPath
-  const fullPath = path.join(workspaceFolder, filePath)
+  const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
+  const full_path = path.join(workspace_folder, filePath)
 
   // Ensure directory exists
-  const directory = path.dirname(fullPath)
+  const directory = path.dirname(full_path)
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true })
   }
 
   // Create the file
-  fs.writeFileSync(fullPath, content)
+  fs.writeFileSync(full_path, content)
 
   // Show success message
   vscode.window.showInformationMessage(`Created new file: ${filePath}`)
@@ -339,10 +339,15 @@ export function apply_changes_command(params: {
         return
       }
 
+      const total_files = files.length
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Waiting for the updated files',
+          title:
+            total_files > 1
+              ? `Waiting for ${total_files} updated files`
+              : 'Waiting for the updated file',
           cancellable: true
         },
         async (progress, token) => {
@@ -353,8 +358,6 @@ export function apply_changes_command(params: {
           token.onCancellationRequested(() => {
             cancel_token_source.cancel('Cancelled by user.')
           })
-
-          const total_files = files.length
 
           // Store document changes for applying in a second pass
           type DocumentChange = {
@@ -376,24 +379,24 @@ export function apply_changes_command(params: {
           })
 
           // Function to update progress for a specific file
-          const updateFileProgress = (
+          const update_file_progress = (
             filePath: string,
             receivedLength: number,
             totalLength: number
           ) => {
-            const fileProgress = file_progresses.get(filePath) || {
+            const file_progress = file_progresses.get(filePath) || {
               received: 0,
               total: 0
             }
-            const previousReceived = fileProgress.received
+            const previous_received = file_progress.received
 
             // Update progress for this file
-            fileProgress.received = receivedLength
-            fileProgress.total = totalLength
-            file_progresses.set(filePath, fileProgress)
+            file_progress.received = receivedLength
+            file_progress.total = totalLength
+            file_progresses.set(filePath, file_progress)
 
             // Calculate the increment since last update for this file
-            const increment = receivedLength - previousReceived
+            const increment = receivedLength - previous_received
 
             // Calculate percentage of total progress this increment represents
             const incrementPercentage =
@@ -463,7 +466,7 @@ export function apply_changes_command(params: {
                     verbose: verbose || false,
                     cancelToken: cancel_token_source.token,
                     onProgress: (receivedLength, totalLength) => {
-                      updateFileProgress(
+                      update_file_progress(
                         file.filePath,
                         receivedLength,
                         totalLength
@@ -626,7 +629,7 @@ export function apply_changes_command(params: {
 
       let cancel_token_source = axios.CancelToken.source()
       // Track previous length for progress calculation
-      let previousLength = 0
+      let previous_length = 0
 
       vscode.window.withProgress(
         {
@@ -651,8 +654,8 @@ export function apply_changes_command(params: {
               cancelToken: cancel_token_source.token, // Pass the cancelToken
               onProgress: (receivedLength, totalLength) => {
                 // Calculate actual increment since last progress report
-                const actualIncrement = receivedLength - previousLength
-                previousLength = receivedLength
+                const actual_increment = receivedLength - previous_length
+                previous_length = receivedLength
 
                 // Calculate percentage for display
                 const progressPercentage = Math.min(
@@ -662,12 +665,12 @@ export function apply_changes_command(params: {
                 const percentage = Math.round(progressPercentage * 100)
 
                 // Calculate actual increment as percentage
-                const incrementPercentage =
-                  (actualIncrement / totalLength) * 100
+                const increment_percentage =
+                  (actual_increment / totalLength) * 100
 
                 progress.report({
                   message: `${percentage}% received...`,
-                  increment: incrementPercentage
+                  increment: increment_percentage
                 })
               }
             })

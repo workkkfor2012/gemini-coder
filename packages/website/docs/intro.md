@@ -5,7 +5,7 @@ hide_table_of_contents: true
 
 # Introduction
 
-The extension lets you granularly pick and copy context or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested modifications to any file with a single click, copy them and hit **Apply changes** ✨.
+The extension lets you granularly pick and copy context or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested changes with a single click, copy them and hit **Apply changes** ✨.
 
 - MIT license
 - No paid features

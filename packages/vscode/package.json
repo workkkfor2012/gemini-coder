@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
-  "description": "Copy context for chatbots or initialize them hands-free. Use cheap Gemini API for FIM completions, file refactoring and applying AI suggested changes.",
-  "version": "1.0.254",
+  "description": "Copy context for chatbots or initialize them hands-free. Use Gemini API for FIM completions, file refactoring and applying AI suggested changes.",
+  "version": "1.0.255",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -100,142 +100,161 @@
     "commands": [
       {
         "command": "geminiCoder.copyContext",
-        "title": "Gemini Coder: Copy Context"
-      },
-      {
-        "command": "geminiCoder.copyContextWithIcon",
         "title": "Copy Context",
+        "category": "Gemini Coder",
         "icon": "$(copy)"
       },
       {
         "command": "geminiCoder.selectSavedContext",
-        "title": "Gemini Coder: Select Saved Context"
-      },
-      {
-        "command": "geminiCoder.selectSavedContextWithIcon",
         "title": "Select Saved Context",
+        "category": "Gemini Coder",
         "icon": "$(save)"
       },
       {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
+        "category": "Gemini Coder",
         "icon": "$(check-all)"
       },
       {
         "command": "geminiCoder.clearChecks",
         "title": "Clear All Checks",
+        "category": "Gemini Coder",
         "icon": "$(clear-all)"
       },
       {
         "command": "geminiCoder.collapseFolders",
         "title": "Collapse Folders",
+        "category": "Gemini Coder",
         "icon": "$(collapse-all)"
       },
       {
         "command": "geminiCoder.checkAllOpenEditors",
         "title": "Check All",
+        "category": "Gemini Coder",
         "icon": "$(check-all)"
       },
       {
         "command": "geminiCoder.clearChecksOpenEditors",
         "title": "Clear All Checks",
+        "category": "Gemini Coder",
         "icon": "$(clear-all)"
       },
       {
         "command": "geminiCoder.closeEditor",
         "title": "Close Editor",
+        "category": "Gemini Coder",
         "icon": "$(close)"
       },
       {
         "command": "geminiCoder.closeAllEditors",
         "title": "Close All Editors",
+        "category": "Gemini Coder",
         "icon": "$(close-all)"
       },
       {
         "command": "geminiCoder.saveAll",
         "title": "Save All",
+        "category": "Gemini Coder",
         "icon": "$(save-all)"
       },
       {
         "command": "geminiCoder.createFile",
         "title": "Create File",
+        "category": "Gemini Coder",
         "icon": "$(new-file)"
       },
       {
         "command": "geminiCoder.fimCompletionWith",
-        "title": "Gemini Coder: FIM Completion with..."
+        "title": "FIM Completion with...",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.fimCompletion",
-        "title": "Gemini Coder: FIM Completion"
+        "title": "FIM Completion",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.fimCompletionToClipboard",
-        "title": "Gemini Coder: FIM Completion to Clipboard"
+        "title": "FIM Completion to Clipboard",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.changeDefaultFimModel",
-        "title": "Gemini Coder: Change Default FIM Model"
+        "title": "Change Default FIM Model",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.changeDefaultRefactoringModel",
-        "title": "Gemini Coder: Change Default Refactoring Model"
+        "title": "Change Default Refactoring Model",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.changeDefaultApplyChangesModel",
-        "title": "Gemini Coder: Change Default Apply Changes Model"
+        "title": "Change Default Apply Changes Model",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.applyChanges",
-        "title": "Gemini Coder: Apply Changes"
+        "title": "Apply Changes",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.applyChangesWith",
-        "title": "Gemini Coder: Apply Changes with..."
+        "title": "Apply Changes with...",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.webChat",
-        "title": "Gemini Coder: Web Chat"
+        "title": "Web Chat",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.webChatWith",
-        "title": "Gemini Coder: Web Chat with..."
+        "title": "Web Chat with...",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.chatToClipboard",
-        "title": "Gemini Coder: Chat to Clipboard"
+        "title": "Chat to Clipboard",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.refactor",
-        "title": "Gemini Coder: Refactor this File"
+        "title": "Refactor this File",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.refactorWith",
-        "title": "Gemini Coder: Refactor this File with..."
+        "title": "Refactor this File with...",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.refactorToClipboard",
-        "title": "Gemini Coder: Refactor to Clipboard"
+        "title": "Refactor to Clipboard",
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.createFolder",
         "title": "Create Folder",
+        "category": "Gemini Coder",
         "icon": "$(new-folder)"
       },
       {
         "command": "geminiCoder.previewWebsite",
-        "title": "Preview Website Content"
+        "title": "Preview Website Content",
+        "category": "Gemini Coder"
       }
     ],
     "menus": {
       "view/title": [
         {
-          "command": "geminiCoder.copyContextWithIcon",
+          "command": "geminiCoder.copyContext",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@1"
         },
         {
-          "command": "geminiCoder.selectSavedContextWithIcon",
+          "command": "geminiCoder.selectSavedContext",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@2"
         },
