@@ -8,7 +8,6 @@ export type Chat = {
 
 export type InitializeChatsMessage = {
   action: 'initialize-chats'
-  open_in_background: boolean
   text: string
   chats: Chat[]
 }

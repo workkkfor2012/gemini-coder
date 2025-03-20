@@ -189,14 +189,11 @@ export class WebSocketManager {
     }
 
     const config = vscode.workspace.getConfiguration()
-    const open_in_background =
-      config.get<boolean>('geminiCoder.webChatsInBackground') ?? false
     const web_chat_presets = config.get<any[]>('geminiCoder.presets') ?? []
 
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',
       text,
-      open_in_background,
       chats: preset_names
         .map((name) => {
           // Find preset by name
