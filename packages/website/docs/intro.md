@@ -7,8 +7,10 @@ hide_table_of_contents: true
 
 The extension lets you granularly pick and copy context or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested modifications to any file with a single click, copy them and hit **Apply changes** ✨.
 
-- Free and open source
-- No usage tracking or any limits
+
+- Lets you do all the coding for free
+- MIT license
+- No usage tracking
 - Lightweight (~1MB)
 - Works with all VS Code based editors (Cursor, Windsurf, VSCodium, etc.)
 

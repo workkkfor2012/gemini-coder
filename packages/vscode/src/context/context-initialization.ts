@@ -19,9 +19,9 @@ export function context_initialization(context: vscode.ExtensionContext): {
   let workspace_provider: WorkspaceProvider | undefined
   let open_editors_provider: OpenEditorsProvider | undefined
   let websites_provider: WebsitesProvider | undefined
-  let gemini_coder_workspace_view: vscode.TreeView<FileItem>
-  let gemini_coder_open_editors_view: vscode.TreeView<FileItem>
-  let gemini_coder_websites_view: vscode.TreeView<WebsiteItem>
+  let workspace_view: vscode.TreeView<FileItem>
+  let open_editors_view: vscode.TreeView<FileItem>
+  let websites_view: vscode.TreeView<WebsiteItem>
 
   // Add websites provider to disposables
 
@@ -36,14 +36,11 @@ export function context_initialization(context: vscode.ExtensionContext): {
     websites_provider = new WebsitesProvider()
 
     // Create websites tree view
-    gemini_coder_websites_view = vscode.window.createTreeView(
-      'geminiCoderViewWebsites',
-      {
-        treeDataProvider: websites_provider,
-        manageCheckboxStateManually: true
-      }
-    )
-    context.subscriptions.push(websites_provider, gemini_coder_websites_view)
+    websites_view = vscode.window.createTreeView('geminiCoderViewWebsites', {
+      treeDataProvider: websites_provider,
+      manageCheckboxStateManually: true
+    })
+    context.subscriptions.push(websites_provider, websites_view)
 
     // Create FilesCollector instance that can collect from both providers and websites provider
     const files_collector = new FilesCollector(
@@ -69,14 +66,14 @@ export function context_initialization(context: vscode.ExtensionContext): {
       const total_token_count = Math.floor(context_text.length / 4)
 
       // Update the badge on the workspace files view
-      gemini_coder_workspace_view.badge = {
+      workspace_view.badge = {
         value: total_token_count,
         tooltip: `${total_token_count} tokens in the context`
       }
     }
 
     // Handle checkbox state changes for websites
-    gemini_coder_websites_view.onDidChangeCheckboxState(async (e) => {
+    websites_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
         await websites_provider!.update_check_state(item as WebsiteItem, state)
       }
@@ -85,16 +82,18 @@ export function context_initialization(context: vscode.ExtensionContext): {
     })
 
     // Initialize shared state
-    const sharedState = SharedFileState.getInstance()
-    sharedState.setProviders(workspace_provider, open_editors_provider)
+    const shared_state = SharedFileState.getInstance()
+    shared_state.setProviders(workspace_provider, open_editors_provider)
 
     // Add shared state to disposables
     context.subscriptions.push({
-      dispose: () => sharedState.dispose()
+      dispose: () => shared_state.dispose()
     })
 
     // Function to register workspace tree view checkbox handlers
-    const registerWorkspaceViewHandlers = (view: vscode.TreeView<FileItem>) => {
+    const register_workspace_view_handlers = (
+      view: vscode.TreeView<FileItem>
+    ) => {
       // Handle checkbox state changes asynchronously for file tree
       view.onDidChangeCheckboxState(async (e) => {
         for (const [item, state] of e.items) {
@@ -112,19 +111,16 @@ export function context_initialization(context: vscode.ExtensionContext): {
     }
 
     // Create two separate tree views
-    gemini_coder_workspace_view = vscode.window.createTreeView(
-      'geminiCoderViewWorkspace',
-      {
-        treeDataProvider: workspace_provider,
-        manageCheckboxStateManually: true
-      }
-    )
-    gemini_coder_workspace_view.title = workspace_name
+    workspace_view = vscode.window.createTreeView('geminiCoderViewWorkspace', {
+      treeDataProvider: workspace_provider,
+      manageCheckboxStateManually: true
+    })
+    workspace_view.title = workspace_name
 
     // Register handlers for workspace view
-    registerWorkspaceViewHandlers(gemini_coder_workspace_view)
+    register_workspace_view_handlers(workspace_view)
 
-    gemini_coder_open_editors_view = vscode.window.createTreeView(
+    open_editors_view = vscode.window.createTreeView(
       'geminiCoderViewOpenEditors',
       {
         treeDataProvider: open_editors_provider,
@@ -136,8 +132,8 @@ export function context_initialization(context: vscode.ExtensionContext): {
     context.subscriptions.push(
       workspace_provider,
       open_editors_provider,
-      gemini_coder_workspace_view,
-      gemini_coder_open_editors_view
+      workspace_view,
+      open_editors_view
     )
 
     // Register the commands
@@ -188,11 +184,11 @@ export function context_initialization(context: vscode.ExtensionContext): {
       vscode.commands.registerCommand(
         'geminiCoder.collapseFolders',
         async () => {
-          gemini_coder_workspace_view.dispose()
+          workspace_view.dispose()
           await new Promise((resolve) => setTimeout(resolve, 0))
 
           // Recreate the tree view
-          gemini_coder_workspace_view = vscode.window.createTreeView(
+          workspace_view = vscode.window.createTreeView(
             'geminiCoderViewWorkspace',
             {
               treeDataProvider: workspace_provider!,
@@ -201,19 +197,15 @@ export function context_initialization(context: vscode.ExtensionContext): {
           )
 
           // Re-register event handlers for the new view
-          registerWorkspaceViewHandlers(gemini_coder_workspace_view)
+          register_workspace_view_handlers(workspace_view)
 
           // Make sure to keep the workspace name in the title
           if (vscode.workspace.workspaceFolders) {
-            gemini_coder_workspace_view.title =
-              vscode.workspace.workspaceFolders[0].name
+            workspace_view.title = vscode.workspace.workspaceFolders[0].name
           }
 
           // Add the new view to subscriptions
-          context.subscriptions.push(gemini_coder_workspace_view)
-
-          // Update token count badge
-          update_activity_bar_badge_token_count()
+          context.subscriptions.push(workspace_view)
         }
       ),
       vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
@@ -280,7 +272,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     )
 
     // Handle checkbox state changes asynchronously for file tree
-    gemini_coder_workspace_view.onDidChangeCheckboxState(async (e) => {
+    workspace_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
         await workspace_provider!.update_check_state(item, state)
       }
@@ -290,7 +282,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     })
 
     // Handle checkbox state changes asynchronously for open editors
-    gemini_coder_open_editors_view.onDidChangeCheckboxState(async (e) => {
+    open_editors_view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
         await open_editors_provider!.update_check_state(item, state)
       }
@@ -360,13 +352,13 @@ export function context_initialization(context: vscode.ExtensionContext): {
       vscode.workspace.onDidChangeWorkspaceFolders(() => {
         if (vscode.workspace.workspaceFolders) {
           const workspaceName = vscode.workspace.workspaceFolders[0].name
-          gemini_coder_workspace_view.title = workspaceName
+          workspace_view.title = workspaceName
         }
       })
     )
 
     // Fix for issue when the collapsed item has some of its children selected
-    gemini_coder_workspace_view.onDidCollapseElement(() => {
+    workspace_view.onDidCollapseElement(() => {
       workspace_provider!.refresh()
     })
 
