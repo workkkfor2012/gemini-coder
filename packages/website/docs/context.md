@@ -30,7 +30,7 @@ _The structure of context:_
 
 ```
 <files>
-  <text title="">...</text>   (websites managed by the web browser integration)
+  <text name="">...</text>   (websites managed by the web browser integration)
   <file name="...">...</file>
   ...
 </files>

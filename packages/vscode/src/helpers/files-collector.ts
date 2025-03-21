@@ -51,7 +51,7 @@ export class FilesCollector {
           // Just add the content without XML wrapping for token counting
           collected_text += website.content
         } else {
-          collected_text += `<text title="${website.title}">\n<![CDATA[\n${website.content}\n]]>\n</text>\n`
+          collected_text += `<text name="${website.title}">\n<![CDATA[\n${website.content}\n]]>\n</text>\n`
         }
       }
     }
