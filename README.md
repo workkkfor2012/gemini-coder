@@ -52,7 +52,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
 - Special purpose chats with presets.
-- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying AI suggested changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
+- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
 - Configure your favorite OpenAI API compatible providers.
 
 ## Quick start for chat

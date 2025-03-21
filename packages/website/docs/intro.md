@@ -39,5 +39,5 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [Mistral](https://chat.mistral.ai/chat)
   - Open WebUI (localhost)
 - Special purpose chats with presets.
-- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](/docs/features/fim), [file refactoring](/docs/features/refactor) and [applying AI suggested changes](/docs/features/apply-changes).
+- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](/docs/features/fim), [file refactoring](/docs/features/refactor) and [applying changes](/docs/features/apply-changes).
 - Configure your favorite OpenAI API compatible providers.
