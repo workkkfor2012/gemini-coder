@@ -11,7 +11,7 @@ _Structure of the generated message:_
 
 ```
 <files>
-  <file path="...">
+  <file name="...">
     ...
     <fill missing code>
     ...

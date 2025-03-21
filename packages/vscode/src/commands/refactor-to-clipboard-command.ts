@@ -61,7 +61,7 @@ export function refactor_to_clipboard_command(
       const content =
         '<files>' +
         context_text +
-        `\n<file path="${current_file_path}"><![CDATA[${document_text}]]></file>` +
+        `\n<file name="${current_file_path}"><![CDATA[${document_text}]]></file>` +
         '\n</files>\n' +
         refactor_instruction
 

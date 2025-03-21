@@ -11,7 +11,7 @@ _Structure of the generated message:_
 
 ```
 <files>
-  <file path="...">...</file>
+  <file name="...">...</file>
   ...
 </files>
 User requested refactor of a file "[PATH]". In your response send fully updated file only, without explanations or any other text.

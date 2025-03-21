@@ -157,7 +157,7 @@ async function process_file(params: {
   onProgress?: (chunkLength: number, totalLength: number) => void
 }): Promise<string | null> {
   const apply_changes_prompt = `${apply_changes_instruction} ${params.instruction}`
-  const file_content = `<file path="${params.filePath}"><![CDATA[${params.fileContent}]]></file>`
+  const file_content = `<file name="${params.filePath}"><![CDATA[${params.fileContent}]]></file>`
   const content = `${file_content}\n${apply_changes_prompt}`
 
   const messages = [
@@ -523,7 +523,7 @@ export function apply_changes_command(params: {
                           : []),
                         {
                           role: 'user',
-                          content: `<file path="${file.filePath}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
+                          content: `<file name="${file.filePath}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
                         }
                       ],
                       model: provider.model,
@@ -744,7 +744,7 @@ export function apply_changes_command(params: {
                     : []),
                   {
                     role: 'user',
-                    content: `<file path="${file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${instruction}`
+                    content: `<file name="${file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${instruction}`
                   }
                 ],
                 model: provider.model,

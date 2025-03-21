@@ -76,7 +76,7 @@ export class FilesCollector {
           collected_text += content
         } else {
           const is_active = params?.active_path == file_path
-          collected_text += `<file path="${relative_path}"${
+          collected_text += `<file name="${relative_path}"${
             is_active ? ' active' : ''
           }>\n<![CDATA[\n${content}\n]]>\n</file>\n`
         }

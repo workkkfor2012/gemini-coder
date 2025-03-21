@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br>
   <h1>Gemini Coder</h1>
-  <h4>Copy context for chatbots or initialize them hands-free.<br/>
+  <h4>Copy context for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
   <br>
   <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">

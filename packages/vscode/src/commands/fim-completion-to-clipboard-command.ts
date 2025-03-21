@@ -42,7 +42,7 @@ export function fim_completion_to_clipboard_command(
         })
 
         const payload = {
-          before: `<files>${collected_files}\n<file path="${vscode.workspace.asRelativePath(
+          before: `<files>${collected_files}\n<file name="${vscode.workspace.asRelativePath(
             document.uri
           )}">\n<![CDATA[\n${text_before_cursor}`,
           after: `${text_after_cursor}\n]]>\n</file>\n</files>`

@@ -31,7 +31,7 @@ _The structure of context:_
 ```
 <files>
   <text title="">...</text>   (websites managed by the web browser integration)
-  <file path="...">...</file>
+  <file name="...">...</file>
   ...
 </files>
 ```

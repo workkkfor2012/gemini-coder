@@ -142,7 +142,7 @@ async function build_completion_payload(
   })
 
   const payload = {
-    before: `<files>${context_text}<file path="${vscode.workspace.asRelativePath(
+    before: `<files>${context_text}<file name="${vscode.workspace.asRelativePath(
       document.uri
     )}"><![CDATA[${text_before_cursor}`,
     after: `${text_after_cursor}]]></file>\n</files>`
