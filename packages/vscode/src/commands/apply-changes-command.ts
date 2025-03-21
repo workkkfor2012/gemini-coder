@@ -407,55 +407,40 @@ export function apply_changes_command(params: {
           }
           const documentChanges: DocumentChange[] = []
 
-          // Focus on the largest file for better progress indication
+          // Focus on the largest file for progress tracking
           let largest_file: { path: string; size: number } | null = null
-          let largest_file_progress = { received: 0, total: 0 }
-          let completed_files = 0
+          let largest_file_progress = 0 // Progress percentage for largest file
+          let completed_count = 0
 
-          // Function to update progress focusing on the largest file
-          const update_file_progress = (
-            filePath: string,
-            receivedLength: number,
-            totalLength: number
-          ) => {
-            // First time seeing this file
-            if (!largest_file || totalLength > largest_file.size) {
-              largest_file = { path: filePath, size: totalLength }
-              largest_file_progress = {
-                received: receivedLength,
-                total: totalLength
+          try {
+            // Find largest existing file to track
+            for (const file of existing_files) {
+              try {
+                const file_uri = vscode.Uri.file(
+                  path.join(
+                    vscode.workspace.workspaceFolders![0].uri.fsPath,
+                    file.filePath
+                  )
+                )
+                const document = await vscode.workspace.openTextDocument(
+                  file_uri
+                )
+                const content_size = document.getText().length
+
+                if (!largest_file || content_size > largest_file.size) {
+                  largest_file = {
+                    path: file.filePath,
+                    size: content_size
+                  }
+                }
+              } catch (error) {
+                console.log(
+                  `Error checking file size for ${file.filePath}`,
+                  error
+                )
               }
             }
 
-            // Update progress for the largest file
-            if (largest_file.path === filePath) {
-              largest_file_progress.received = receivedLength
-            }
-
-            // Calculate overall progress based on largest file and completion count
-            const file_percentage = Math.min(
-              (largest_file_progress.received / largest_file_progress.total) *
-                100,
-              100
-            )
-
-            // Include completed files in the progress calculation
-            const completion_percentage = (completed_files / total_files) * 100
-
-            // Weight the largest file more heavily (70% for large file progress, 30% for completion count)
-            const overall_progress =
-              file_percentage * 0.7 + completion_percentage * 0.3
-
-            // Update progress display
-            progress.report({
-              message: `${Math.round(
-                overall_progress
-              )}% completed... (${completed_files}/${total_files} files)`,
-              increment: 0
-            })
-          }
-
-          try {
             // Process all files in parallel batches
             for (let i = 0; i < files.length; i += max_concurrency) {
               if (token.isCancellationRequested) {
@@ -474,8 +459,11 @@ export function apply_changes_command(params: {
 
                   // For new files, just store the information for creation later
                   if (!file_exists) {
-                    completed_files++
-                    update_file_progress(file.filePath, 1, 1) // Consider as completed for progress
+                    completed_count++
+                    // Update progress based on overall completion
+                    progress.report({
+                      message: `Receiving... (${largest_file_progress}%)`
+                    })
                     return {
                       document: null,
                       content: file.content,
@@ -507,11 +495,16 @@ export function apply_changes_command(params: {
                     verbose: verbose || false,
                     cancelToken: cancel_token_source.token,
                     onProgress: (receivedLength, totalLength) => {
-                      update_file_progress(
-                        file.filePath,
-                        receivedLength,
-                        totalLength
-                      )
+                      // Only update progress if this is the largest file
+                      if (largest_file && file.filePath === largest_file.path) {
+                        largest_file_progress = Math.min(
+                          Math.round((receivedLength / totalLength) * 100),
+                          100
+                        )
+                        progress.report({
+                          message: `Receiving... (${largest_file_progress}%)`
+                        })
+                      }
                     }
                   })
 
@@ -550,17 +543,15 @@ export function apply_changes_command(params: {
                       )
                     }
 
-                    // Mark as completed for progress tracking
-                    completed_files++
-                    update_file_progress(
-                      file.filePath,
-                      largest_file?.path === file.filePath
-                        ? largest_file_progress.total
-                        : 1,
-                      largest_file?.path === file.filePath
-                        ? largest_file_progress.total
-                        : 1
-                    )
+                    completed_count++
+
+                    // Update progress if this is the largest file
+                    if (largest_file && file.filePath === largest_file.path) {
+                      largest_file_progress = 100
+                      progress.report({
+                        message: `Receiving... (100%)`
+                      })
+                    }
 
                     // Store the document and its new content for applying later
                     return {
@@ -573,17 +564,15 @@ export function apply_changes_command(params: {
                       filePath: file.filePath
                     }
                   } else {
-                    // Mark as completed for progress tracking
-                    completed_files++
-                    update_file_progress(
-                      file.filePath,
-                      largest_file?.path === file.filePath
-                        ? largest_file_progress.total
-                        : 1,
-                      largest_file?.path === file.filePath
-                        ? largest_file_progress.total
-                        : 1
-                    )
+                    completed_count++
+
+                    // Update progress if this is the largest file
+                    if (largest_file && file.filePath === largest_file.path) {
+                      largest_file_progress = 100
+                      progress.report({
+                        message: `Receiving... (100%)`
+                      })
+                    }
 
                     // Store the document and its new content for applying later
                     return {
@@ -620,6 +609,12 @@ export function apply_changes_command(params: {
                 documentChanges.push(result)
               }
             }
+
+            // Final progress update
+            progress.report({
+              message: `Applying changes to files...`,
+              increment: 0
+            })
 
             // Only apply changes if ALL files were processed successfully
             // Apply all changes and create new files in a second pass
