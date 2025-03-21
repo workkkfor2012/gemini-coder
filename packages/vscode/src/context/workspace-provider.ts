@@ -351,8 +351,36 @@ export class WorkspaceProvider
   }
 
   clear_checks(): void {
-    this.checked_items.clear()
+    // Get a list of currently open files to preserve their check state
+    const open_files = new Set(this.get_open_editors().map(uri => uri.fsPath))
+    
+    // Create a new map to hold only the open files' check states
+    const new_checked_items = new Map<string, vscode.TreeItemCheckboxState>()
+    
+    // Preserve open files' check states
+    for (const [path, state] of this.checked_items.entries()) {
+      if (open_files.has(path)) {
+        new_checked_items.set(path, state)
+      }
+    }
+    
+    // Replace the checked_items map with our filtered version
+    this.checked_items = new_checked_items
+    
+    // Clear partially checked directories
     this.partially_checked_dirs.clear()
+    
+    // Update parent directories for open files
+    for (const file_path of open_files) {
+      if (this.checked_items.has(file_path)) {
+        let dir_path = path.dirname(file_path)
+        while (dir_path.startsWith(this.workspace_root)) {
+          this.update_parent_state(dir_path)
+          dir_path = path.dirname(dir_path)
+        }
+      }
+    }
+    
     this.refresh()
     this._on_did_change_checked_files.fire()
   }
