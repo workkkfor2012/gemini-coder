@@ -10,7 +10,7 @@ The extension lets you granularly pick and copy context or **initalize chats in 
 - MIT license
 - No paid features
 - No usage tracking
-- Lightweight (~1MB)
+- Lightweight (~330KB)
 - Works with all VS Code based editors (Cursor, Windsurf, VSCodium, etc.)
 
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
