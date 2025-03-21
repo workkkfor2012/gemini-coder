@@ -3,6 +3,8 @@ import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command'
 import { fim_completion_command } from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
+import { fim_completion_with_suggestions_command } from './commands/fim-completion-with-suggestions-command'
+import { fim_completion_with_suggestions_to_clipboard_command } from './commands/fim-completion-with-suggestions-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
   web_chat_command,
@@ -122,7 +124,17 @@ export function activate(context: vscode.ExtensionContext) {
       context,
       use_default_model: true
     }),
+    fim_completion_with_suggestions_command({
+      file_tree_provider: workspace_provider,
+      open_editors_provider: open_editors_provider,
+      context,
+      use_default_model: true
+    }),
     fim_completion_to_clipboard_command(
+      workspace_provider,
+      open_editors_provider
+    ),
+    fim_completion_with_suggestions_to_clipboard_command(
       workspace_provider,
       open_editors_provider
     ),

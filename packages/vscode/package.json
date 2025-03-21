@@ -169,8 +169,18 @@
         "category": "Gemini Coder"
       },
       {
+        "command": "geminiCoder.fimCompletionWithSuggestions",
+        "title": "FIM Completion with Suggestions",
+        "category": "Gemini Coder"
+      },
+      {
         "command": "geminiCoder.fimCompletionToClipboard",
         "title": "FIM Completion to Clipboard",
+        "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.fimCompletionWithSuggestionsToClipboard",
+        "title": "FIM Completion with Suggestions to Clipboard",
         "category": "Gemini Coder"
       },
       {
