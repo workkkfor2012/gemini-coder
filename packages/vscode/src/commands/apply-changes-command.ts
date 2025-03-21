@@ -343,6 +343,43 @@ export function apply_changes_command(params: {
 
       const total_files = files.length
 
+      // First, identify which files are new (don't exist in workspace)
+      const new_files: ClipboardFile[] = []
+      const existing_files: ClipboardFile[] = []
+
+      for (const file of files) {
+        // Check if file exists in workspace
+        const file_exists = await vscode.workspace
+          .findFiles(file.filePath, null, 1)
+          .then((files) => files.length > 0)
+
+        if (file_exists) {
+          existing_files.push(file)
+        } else {
+          new_files.push(file)
+        }
+      }
+
+      // If there are new files, ask for confirmation before proceeding
+      if (new_files.length > 0) {
+        const new_file_list = new_files
+          .map((file) => file.filePath)
+          .join('\n- ')
+        const confirmation = await vscode.window.showWarningMessage(
+          `This will create ${new_files.length} new file(s):\n- ${new_file_list}\n\nDo you want to continue?`,
+          { modal: true },
+          'Yes',
+          'No'
+        )
+
+        if (confirmation !== 'Yes') {
+          vscode.window.showInformationMessage(
+            'Operation cancelled. No files were modified.'
+          )
+          return
+        }
+      }
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -365,65 +402,56 @@ export function apply_changes_command(params: {
           type DocumentChange = {
             document: vscode.TextDocument | null
             content: string
+            isNew: boolean
+            filePath: string
           }
           const documentChanges: DocumentChange[] = []
 
-          // Track progress for each file
-          const file_progresses = new Map<
-            string,
-            { received: number; total: number }
-          >()
-          const progress_per_file = 100 / total_files
+          // Focus on the largest file for better progress indication
+          let largest_file: { path: string; size: number } | null = null
+          let largest_file_progress = { received: 0, total: 0 }
+          let completed_files = 0
 
-          // Initialize progress tracking for each file
-          files.forEach((file) => {
-            file_progresses.set(file.filePath, { received: 0, total: 0 })
-          })
-
-          // Function to update progress for a specific file
+          // Function to update progress focusing on the largest file
           const update_file_progress = (
             filePath: string,
             receivedLength: number,
             totalLength: number
           ) => {
-            const file_progress = file_progresses.get(filePath) || {
-              received: 0,
-              total: 0
-            }
-            const previous_received = file_progress.received
-
-            // Update progress for this file
-            file_progress.received = receivedLength
-            file_progress.total = totalLength
-            file_progresses.set(filePath, file_progress)
-
-            // Calculate the increment since last update for this file
-            const increment = receivedLength - previous_received
-
-            // Calculate percentage of total progress this increment represents
-            const incrementPercentage =
-              (increment / totalLength) * progress_per_file
-
-            // Calculate overall progress across all files
-            let overall_progress = 0
-            file_progresses.forEach((p) => {
-              if (p.total > 0) {
-                // Cap individual file progress at 100%
-                const file_progress_percentage = Math.min(
-                  p.received / p.total,
-                  1.0
-                )
-                overall_progress += file_progress_percentage * progress_per_file
+            // First time seeing this file
+            if (!largest_file || totalLength > largest_file.size) {
+              largest_file = { path: filePath, size: totalLength }
+              largest_file_progress = {
+                received: receivedLength,
+                total: totalLength
               }
-            })
+            }
 
-            // Cap overall progress at 100%
-            overall_progress = Math.min(overall_progress, 100)
+            // Update progress for the largest file
+            if (largest_file.path === filePath) {
+              largest_file_progress.received = receivedLength
+            }
+
+            // Calculate overall progress based on largest file and completion count
+            const file_percentage = Math.min(
+              (largest_file_progress.received / largest_file_progress.total) *
+                100,
+              100
+            )
+
+            // Include completed files in the progress calculation
+            const completion_percentage = (completed_files / total_files) * 100
+
+            // Weight the largest file more heavily (70% for large file progress, 30% for completion count)
+            const overall_progress =
+              file_percentage * 0.7 + completion_percentage * 0.3
 
             // Update progress display
             progress.report({
-              message: `${Math.round(overall_progress)}% received...`,
-              increment: incrementPercentage
+              message: `${Math.round(
+                overall_progress
+              )}% completed... (${completed_files}/${total_files} files)`,
+              increment: 0
             })
           }
 
@@ -446,10 +474,13 @@ export function apply_changes_command(params: {
 
                   // For new files, just store the information for creation later
                   if (!file_exists) {
+                    completed_files++
+                    update_file_progress(file.filePath, 1, 1) // Consider as completed for progress
                     return {
-                      filePath: file.filePath,
+                      document: null,
                       content: file.content,
-                      isNew: true
+                      isNew: true,
+                      filePath: file.filePath
                     }
                   }
 
@@ -519,6 +550,18 @@ export function apply_changes_command(params: {
                       )
                     }
 
+                    // Mark as completed for progress tracking
+                    completed_files++
+                    update_file_progress(
+                      file.filePath,
+                      largest_file?.path === file.filePath
+                        ? largest_file_progress.total
+                        : 1,
+                      largest_file?.path === file.filePath
+                        ? largest_file_progress.total
+                        : 1
+                    )
+
                     // Store the document and its new content for applying later
                     return {
                       document,
@@ -526,14 +569,28 @@ export function apply_changes_command(params: {
                         content: fallback_content,
                         end_with_new_line: true
                       }),
-                      isNew: false
+                      isNew: false,
+                      filePath: file.filePath
                     }
                   } else {
+                    // Mark as completed for progress tracking
+                    completed_files++
+                    update_file_progress(
+                      file.filePath,
+                      largest_file?.path === file.filePath
+                        ? largest_file_progress.total
+                        : 1,
+                      largest_file?.path === file.filePath
+                        ? largest_file_progress.total
+                        : 1
+                    )
+
                     // Store the document and its new content for applying later
                     return {
                       document,
                       content: updated_content,
-                      isNew: false
+                      isNew: false,
+                      filePath: file.filePath
                     }
                   }
                 } catch (error: any) {
@@ -560,36 +617,22 @@ export function apply_changes_command(params: {
 
               // Store results to process after all files have been processed
               for (const result of results) {
-                if (result.isNew) {
-                  // For new files, create them later
-                  documentChanges.push({
-                    document: null, // New files don't have a document yet
-                    content: result.content
-                  })
-                } else {
-                  // For existing files, store the document and new content
-                  documentChanges.push({
-                    document: result.document || null,
-                    content: result.content
-                  })
-                }
+                documentChanges.push(result)
               }
             }
 
             // Only apply changes if ALL files were processed successfully
             // Apply all changes and create new files in a second pass
-            for (let i = 0; i < files.length; i++) {
-              const file = files[i]
-              const change = documentChanges[i]
-
+            for (const change of documentChanges) {
               // For new files, create them
-              if (!change.document) {
-                await create_file_if_needed(file.filePath, file.content)
+              if (change.isNew) {
+                await create_file_if_needed(change.filePath, change.content)
                 continue
               }
 
               // For existing files, apply the changes
               const document = change.document
+              if (!document) continue
               const editor = await vscode.window.showTextDocument(document)
               await editor.edit((edit) => {
                 edit.replace(
