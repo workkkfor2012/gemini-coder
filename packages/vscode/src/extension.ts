@@ -125,10 +125,17 @@ export function activate(context: vscode.ExtensionContext) {
       use_default_model: true
     }),
     fim_completion_with_suggestions_command({
+      command: 'geminiCoder.fimCompletionWithSuggestions',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
       use_default_model: true
+    }),
+    fim_completion_with_suggestions_command({
+      command: 'geminiCoder.fimCompletionWithSuggestionsWith',
+      file_tree_provider: workspace_provider,
+      open_editors_provider: open_editors_provider,
+      context
     }),
     fim_completion_to_clipboard_command(
       workspace_provider,

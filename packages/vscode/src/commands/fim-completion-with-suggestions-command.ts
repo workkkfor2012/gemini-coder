@@ -155,6 +155,7 @@ async function build_completion_payload(
 }
 
 export function fim_completion_with_suggestions_command(params: {
+  command: string
   file_tree_provider: any
   open_editors_provider?: any
   context: vscode.ExtensionContext
@@ -162,7 +163,7 @@ export function fim_completion_with_suggestions_command(params: {
 }) {
   const model_manager = new ModelManager(params.context)
 
-  return vscode.commands.registerCommand('geminiCoder.fimCompletionWithSuggestions', async () => {
+  return vscode.commands.registerCommand(params.command, async () => {
     // Prompt user for suggestions
     const suggestions = await vscode.window.showInputBox({
       placeHolder: 'Enter suggestions',
