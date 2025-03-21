@@ -24,9 +24,9 @@ The extension lets you granularly pick and copy context or **initalize chats in 
 
 With Gemini Coder you can do all the coding for free!
 
-- MIT licensed
-- Zero tracking
+- MIT license
 - Zero paid features
+- Zero tracking
 - Lightweight (~1MB unpacked)
 - Available in the [Open VSX Registry](https://open-vsx.org/extension/robertpiosik/gemini-coder)
 

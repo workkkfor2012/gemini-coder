@@ -68,6 +68,11 @@ export const ChatInput: React.FC<Props> = (props) => {
     set_history_index(-1) // Reset history index after submitting
   }
 
+  const handle_copy = () => {
+    if (!props.is_fim_mode && !props.value) return
+    props.on_copy()
+  }
+
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     if (e.key == 'Enter' && e.shiftKey) {
       e.preventDefault()
@@ -262,8 +267,9 @@ export const ChatInput: React.FC<Props> = (props) => {
         <div className={styles.footer__right}>
           <button
             className={styles.footer__right__button}
-            onClick={props.on_copy}
+            onClick={handle_copy}
             title="Copy to clipboard"
+            disabled={!props.is_fim_mode && !props.value}
           >
             <div className={cn('codicon', 'codicon-copy')} />
           </button>
