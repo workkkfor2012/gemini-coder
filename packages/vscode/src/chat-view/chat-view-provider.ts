@@ -125,10 +125,20 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     const selected_text = active_editor.document.getText(
       active_editor.selection
     )
-    return instruction.replace(
-      /@selection/g,
-      `\n\`\`\`\n${selected_text}\n\`\`\`\n`
-    )
+
+    // Check if the selected text is a single line
+    const is_single_line = !selected_text.includes('\n')
+
+    if (is_single_line) {
+      // For single-line text, wrap with single backticks
+      return instruction.replace(/@selection/g, `\`${selected_text}\``)
+    } else {
+      // For multi-line text, wrap with triple backticks as before
+      return instruction.replace(
+        /@selection/g,
+        `\n\`\`\`\n${selected_text}\n\`\`\`\n`
+      )
+    }
   }
 
   async resolveWebviewView(
@@ -174,11 +184,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
 
             case 'SAVE_CHAT_HISTORY': {
-              const key = message.is_fim_mode ? 'fim-chat-history' : 'chat-history';
-              await this._context.workspaceState.update(
-                key,
-                message.messages
-              )
+              const key = message.is_fim_mode
+                ? 'fim-chat-history'
+                : 'chat-history'
+              await this._context.workspaceState.update(key, message.messages)
               break
             }
 
