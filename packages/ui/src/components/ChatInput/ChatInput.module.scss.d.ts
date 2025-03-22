@@ -9,8 +9,9 @@ declare const styles: {
   readonly "footer__left__button--selection": string;
   readonly "footer__right": string;
   readonly "footer__right__button": string;
-  readonly "highlight_container": string;
-  readonly "selection_keyword": string;
+  readonly "highlight-container": string;
+  readonly "selection-keyword": string;
+  readonly "selection-keyword--error": string;
   readonly "textarea": string;
 };
 export = styles;

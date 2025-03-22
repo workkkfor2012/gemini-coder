@@ -34,7 +34,17 @@ export const ChatInput: React.FC<Props> = (props) => {
     return parts.map((part, index) => {
       if (part == '@selection') {
         return (
-          <span key={index} className={styles.selection_keyword}>
+          <span
+            key={index}
+            className={cn(styles['selection-keyword'], {
+              [styles['selection-keyword--error']]: !props.has_active_selection
+            })}
+            title={
+              !props.has_active_selection
+                ? 'No active selection in editor'
+                : undefined
+            }
+          >
             {part}
           </span>
         )
@@ -213,7 +223,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       onClick={handle_container_click}
       ref={container_ref}
     >
-      <div className={styles.highlight_container} ref={highlight_ref}>
+      <div className={styles['highlight-container']} ref={highlight_ref}>
         {get_highlighted_text(props.value)}
       </div>
       <TextareaAutosize

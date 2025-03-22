@@ -36,7 +36,7 @@
   }
 }
 
-.highlight_container {
+.highlight-container {
   position: absolute;
   top: 0;
   left: 0;
@@ -58,10 +58,14 @@
   margin: 0;
 }
 
-.selection_keyword {
-  background-color: var(--vscode-editor-selectionBackground, #264f78);
+.selection-keyword {
+  background-color: var(--vscode-editor-selectionBackground);
   border-radius: 3px;
   padding: 0 1px;
+
+  &--error {
+    background-color: var(--vscode-diffEditor-removedLineBackground);
+  }
 }
 
 .footer {
