@@ -415,16 +415,12 @@ export function apply_changes_command(params: {
     // Show quick pick to choose between intelligent or replace mode
     const mode_options = [
       {
-        label: 'Intelligent',
-        description: 'Process with AI and apply suggested changes',
-        detail:
-          'Use AI to interpret instructions and intelligently modify files'
+        label: 'Intelligent updates',
+        description: 'Use AI to apply shortened files and diffs'
       },
       {
-        label: 'Replace',
-        description: 'Directly replace files with clipboard content',
-        detail:
-          'Replace files with the exact content from clipboard without AI processing'
+        label: 'Fast replaces',
+        description: 'Suitable if files are in a "whole" format'
       }
     ]
 
@@ -437,10 +433,10 @@ export function apply_changes_command(params: {
     }
 
     // Handle Replace mode
-    if (selected_mode.label === 'Replace') {
+    if (selected_mode.label == 'Replace') {
       if (is_multiple_files) {
         const files = parse_clipboard_multiple_files(clipboard_text)
-        if (files.length === 0) {
+        if (files.length == 0) {
           vscode.window.showErrorMessage(
             'No valid file content found in clipboard.'
           )
@@ -693,7 +689,7 @@ export function apply_changes_command(params: {
                       // Only update progress if this is the largest file
                       if (
                         largest_file &&
-                        file.file_path === largest_file.path
+                        file.file_path == largest_file.path
                       ) {
                         previous_largest_file_progress = largest_file_progress
                         largest_file_progress = Math.min(
@@ -750,7 +746,7 @@ export function apply_changes_command(params: {
                     completed_count++
 
                     // Update progress if this is the largest file
-                    if (largest_file && file.file_path === largest_file.path) {
+                    if (largest_file && file.file_path == largest_file.path) {
                       // Calculate increment for final progress update
                       const increment = 100 - largest_file_progress
                       largest_file_progress = 100
