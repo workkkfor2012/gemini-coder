@@ -421,6 +421,7 @@ export function apply_changes_command(params: {
           // Focus on the largest file for progress tracking
           let largest_file: { path: string; size: number } | null = null
           let largest_file_progress = 0 // Progress percentage for largest file
+          let previous_largest_file_progress = 0 // Track previous progress value
           let completed_count = 0
 
           try {
@@ -471,10 +472,6 @@ export function apply_changes_command(params: {
                   // For new files, just store the information for creation later
                   if (!file_exists) {
                     completed_count++
-                    // Update progress based on overall completion
-                    progress.report({
-                      message: `Receiving... (${largest_file_progress}%)`
-                    })
                     return {
                       document: null,
                       content: file.content,
@@ -511,12 +508,18 @@ export function apply_changes_command(params: {
                         largest_file &&
                         file.file_path === largest_file.path
                       ) {
+                        previous_largest_file_progress = largest_file_progress
                         largest_file_progress = Math.min(
                           Math.round((receivedLength / totalLength) * 100),
                           100
                         )
+
+                        // Calculate the increment since last update
+                        const increment =
+                          largest_file_progress - previous_largest_file_progress
+
                         progress.report({
-                          message: `Receiving... (${largest_file_progress}%)`
+                          increment: increment > 0 ? increment : 0
                         })
                       }
                     }
@@ -561,9 +564,11 @@ export function apply_changes_command(params: {
 
                     // Update progress if this is the largest file
                     if (largest_file && file.file_path === largest_file.path) {
+                      // Calculate increment for final progress update
+                      const increment = 100 - largest_file_progress
                       largest_file_progress = 100
                       progress.report({
-                        message: `Receiving... (100%)`
+                        increment: increment > 0 ? increment : 0
                       })
                     }
 
@@ -582,9 +587,11 @@ export function apply_changes_command(params: {
 
                     // Update progress if this is the largest file
                     if (largest_file && file.file_path === largest_file.path) {
+                      // Calculate increment for final progress update
+                      const increment = 100 - largest_file_progress
                       largest_file_progress = 100
                       progress.report({
-                        message: `Receiving... (100%)`
+                        increment: increment > 0 ? increment : 0
                       })
                     }
 
@@ -731,7 +738,6 @@ export function apply_changes_command(params: {
                   (actual_increment / totalLength) * 100
 
                 progress.report({
-                  message: `${percentage}% received...`,
                   increment: increment_percentage
                 })
               }
