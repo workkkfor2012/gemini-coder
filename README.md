@@ -26,11 +26,14 @@ With Gemini Coder you can do all the coding for free!
 
 - MIT license
 - Zero paid features
-- Zero tracking
+- Zero usage limits
+- Zero telemetry
 - Lightweight (~1MB unpacked)
 - Available in the [Open VSX Registry](https://open-vsx.org/extension/robertpiosik/gemini-coder)
 
 ## You own the context
+
+> Too many tokens fighting for attention may *decrease* performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 

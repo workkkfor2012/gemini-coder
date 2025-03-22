@@ -5,15 +5,13 @@ sidebar_position: 3
 
 # Context
 
-What sets Gemini Coder apart from other AI coding assistants is its focus on context, as the right context is everything you need for AI's usability in everyday work.
+What sets Gemini Coder apart from other AI coding assistants is its focus on context.
 
-> ## The right context is everything you need.
->
-> — Gemini Coder
+> Too many tokens fighting for attention may *decrease* performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
-The extension gives the programmer full power of what data is sent in each message, to a single token. Our design choice values traditional, careful programming and lets you squeeze maximum from AI capabilities.
+The extension gives the programmer full control over of what data is sent in each message, to a single token. Our design choice praises traditional, thoughtful programming and lets you squeeze maximum of AI capabilities.
 
-The extension provides context related views that mimic the original Explorer view for common uses like opening editors or creating files:
+Gemini Coder provides context related views that mimic the default Explorer view for common uses like opening editors or creating files:
 
 - open editors
 - workspace tree
