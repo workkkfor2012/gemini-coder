@@ -391,13 +391,19 @@ export function apply_changes_command(params: {
         }
       }
 
+      // Update the message to only count files that need AI processing
+      const files_to_update_count = existing_files.length
+      const progress_title =
+        files_to_update_count > 1
+          ? `Waiting for ${files_to_update_count} updated files`
+          : files_to_update_count == 1
+          ? 'Waiting for the updated file'
+          : 'Creating new files'
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title:
-            total_files > 1
-              ? `Waiting for ${total_files} updated files`
-              : 'Waiting for the updated file',
+          title: progress_title,
           cancellable: true
         },
         async (progress, token) => {
@@ -630,12 +636,6 @@ export function apply_changes_command(params: {
                 documentChanges.push(result)
               }
             }
-
-            // Final progress update
-            progress.report({
-              message: `Applying changes to files...`,
-              increment: 0
-            })
 
             // Only apply changes if ALL files were processed successfully
             // Apply all changes and create new files in a second pass
