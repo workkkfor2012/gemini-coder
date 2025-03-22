@@ -150,136 +150,221 @@ async function build_completion_payload(
   return `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
 }
 
-export function fim_completion_command(params: {
-  command: string
-  file_tree_provider: any
-  open_editors_provider?: any
-  context: vscode.ExtensionContext
-  use_default_model?: boolean
-}) {
-  const model_manager = new ModelManager(params.context)
+async function perform_fim_completion(
+  file_tree_provider: any,
+  open_editors_provider: any,
+  context: vscode.ExtensionContext,
+  provider: Provider
+) {
+  const config = vscode.workspace.getConfiguration()
+  const verbose = config.get<boolean>('geminiCoder.verbose')
 
-  return vscode.commands.registerCommand(params.command, async () => {
-    const config = vscode.workspace.getConfiguration()
-    const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const gemini_api_key = config.get<string>('geminiCoder.apiKey')
-    const gemini_temperature = config.get<number>('geminiCoder.temperature')
-    const verbose = config.get<boolean>('geminiCoder.verbose')
+  if (!provider.bearerToken) {
+    vscode.window.showErrorMessage(
+      'Bearer token is missing. Please add it in the settings.'
+    )
+    return
+  }
 
-    // Get default model from global state
-    const default_model_name = model_manager.get_default_fim_model()
+  const model = provider.model
+  const temperature = provider.temperature
+  const system_instructions = provider.systemInstructions
 
-    const all_providers = [
-      ...BUILT_IN_PROVIDERS.map((provider) => ({
-        ...provider,
-        bearerToken: gemini_api_key || '',
-        temperature: gemini_temperature
-      })),
-      ...user_providers
+  const editor = vscode.window.activeTextEditor
+  if (editor) {
+    let cancel_token_source = axios.CancelToken.source()
+    const document = editor.document
+    const position = editor.selection.active
+
+    const content = await build_completion_payload(
+      document,
+      position,
+      file_tree_provider,
+      open_editors_provider
+    )
+
+    const messages = [
+      ...(system_instructions
+        ? [{ role: 'system', content: system_instructions }]
+        : []),
+      {
+        role: 'user',
+        content
+      }
     ]
 
-    let provider: Provider | undefined
-    if (params.use_default_model) {
-      provider = all_providers.find((p) => p.name == default_model_name)
-    } else {
-      provider = await get_selected_provider(
-        params.context,
-        all_providers,
-        default_model_name
-      )
+    const body = {
+      messages,
+      model,
+      temperature
     }
 
-    if (!provider) {
-      return // Provider selection failed or was cancelled
+    if (verbose) {
+      console.log('[Gemini Coder] Prompt:', content)
     }
 
-    if (!provider.bearerToken) {
-      vscode.window.showErrorMessage(
-        'Bearer token is missing. Please add it in the settings.'
-      )
-      return
-    }
+    const cursor_listener = vscode.workspace.onDidChangeTextDocument(() => {
+      cancel_token_source.cancel('User moved the cursor, cancelling request.')
+    })
 
-    const model = provider.model
-    const temperature = provider.temperature
-    const system_instructions = provider.systemInstructions
+    vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Window,
+        title: 'Waiting for a completion...'
+      },
+      async (progress) => {
+        progress.report({ increment: 0 })
+        try {
+          // Get default model for potential fallback
+          const model_manager = new ModelManager(context)
+          const default_model_name = model_manager.get_default_fim_model()
 
-    const editor = vscode.window.activeTextEditor
-    if (editor) {
-      let cancel_token_source = axios.CancelToken.source()
-      const document = editor.document
-      const position = editor.selection.active
+          const config = vscode.workspace.getConfiguration()
+          const user_providers =
+            config.get<Provider[]>('geminiCoder.providers') || []
+          const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+          const gemini_temperature = config.get<number>(
+            'geminiCoder.temperature'
+          )
 
-      const content = await build_completion_payload(
-        document,
-        position,
-        params.file_tree_provider,
-        params.open_editors_provider
-      )
+          const all_providers = [
+            ...BUILT_IN_PROVIDERS.map((provider) => ({
+              ...provider,
+              bearerToken: gemini_api_key || '',
+              temperature: gemini_temperature
+            })),
+            ...user_providers
+          ]
 
-      const messages = [
-        ...(system_instructions
-          ? [{ role: 'system', content: system_instructions }]
-          : []),
-        {
-          role: 'user',
-          content
-        }
-      ]
+          let completion = await make_api_request(
+            provider,
+            body,
+            cancel_token_source.token
+          )
 
-      const body = {
-        messages,
-        model,
-        temperature
-      }
-
-      if (verbose) {
-        console.log('[Gemini Coder] Prompt:', content)
-      }
-
-      const cursor_listener = vscode.workspace.onDidChangeTextDocument(() => {
-        cancel_token_source.cancel('User moved the cursor, cancelling request.')
-      })
-
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Window,
-          title: 'Waiting for a completion...'
-        },
-        async (progress) => {
-          progress.report({ increment: 0 })
-          try {
-            let completion = await make_api_request(
-              provider!, // provider is ensured to be defined here
+          if (completion == 'rate_limit') {
+            completion = await handle_rate_limit_fallback(
+              all_providers,
+              default_model_name,
               body,
               cancel_token_source.token
             )
-
-            if (completion == 'rate_limit') {
-              completion = await handle_rate_limit_fallback(
-                all_providers,
-                default_model_name,
-                body,
-                cancel_token_source.token
-              )
-            }
-
-            if (completion) {
-              // Use the shared cleanup helper before inserting completion text.
-              completion = cleanup_api_response({ content: completion })
-              await insert_completion_text(editor, position, completion)
-            }
-          } catch (error: any) {
-            console.error('Completion error:', error)
-            vscode.window.showErrorMessage(
-              `An error occurred during completion: ${error.message}. See console for details.`
-            )
-          } finally {
-            cursor_listener.dispose()
-            progress.report({ increment: 100 })
           }
+
+          if (completion) {
+            // Use the shared cleanup helper before inserting completion text.
+            completion = cleanup_api_response({ content: completion })
+            await insert_completion_text(editor, position, completion)
+          }
+        } catch (error: any) {
+          console.error('Completion error:', error)
+          vscode.window.showErrorMessage(
+            `An error occurred during completion: ${error.message}. See console for details.`
+          )
+        } finally {
+          cursor_listener.dispose()
+          progress.report({ increment: 100 })
         }
+      }
+    )
+  }
+}
+
+/**
+ * Register the command for FIM completion using the default model
+ */
+export function register_fim_completion(
+  file_tree_provider: any,
+  open_editors_provider: any,
+  context: vscode.ExtensionContext
+) {
+  const model_manager = new ModelManager(context)
+
+  return vscode.commands.registerCommand(
+    'geminiCoder.fimCompletion',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
+      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_temperature = config.get<number>('geminiCoder.temperature')
+
+      // Get default model from global state
+      const default_model_name = model_manager.get_default_fim_model()
+
+      const all_providers = [
+        ...BUILT_IN_PROVIDERS.map((provider) => ({
+          ...provider,
+          bearerToken: gemini_api_key || '',
+          temperature: gemini_temperature
+        })),
+        ...user_providers
+      ]
+
+      const provider = all_providers.find((p) => p.name == default_model_name)
+
+      if (!provider) {
+        vscode.window.showErrorMessage('Default model is not set or valid.')
+        return
+      }
+
+      await perform_fim_completion(
+        file_tree_provider,
+        open_editors_provider,
+        context,
+        provider
       )
     }
-  })
+  )
+}
+
+/**
+ * Register the command for FIM completion with model selection
+ */
+export function register_fim_completion_with(
+  file_tree_provider: any,
+  open_editors_provider: any,
+  context: vscode.ExtensionContext
+) {
+  const model_manager = new ModelManager(context)
+
+  return vscode.commands.registerCommand(
+    'geminiCoder.fimCompletionWith',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
+      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_temperature = config.get<number>('geminiCoder.temperature')
+
+      // Get default model from global state
+      const default_model_name = model_manager.get_default_fim_model()
+
+      const all_providers = [
+        ...BUILT_IN_PROVIDERS.map((provider) => ({
+          ...provider,
+          bearerToken: gemini_api_key || '',
+          temperature: gemini_temperature
+        })),
+        ...user_providers
+      ]
+
+      const provider = await get_selected_provider(
+        context,
+        all_providers,
+        default_model_name
+      )
+
+      if (!provider) {
+        return // Provider selection failed or was cancelled
+      }
+
+      await perform_fim_completion(
+        file_tree_provider,
+        open_editors_provider,
+        context,
+        provider
+      )
+    }
+  )
 }

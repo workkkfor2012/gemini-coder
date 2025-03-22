@@ -1,9 +1,15 @@
 import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command'
-import { fim_completion_command } from './commands/fim-completion-command'
+import {
+  register_fim_completion,
+  register_fim_completion_with
+} from './commands/fim-completion-command'
 import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
-import { fim_completion_with_suggestions_command } from './commands/fim-completion-with-suggestions-command'
+import {
+  register_fim_completion_with_suggestions,
+  register_fim_completion_with_suggestions_with
+} from './commands/fim-completion-with-suggestions-command'
 import { fim_completion_with_suggestions_to_clipboard_command } from './commands/fim-completion-with-suggestions-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
@@ -115,32 +121,22 @@ export function activate(context: vscode.ExtensionContext) {
       workspace_provider,
       open_editors_provider
     ),
-    fim_completion_command({
-      command: 'geminiCoder.fimCompletionWith',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
+    register_fim_completion_with(
+      workspace_provider,
+      open_editors_provider,
       context
-    }),
-    fim_completion_command({
-      command: 'geminiCoder.fimCompletion',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
-      context,
-      use_default_model: true
-    }),
-    fim_completion_with_suggestions_command({
-      command: 'geminiCoder.fimCompletionWithSuggestions',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
-      context,
-      use_default_model: true
-    }),
-    fim_completion_with_suggestions_command({
-      command: 'geminiCoder.fimCompletionWithSuggestionsWith',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
+    ),
+    register_fim_completion(workspace_provider, open_editors_provider, context),
+    register_fim_completion_with_suggestions(
+      workspace_provider,
+      open_editors_provider,
       context
-    }),
+    ),
+    register_fim_completion_with_suggestions_with(
+      workspace_provider,
+      open_editors_provider,
+      context
+    ),
     fim_completion_to_clipboard_command(
       workspace_provider,
       open_editors_provider
