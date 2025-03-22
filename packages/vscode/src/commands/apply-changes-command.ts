@@ -272,6 +272,125 @@ async function create_file_if_needed(
   return true
 }
 
+/**
+ * Replace files directly without AI processing
+ */
+async function replace_files_directly(
+  files: ClipboardFile[]
+): Promise<boolean> {
+  try {
+    // First, check if any file doesn't exist and needs to be created
+    const new_files: ClipboardFile[] = []
+    const existing_files: ClipboardFile[] = []
+
+    for (const file of files) {
+      // Check if file exists in workspace
+      const file_exists = await vscode.workspace
+        .findFiles(file.file_path, null, 1)
+        .then((files) => files.length > 0)
+
+      if (file_exists) {
+        existing_files.push(file)
+      } else {
+        new_files.push(file)
+      }
+    }
+
+    // If there are new files, ask for confirmation before proceeding
+    if (new_files.length > 0) {
+      const new_file_list = new_files.map((file) => file.file_path).join('\n- ')
+      const confirmation = await vscode.window.showWarningMessage(
+        `This will create ${new_files.length} new ${
+          new_files.length == 1 ? 'file' : 'files'
+        }:\n- ${new_file_list}\n\nDo you want to continue?`,
+        { modal: true },
+        'Yes',
+        'No'
+      )
+
+      if (confirmation !== 'Yes') {
+        vscode.window.showInformationMessage(
+          'Operation cancelled. No files were modified.'
+        )
+        return false
+      }
+    }
+
+    // Apply changes to all files
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: 'Replacing files',
+        cancellable: true
+      },
+      async (progress, token) => {
+        let processed_count = 0
+        const total_count = files.length
+
+        for (const file of files) {
+          if (token.isCancellationRequested) {
+            vscode.window.showInformationMessage('Operation cancelled by user.')
+            return false
+          }
+
+          // Check if file exists in workspace
+          const file_exists = await vscode.workspace
+            .findFiles(file.file_path, null, 1)
+            .then((files) => files.length > 0)
+
+          if (file_exists) {
+            // Replace existing file
+            const file_uri = vscode.Uri.file(
+              path.join(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                file.file_path
+              )
+            )
+            const document = await vscode.workspace.openTextDocument(file_uri)
+            const editor = await vscode.window.showTextDocument(document)
+            await editor.edit((edit) => {
+              edit.replace(
+                new vscode.Range(
+                  document.positionAt(0),
+                  document.positionAt(document.getText().length)
+                ),
+                file.content
+              )
+            })
+            await document.save()
+          } else {
+            // Create new file
+            await create_file_if_needed(file.file_path, file.content)
+          }
+
+          processed_count++
+          progress.report({
+            message: `${processed_count}/${total_count} files processed`,
+            increment: (1 / total_count) * 100
+          })
+        }
+
+        vscode.window.showInformationMessage(
+          `Successfully replaced ${total_count} ${
+            total_count > 1 ? 'files' : 'file'
+          }.`
+        )
+        return true
+      }
+    )
+
+    return true
+  } catch (error: any) {
+    console.error('Error during direct file replacement:', error)
+    vscode.window.showErrorMessage(
+      `An error occurred while replacing files: ${
+        error.message || 'Unknown error'
+      }`
+    )
+    return false
+  }
+}
+
 export function apply_changes_command(params: {
   command: string
   file_tree_provider: any
@@ -293,6 +412,52 @@ export function apply_changes_command(params: {
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
+    // Show quick pick to choose between intelligent or replace mode
+    const mode_options = [
+      {
+        label: 'Intelligent',
+        description: 'Process with AI and apply suggested changes',
+        detail:
+          'Use AI to interpret instructions and intelligently modify files'
+      },
+      {
+        label: 'Replace',
+        description: 'Directly replace files with clipboard content',
+        detail:
+          'Replace files with the exact content from clipboard without AI processing'
+      }
+    ]
+
+    const selected_mode = await vscode.window.showQuickPick(mode_options, {
+      placeHolder: 'Choose how to apply changes'
+    })
+
+    if (!selected_mode) {
+      return // User cancelled
+    }
+
+    // Handle Replace mode
+    if (selected_mode.label === 'Replace') {
+      if (is_multiple_files) {
+        const files = parse_clipboard_multiple_files(clipboard_text)
+        if (files.length === 0) {
+          vscode.window.showErrorMessage(
+            'No valid file content found in clipboard.'
+          )
+          return
+        }
+
+        await replace_files_directly(files)
+        return
+      } else {
+        vscode.window.showErrorMessage(
+          'Replace mode requires clipboard content in multiple files format. Each file should be in a code block with a file name.'
+        )
+        return
+      }
+    }
+
+    // Continue with Intelligent mode (existing logic)
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
@@ -377,7 +542,9 @@ export function apply_changes_command(params: {
           .map((file) => file.file_path)
           .join('\n- ')
         const confirmation = await vscode.window.showWarningMessage(
-          `This will create ${new_files.length} new file(s):\n- ${new_file_list}\n\nDo you want to continue?`,
+          `This will create ${new_files.length} new ${
+            new_files.length == 1 ? 'file' : 'files'
+          }:\n- ${new_file_list}\n\nDo you want to continue?`,
           { modal: true },
           'Yes',
           'No'
@@ -391,14 +558,28 @@ export function apply_changes_command(params: {
         }
       }
 
-      // Update the message to only count files that need AI processing
-      const files_to_update_count = existing_files.length
-      const progress_title =
-        files_to_update_count > 1
-          ? `Waiting for ${files_to_update_count} updated files`
-          : files_to_update_count == 1
-          ? 'Waiting for the updated file'
-          : 'Creating new files'
+      // Update the message to accurately reflect what's happening
+      let progress_title = ''
+
+      if (existing_files.length > 0 && new_files.length > 0) {
+        // Mixed case: both updating existing files and creating new ones
+        progress_title = `Updating ${existing_files.length} file${
+          existing_files.length > 1 ? 's' : ''
+        } and creating ${new_files.length} new file${
+          new_files.length > 1 ? 's' : ''
+        }`
+      } else if (existing_files.length > 0) {
+        // Only updating existing files
+        progress_title =
+          existing_files.length > 1
+            ? `Waiting for ${existing_files.length} updated files`
+            : 'Waiting for the updated file'
+      } else {
+        // Only creating new files
+        progress_title = `Creating ${new_files.length} new file${
+          new_files.length > 1 ? 's' : ''
+        }`
+      }
 
       vscode.window.withProgress(
         {
