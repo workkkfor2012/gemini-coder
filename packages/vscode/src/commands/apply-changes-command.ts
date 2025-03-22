@@ -12,7 +12,7 @@ import { apply_changes_instruction } from '../constants/instructions'
 
 // Interface for clipboard file data
 interface ClipboardFile {
-  filePath: string
+  file_path: string
   content: string
 }
 
@@ -20,21 +20,32 @@ interface ClipboardFile {
  * Parse clipboard text to check for multiple files format
  */
 function parse_clipboard_multiple_files(
-  clipboardText: string
+  clipboard_text: string
 ): ClipboardFile[] {
-  // Regex to match code blocks with file name headers
-  const file_block_regex = /```(\w+)?\s*name=([^\s]+)\s*([\s\S]*?)```/g
+  // More specific regex that better handles the boundary between filename and content
+  const file_block_regex = /```(?:(\w+))?\s+name=([^`\n]+?)\s*\n([\s\S]*?)```/g
   const files: ClipboardFile[] = []
 
   let match
-  while ((match = file_block_regex.exec(clipboardText)) !== null) {
-    const filePath = match[2] // File path from the name=... part
-    const content = match[3].trim() // Content between the backticks
+  while ((match = file_block_regex.exec(clipboard_text)) !== null) {
+    try {
+      const file_path = match[2].trim() // Trim to remove any trailing whitespace
+      const content = match[3]
 
-    files.push({
-      filePath,
-      content
-    })
+      // Validation checks
+      if (!file_path) {
+        console.warn('Skipping file block with empty filepath')
+        continue
+      }
+
+      files.push({
+        file_path,
+        content
+      })
+    } catch (error) {
+      console.error('Error parsing file block:', error)
+      // Continue to next match rather than failing completely
+    }
   }
 
   return files
@@ -350,7 +361,7 @@ export function apply_changes_command(params: {
       for (const file of files) {
         // Check if file exists in workspace
         const file_exists = await vscode.workspace
-          .findFiles(file.filePath, null, 1)
+          .findFiles(file.file_path, null, 1)
           .then((files) => files.length > 0)
 
         if (file_exists) {
@@ -363,7 +374,7 @@ export function apply_changes_command(params: {
       // If there are new files, ask for confirmation before proceeding
       if (new_files.length > 0) {
         const new_file_list = new_files
-          .map((file) => file.filePath)
+          .map((file) => file.file_path)
           .join('\n- ')
         const confirmation = await vscode.window.showWarningMessage(
           `This will create ${new_files.length} new file(s):\n- ${new_file_list}\n\nDo you want to continue?`,
@@ -419,7 +430,7 @@ export function apply_changes_command(params: {
                 const file_uri = vscode.Uri.file(
                   path.join(
                     vscode.workspace.workspaceFolders![0].uri.fsPath,
-                    file.filePath
+                    file.file_path
                   )
                 )
                 const document = await vscode.workspace.openTextDocument(
@@ -429,13 +440,13 @@ export function apply_changes_command(params: {
 
                 if (!largest_file || content_size > largest_file.size) {
                   largest_file = {
-                    path: file.filePath,
+                    path: file.file_path,
                     size: content_size
                   }
                 }
               } catch (error) {
                 console.log(
-                  `Error checking file size for ${file.filePath}`,
+                  `Error checking file size for ${file.file_path}`,
                   error
                 )
               }
@@ -454,7 +465,7 @@ export function apply_changes_command(params: {
                 try {
                   // Check if file exists in workspace
                   const file_exists = await vscode.workspace
-                    .findFiles(file.filePath, null, 1)
+                    .findFiles(file.file_path, null, 1)
                     .then((files) => files.length > 0)
 
                   // For new files, just store the information for creation later
@@ -468,7 +479,7 @@ export function apply_changes_command(params: {
                       document: null,
                       content: file.content,
                       isNew: true,
-                      filePath: file.filePath
+                      filePath: file.file_path
                     }
                   }
 
@@ -476,7 +487,7 @@ export function apply_changes_command(params: {
                   const file_uri = vscode.Uri.file(
                     path.join(
                       vscode.workspace.workspaceFolders![0].uri.fsPath,
-                      file.filePath
+                      file.file_path
                     )
                   )
 
@@ -488,7 +499,7 @@ export function apply_changes_command(params: {
                   // Process the file content with AI
                   const updated_content = await process_file({
                     provider,
-                    filePath: file.filePath,
+                    filePath: file.file_path,
                     fileContent: document_text,
                     instruction: file.content,
                     system_instructions,
@@ -496,7 +507,10 @@ export function apply_changes_command(params: {
                     cancelToken: cancel_token_source.token,
                     onProgress: (receivedLength, totalLength) => {
                       // Only update progress if this is the largest file
-                      if (largest_file && file.filePath === largest_file.path) {
+                      if (
+                        largest_file &&
+                        file.file_path === largest_file.path
+                      ) {
                         largest_file_progress = Math.min(
                           Math.round((receivedLength / totalLength) * 100),
                           100
@@ -511,7 +525,7 @@ export function apply_changes_command(params: {
                   // Handle errors and rate limits
                   if (!updated_content) {
                     throw new Error(
-                      `Failed to apply changes to ${file.filePath}`
+                      `Failed to apply changes to ${file.file_path}`
                     )
                   }
 
@@ -523,7 +537,7 @@ export function apply_changes_command(params: {
                           : []),
                         {
                           role: 'user',
-                          content: `<file name="${file.filePath}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
+                          content: `<file name="${file.file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
                         }
                       ],
                       model: provider.model,
@@ -539,14 +553,14 @@ export function apply_changes_command(params: {
 
                     if (!fallback_content) {
                       throw new Error(
-                        `Rate limit reached for ${file.filePath} and fallback failed`
+                        `Rate limit reached for ${file.file_path} and fallback failed`
                       )
                     }
 
                     completed_count++
 
                     // Update progress if this is the largest file
-                    if (largest_file && file.filePath === largest_file.path) {
+                    if (largest_file && file.file_path === largest_file.path) {
                       largest_file_progress = 100
                       progress.report({
                         message: `Receiving... (100%)`
@@ -561,13 +575,13 @@ export function apply_changes_command(params: {
                         end_with_new_line: true
                       }),
                       isNew: false,
-                      filePath: file.filePath
+                      filePath: file.file_path
                     }
                   } else {
                     completed_count++
 
                     // Update progress if this is the largest file
-                    if (largest_file && file.filePath === largest_file.path) {
+                    if (largest_file && file.file_path === largest_file.path) {
                       largest_file_progress = 100
                       progress.report({
                         message: `Receiving... (100%)`
@@ -579,7 +593,7 @@ export function apply_changes_command(params: {
                       document,
                       content: updated_content,
                       isNew: false,
-                      filePath: file.filePath
+                      filePath: file.file_path
                     }
                   }
                 } catch (error: any) {
@@ -588,11 +602,11 @@ export function apply_changes_command(params: {
                     throw new Error('Operation cancelled')
                   } else {
                     console.error(
-                      `Error processing file ${file.filePath}:`,
+                      `Error processing file ${file.file_path}:`,
                       error
                     )
                     throw new Error(
-                      `Error processing ${file.filePath}: ${
+                      `Error processing ${file.file_path}: ${
                         error.message || 'Unknown error'
                       }`
                     )
@@ -642,7 +656,7 @@ export function apply_changes_command(params: {
             }
 
             vscode.window.showInformationMessage(
-              `Successfully processed ${total_files} ${
+              `Successfully updated ${total_files} ${
                 total_files > 1 ? 'files' : 'file'
               }.`
             )
