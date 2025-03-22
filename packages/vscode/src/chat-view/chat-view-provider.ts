@@ -158,392 +158,321 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     webview_view.webview.onDidReceiveMessage(
       async (message: WebviewMessage) => {
         try {
-          switch (message.command) {
-            case 'GET_CHAT_HISTORY': {
-              const history = this._context.workspaceState.get<string[]>(
-                'chat-history',
-                []
+          if (message.command == 'GET_CHAT_HISTORY') {
+            const history = this._context.workspaceState.get<string[]>(
+              'chat-history',
+              []
+            )
+            this._send_message<ExtensionMessage>({
+              command: 'CHAT_HISTORY',
+              messages: history
+            })
+          } else if (message.command == 'GET_FIM_CHAT_HISTORY') {
+            const history = this._context.workspaceState.get<string[]>(
+              'fim-chat-history',
+              []
+            )
+            this._send_message<ExtensionMessage>({
+              command: 'FIM_CHAT_HISTORY',
+              messages: history
+            })
+          } else if (message.command == 'SAVE_CHAT_HISTORY') {
+            const key = message.is_fim_mode
+              ? 'fim-chat-history'
+              : 'chat-history'
+            await this._context.workspaceState.update(key, message.messages)
+          } else if (message.command == 'GET_LAST_PROMPT') {
+            const last_instruction =
+              this._context.workspaceState.get<string>('lastChatPrompt') || ''
+            this._send_message<ExtensionMessage>({
+              command: 'INITIAL_PROMPT',
+              instruction: last_instruction
+            })
+          } else if (message.command == 'GET_LAST_FIM_PROMPT') {
+            const last_fim_instruction =
+              this._context.workspaceState.get<string>('lastFimPrompt') || ''
+            this._send_message<ExtensionMessage>({
+              command: 'INITIAL_FIM_PROMPT',
+              instruction: last_fim_instruction
+            })
+          } else if (message.command == 'SAVE_CHAT_INSTRUCTION') {
+            await this._context.workspaceState.update(
+              'lastChatPrompt',
+              message.instruction
+            )
+          } else if (message.command == 'SAVE_FIM_INSTRUCTION') {
+            await this._context.workspaceState.update(
+              'lastFimPrompt',
+              message.instruction
+            )
+          } else if (message.command == 'GET_CONNECTION_STATUS') {
+            this._send_message<ExtensionMessage>({
+              command: 'CONNECTION_STATUS',
+              connected:
+                this.websocket_server_instance.is_connected_with_browser()
+            })
+          } else if (message.command == 'GET_PRESETS') {
+            this._send_presets_to_webview(webview_view.webview)
+          } else if (message.command == 'GET_SELECTED_PRESETS') {
+            const selected_names = this._context.globalState.get<string[]>(
+              'selectedPresets',
+              []
+            )
+            this._send_message<ExtensionMessage>({
+              command: 'SELECTED_PRESETS',
+              names: selected_names
+            })
+          } else if (message.command == 'SAVE_SELECTED_PRESETS') {
+            await this._context.globalState.update(
+              'selectedPresets',
+              message.names
+            )
+          } else if (message.command == 'GET_EXPANDED_PRESETS') {
+            const expanded_indices = this._context.globalState.get<number[]>(
+              'expandedPresets',
+              []
+            )
+            this._send_message<ExtensionMessage>({
+              command: 'EXPANDED_PRESETS',
+              indices: expanded_indices
+            })
+          } else if (message.command == 'SAVE_EXPANDED_PRESETS') {
+            await this._context.globalState.update(
+              'expandedPresets',
+              message.indices
+            )
+          } else if (message.command == 'SEND_PROMPT') {
+            const files_collector = new FilesCollector(
+              this._workspace_provider,
+              this._open_editors_provider,
+              this._websites_provider
+            )
+
+            const active_editor = vscode.window.activeTextEditor
+            const active_path = active_editor?.document.uri.fsPath
+            const is_fim_mode = this._context.workspaceState.get<boolean>(
+              'isFimMode',
+              false
+            )
+
+            if (is_fim_mode && active_editor) {
+              const document = active_editor.document
+              const position = active_editor.selection.active
+
+              const text_before_cursor = document.getText(
+                new vscode.Range(new vscode.Position(0, 0), position)
               )
-              this._send_message<ExtensionMessage>({
-                command: 'CHAT_HISTORY',
-                messages: history
-              })
-              break
-            }
-
-            case 'GET_FIM_CHAT_HISTORY': {
-              const history = this._context.workspaceState.get<string[]>(
-                'fim-chat-history',
-                []
+              const text_after_cursor = document.getText(
+                new vscode.Range(
+                  position,
+                  document.positionAt(document.getText().length)
+                )
               )
-              this._send_message<ExtensionMessage>({
-                command: 'FIM_CHAT_HISTORY',
-                messages: history
+
+              const context_text = await files_collector.collect_files({
+                exclude_path: active_path
               })
-              break
-            }
 
-            case 'SAVE_CHAT_HISTORY': {
-              const key = message.is_fim_mode
-                ? 'fim-chat-history'
-                : 'chat-history'
-              await this._context.workspaceState.update(key, message.messages)
-              break
-            }
+              // relative path
+              const workspace_folder =
+                vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              const relative_path = active_path!.replace(
+                workspace_folder + '/',
+                ''
+              )
 
-            case 'GET_LAST_PROMPT': {
-              const last_instruction =
-                this._context.workspaceState.get<string>('lastChatPrompt') || ''
-              this._send_message<ExtensionMessage>({
-                command: 'INITIAL_PROMPT',
-                instruction: last_instruction
+              const text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+                message.instruction
+                  ? ` Follow suggestions: ${message.instruction}`
+                  : ''
+              }`
+
+              this.websocket_server_instance.initialize_chats(
+                text,
+                message.preset_names
+              )
+            } else if (!is_fim_mode) {
+              const context_text = await files_collector.collect_files({
+                active_path
               })
-              break
-            }
 
-            case 'GET_LAST_FIM_PROMPT': {
-              const last_fim_instruction =
-                this._context.workspaceState.get<string>('lastFimPrompt') || ''
-              this._send_message<ExtensionMessage>({
-                command: 'INITIAL_FIM_PROMPT',
-                instruction: last_fim_instruction
-              })
-              break
-            }
-
-            case 'SAVE_CHAT_INSTRUCTION': {
-              await this._context.workspaceState.update(
-                'lastChatPrompt',
+              // Replace @selection with selected text if present
+              const instruction = this._replace_selection_placeholder(
                 message.instruction
               )
-              break
-            }
 
-            case 'SAVE_FIM_INSTRUCTION': {
-              await this._context.workspaceState.update(
-                'lastFimPrompt',
+              // Apply prefixes and suffixes to the instruction
+              const modified_instruction = apply_preset_affixes_to_instruction(
+                instruction,
+                message.preset_names
+              )
+
+              const text = `${
+                context_text ? `<files>\n${context_text}</files>\n` : ''
+              }${modified_instruction}`
+
+              this.websocket_server_instance.initialize_chats(
+                text,
+                message.preset_names
+              )
+            }
+          } else if (message.command == 'COPY_PROMPT') {
+            const files_collector = new FilesCollector(
+              this._workspace_provider,
+              this._open_editors_provider,
+              this._websites_provider
+            )
+
+            const is_fim_mode = this._context.workspaceState.get<boolean>(
+              'isFimMode',
+              false
+            )
+            const active_editor = vscode.window.activeTextEditor
+
+            if (is_fim_mode && active_editor) {
+              const document = active_editor.document
+              const position = active_editor.selection.active
+              const active_path = document.uri.fsPath
+
+              const text_before_cursor = document.getText(
+                new vscode.Range(new vscode.Position(0, 0), position)
+              )
+              const text_after_cursor = document.getText(
+                new vscode.Range(
+                  position,
+                  document.positionAt(document.getText().length)
+                )
+              )
+
+              const context_text = await files_collector.collect_files({
+                exclude_path: active_path
+              })
+
+              // relative path
+              const workspace_folder =
+                vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              const relative_path = active_path.replace(
+                workspace_folder + '/',
+                ''
+              )
+
+              const text = `<files>\n${context_text}<file name="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+                message.instruction
+                  ? ` Follow suggestions: ${message.instruction}`
+                  : ''
+              }`
+
+              await vscode.env.clipboard.writeText(text)
+            } else if (!is_fim_mode) {
+              const active_path = active_editor?.document.uri.fsPath
+              const context_text = await files_collector.collect_files({
+                active_path
+              })
+
+              // Replace @selection with selected text if present
+              const instruction = this._replace_selection_placeholder(
                 message.instruction
               )
-              break
+
+              const text = `${
+                context_text ? `<files>\n${context_text}</files>\n` : ''
+              }${instruction}`
+              await vscode.env.clipboard.writeText(text)
             }
 
-            case 'GET_CONNECTION_STATUS': {
-              this._send_message<ExtensionMessage>({
-                command: 'CONNECTION_STATUS',
-                connected:
-                  this.websocket_server_instance.is_connected_with_browser()
-              })
-              break
-            }
+            vscode.window.showInformationMessage('Prompt copied to clipboard!')
+          } else if (message.command == 'SHOW_ERROR') {
+            vscode.window.showErrorMessage(message.message)
+          } else if (message.command == 'SHOW_PRESET_PICKER') {
+            const config = vscode.workspace.getConfiguration()
+            const web_chat_presets = config.get<any[]>(
+              'geminiCoder.presets',
+              []
+            )
 
-            case 'GET_PRESETS': {
-              this._send_presets_to_webview(webview_view.webview)
-              break
-            }
+            const preset_quick_pick_items = web_chat_presets.map((preset) => ({
+              label: preset.name,
+              description: `${preset.chatbot}${
+                preset.model ? ` - ${preset.model}` : ''
+              }`,
+              picked: false
+            }))
 
-            case 'GET_SELECTED_PRESETS': {
-              const selected_names = this._context.globalState.get<string[]>(
+            const selected_preset_names = this._context.globalState.get<
+              string[]
+            >('selectedPresets', [])
+
+            preset_quick_pick_items.forEach((item) => {
+              item.picked = selected_preset_names.includes(item.label)
+            })
+
+            const selected_presets = await vscode.window.showQuickPick(
+              preset_quick_pick_items,
+              {
+                placeHolder: 'Select one or more chat presets',
+                canPickMany: true
+              }
+            )
+
+            if (selected_presets && selected_presets.length > 0) {
+              const selected_names = selected_presets.map(
+                (preset) => preset.label
+              )
+
+              await this._context.globalState.update(
                 'selectedPresets',
-                []
+                selected_names
               )
+
               this._send_message<ExtensionMessage>({
-                command: 'SELECTED_PRESETS',
+                command: 'PRESETS_SELECTED_FROM_PICKER',
                 names: selected_names
               })
-              break
-            }
-
-            case 'SAVE_SELECTED_PRESETS': {
-              await this._context.globalState.update(
-                'selectedPresets',
-                message.names
-              )
-              break
-            }
-
-            case 'GET_EXPANDED_PRESETS': {
-              const expanded_indices = this._context.globalState.get<number[]>(
-                'expandedPresets',
-                []
-              )
+            } else {
               this._send_message<ExtensionMessage>({
-                command: 'EXPANDED_PRESETS',
-                indices: expanded_indices
+                command: 'PRESETS_SELECTED_FROM_PICKER',
+                names: []
               })
-              break
             }
+          } else if (message.command == 'OPEN_SETTINGS') {
+            await vscode.commands.executeCommand(
+              'workbench.action.openSettings',
+              'geminiCoder.presets'
+            )
+          } else if (message.command == 'GET_FIM_MODE') {
+            const is_fim_mode = this._context.workspaceState.get<boolean>(
+              'isFimMode',
+              false
+            )
+            const has_active_editor = !!vscode.window.activeTextEditor
 
-            case 'SAVE_EXPANDED_PRESETS': {
-              await this._context.globalState.update(
-                'expandedPresets',
-                message.indices
-              )
-              break
-            }
-
-            case 'SEND_PROMPT': {
-              const files_collector = new FilesCollector(
-                this._workspace_provider,
-                this._open_editors_provider,
-                this._websites_provider
-              )
-
-              const active_editor = vscode.window.activeTextEditor
-              const active_path = active_editor?.document.uri.fsPath
-              const is_fim_mode = this._context.workspaceState.get<boolean>(
-                'isFimMode',
-                false
-              )
-
-              if (is_fim_mode && active_editor) {
-                const document = active_editor.document
-                const position = active_editor.selection.active
-
-                const text_before_cursor = document.getText(
-                  new vscode.Range(new vscode.Position(0, 0), position)
-                )
-                const text_after_cursor = document.getText(
-                  new vscode.Range(
-                    position,
-                    document.positionAt(document.getText().length)
-                  )
-                )
-
-                const context_text = await files_collector.collect_files({
-                  exclude_path: active_path
-                })
-
-                // relative path
-                const workspace_folder =
-                  vscode.workspace.workspaceFolders?.[0].uri.fsPath
-                const relative_path = active_path!.replace(
-                  workspace_folder + '/',
-                  ''
-                )
-
-                const text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
-                  message.instruction
-                    ? ` Follow suggestions: ${message.instruction}`
-                    : ''
-                }`
-
-                this.websocket_server_instance.initialize_chats(
-                  text,
-                  message.preset_names
-                )
-              } else if (!is_fim_mode) {
-                const context_text = await files_collector.collect_files({
-                  active_path
-                })
-
-                // Replace @selection with selected text if present
-                const instruction = this._replace_selection_placeholder(
-                  message.instruction
-                )
-
-                // Apply prefixes and suffixes to the instruction
-                const modified_instruction =
-                  apply_preset_affixes_to_instruction(
-                    instruction,
-                    message.preset_names
-                  )
-
-                const text = `${
-                  context_text ? `<files>\n${context_text}</files>\n` : ''
-                }${modified_instruction}`
-
-                this.websocket_server_instance.initialize_chats(
-                  text,
-                  message.preset_names
-                )
-              }
-              break
-            }
-
-            case 'COPY_PROMPT': {
-              const files_collector = new FilesCollector(
-                this._workspace_provider,
-                this._open_editors_provider,
-                this._websites_provider
-              )
-
-              const is_fim_mode = this._context.workspaceState.get<boolean>(
-                'isFimMode',
-                false
-              )
-              const active_editor = vscode.window.activeTextEditor
-
-              if (is_fim_mode && active_editor) {
-                const document = active_editor.document
-                const position = active_editor.selection.active
-                const active_path = document.uri.fsPath
-
-                const text_before_cursor = document.getText(
-                  new vscode.Range(new vscode.Position(0, 0), position)
-                )
-                const text_after_cursor = document.getText(
-                  new vscode.Range(
-                    position,
-                    document.positionAt(document.getText().length)
-                  )
-                )
-
-                const context_text = await files_collector.collect_files({
-                  exclude_path: active_path
-                })
-
-                // relative path
-                const workspace_folder =
-                  vscode.workspace.workspaceFolders?.[0].uri.fsPath
-                const relative_path = active_path.replace(
-                  workspace_folder + '/',
-                  ''
-                )
-
-                const text = `<files>\n${context_text}<file name="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
-                  message.instruction
-                    ? ` Follow suggestions: ${message.instruction}`
-                    : ''
-                }`
-
-                await vscode.env.clipboard.writeText(text)
-              } else if (!is_fim_mode) {
-                const active_path = active_editor?.document.uri.fsPath
-                const context_text = await files_collector.collect_files({
-                  active_path
-                })
-
-                // Replace @selection with selected text if present
-                const instruction = this._replace_selection_placeholder(
-                  message.instruction
-                )
-
-                const text = `${
-                  context_text ? `<files>\n${context_text}</files>\n` : ''
-                }${instruction}`
-                await vscode.env.clipboard.writeText(text)
-              }
-
-              vscode.window.showInformationMessage(
-                'Prompt copied to clipboard!'
-              )
-              break
-            }
-
-            case 'SHOW_ERROR': {
-              vscode.window.showErrorMessage(message.message)
-              break
-            }
-
-            case 'SHOW_PRESET_PICKER': {
-              const config = vscode.workspace.getConfiguration()
-              const web_chat_presets = config.get<any[]>(
-                'geminiCoder.presets',
-                []
-              )
-
-              const preset_quick_pick_items = web_chat_presets.map(
-                (preset) => ({
-                  label: preset.name,
-                  description: `${preset.chatbot}${
-                    preset.model ? ` - ${preset.model}` : ''
-                  }`,
-                  picked: false
-                })
-              )
-
-              const selected_preset_names = this._context.globalState.get<
-                string[]
-              >('selectedPresets', [])
-
-              preset_quick_pick_items.forEach((item) => {
-                item.picked = selected_preset_names.includes(item.label)
-              })
-
-              const selected_presets = await vscode.window.showQuickPick(
-                preset_quick_pick_items,
-                {
-                  placeHolder: 'Select one or more chat presets',
-                  canPickMany: true
-                }
-              )
-
-              if (selected_presets && selected_presets.length > 0) {
-                const selected_names = selected_presets.map(
-                  (preset) => preset.label
-                )
-
-                await this._context.globalState.update(
-                  'selectedPresets',
-                  selected_names
-                )
-
-                this._send_message<ExtensionMessage>({
-                  command: 'PRESETS_SELECTED_FROM_PICKER',
-                  names: selected_names
-                })
-              } else {
-                this._send_message<ExtensionMessage>({
-                  command: 'PRESETS_SELECTED_FROM_PICKER',
-                  names: []
-                })
-              }
-              break
-            }
-
-            case 'OPEN_SETTINGS': {
-              await vscode.commands.executeCommand(
-                'workbench.action.openSettings',
-                'geminiCoder.presets'
-              )
-              break
-            }
-
-            case 'GET_FIM_MODE': {
-              const is_fim_mode = this._context.workspaceState.get<boolean>(
-                'isFimMode',
-                false
-              )
-              const has_active_editor = !!vscode.window.activeTextEditor
-
-              if (is_fim_mode && !has_active_editor) {
-                await this._context.workspaceState.update('isFimMode', false)
-                this._send_message<ExtensionMessage>({
-                  command: 'FIM_MODE',
-                  enabled: false
-                })
-              } else {
-                this._send_message<ExtensionMessage>({
-                  command: 'FIM_MODE',
-                  enabled: is_fim_mode
-                })
-              }
-              break
-            }
-
-            case 'SAVE_FIM_MODE': {
-              await this._context.workspaceState.update(
-                'isFimMode',
-                message.enabled
-              )
-              break
-            }
-
-            case 'REQUEST_EDITOR_STATE': {
+            if (is_fim_mode && !has_active_editor) {
+              await this._context.workspaceState.update('isFimMode', false)
               this._send_message<ExtensionMessage>({
-                command: 'EDITOR_STATE_CHANGED',
-                hasActiveEditor: this._has_active_editor
+                command: 'FIM_MODE',
+                enabled: false
               })
-              break
-            }
-
-            case 'REQUEST_EDITOR_SELECTION_STATE': {
+            } else {
               this._send_message<ExtensionMessage>({
-                command: 'EDITOR_SELECTION_CHANGED',
-                hasSelection: this._has_active_selection
+                command: 'FIM_MODE',
+                enabled: is_fim_mode
               })
-              break
             }
+          } else if (message.command == 'SAVE_FIM_MODE') {
+            await this._context.workspaceState.update(
+              'isFimMode',
+              message.enabled
+            )
+          } else if (message.command == 'REQUEST_EDITOR_STATE') {
+            this._send_message<ExtensionMessage>({
+              command: 'EDITOR_STATE_CHANGED',
+              hasActiveEditor: this._has_active_editor
+            })
+          } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
+            this._send_message<ExtensionMessage>({
+              command: 'EDITOR_SELECTION_CHANGED',
+              hasSelection: this._has_active_selection
+            })
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
