@@ -27,6 +27,10 @@ import { open_file_from_workspace_command } from './commands/open-file-from-work
 import { new_folder_command } from './commands/new-folder-command'
 import { rename_command } from './commands/rename-command'
 import { delete_command } from './commands/delete-command'
+import {
+  fim_in_chat_command,
+  fim_in_chat_with_command
+} from './commands/fim-in-chat-command'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -144,6 +148,18 @@ export function activate(context: vscode.ExtensionContext) {
     fim_completion_with_suggestions_to_clipboard_command(
       workspace_provider,
       open_editors_provider
+    ),
+    fim_in_chat_command(
+      context,
+      workspace_provider,
+      open_editors_provider,
+      websocket_server_instance
+    ),
+    fim_in_chat_with_command(
+      context,
+      workspace_provider,
+      open_editors_provider,
+      websocket_server_instance
     ),
     change_default_model_command('fim', context),
     change_default_model_command('refactoring', context),

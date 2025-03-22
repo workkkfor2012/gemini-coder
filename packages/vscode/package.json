@@ -189,6 +189,16 @@
         "category": "Gemini Coder"
       },
       {
+        "command": "geminiCoder.fimInChat",
+        "title": "FIM in Chat",
+        "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.fimInChatWith",
+        "title": "FIM in Chat with...",
+        "category": "Gemini Coder"
+      },
+      {
         "command": "geminiCoder.changeDefaultFimModel",
         "title": "Change Default FIM Model",
         "category": "Gemini Coder"
@@ -357,60 +367,6 @@
           "command": "geminiCoder.delete",
           "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "1_modification@2"
-        }
-      ],
-      "commandPalette": [
-        {
-          "command": "geminiCoder.newFolder",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.newFile",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.closeEditor",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.closeAllEditors",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.checkAll",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.clearChecks",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.collapseFolders",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.checkAllOpenEditors",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.clearChecksOpenEditors",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.saveAll",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.rename",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.previewWebsite",
-          "when": "false"
-        },
-        {
-          "command": "geminiCoder.delete",
-          "when": "false"
         }
       ]
     },
