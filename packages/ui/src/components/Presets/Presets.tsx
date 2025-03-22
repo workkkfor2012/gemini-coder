@@ -158,7 +158,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                   {is_disabled_in_fim && (
                     <div className={styles.presets__item__info}>
                       <span className="codicon codicon-info" />
-                      <span>Unavailable in FIM due to prefix/suffix</span>
+                      <span>Unavailable in FIM due to affix</span>
                     </div>
                   )}
 
