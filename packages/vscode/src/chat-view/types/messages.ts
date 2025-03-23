@@ -1,4 +1,3 @@
-// Base message interface that all other messages will extend
 export interface BaseMessage {
   command: string
 }
@@ -104,14 +103,11 @@ export interface SaveChatHistoryMessage extends BaseMessage {
   is_fim_mode: boolean
 }
 
-// Add this interface with other webview message interfaces
 export interface GetCurrentTokenCountMessage extends BaseMessage {
   command: 'GET_CURRENT_TOKEN_COUNT'
 }
 
-/**
- * Messages from extension to webview:
- */
+// Messages from extension to webview:
 export interface InitialPromptMessage extends BaseMessage {
   command: 'INITIAL_PROMPT'
   instruction: string
@@ -188,13 +184,11 @@ export interface TokenCountMessage extends BaseMessage {
   tokenCount: number
 }
 
-// Add this with other extension message interfaces
 export interface SelectionTextMessage extends BaseMessage {
   command: 'SELECTION_TEXT_UPDATED'
   text: string
 }
 
-// Add this interface with other extension message interfaces
 export interface ActiveFileInfoMessage extends BaseMessage {
   command: 'ACTIVE_FILE_INFO_UPDATED'
   fileLength: number
@@ -226,7 +220,6 @@ export type WebviewMessage =
   | SaveChatHistoryMessage
   | GetCurrentTokenCountMessage
 
-// Update the ExtensionMessage union type to include the new message
 export type ExtensionMessage =
   | InitialPromptMessage
   | InitialFimPromptMessage
