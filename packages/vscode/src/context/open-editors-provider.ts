@@ -4,6 +4,7 @@ import * as path from 'path'
 import { FileItem } from './workspace-provider'
 import { SharedFileState } from './shared-file-state'
 import { ignored_extensions } from './ignored-extensions'
+import { should_ignore_file } from './extension-utils'
 
 export class OpenEditorsProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -79,7 +80,9 @@ export class OpenEditorsProvider
             )
           }
           if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+            const oldIgnoredExtensions = new Set(this._ignored_extensions)
             this._load_ignored_extensions()
+            this._uncheck_ignored_files(oldIgnoredExtensions)
             this.refresh()
           }
         }
@@ -95,6 +98,35 @@ export class OpenEditorsProvider
     }, 500) // Small delay to ensure VS Code has loaded all editors
   }
 
+  // New method to uncheck files that are now ignored
+  private _uncheck_ignored_files(old_ignored_extensions?: Set<string>): void {
+    // Get list of checked files
+    const checked_files = this.get_checked_files()
+
+    // Find files that now match ignored extensions but didn't before
+    const files_to_uncheck = checked_files.filter((file_path) => {
+      if (old_ignored_extensions) {
+        // Only uncheck if it wasn't ignored before but is now
+        return (
+          !should_ignore_file(file_path, old_ignored_extensions) &&
+          should_ignore_file(file_path, this._ignored_extensions)
+        )
+      }
+      // Without old extensions comparison, uncheck all that match current ignored list
+      return should_ignore_file(file_path, this._ignored_extensions)
+    })
+
+    // Uncheck the files
+    for (const file_path of files_to_uncheck) {
+      this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
+    }
+
+    // If any files were unchecked, notify listeners
+    if (files_to_uncheck.length > 0) {
+      this._on_did_change_checked_files.fire()
+    }
+  }
+
   // Load ignored extensions from configuration
   private _load_ignored_extensions() {
     // Get additional extensions from config
@@ -108,6 +140,8 @@ export class OpenEditorsProvider
       ...ignored_extensions,
       ...additional_extensions
     ])
+    // Clear token cache to force recalculation
+    this._file_token_counts.clear()
   }
 
   // New method to update the preview tabs state
@@ -168,8 +202,7 @@ export class OpenEditorsProvider
     // Skip files not in workspace
     if (!file_path.startsWith(this._workspace_root)) return
 
-    const extension = path.extname(file_path).toLowerCase().replace('.', '')
-    if (this._ignored_extensions.has(extension)) return
+    if (should_ignore_file(file_path, this._ignored_extensions)) return
 
     // Skip if already checked
     if (
@@ -230,8 +263,7 @@ export class OpenEditorsProvider
       // Skip files not in workspace
       if (!file_path.startsWith(this._workspace_root)) continue
 
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this._ignored_extensions.has(extension)) continue
+      if (should_ignore_file(file_path, this._ignored_extensions)) continue
 
       // Check if this is a new file that isn't in our map yet
       if (!this._checked_items.has(file_path)) {
@@ -409,10 +441,9 @@ export class OpenEditorsProvider
       }
 
       const file_name = path.basename(file_path)
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
 
       // Skip files with ignored extensions
-      if (this._ignored_extensions.has(extension)) {
+      if (should_ignore_file(file_path, this._ignored_extensions)) {
         continue
       }
 
@@ -547,8 +578,7 @@ export class OpenEditorsProvider
       // Skip files not in workspace
       if (!file_path.startsWith(this._workspace_root)) continue
 
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this._ignored_extensions.has(extension)) continue
+      if (should_ignore_file(file_path, this._ignored_extensions)) continue
 
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
@@ -588,8 +618,7 @@ export class OpenEditorsProvider
     for (const file_path of file_paths) {
       if (!fs.existsSync(file_path)) continue
 
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this._ignored_extensions.has(extension)) continue
+      if (should_ignore_file(file_path, this._ignored_extensions)) continue
 
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
@@ -626,8 +655,7 @@ export class OpenEditorsProvider
       // Skip files not in workspace
       if (!file_path.startsWith(this._workspace_root)) continue
 
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this._ignored_extensions.has(extension)) continue
+      if (should_ignore_file(file_path, this._ignored_extensions)) continue
 
       // Check if the file is in preview mode
       const is_preview = this._preview_tabs.get(file_path)

@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import ignore from 'ignore'
 import { ignored_extensions } from './ignored-extensions'
+import { should_ignore_file } from './extension-utils'
 
 export class WorkspaceProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -68,7 +69,9 @@ export class WorkspaceProvider
             )
           }
           if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+            const oldIgnoredExtensions = new Set(this.ignored_extensions)
             this.load_ignored_extensions()
+            this.uncheck_ignored_files(oldIgnoredExtensions)
             this.refresh()
           }
         }
@@ -83,6 +86,42 @@ export class WorkspaceProvider
       this.handle_tab_changes(e)
       this.handle_newly_opened_files()
     })
+  }
+
+  // New method to uncheck files that are now ignored
+  private uncheck_ignored_files(old_ignored_extensions?: Set<string>): void {
+    // Get list of checked files
+    const checked_files = this.get_checked_files()
+
+    // Find files that now match ignored extensions but didn't before
+    const files_to_uncheck = checked_files.filter((file_path) => {
+      if (old_ignored_extensions) {
+        // Only uncheck if it wasn't ignored before but is now
+        return (
+          !should_ignore_file(file_path, old_ignored_extensions) &&
+          should_ignore_file(file_path, this.ignored_extensions)
+        )
+      }
+      // Without old extensions comparison, uncheck all that match current ignored list
+      return should_ignore_file(file_path, this.ignored_extensions)
+    })
+
+    // Uncheck the files
+    for (const file_path of files_to_uncheck) {
+      this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
+
+      // Update parent directories
+      let dir_path = path.dirname(file_path)
+      while (dir_path.startsWith(this.workspace_root)) {
+        this.update_parent_state(dir_path)
+        dir_path = path.dirname(dir_path)
+      }
+    }
+
+    // If any files were unchecked, notify listeners
+    if (files_to_uncheck.length > 0) {
+      this._on_did_change_checked_files.fire()
+    }
   }
 
   public dispose(): void {
@@ -126,11 +165,7 @@ export class WorkspaceProvider
           const relative_path = path.relative(this.workspace_root, file_path)
           if (this.is_excluded(relative_path)) continue
 
-          const extension = path
-            .extname(file_path)
-            .toLowerCase()
-            .replace('.', '')
-          if (this.ignored_extensions.has(extension)) continue
+          if (should_ignore_file(file_path, this.ignored_extensions)) continue
 
           // Only uncheck if it was checked and not opened from workspace view
           if (
@@ -193,8 +228,7 @@ export class WorkspaceProvider
     const relative_path = path.relative(this.workspace_root, file_path)
     if (this.is_excluded(relative_path)) return
 
-    const extension = path.extname(file_path).toLowerCase().replace('.', '')
-    if (this.ignored_extensions.has(extension)) return
+    if (should_ignore_file(file_path, this.ignored_extensions)) return
 
     // Skip if already checked
     if (
@@ -247,8 +281,7 @@ export class WorkspaceProvider
       const relative_path = path.relative(this.workspace_root, file_path)
       if (this.is_excluded(relative_path)) continue
 
-      const extension = path.extname(file_path).toLowerCase().replace('.', '')
-      if (this.ignored_extensions.has(extension)) continue
+      if (should_ignore_file(file_path, this.ignored_extensions)) continue
 
       // Check if this is a new file that isn't in our map yet
       if (!this.checked_items.has(file_path)) {
@@ -352,24 +385,24 @@ export class WorkspaceProvider
 
   clear_checks(): void {
     // Get a list of currently open files to preserve their check state
-    const open_files = new Set(this.get_open_editors().map(uri => uri.fsPath))
-    
+    const open_files = new Set(this.get_open_editors().map((uri) => uri.fsPath))
+
     // Create a new map to hold only the open files' check states
     const new_checked_items = new Map<string, vscode.TreeItemCheckboxState>()
-    
+
     // Preserve open files' check states
     for (const [path, state] of this.checked_items.entries()) {
       if (open_files.has(path)) {
         new_checked_items.set(path, state)
       }
     }
-    
+
     // Replace the checked_items map with our filtered version
     this.checked_items = new_checked_items
-    
+
     // Clear partially checked directories
     this.partially_checked_dirs.clear()
-    
+
     // Update parent directories for open files
     for (const file_path of open_files) {
       if (this.checked_items.has(file_path)) {
@@ -380,7 +413,7 @@ export class WorkspaceProvider
         }
       }
     }
-    
+
     this.refresh()
     this._on_did_change_checked_files.fire()
   }
@@ -497,11 +530,7 @@ export class WorkspaceProvider
           continue
         }
 
-        const extension = path
-          .extname(entry.name)
-          .toLowerCase()
-          .replace('.', '')
-        if (this.ignored_extensions.has(extension)) {
+        if (should_ignore_file(entry.name, this.ignored_extensions)) {
           continue
         }
 
@@ -566,11 +595,10 @@ export class WorkspaceProvider
           continue
         }
 
-        const extension = path
-          .extname(entry.name)
-          .toLowerCase()
-          .replace('.', '')
-        const is_ignored_extension = this.ignored_extensions.has(extension)
+        const is_ignored_extension = should_ignore_file(
+          entry.name,
+          this.ignored_extensions
+        )
 
         // Skip files with ignored extensions
         if (is_ignored_extension && !entry.isDirectory()) {
@@ -693,11 +721,10 @@ export class WorkspaceProvider
       for (const entry of dir_entries) {
         const sibling_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(this.workspace_root, sibling_path)
-        const extension = path
-          .extname(entry.name)
-          .toLowerCase()
-          .replace('.', '')
-        const is_ignored_extension = this.ignored_extensions.has(extension)
+        const is_ignored_extension = should_ignore_file(
+          entry.name,
+          this.ignored_extensions
+        )
 
         // Check if the child is excluded
         if (this.is_excluded(relative_path) || is_ignored_extension) {
@@ -769,11 +796,10 @@ export class WorkspaceProvider
       for (const entry of dir_entries) {
         const full_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(this.workspace_root, full_path)
-        const extension = path
-          .extname(entry.name)
-          .toLowerCase()
-          .replace('.', '')
-        const is_ignored_extension = this.ignored_extensions.has(extension)
+        const is_ignored_extension = should_ignore_file(
+          entry.name,
+          this.ignored_extensions
+        )
 
         // Skip excluded items
         if (this.is_excluded(relative_path) || is_ignored_extension) {
@@ -916,6 +942,10 @@ export class WorkspaceProvider
       ...ignored_extensions,
       ...additional_extensions
     ])
+
+    // Clear token caches since exclusions have changed
+    this.file_token_counts.clear()
+    this.directory_token_counts.clear()
   }
 
   public async check_all(): Promise<void> {

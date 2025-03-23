@@ -56,5 +56,5 @@ export const ignored_extensions = new Set([
   'xls',
   'xlsx',
   'db',
-  'sqlite'
+  'sqlite',
 ])
