@@ -155,6 +155,21 @@ async function get_selected_provider(
 }
 
 /**
+ * Format document using VS Code's formatDocument command
+ */
+async function format_document(document: vscode.TextDocument): Promise<void> {
+  try {
+    await vscode.commands.executeCommand(
+      'editor.action.formatDocument',
+      document.uri
+    )
+  } catch (error) {
+    console.error(`Error formatting document: ${error}`)
+    // Continue even if formatting fails
+  }
+}
+
+/**
  * Process a single file with AI and apply changes
  */
 async function process_file(params: {
@@ -269,6 +284,9 @@ async function create_file_if_needed(
   const document = await vscode.workspace.openTextDocument(full_path)
   await vscode.window.showTextDocument(document)
 
+  // Format the new file
+  await format_document(document)
+
   return true
 }
 
@@ -357,6 +375,10 @@ async function replace_files_directly(
                 file.content
               )
             })
+
+            // Format the document
+            await format_document(document)
+
             await document.save()
           } else {
             // Create new file
@@ -412,43 +434,52 @@ export function apply_changes_command(params: {
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
-    // Show quick pick to choose between intelligent or replace mode
-    const mode_options = [
-      {
-        label: 'Intelligent updates',
-        description: 'Use AI to apply shortened files and diffs'
-      },
-      {
-        label: 'Fast replaces',
-        description: 'Suitable if files are in a "whole" format'
-      }
-    ]
+    if (is_multiple_files) {
+      // Get the last used apply changes mode from global state
+      const last_used_mode = params.context.globalState.get<string>(
+        'lastUsedApplyChangesMode',
+        'Intelligent update'
+      )
 
-    const selected_mode = await vscode.window.showQuickPick(mode_options, {
-      placeHolder: 'Choose how to apply changes'
-    })
-
-    if (!selected_mode) {
-      return // User cancelled
-    }
-
-    // Handle Replace mode
-    if (selected_mode.label == 'Replace') {
-      if (is_multiple_files) {
-        const files = parse_clipboard_multiple_files(clipboard_text)
-        if (files.length == 0) {
-          vscode.window.showErrorMessage(
-            'No valid file content found in clipboard.'
-          )
-          return
+      // Create mode options with the last used mode at the top
+      const mode_options = [
+        {
+          label: last_used_mode,
+          description:
+            last_used_mode === 'Intelligent update'
+              ? 'Use AI to apply shortened files'
+              : 'Suitable if files are in a "whole" format'
+        },
+        {
+          label:
+            last_used_mode === 'Intelligent update'
+              ? 'Fast replace'
+              : 'Intelligent update',
+          description:
+            last_used_mode === 'Intelligent update'
+              ? 'Suitable if files are in a "whole" format'
+              : 'Use AI to apply shortened files'
         }
+      ]
 
+      const selected_mode = await vscode.window.showQuickPick(mode_options, {
+        placeHolder: 'Choose how to apply changes'
+      })
+
+      if (!selected_mode) {
+        return // User cancelled
+      }
+
+      // Save the selected mode as the last used mode
+      params.context.globalState.update(
+        'lastUsedApplyChangesMode',
+        selected_mode.label
+      )
+
+      // Handle Fast replace mode
+      if (selected_mode.label == 'Fast replace') {
+        const files = parse_clipboard_multiple_files(clipboard_text)
         await replace_files_directly(files)
-        return
-      } else {
-        vscode.window.showErrorMessage(
-          'Replace mode requires clipboard content in multiple files format. Each file should be in a code block with a file name.'
-        )
         return
       }
     }
@@ -687,10 +718,7 @@ export function apply_changes_command(params: {
                     cancelToken: cancel_token_source.token,
                     onProgress: (receivedLength, totalLength) => {
                       // Only update progress if this is the largest file
-                      if (
-                        largest_file &&
-                        file.file_path == largest_file.path
-                      ) {
+                      if (largest_file && file.file_path == largest_file.path) {
                         previous_largest_file_progress = largest_file_progress
                         largest_file_progress = Math.min(
                           Math.round((receivedLength / totalLength) * 100),
@@ -836,6 +864,10 @@ export function apply_changes_command(params: {
                   change.content
                 )
               })
+
+              // Format the document after applying changes
+              await format_document(document)
+
               await document.save()
             }
 
@@ -972,6 +1004,9 @@ export function apply_changes_command(params: {
                 edit_builder.replace(full_range, cleaned_content)
               })
 
+              // Format the document after applying changes
+              await format_document(document)
+
               vscode.window.showInformationMessage(`Changes have been applied!`)
               return
             }
@@ -988,6 +1023,9 @@ export function apply_changes_command(params: {
             await editor.edit((edit_builder) => {
               edit_builder.replace(full_range, cleaned_content)
             })
+
+            // Format the document after applying changes
+            await format_document(document)
 
             vscode.window.showInformationMessage(`Changes have been applied!`)
           } catch (error) {

@@ -9,6 +9,18 @@ import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
 
+async function format_document(document: vscode.TextDocument): Promise<void> {
+  try {
+    await vscode.commands.executeCommand(
+      'editor.action.formatDocument',
+      document.uri
+    )
+  } catch (error) {
+    console.error(`Error formatting document: ${error}`)
+    // Continue even if formatting fails
+  }
+}
+
 async function get_selected_provider(
   context: vscode.ExtensionContext,
   all_providers: Provider[],
@@ -304,6 +316,9 @@ export function refactor_command(params: {
               edit_builder.replace(full_range, cleaned_content)
             })
 
+            // Format the document after applying changes
+            await format_document(document)
+
             vscode.window.showInformationMessage(`Changes have been applied!`)
             return
           }
@@ -321,6 +336,9 @@ export function refactor_command(params: {
           await editor.edit((edit_builder) => {
             edit_builder.replace(full_range, cleaned_content)
           })
+
+          // Format the document after applying changes
+          await format_document(document)
 
           vscode.window.showInformationMessage(`Changes have been applied!`)
         } catch (error) {
