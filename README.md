@@ -57,8 +57,9 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
   - [Grok](https://grok.com/)
   - [DeepSeek](https://chat.deepseek.com/)
   - [Mistral](https://chat.mistral.ai/chat)
+  - [HuggingChat](https://huggingface.co/chat/)
   - Open WebUI (localhost)
-- Special purpose chats with presets.
+- Special purpose chat configurations with presets.
 - Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
 - Configure your favorite OpenAI API compatible providers.
 

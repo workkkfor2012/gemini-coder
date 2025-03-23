@@ -211,6 +211,44 @@ const set_model = async (model: string) => {
         break
       }
     }
+  } else if (is_github_copilot) {
+    // Map model identifiers to displayed text
+    const model_map: Record<string, string> = {
+      '4o': 'GPT-4o',
+      o1: 'o1',
+      'o3-mini': 'o3-mini',
+      'sonnet-3.5': 'Claude 3.5 Sonnet',
+      'sonnet-3.7': 'Claude 3.7 Sonnet',
+      'sonnet-3.7-thinking': 'Claude 3.7 Sonnet Thinking',
+      'gemini-2.0-flash': 'Gemini 2.0 Flash'
+    }
+
+    // Only proceed if the model exists in our map
+    if (model && model in model_map) {
+      const model_selector_trigger = document.querySelector(
+        'button[aria-label="Switch model"]'
+      ) as HTMLButtonElement
+      model_selector_trigger.click()
+
+      await new Promise((r) => requestAnimationFrame(r))
+
+      // Find all model option elements
+      const model_options = Array.from(
+        document.querySelectorAll('li[role="menuitemradio"]')
+      )
+
+      // Find the option with the matching text
+      for (const option of model_options) {
+        const labelElement = option.querySelector('[class*="ItemLabel"]')
+        if (labelElement && labelElement.textContent == model_map[model]) {
+          ;(option as HTMLElement).click()
+          await new Promise((r) => requestAnimationFrame(r))
+          break
+        }
+      }
+    } else if (model) {
+      console.warn(`Model "${model}" not found in model map for GitHub Copilot`)
+    }
   }
 }
 

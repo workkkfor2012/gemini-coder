@@ -8,6 +8,8 @@ export default {
 export const Empty = () => (
   <ChatInput
     value=""
+    chat_history={[]}
+    chat_history_fim_mode={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
@@ -15,6 +17,7 @@ export const Empty = () => (
     is_fim_mode={false}
     on_fim_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
+    has_active_selection={false}
   />
 )
 
@@ -22,6 +25,8 @@ export const Empty = () => (
 export const WithText = () => (
   <ChatInput
     value="Hello, this is a sample message"
+    chat_history={[]}
+    chat_history_fim_mode={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
@@ -29,6 +34,7 @@ export const WithText = () => (
     is_fim_mode={false}
     on_fim_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
+    has_active_selection={false}
   />
 )
 
@@ -36,6 +42,8 @@ export const WithText = () => (
 export const DisabledSubmit = () => (
   <ChatInput
     value="Cannot submit this message"
+    chat_history={[]}
+    chat_history_fim_mode={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
@@ -44,6 +52,7 @@ export const DisabledSubmit = () => (
     is_fim_mode={false}
     on_fim_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
+    has_active_selection={false}
   />
 )
 
@@ -51,6 +60,8 @@ export const DisabledSubmit = () => (
 export const MultilineText = () => (
   <ChatInput
     value="This is a message\nwith multiple\nlines of text"
+    chat_history={[]}
+    chat_history_fim_mode={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
@@ -58,6 +69,7 @@ export const MultilineText = () => (
     is_fim_mode={false}
     on_fim_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
+    has_active_selection={false}
   />
 )
 
@@ -65,6 +77,8 @@ export const MultilineText = () => (
 export const LongText = () => (
   <ChatInput
     value="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+    chat_history={[]}
+    chat_history_fim_mode={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
@@ -72,5 +86,6 @@ export const LongText = () => (
     is_fim_mode={false}
     on_fim_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
+    has_active_selection={false}
   />
 )
