@@ -5,10 +5,12 @@
   <h4>Copy context for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
   <br>
-  <img src="https://img.shields.io/badge/License-MIT-blue.svg" alt="MIT License">
-  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/visual-studio-marketplace/i/robertpiosik.gemini-coder" alt="Installs"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details"><img src="https://img.shields.io/visual-studio-marketplace/r/robertpiosik.gemini-coder" alt="Rating"></a>
-  <a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Buy%20Me%20A%20Coffee-Donate-blue.svg" alt="Buy Me A Coffee"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-Visual_Studio_Code-blue
+  " alt="Download in Visual Studio Code Marketplace"></a>
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue
+  " alt="Download in Visual Studio Code Marketplace"></a>
+  <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+  <a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Donate-Buy_me_a_coffee-green.svg" alt="Buy Me A Coffee"></a>
   <br>  
   <br>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
@@ -33,7 +35,7 @@ With Gemini Coder you can do all the coding for free!
 
 ## You own the context
 
-> Too many tokens fighting for attention may *decrease* performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
+> Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 

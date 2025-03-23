@@ -381,8 +381,7 @@ async function replace_files_directly(
           new_files.length == 1 ? 'file' : 'files'
         }:\n- ${new_file_list}\n\nDo you want to continue?`,
         { modal: true },
-        'Yes',
-        'No'
+        'Yes'
       )
 
       if (confirmation !== 'Yes') {
@@ -632,8 +631,7 @@ export function apply_changes_command(params: {
             new_files.length == 1 ? 'file' : 'files'
           }:\n- ${new_file_list}\n\nDo you want to continue?`,
           { modal: true },
-          'Yes',
-          'No'
+          'Yes'
         )
 
         if (confirmation !== 'Yes') {

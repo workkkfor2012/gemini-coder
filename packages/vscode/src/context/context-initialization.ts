@@ -76,7 +76,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     // Update the badge on the workspace files view
     workspace_view.badge = {
       value: total_token_count,
-      tooltip: `${total_token_count} tokens in the context`
+      tooltip: `About ${total_token_count} tokens in the context`
     }
 
     // Emit the token count event for other components to listen to
