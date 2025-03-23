@@ -3,6 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import { FileItem } from './workspace-provider'
 import { SharedFileState } from './shared-file-state'
+import { ignored_extensions } from './ignored-extensions'
 
 export class OpenEditorsProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -32,11 +33,15 @@ export class OpenEditorsProvider
   readonly onDidChangeCheckedFiles = this._on_did_change_checked_files.event
   // Reference to SharedFileState for checking workspace file states
   private _shared_state: SharedFileState
+  // Config change handler
+  private _config_change_handler: vscode.Disposable
 
-  constructor(workspace_root: string, ignored_extensions: Set<string>) {
+  constructor(workspace_root: string) {
     this._workspace_root = workspace_root
-    this._ignored_extensions = ignored_extensions
     this._shared_state = SharedFileState.getInstance()
+
+    // Load ignored extensions
+    this._load_ignored_extensions()
 
     // Load user preference for automatically attaching open files
     const config = vscode.workspace.getConfiguration('geminiCoder')
@@ -63,6 +68,24 @@ export class OpenEditorsProvider
       }
     )
 
+    // Listen for configuration changes
+    this._config_change_handler = vscode.workspace.onDidChangeConfiguration(
+      (event) => {
+        if (event.affectsConfiguration('geminiCoder')) {
+          if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
+            const config = vscode.workspace.getConfiguration('geminiCoder')
+            this.update_attach_open_files_setting(
+              config.get('attachOpenFiles', true)
+            )
+          }
+          if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+            this._load_ignored_extensions()
+            this.refresh()
+          }
+        }
+      }
+    )
+
     // Initial auto-check of all open editors
     // We'll use setTimeout to ensure VS Code has fully loaded editors
     setTimeout(() => {
@@ -70,6 +93,21 @@ export class OpenEditorsProvider
       this._initialized = true
       this._on_did_change_tree_data.fire() // Fire event to refresh view
     }, 500) // Small delay to ensure VS Code has loaded all editors
+  }
+
+  // Load ignored extensions from configuration
+  private _load_ignored_extensions() {
+    // Get additional extensions from config
+    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const additional_extensions = config
+      .get<string[]>('ignoredExtensions', [])
+      .map((ext) => ext.toLowerCase().replace(/^\./, ''))
+
+    // Combine hardcoded and configured extensions
+    this._ignored_extensions = new Set([
+      ...ignored_extensions,
+      ...additional_extensions
+    ])
   }
 
   // New method to update the preview tabs state
@@ -163,7 +201,8 @@ export class OpenEditorsProvider
 
   dispose(): void {
     this._tab_change_handler.dispose()
-    this._file_change_watcher.dispose() // Dispose the file watcher
+    this._file_change_watcher.dispose()
+    this._config_change_handler.dispose()
     this._on_did_change_checked_files.dispose()
   }
 

@@ -24,11 +24,7 @@ const format_token_count = (count?: number) => {
   if (count < 1000) {
     return count.toString()
   } else {
-    const k_count = (count / 1000).toFixed(1)
-    if (k_count.endsWith('.0')) {
-      return k_count.slice(0, -2) + 'k'
-    }
-    return k_count + 'k'
+    return Math.floor(count / 1000) + 'K+'
   }
 }
 

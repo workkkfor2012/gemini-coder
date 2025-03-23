@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free! Use the free Gemini API for FIM completions, file refactoring and applying changes.",
-  "version": "1.0.270",
+  "version": "1.0.271",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -108,7 +108,7 @@
         "command": "geminiCoder.selectSavedContext",
         "title": "Select Saved Context",
         "category": "Gemini Coder",
-        "icon": "$(checklist)"
+        "icon": "$(bookmark)"
       },
       {
         "command": "geminiCoder.checkAll",

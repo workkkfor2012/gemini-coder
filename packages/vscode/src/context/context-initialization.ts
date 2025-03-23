@@ -4,7 +4,6 @@ import { FileItem } from './workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
 import { OpenEditorsProvider } from './open-editors-provider'
 import { WebsitesProvider, WebsiteItem } from './websites-provider'
-import { ignored_extensions } from './ignored-extensions'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
 import { select_saved_context } from './saved-contexts'
@@ -41,10 +40,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   const workspace_root = workspace_folders[0].uri.fsPath
   const workspace_name = workspace_folders[0].name
   workspace_provider = new WorkspaceProvider(workspace_root)
-  open_editors_provider = new OpenEditorsProvider(
-    workspace_root,
-    ignored_extensions
-  )
+  open_editors_provider = new OpenEditorsProvider(workspace_root)
   websites_provider = new WebsitesProvider()
 
   // Create websites tree view
