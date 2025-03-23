@@ -6,18 +6,21 @@ import { autocomplete_instruction_external } from '@/constants/instructions'
 import {
   WebviewMessage,
   ExtensionMessage,
-  PresetsMessage
+  PresetsMessage,
+  TokenCountMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/websites-provider'
 import { OpenEditorsProvider } from '@/context/open-editors-provider'
 import { WorkspaceProvider } from '@/context/workspace-provider'
 import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
+import { tokenCountEmitter } from '@/context/context-initialization'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
+  private _token_count_listener: vscode.Disposable | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -47,7 +50,26 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       }
     )
 
-    this._context.subscriptions.push(this._config_listener)
+    // Subscribe to token count updates
+    this._token_count_listener = {
+      dispose: () => {
+        tokenCountEmitter.removeAllListeners('token-count-updated')
+      }
+    }
+
+    tokenCountEmitter.on('token-count-updated', (tokenCount: number) => {
+      if (this._webview_view) {
+        this._send_message<TokenCountMessage>({
+          command: 'TOKEN_COUNT_UPDATED',
+          tokenCount: tokenCount
+        })
+      }
+    })
+
+    this._context.subscriptions.push(
+      this._config_listener,
+      this._token_count_listener
+    )
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -564,6 +586,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   public dispose() {
     if (this._config_listener) {
       this._config_listener.dispose()
+    }
+    if (this._token_count_listener) {
+      this._token_count_listener.dispose()
     }
   }
 }

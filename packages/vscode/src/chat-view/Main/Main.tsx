@@ -28,6 +28,7 @@ type Props = {
   has_active_selection: boolean
   chat_history: string[]
   chat_history_fim_mode: string[]
+  token_count: number
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -112,6 +113,7 @@ export const Main: React.FC<Props> = (props) => {
         on_submit={handle_submit}
         on_copy={handle_copy}
         is_connected={props.is_connected}
+        token_count={props.token_count}
         submit_disabled_title={
           !props.is_connected
             ? 'WebSocket connection not established. Please install the browser extension.'

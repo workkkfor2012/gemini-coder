@@ -178,6 +178,11 @@ export interface FimChatHistoryMessage extends BaseMessage {
   messages: string[]
 }
 
+export interface TokenCountMessage extends BaseMessage {
+  command: 'TOKEN_COUNT_UPDATED'
+  tokenCount: number
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetLastPromptMessage
@@ -217,3 +222,4 @@ export type ExtensionMessage =
   | EditorSelectionChangedMessage
   | ChatHistoryMessage
   | FimChatHistoryMessage
+  | TokenCountMessage
