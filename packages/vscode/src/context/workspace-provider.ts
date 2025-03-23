@@ -736,14 +736,18 @@ export class WorkspaceProvider
           this.checked_items.get(sibling_path) ??
           vscode.TreeItemCheckboxState.Unchecked
 
-        const is_partial =
+        // Check if the directory itself or any of its children are partially checked
+        const is_dir_partially_checked =
           entry.isDirectory() && this.partially_checked_dirs.has(sibling_path)
 
-        if (state !== vscode.TreeItemCheckboxState.Checked) {
+        if (state != vscode.TreeItemCheckboxState.Checked) {
           all_checked = false
         }
 
-        if (state === vscode.TreeItemCheckboxState.Checked || is_partial) {
+        if (
+          state == vscode.TreeItemCheckboxState.Checked ||
+          is_dir_partially_checked
+        ) {
           any_checked = true
         }
       }
