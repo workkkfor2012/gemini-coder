@@ -288,7 +288,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           {props.token_count !== undefined && props.token_count > 1 && (
             <div
               className={styles.footer__right__count}
-              title="Overall message length in tokens"
+              title="Approximate message length in tokens"
             >
               {format_token_count(props.token_count)}
             </div>
