@@ -9,7 +9,7 @@ Here are some tips and best practices for using Gemini Coder effectively.
 
 ## Context
 
-- Avoid context pollution by carefully choosing what is checked.
+- Avoid context pollution, for the best performance keep it around 20k tokens.
 - Use saved contexts when you often switch between features in a monorepo.
 - Include files that demonstrate your team's coding conventions.
 - Monitor the token count to stay within reasonable context lengths (~15k).
@@ -28,4 +28,3 @@ Here are some tips and best practices for using Gemini Coder effectively.
 ## Refactoring and applying changes
 
 - Review the applied changes before commiting.
-- We suggest fast models with high allowed output lengths like Gemini 2.0 Thinking.

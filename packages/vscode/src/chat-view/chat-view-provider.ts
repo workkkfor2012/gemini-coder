@@ -7,7 +7,8 @@ import {
   WebviewMessage,
   ExtensionMessage,
   PresetsMessage,
-  TokenCountMessage
+  TokenCountMessage,
+  SelectionTextMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/websites-provider'
 import { OpenEditorsProvider } from '@/context/open-editors-provider'
@@ -117,10 +118,31 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       }
     }
 
+    const update_selection_text = () => {
+      const active_text_editor = vscode.window.activeTextEditor
+      if (active_text_editor && !active_text_editor.selection.isEmpty) {
+        const selected_text = active_text_editor.document.getText(
+          active_text_editor.selection
+        )
+
+        if (this._webview_view) {
+          this._send_message<SelectionTextMessage>({
+            command: 'SELECTION_TEXT_UPDATED',
+            text: selected_text
+          })
+        }
+      }
+    }
+
     vscode.window.onDidChangeActiveTextEditor(() =>
       setTimeout(update_selection_state, 100)
     )
     update_selection_state()
+
+    vscode.window.onDidChangeTextEditorSelection(() =>
+      setTimeout(update_selection_text, 100)
+    )
+    update_selection_text()
   }
 
   private _send_message<T extends ExtensionMessage>(message: T) {

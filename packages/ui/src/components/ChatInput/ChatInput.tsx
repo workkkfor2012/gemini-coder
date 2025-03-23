@@ -19,6 +19,19 @@ type Props = {
   has_active_selection: boolean
 }
 
+const format_token_count = (count?: number) => {
+  if (!count) return undefined
+  if (count < 1000) {
+    return count.toString()
+  } else {
+    const k_count = (count / 1000).toFixed(1)
+    if (k_count.endsWith('.0')) {
+      return k_count.slice(0, -2) + 'k'
+    }
+    return k_count + 'k'
+  }
+}
+
 export const ChatInput: React.FC<Props> = (props) => {
   const textarea_ref = useRef<HTMLTextAreaElement>(null)
   const highlight_ref = useRef<HTMLDivElement>(null)
@@ -276,7 +289,14 @@ export const ChatInput: React.FC<Props> = (props) => {
           )}
         </div>
         <div className={styles.footer__right}>
-          {props.token_count}
+          {props.token_count !== undefined && props.token_count > 1 && (
+            <div
+              className={styles.footer__right__count}
+              title={`About ${props.token_count} tokens`}
+            >
+              {format_token_count(props.token_count)}
+            </div>
+          )}
           <button
             className={styles.footer__right__button}
             onClick={handle_copy}

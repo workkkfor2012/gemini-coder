@@ -183,6 +183,12 @@ export interface TokenCountMessage extends BaseMessage {
   tokenCount: number
 }
 
+// Add this with other extension message interfaces
+export interface SelectionTextMessage extends BaseMessage {
+  command: 'SELECTION_TEXT_UPDATED'
+  text: string
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetLastPromptMessage
@@ -223,3 +229,4 @@ export type ExtensionMessage =
   | ChatHistoryMessage
   | FimChatHistoryMessage
   | TokenCountMessage
+  | SelectionTextMessage

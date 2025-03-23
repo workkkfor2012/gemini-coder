@@ -125,7 +125,14 @@
   &__right {
     flex-shrink: 0;
     display: flex;
+    align-items: center;
     gap: 4px;
+
+    &__count {
+      font-size: 0.9em;
+      color: var(--vscode-descriptionForeground);
+      margin-right: 3px;
+    }
 
     &__button {
       display: flex;

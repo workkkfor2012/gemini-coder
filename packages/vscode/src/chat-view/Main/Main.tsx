@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './Main.module.scss'
 import { Presets as UiPresets } from '@ui/components/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/ChatInput'
@@ -29,6 +29,7 @@ type Props = {
   chat_history: string[]
   chat_history_fim_mode: string[]
   token_count: number
+  selection_text?: string
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -39,11 +40,31 @@ export const Main: React.FC<Props> = (props) => {
   const [fim_instruction, set_fim_instruction] = useState(
     props.initial_fim_instruction
   )
+  const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   // Current instruction is determined by mode
   const current_instruction = props.is_fim_mode
     ? fim_instruction
     : normal_instruction
+
+  // Calculate input token estimation
+  useEffect(() => {
+    let text = current_instruction
+
+    // If there's @selection in the instruction and we have an active selection
+    if (
+      text.includes('@selection') &&
+      props.has_active_selection &&
+      props.selection_text
+    ) {
+      // Approximate replacement (this will be adjusted by the actual implementation when sent)
+      text = text.replace(/@selection/g, props.selection_text)
+    }
+
+    // Rough estimation of tokens (chars/4)
+    const estimated_tokens = Math.ceil(text.length / 4)
+    set_estimated_input_tokens(estimated_tokens)
+  }, [current_instruction, props.has_active_selection, props.selection_text])
 
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
@@ -101,6 +122,9 @@ export const Main: React.FC<Props> = (props) => {
     }
   }
 
+  // Calculate total token count (base + input estimation)
+  const total_token_count = props.token_count + estimated_input_tokens
+
   return (
     <div className={styles.container}>
       <UiChatHeader />
@@ -113,7 +137,7 @@ export const Main: React.FC<Props> = (props) => {
         on_submit={handle_submit}
         on_copy={handle_copy}
         is_connected={props.is_connected}
-        token_count={props.token_count}
+        token_count={total_token_count}
         submit_disabled_title={
           !props.is_connected
             ? 'WebSocket connection not established. Please install the browser extension.'

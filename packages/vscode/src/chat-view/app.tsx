@@ -17,7 +17,8 @@ import {
   EditorSelectionChangedMessage,
   ChatHistoryMessage,
   FimChatHistoryMessage,
-  TokenCountMessage
+  TokenCountMessage,
+  SelectionTextMessage
 } from './types/messages'
 
 const vscode = acquireVsCodeApi()
@@ -40,6 +41,7 @@ function App() {
   const [chat_history_fim_mode, set_chat_history_fim_mode] =
     useState<string[]>()
   const [token_count, set_token_count] = useState<number>(0)
+  const [selection_text, set_selection_text] = useState<string>('')
 
   useEffect(() => {
     vscode.postMessage({ command: 'GET_LAST_PROMPT' } as WebviewMessage)
@@ -119,6 +121,9 @@ function App() {
           break
         case 'TOKEN_COUNT_UPDATED':
           set_token_count((message as TokenCountMessage).tokenCount)
+          break
+        case 'SELECTION_TEXT_UPDATED':
+          set_selection_text((message as SelectionTextMessage).text)
           break
       }
     }
@@ -273,6 +278,7 @@ function App() {
       chat_history={chat_history}
       chat_history_fim_mode={chat_history_fim_mode}
       token_count={token_count}
+      selection_text={selection_text}
     />
   )
 }
