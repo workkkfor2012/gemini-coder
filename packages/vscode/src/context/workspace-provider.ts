@@ -789,6 +789,11 @@ export class WorkspaceProvider
         return
       }
 
+      // Clear partially checked state for this directory when it's being fully checked
+      if (state == vscode.TreeItemCheckboxState.Checked) {
+        this.partially_checked_dirs.delete(dir_path)
+      }
+
       const dir_entries = await fs.promises.readdir(dir_path, {
         withFileTypes: true
       })
