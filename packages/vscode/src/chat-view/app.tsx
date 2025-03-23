@@ -59,6 +59,7 @@ function App() {
     } as WebviewMessage)
     vscode.postMessage({ command: 'GET_CHAT_HISTORY' } as WebviewMessage)
     vscode.postMessage({ command: 'GET_FIM_CHAT_HISTORY' } as WebviewMessage)
+    vscode.postMessage({ command: 'GET_CURRENT_TOKEN_COUNT' } as WebviewMessage)
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data as ExtensionMessage

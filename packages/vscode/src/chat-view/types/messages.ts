@@ -104,6 +104,11 @@ export interface SaveChatHistoryMessage extends BaseMessage {
   is_fim_mode: boolean
 }
 
+// Add this interface with other webview message interfaces
+export interface GetCurrentTokenCountMessage extends BaseMessage {
+  command: 'GET_CURRENT_TOKEN_COUNT'
+}
+
 /**
  * Messages from extension to webview:
  */
@@ -219,6 +224,7 @@ export type WebviewMessage =
   | GetChatHistoryMessage
   | GetFimChatHistoryMessage
   | SaveChatHistoryMessage
+  | GetCurrentTokenCountMessage
 
 // Update the ExtensionMessage union type to include the new message
 export type ExtensionMessage =

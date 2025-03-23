@@ -538,6 +538,33 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               command: 'EDITOR_SELECTION_CHANGED',
               hasSelection: this._has_active_selection
             })
+          } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
+            // Trigger a token count calculation and send it to the webview
+            const files_collector = new FilesCollector(
+              this._workspace_provider,
+              this._open_editors_provider,
+              this._websites_provider
+            )
+
+            // Calculate the current token count
+            files_collector
+              .collect_files({ disable_xml: true })
+              .then((contextText) => {
+                const currentTokenCount = Math.floor(contextText.length / 4)
+
+                this._send_message<TokenCountMessage>({
+                  command: 'TOKEN_COUNT_UPDATED',
+                  tokenCount: currentTokenCount
+                })
+              })
+              .catch((error) => {
+                console.error('Error calculating token count:', error)
+                // Send 0 if there's an error
+                this._send_message<TokenCountMessage>({
+                  command: 'TOKEN_COUNT_UPDATED',
+                  tokenCount: 0
+                })
+              })
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
