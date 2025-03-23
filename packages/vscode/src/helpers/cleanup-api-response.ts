@@ -2,20 +2,17 @@
  * Cleans up the API response by iteratively stripping away wrapper markup
  * at the beginning and end of the content, without affecting the middle content.
  */
-export function cleanup_api_response(params: {
-  content: string
-  end_with_new_line?: boolean
-}): string {
+export function cleanup_api_response(params: { content: string }): string {
   try {
     let content = params.content
     let changed = true
 
     // Continue processing until no more changes are made
     while (changed) {
-      const originalContent = content
+      const original_content = content
 
       // Attempt to strip opening wrappers (only from the beginning)
-      const openingPatterns = [
+      const opening_patterns = [
         /^```[^\n]*\n/, // Markdown code block start
         /^<files[^>]*>\s*\n?/, // Files wrapper start
         /^<file[^>]*>\s*\n?/, // File wrapper start
@@ -23,28 +20,28 @@ export function cleanup_api_response(params: {
         /^<!DOCTYPE[^>]*>\s*\n?/ // DOCTYPE declaration
       ]
 
-      for (const pattern of openingPatterns) {
+      for (const pattern of opening_patterns) {
         const match = content.match(pattern)
-        if (match && match.index === 0) {
+        if (match && match.index == 0) {
           content = content.substring(match[0].length)
           break // Only remove one wrapper per iteration
         }
       }
 
       // Attempt to strip closing wrappers (only from the end)
-      const closingPatterns = [
+      const closing_patterns = [
         /\s*```\s*$/, // Markdown code block end
         /\s*<\/files>\s*$/, // Files wrapper end
         /\s*<\/file>\s*$/, // File wrapper end
         /\s*\]\]>\s*$/ // CDATA end
       ]
 
-      for (const pattern of closingPatterns) {
+      for (const pattern of closing_patterns) {
         const match = content.match(pattern)
         if (
           match &&
           match.index !== undefined &&
-          match.index + match[0].length === content.length
+          match.index + match[0].length == content.length
         ) {
           content = content.substring(0, match.index)
           break // Only remove one wrapper per iteration
@@ -52,16 +49,10 @@ export function cleanup_api_response(params: {
       }
 
       // Check if any changes were made in this iteration
-      changed = content !== originalContent
+      changed = content != original_content
     }
 
-    // Trim any remaining whitespace
     content = content.trim()
-
-    // Add trailing newline if requested
-    if (params.end_with_new_line) {
-      content += '\n'
-    }
 
     return content
   } catch (error) {

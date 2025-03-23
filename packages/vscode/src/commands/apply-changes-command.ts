@@ -237,8 +237,7 @@ async function process_file(params: {
     }
 
     return cleanup_api_response({
-      content: refactored_content,
-      end_with_new_line: true
+      content: refactored_content
     })
   } catch (error) {
     // Check if this is a cancellation error
@@ -787,8 +786,7 @@ export function apply_changes_command(params: {
                     return {
                       document,
                       content: cleanup_api_response({
-                        content: fallback_content,
-                        end_with_new_line: true
+                        content: fallback_content
                       }),
                       isNew: false,
                       filePath: file.file_path
@@ -993,8 +991,7 @@ export function apply_changes_command(params: {
 
               // Continue with the fallback content
               const cleaned_content = cleanup_api_response({
-                content: fallback_content,
-                end_with_new_line: true
+                content: fallback_content
               })
               const full_range = new vscode.Range(
                 document.positionAt(0),
@@ -1012,8 +1009,7 @@ export function apply_changes_command(params: {
             }
 
             const cleaned_content = cleanup_api_response({
-              content: refactored_content,
-              end_with_new_line: true
+              content: refactored_content
             })
 
             const full_range = new vscode.Range(

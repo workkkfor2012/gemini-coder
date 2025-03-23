@@ -10,6 +10,7 @@ type Props = {
   on_change: (value: string) => void
   on_submit: () => void
   on_copy: () => void
+  token_count?: number
   is_connected: boolean
   submit_disabled_title?: string
   is_fim_mode: boolean
@@ -275,6 +276,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           )}
         </div>
         <div className={styles.footer__right}>
+          {props.token_count}
           <button
             className={styles.footer__right__button}
             onClick={handle_copy}
