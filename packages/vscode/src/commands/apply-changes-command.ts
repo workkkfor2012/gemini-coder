@@ -22,30 +22,90 @@ interface ClipboardFile {
 function parse_clipboard_multiple_files(
   clipboard_text: string
 ): ClipboardFile[] {
-  // More specific regex that better handles the boundary between filename and content
-  const file_block_regex = /```(?:(\w+))?\s+name=([^`\n]+?)\s*\n([\s\S]*?)```/g
   const files: ClipboardFile[] = []
 
-  let match
-  while ((match = file_block_regex.exec(clipboard_text)) !== null) {
-    try {
-      const file_path = match[2].trim() // Trim to remove any trailing whitespace
-      const content = match[3]
+  // Use a state machine approach to track code blocks
+  let state = 'TEXT' // States: TEXT, BLOCK_START, FILENAME, CONTENT, BLOCK_END
+  let current_language = ''
+  let current_file_name = ''
+  let current_content = ''
+  let block_start_index = -1
 
-      // Validation checks
-      if (!file_path) {
-        console.warn('Skipping file block with empty filepath')
+  // Split text into lines for easier processing
+  const lines = clipboard_text.split('\n')
+
+  for (let i = 0; i < lines.length; i++) {
+    const line = lines[i]
+
+    // Check for code block start
+    if (state == 'TEXT' && line.trim().startsWith('```')) {
+      state = 'BLOCK_START'
+      block_start_index = i
+
+      // Extract language if present
+      const match = line.trim().match(/^```(\w*)/)
+      current_language = match && match[1] ? match[1] : ''
+
+      // Check if this line also contains the filename
+      const name_match = line.match(/name=([^`\n]+)/)
+      if (name_match && name_match[1]) {
+        current_file_name = name_match[1].trim()
+        state = 'CONTENT' // Skip filename state
+        current_content = '' // Start with empty content
         continue
       }
-
-      files.push({
-        file_path,
-        content
-      })
-    } catch (error) {
-      console.error('Error parsing file block:', error)
-      // Continue to next match rather than failing completely
     }
+    // Look for filename in next line after block start
+    else if (state == 'BLOCK_START') {
+      const name_match = line.match(/name=([^`\n]+)/)
+      if (name_match && name_match[1]) {
+        current_file_name = name_match[1].trim()
+        state = 'CONTENT'
+        current_content = '' // Start with empty content
+      } else {
+        // If no filename found, this is not a file block, go back to TEXT state
+        state = 'TEXT'
+      }
+    }
+    // Collect content lines
+    else if (state == 'CONTENT') {
+      // Check if line is end of code block
+      if (line.trim() == '```') {
+        // We've found the end of the block
+        state = 'TEXT'
+
+        // Add the collected file if we have a valid filename
+        if (current_file_name) {
+          files.push({
+            file_path: current_file_name,
+            content: current_content
+          })
+        }
+
+        // Reset state variables
+        current_file_name = ''
+        current_content = ''
+        block_start_index = -1
+      } else {
+        // Otherwise, add to content
+        if (current_content) {
+          // Add newline before appending next line
+          current_content += '\n' + line
+        } else {
+          // First line doesn't need a preceding newline
+          current_content = line
+        }
+      }
+    }
+  }
+
+  // Handle edge case: last file in clipboard doesn't have closing ```
+  if (state == 'CONTENT' && current_file_name) {
+    // Add what we've collected so far
+    files.push({
+      file_path: current_file_name,
+      content: current_content
+    })
   }
 
   return files
@@ -932,13 +992,6 @@ export function apply_changes_command(params: {
                 // Calculate actual increment since last progress report
                 const actual_increment = receivedLength - previous_length
                 previous_length = receivedLength
-
-                // Calculate percentage for display
-                const progressPercentage = Math.min(
-                  receivedLength / totalLength,
-                  1.0
-                )
-                const percentage = Math.round(progressPercentage * 100)
 
                 // Calculate actual increment as percentage
                 const increment_percentage =
