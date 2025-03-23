@@ -18,7 +18,8 @@ import {
   ChatHistoryMessage,
   FimChatHistoryMessage,
   TokenCountMessage,
-  SelectionTextMessage
+  SelectionTextMessage,
+  ActiveFileInfoMessage
 } from './types/messages'
 
 const vscode = acquireVsCodeApi()
@@ -42,6 +43,7 @@ function App() {
     useState<string[]>()
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
+  const [active_file_length, set_active_file_length] = useState<number>(0)
 
   useEffect(() => {
     vscode.postMessage({ command: 'GET_LAST_PROMPT' } as WebviewMessage)
@@ -124,6 +126,9 @@ function App() {
           break
         case 'SELECTION_TEXT_UPDATED':
           set_selection_text((message as SelectionTextMessage).text)
+          break
+        case 'ACTIVE_FILE_INFO_UPDATED':
+          set_active_file_length((message as ActiveFileInfoMessage).fileLength)
           break
       }
     }
@@ -279,6 +284,7 @@ function App() {
       chat_history_fim_mode={chat_history_fim_mode}
       token_count={token_count}
       selection_text={selection_text}
+      active_file_length={active_file_length}
     />
   )
 }

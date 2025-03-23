@@ -30,6 +30,7 @@ type Props = {
   chat_history_fim_mode: string[]
   token_count: number
   selection_text?: string
+  active_file_length?: number
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -49,6 +50,8 @@ export const Main: React.FC<Props> = (props) => {
 
   // Calculate input token estimation
   useEffect(() => {
+    let estimated_tokens = 0
+    // Basic estimation for instruction
     let text = current_instruction
 
     // If there's @selection in the instruction and we have an active selection
@@ -57,14 +60,28 @@ export const Main: React.FC<Props> = (props) => {
       props.has_active_selection &&
       props.selection_text
     ) {
-      // Approximate replacement (this will be adjusted by the actual implementation when sent)
+      // Approximate replacement
       text = text.replace(/@selection/g, props.selection_text)
     }
 
-    // Rough estimation of tokens (chars/4)
-    const estimated_tokens = Math.ceil(text.length / 4)
+    // Rough estimation of tokens (chars/4) for the instruction
+    estimated_tokens = Math.ceil(text.length / 4)
+
+    // Add active file length tokens when in FIM mode
+    if (props.is_fim_mode && props.active_file_length) {
+      // Estimate tokens for the file content
+      const file_tokens = Math.ceil(props.active_file_length / 4)
+      estimated_tokens += file_tokens
+    }
+
     set_estimated_input_tokens(estimated_tokens)
-  }, [current_instruction, props.has_active_selection, props.selection_text])
+  }, [
+    current_instruction,
+    props.has_active_selection,
+    props.selection_text,
+    props.is_fim_mode,
+    props.active_file_length
+  ])
 
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode

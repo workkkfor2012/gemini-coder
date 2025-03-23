@@ -189,6 +189,12 @@ export interface SelectionTextMessage extends BaseMessage {
   text: string
 }
 
+// Add this interface with other extension message interfaces
+export interface ActiveFileInfoMessage extends BaseMessage {
+  command: 'ACTIVE_FILE_INFO_UPDATED'
+  fileLength: number
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetLastPromptMessage
@@ -214,7 +220,7 @@ export type WebviewMessage =
   | GetFimChatHistoryMessage
   | SaveChatHistoryMessage
 
-// Union type of all possible outgoing messages to webview
+// Update the ExtensionMessage union type to include the new message
 export type ExtensionMessage =
   | InitialPromptMessage
   | InitialFimPromptMessage
@@ -230,3 +236,4 @@ export type ExtensionMessage =
   | FimChatHistoryMessage
   | TokenCountMessage
   | SelectionTextMessage
+  | ActiveFileInfoMessage

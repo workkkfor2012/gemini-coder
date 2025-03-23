@@ -8,7 +8,8 @@ import {
   ExtensionMessage,
   PresetsMessage,
   TokenCountMessage,
-  SelectionTextMessage
+  SelectionTextMessage,
+  ActiveFileInfoMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/websites-provider'
 import { OpenEditorsProvider } from '@/context/open-editors-provider'
@@ -143,9 +144,29 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       setTimeout(update_selection_text, 100)
     )
     update_selection_text()
+
+    vscode.window.onDidChangeActiveTextEditor(() => {
+      this._update_active_file_info()
+    })
+
+    vscode.workspace.onDidChangeTextDocument((event) => {
+      if (
+        vscode.window.activeTextEditor &&
+        event.document === vscode.window.activeTextEditor.document
+      ) {
+        this._update_active_file_info()
+      }
+    })
   }
 
-  private _send_message<T extends ExtensionMessage>(message: T) {
+  private _send_message<
+    T extends
+      | ExtensionMessage
+      | PresetsMessage
+      | TokenCountMessage
+      | SelectionTextMessage
+      | ActiveFileInfoMessage
+  >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
     }
@@ -541,6 +562,25 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       command: 'EDITOR_SELECTION_CHANGED',
       hasSelection: this._has_active_selection
     })
+
+    // Send initial file info
+    this._update_active_file_info()
+  }
+
+  // Add this method to the ChatViewProvider class
+  private _update_active_file_info() {
+    if (!this._webview_view) return
+
+    const active_editor = vscode.window.activeTextEditor
+    if (active_editor) {
+      const document = active_editor.document
+      const text_length = document.getText().length
+
+      this._send_message<ActiveFileInfoMessage>({
+        command: 'ACTIVE_FILE_INFO_UPDATED',
+        fileLength: text_length
+      })
+    }
   }
 
   private _send_presets_to_webview(webview: vscode.Webview) {
