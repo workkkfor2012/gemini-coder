@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './SavedWebsites.module.scss'
+import styles from './SavedWebsites.scss'
 import cn from 'classnames'
 
 export type Website = {
