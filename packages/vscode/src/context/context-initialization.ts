@@ -9,8 +9,7 @@ import { marked } from 'marked'
 import { select_saved_context } from './saved-contexts'
 import { EventEmitter } from 'events'
 
-// Create a token count emitter that can be exported and subscribed to
-export const tokenCountEmitter = new EventEmitter()
+export const token_count_emitter = new EventEmitter()
 
 export function context_initialization(context: vscode.ExtensionContext): {
   workspace_provider: WorkspaceProvider | undefined
@@ -80,7 +79,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     }
 
     // Emit the token count event for other components to listen to
-    tokenCountEmitter.emit('token-count-updated', total_token_count)
+    token_count_emitter.emit('token-count-updated')
   }
 
   // Handle checkbox state changes for websites

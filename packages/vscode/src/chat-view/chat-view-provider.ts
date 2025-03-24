@@ -15,14 +15,13 @@ import { WebsitesProvider } from '../context/websites-provider'
 import { OpenEditorsProvider } from '@/context/open-editors-provider'
 import { WorkspaceProvider } from '@/context/workspace-provider'
 import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
-import { tokenCountEmitter } from '@/context/context-initialization'
+import { token_count_emitter } from '@/context/context-initialization'
 
 export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
-  private _workspace_file_change_listener: vscode.Disposable | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -52,38 +51,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       }
     )
 
-    tokenCountEmitter.on('token-count-updated', (tokenCount: number) => {
+    token_count_emitter.on('token-count-updated', () => {
       if (this._webview_view) {
-        this._send_message<TokenCountMessage>({
-          command: 'TOKEN_COUNT_UPDATED',
-          tokenCount: tokenCount
-        })
+        this._recalculate_token_count()
       }
     })
 
-    // Add listener for workspace file changes to update token count in FIM mode
-    this._workspace_file_change_listener =
-      vscode.workspace.onDidChangeTextDocument((event) => {
-        // Don't recalculate for the active file in FIM mode since we handle that separately
-        if (
-          vscode.window.activeTextEditor &&
-          event.document !== vscode.window.activeTextEditor.document
-        ) {
-          const is_fim_mode = this._context.workspaceState.get<boolean>(
-            'isFimMode',
-            false
-          )
-
-          if (is_fim_mode && this._webview_view) {
-            this._recalculate_token_count()
-          }
-        }
-      })
-
-    this._context.subscriptions.push(
-      this._config_listener,
-      this._workspace_file_change_listener
-    )
+    this._context.subscriptions.push(this._config_listener)
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -716,9 +690,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   public dispose() {
     if (this._config_listener) {
       this._config_listener.dispose()
-    }
-    if (this._workspace_file_change_listener) {
-      this._workspace_file_change_listener.dispose()
     }
   }
 }
