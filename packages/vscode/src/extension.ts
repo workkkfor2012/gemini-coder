@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
-import { apply_changes_command } from './commands/apply-changes-command'
+import { apply_changes_command } from './commands/apply-changes-command/apply-changes-command'
 import {
   register_fim_completion,
   register_fim_completion_with

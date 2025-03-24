@@ -2,214 +2,18 @@ import * as vscode from 'vscode'
 import axios, { CancelToken } from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
-import { Provider } from '../types/provider'
-import { make_api_request } from '../helpers/make-api-request'
-import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
-import { cleanup_api_response } from '../helpers/cleanup-api-response'
-import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
-import { ModelManager } from '../services/model-manager'
-import { apply_changes_instruction } from '../constants/instructions'
-
-// Interface for clipboard file data
-interface ClipboardFile {
-  file_path: string
-  content: string
-}
-
-/**
- * Check if string looks like a filename with extension
- */
-function is_likely_filename(str: string): boolean {
-  // Check if it ends with a file extension (e.g., .js, .py, .ts)
-  // File extensions are typically 1-4 characters after the dot
-  return /\.\w{1,10}$/.test(str.trim())
-}
-
-/**
- * Try to extract filename from a comment line
- */
-function extract_filename_from_comment(line: string): string | null {
-  // Strip common comment prefixes: //, #, --, /*
-  const stripped = line
-    .trim()
-    .replace(/^(\/\/|#|--|\/\*|\*)\s*/, '')
-    .replace(/\s*\*\/$/, '') // Also remove trailing */ if present
-    .trim()
-
-  // If the stripped result looks like a filename with extension, return it
-  if (is_likely_filename(stripped)) {
-    return stripped
-  }
-
-  return null
-}
-
-/**
- * Parse clipboard text to check for multiple files format
- */
-function parse_clipboard_multiple_files(
-  clipboard_text: string
-): ClipboardFile[] {
-  const files: ClipboardFile[] = []
-
-  // Use a state machine approach to track code blocks
-  let state = 'TEXT' // States: TEXT, BLOCK_START, FILENAME, CONTENT, BLOCK_END
-  let current_file_name = ''
-  let current_content = ''
-  let block_start_index = -1
-  let is_first_content_line = false
-
-  // Split text into lines for easier processing
-  const lines = clipboard_text.split('\n')
-
-  for (let i = 0; i < lines.length; i++) {
-    const line = lines[i]
-
-    // Check for code block start
-    if (state == 'TEXT' && line.trim().startsWith('```')) {
-      state = 'BLOCK_START'
-      block_start_index = i
-
-      // Check if this line also contains the filename
-      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
-      if (name_match) {
-        // If quoted version was matched, use the first capture group
-        // Otherwise use the second capture group
-        current_file_name = (name_match[1] || name_match[2]).trim()
-        state = 'CONTENT' // Skip filename state
-        current_content = '' // Start with empty content
-        is_first_content_line = true
-        continue
-      }
-    }
-    // Look for filename in next line after block start
-    else if (state == 'BLOCK_START') {
-      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
-      if (name_match) {
-        // If quoted version was matched, use the first capture group
-        // Otherwise use the second capture group
-        current_file_name = (name_match[1] || name_match[2]).trim()
-        state = 'CONTENT'
-        current_content = '' // Start with empty content
-        is_first_content_line = true
-      } else {
-        // If no filename found, this is not a file block, go back to TEXT state
-        state = 'TEXT'
-      }
-    }
-    // Collect content lines
-    else if (state == 'CONTENT') {
-      // Check if line is end of code block
-      if (line.trim() == '```') {
-        // We've found the end of the block
-        state = 'TEXT'
-
-        // Add the collected file if we have a valid filename
-        if (current_file_name) {
-          files.push({
-            file_path: current_file_name,
-            content: current_content
-          })
-        }
-
-        // Reset state variables
-        current_file_name = ''
-        current_content = ''
-        block_start_index = -1
-        is_first_content_line = false
-      } else {
-        // Check if we're on the first content line and it might contain a filename in a comment
-        if (is_first_content_line && !current_file_name) {
-          // Try to extract filename from comments like "// filename.js"
-          if (
-            line.trim().startsWith('//') ||
-            line.trim().startsWith('#') ||
-            line.trim().startsWith('/*') ||
-            line.trim().startsWith('*')
-          ) {
-            const extracted_filename = extract_filename_from_comment(line)
-            if (extracted_filename) {
-              current_file_name = extracted_filename
-              // Don't include the comment line in the content
-              is_first_content_line = false
-              continue
-            }
-          }
-        }
-
-        // We're not on first line anymore for subsequent iterations
-        is_first_content_line = false
-
-        // Add to content
-        if (current_content) {
-          // Add newline before appending next line
-          current_content += '\n' + line
-        } else {
-          // First line doesn't need a preceding newline
-          current_content = line
-        }
-      }
-    }
-  }
-
-  // Handle edge case: last file in clipboard doesn't have closing ```
-  if (state == 'CONTENT' && current_file_name) {
-    // Add what we've collected so far
-    files.push({
-      file_path: current_file_name,
-      content: current_content
-    })
-  }
-
-  return files
-}
-
-/**
- * Check if clipboard contains multiple files
- */
-function is_multiple_files_clipboard(clipboardText: string): boolean {
-  // Check for standard format with name= attribute
-  const file_block_regex = /```(\w+)?\s*name=(?:"[^"]+"|[^\s"]+)/g
-
-  // Also check for code blocks that might have filename comments
-  const code_block_regex = /```(\w+)?[\s\S]*?```/g
-
-  // Check for standard format first
-  let match_count = 0
-  let match
-
-  while ((match = file_block_regex.exec(clipboardText)) !== null) {
-    match_count++
-    if (match_count >= 1) {
-      return true
-    }
-  }
-
-  // If standard format not found, check for code blocks with potential comment filenames
-  const code_blocks = [...clipboardText.matchAll(code_block_regex)]
-
-  for (const block of code_blocks) {
-    if (block[0]) {
-      const lines = block[0].split('\n')
-      // Skip first line (```language)
-      if (lines.length > 1) {
-        // Check if second line looks like a comment with filename
-        const secondLine = lines[1].trim()
-        if (
-          (secondLine.startsWith('//') ||
-            secondLine.startsWith('#') ||
-            secondLine.startsWith('/*') ||
-            secondLine.startsWith('*')) &&
-          extract_filename_from_comment(secondLine)
-        ) {
-          return true
-        }
-      }
-    }
-  }
-
-  return false
-}
+import { Provider } from '../../types/provider'
+import { make_api_request } from '../../helpers/make-api-request'
+import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
+import { cleanup_api_response } from '../../helpers/cleanup-api-response'
+import { handle_rate_limit_fallback } from '../../helpers/handle-rate-limit-fallback'
+import { ModelManager } from '../../services/model-manager'
+import { apply_changes_instruction } from '../../constants/instructions'
+import {
+  ClipboardFile,
+  parse_clipboard_multiple_files,
+  is_multiple_files_clipboard
+} from './clipboard-parser'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -1003,9 +807,7 @@ export function apply_changes_command(params: {
                 )
               })
 
-              // Format the document after applying changes
               await format_document(document)
-
               await document.save()
             }
 
@@ -1133,10 +935,8 @@ export function apply_changes_command(params: {
               await editor.edit((edit_builder) => {
                 edit_builder.replace(full_range, cleaned_content)
               })
-
-              // Format the document after applying changes
               await format_document(document)
-
+              await document.save()
               vscode.window.showInformationMessage(`Changes have been applied!`)
               return
             }
@@ -1152,10 +952,7 @@ export function apply_changes_command(params: {
             await editor.edit((edit_builder) => {
               edit_builder.replace(full_range, cleaned_content)
             })
-
-            // Format the document after applying changes
             await format_document(document)
-
             vscode.window.showInformationMessage(`Changes have been applied!`)
           } catch (error) {
             if (axios.isCancel(error)) {
