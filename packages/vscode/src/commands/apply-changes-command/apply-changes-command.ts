@@ -15,6 +15,13 @@ import {
   is_multiple_files_clipboard
 } from './clipboard-parser'
 
+// Interface to store original file state for reversion
+interface OriginalFileState {
+  file_path: string
+  content: string
+  is_new: boolean
+}
+
 async function get_selected_provider(
   context: vscode.ExtensionContext,
   all_providers: Provider[],
@@ -240,7 +247,7 @@ async function create_file_if_needed(
  */
 async function replace_files_directly(
   files: ClipboardFile[]
-): Promise<boolean> {
+): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
   try {
     // First, check if any file doesn't exist and needs to be created
     const new_files: ClipboardFile[] = []
@@ -274,12 +281,15 @@ async function replace_files_directly(
         vscode.window.showInformationMessage(
           'Operation cancelled. No files were modified.'
         )
-        return false
+        return { success: false }
       }
     }
 
+    // Store original file states for potential reversion
+    const original_states: OriginalFileState[] = []
+
     // Apply changes to all files
-    await vscode.window.withProgress(
+    const result = await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
         title: 'Replacing files',
@@ -301,7 +311,7 @@ async function replace_files_directly(
             .then((files) => files.length > 0)
 
           if (file_exists) {
-            // Replace existing file
+            // Store original content for reversion
             const file_uri = vscode.Uri.file(
               path.join(
                 vscode.workspace.workspaceFolders![0].uri.fsPath,
@@ -309,6 +319,15 @@ async function replace_files_directly(
               )
             )
             const document = await vscode.workspace.openTextDocument(file_uri)
+            const original_content = document.getText()
+
+            original_states.push({
+              file_path: file.file_path,
+              content: original_content,
+              is_new: false
+            })
+
+            // Replace existing file
             const editor = await vscode.window.showTextDocument(document)
             await editor.edit((edit) => {
               edit.replace(
@@ -325,6 +344,13 @@ async function replace_files_directly(
 
             await document.save()
           } else {
+            // Mark as new file for reversion
+            original_states.push({
+              file_path: file.file_path,
+              content: '',
+              is_new: true
+            })
+
             // Create new file
             await create_file_if_needed(file.file_path, file.content)
           }
@@ -336,22 +362,105 @@ async function replace_files_directly(
           })
         }
 
-        vscode.window.showInformationMessage(
-          `Successfully replaced ${total_count} ${
-            total_count > 1 ? 'files' : 'file'
-          }.`
-        )
         return true
       }
     )
 
-    return true
+    if (result) {
+      return { success: true, original_states }
+    } else {
+      return { success: false }
+    }
   } catch (error: any) {
     console.error('Error during direct file replacement:', error)
     vscode.window.showErrorMessage(
       `An error occurred while replacing files: ${
         error.message || 'Unknown error'
       }`
+    )
+    return { success: false }
+  }
+}
+
+/**
+ * Revert files to their original state
+ */
+async function revert_files(
+  original_states: OriginalFileState[]
+): Promise<boolean> {
+  try {
+    await vscode.window.withProgress(
+      {
+        location: vscode.ProgressLocation.Notification,
+        title: 'Reverting changes',
+        cancellable: false
+      },
+      async (progress) => {
+        const total_count = original_states.length
+        let processed_count = 0
+
+        for (const state of original_states) {
+          // For new files that were created, delete them
+          if (state.is_new) {
+            if (vscode.workspace.workspaceFolders) {
+              const file_path = path.join(
+                vscode.workspace.workspaceFolders[0].uri.fsPath,
+                state.file_path
+              )
+              if (fs.existsSync(file_path)) {
+                // Close any editors with the file open
+                const uri = vscode.Uri.file(file_path)
+                await vscode.commands.executeCommand(
+                  'workbench.action.closeActiveEditor',
+                  uri
+                )
+
+                // Delete the file
+                fs.unlinkSync(file_path)
+              }
+            }
+          } else {
+            // For existing files that were modified, restore original content
+            const file_uri = vscode.Uri.file(
+              path.join(
+                vscode.workspace.workspaceFolders![0].uri.fsPath,
+                state.file_path
+              )
+            )
+
+            try {
+              const document = await vscode.workspace.openTextDocument(file_uri)
+              const editor = await vscode.window.showTextDocument(document)
+              await editor.edit((edit) => {
+                edit.replace(
+                  new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length)
+                  ),
+                  state.content
+                )
+              })
+              await document.save()
+            } catch (err) {
+              console.error(`Error reverting file ${state.file_path}:`, err)
+            }
+          }
+
+          processed_count++
+          progress.report({
+            message: `${processed_count}/${total_count} files reverted`,
+            increment: (1 / total_count) * 100
+          })
+        }
+      }
+    )
+
+    vscode.window.showInformationMessage('Changes successfully reverted.')
+    return true
+  } catch (error: any) {
+    console.error('Error during reversion:', error)
+    vscode.window.showErrorMessage(
+      `Failed to revert changes: ${error.message || 'Unknown error'}`
     )
     return false
   }
@@ -423,7 +532,21 @@ export function apply_changes_command(params: {
       // Handle Fast replace mode
       if (selected_mode.label == 'Fast replace') {
         const files = parse_clipboard_multiple_files(clipboard_text)
-        await replace_files_directly(files)
+        const result = await replace_files_directly(files)
+
+        if (result.success && result.original_states) {
+          const total_files = files.length
+          const response = await vscode.window.showInformationMessage(
+            `Successfully replaced ${total_files} ${
+              total_files > 1 ? 'files' : 'file'
+            }.`,
+            'Revert'
+          )
+
+          if (response === 'Revert') {
+            await revert_files(result.original_states)
+          }
+        }
         return
       }
     }
@@ -551,6 +674,9 @@ export function apply_changes_command(params: {
         }`
       }
 
+      // Store original file states for reversion
+      const original_states: OriginalFileState[] = []
+
       vscode.window.withProgress(
         {
           location: vscode.ProgressLocation.Notification,
@@ -594,6 +720,14 @@ export function apply_changes_command(params: {
                 const document = await vscode.workspace.openTextDocument(
                   file_uri
                 )
+
+                // Store original file state for potential reversion
+                original_states.push({
+                  file_path: file.file_path,
+                  content: document.getText(),
+                  is_new: false
+                })
+
                 const content_size = document.getText().length
 
                 if (!largest_file || content_size > largest_file.size) {
@@ -608,6 +742,15 @@ export function apply_changes_command(params: {
                   error
                 )
               }
+            }
+
+            // Mark new files for reversion tracking
+            for (const file of new_files) {
+              original_states.push({
+                file_path: file.file_path,
+                content: '',
+                is_new: true
+              })
             }
 
             // Process all files in parallel batches
@@ -811,11 +954,17 @@ export function apply_changes_command(params: {
               await document.save()
             }
 
-            vscode.window.showInformationMessage(
+            // Show success message with Revert option
+            const response = await vscode.window.showInformationMessage(
               `Successfully updated ${total_files} ${
                 total_files > 1 ? 'files' : 'file'
-              }.`
+              }.`,
+              'Revert'
             )
+
+            if (response === 'Revert') {
+              await revert_files(original_states)
+            }
           } catch (error: any) {
             // If any file processing fails, cancel the entire operation
             cancel_token_source.cancel('Operation failed')
@@ -844,6 +993,9 @@ export function apply_changes_command(params: {
       const document_text = document.getText()
       const instruction = clipboard_text
       const file_path = vscode.workspace.asRelativePath(document.uri)
+
+      // Store original content for potential reversion
+      const original_content = document_text
 
       let cancel_token_source = axios.CancelToken.source()
       // Track previous length for progress calculation
@@ -937,7 +1089,27 @@ export function apply_changes_command(params: {
               })
               await format_document(document)
               await document.save()
-              vscode.window.showInformationMessage(`Changes have been applied!`)
+
+              // Show success message with Revert option
+              const response = await vscode.window.showInformationMessage(
+                'Changes have been applied!',
+                'Revert'
+              )
+
+              if (response == 'Revert') {
+                // Revert single file changes
+                await editor.edit((editBuilder) => {
+                  const full_range = new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length)
+                  )
+                  editBuilder.replace(full_range, original_content)
+                })
+                await document.save()
+                vscode.window.showInformationMessage(
+                  'Changes reverted successfully.'
+                )
+              }
               return
             }
 
@@ -953,7 +1125,28 @@ export function apply_changes_command(params: {
               edit_builder.replace(full_range, cleaned_content)
             })
             await format_document(document)
-            vscode.window.showInformationMessage(`Changes have been applied!`)
+            await document.save()
+
+            // Show success message with Revert option
+            const response = await vscode.window.showInformationMessage(
+              'Changes have been applied!',
+              'Revert'
+            )
+
+            if (response == 'Revert') {
+              // Revert single file changes
+              await editor.edit((editBuilder) => {
+                const full_range = new vscode.Range(
+                  document.positionAt(0),
+                  document.positionAt(document.getText().length)
+                )
+                editBuilder.replace(full_range, original_content)
+              })
+              await document.save()
+              vscode.window.showInformationMessage(
+                'Changes reverted successfully.'
+              )
+            }
           } catch (error) {
             if (axios.isCancel(error)) {
               return
