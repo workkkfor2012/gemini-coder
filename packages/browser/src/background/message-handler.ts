@@ -83,10 +83,12 @@ const process_next_chat = async () => {
   // Generate a unique 3-character alphanumeric batch ID
   const batch_id = await generate_alphanumeric_id('chat-init')
 
-  // Store the message with a unique key that includes the batch ID
+  // Store only the relevant information - the text and the current chat configuration
   await browser.storage.local.set({
-    [`chat-init:${batch_id}`]: current_queue_item.message,
-    [`chat-queue-index:${batch_id}`]: current_queue_item.current_index
+    [`chat-init:${batch_id}`]: {
+      text: current_queue_item.message.text,
+      current_chat: current_chat
+    }
   })
 
   // Open the tab with the current chat URL

@@ -305,21 +305,22 @@ const main = async () => {
   // Get the message using the batch ID from the hash
   const storage_key = `chat-init:${batch_id}`
   const storage = await browser.storage.local.get(storage_key)
-  const message = storage[storage_key] as InitializeChatsMessage
+  const stored_data = storage[storage_key] as {
+    text: string
+    current_chat: Chat
+  }
 
-  if (!message) {
-    console.error(
-      'Chat initialization message not found for batch ID:',
-      batch_id
-    )
+  if (!stored_data) {
+    console.error('Chat initialization data not found for batch ID:', batch_id)
     return
   }
 
-  const base_url = window.location.href.split('#')[0]
-  const current_chat = message.chats.find((chat) => chat.url.includes(base_url))
+  // Now directly use the current_chat instead of searching for it
+  const message_text = stored_data.text
+  const current_chat = stored_data.current_chat
 
   if (!current_chat) {
-    console.error('Chat configuration not found for this URL:', base_url)
+    console.error('Chat configuration not found')
     return
   }
 
@@ -435,7 +436,7 @@ const main = async () => {
   }
 
   await initialize_chat({
-    message: message.text,
+    message: message_text,
     chat: current_chat
   })
 
