@@ -47,9 +47,11 @@ function parse_clipboard_multiple_files(
       current_language = match && match[1] ? match[1] : ''
 
       // Check if this line also contains the filename
-      const name_match = line.match(/name=([^`\n]+)/)
-      if (name_match && name_match[1]) {
-        current_file_name = name_match[1].trim()
+      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
+      if (name_match) {
+        // If quoted version was matched, use the first capture group
+        // Otherwise use the second capture group
+        current_file_name = (name_match[1] || name_match[2]).trim()
         state = 'CONTENT' // Skip filename state
         current_content = '' // Start with empty content
         continue
@@ -57,9 +59,11 @@ function parse_clipboard_multiple_files(
     }
     // Look for filename in next line after block start
     else if (state == 'BLOCK_START') {
-      const name_match = line.match(/name=([^`\n]+)/)
-      if (name_match && name_match[1]) {
-        current_file_name = name_match[1].trim()
+      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
+      if (name_match) {
+        // If quoted version was matched, use the first capture group
+        // Otherwise use the second capture group
+        current_file_name = (name_match[1] || name_match[2]).trim()
         state = 'CONTENT'
         current_content = '' // Start with empty content
       } else {
@@ -115,13 +119,13 @@ function parse_clipboard_multiple_files(
  * Check if clipboard contains multiple files
  */
 function is_multiple_files_clipboard(clipboardText: string): boolean {
-  const file_block_regex = /```(\w+)?\s*name=([^\s]+)/g
-  let matchCount = 0
+  const file_block_regex = /```(\w+)?\s*name=(?:"[^"]+"|[^\s"]+)/g
+  let match_count = 0
 
   let match
   while ((match = file_block_regex.exec(clipboardText)) !== null) {
-    matchCount++
-    if (matchCount >= 1) {
+    match_count++
+    if (match_count >= 1) {
       return true
     }
   }
