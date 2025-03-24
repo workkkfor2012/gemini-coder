@@ -7,7 +7,7 @@
   <br>
   <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-Visual_Studio_Code-blue
   " alt="Download in Visual Studio Code Marketplace"></a>
-  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue
+  <a href="https://open-vsx.org/extension/robertpiosik/gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue
   " alt="Download in Visual Studio Code Marketplace"></a>
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
   <a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Donate-Buy_me_a_coffee-green.svg" alt="Buy Me A Coffee"></a>
@@ -26,10 +26,9 @@ The extension lets you granularly pick and copy context or **initalize chats in 
 
 With Gemini Coder you can do all the coding for free!
 
-- MIT license
-- Zero paid features
-- Zero usage limits
-- Zero telemetry
+- 100% free and open source
+- 0% wizardry - plain context + your instructions
+- Designed for big codebases
 - Lightweight (~1MB unpacked)
 - Available in the [Open VSX Registry](https://open-vsx.org/extension/robertpiosik/gemini-coder)
 

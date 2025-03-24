@@ -8,10 +8,9 @@ hide_table_of_contents: true
 The extension lets you granularly pick and copy context or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested changes with a single click, copy them and hit **Apply changes** ✨.
 With Gemini Coder you can do all the coding for free!
 
-- MIT license
-- Zero paid features
-- Zero usage limits
-- Zero telemetry
+- 100% free and open source
+- 0% wizardry - plain context + your instructions
+- Designed for big codebases
 - Lightweight (~1MB unpacked)
 - Available in the [Open VSX Registry](https://open-vsx.org/extension/robertpiosik/gemini-coder)
 
