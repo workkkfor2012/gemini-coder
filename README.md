@@ -1,19 +1,21 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
-  <br>
+  <br/>
   <h1>Gemini Coder</h1>
   <h4>Copy context for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
-  <br>
-  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-Visual_Studio_Code-blue" alt="Download in Visual Studio Code Marketplace"></a>
-  <a href="https://open-vsx.org/extension/robertpiosik/gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue" alt="Download in Visual Studio Code Marketplace"></a>
+  <br/>
   <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
+  <a href="https://open-vsx.org/extension/robertpiosik/gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue" alt="Download from Open VSX Registry"></a>
+  <br/>
+  <a href="https://x.com/intent/follow?screen_name=robertpiosik"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
   <a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Donate-Buy_me_a_coffee-green.svg" alt="Buy Me A Coffee"></a>
-  <br>  
-  <br>
+  <br/>
+  <br/>
   <a href="https://gemini-coder.netlify.app/">Documentation</a>
-  <br>
-  <br>
+  <br/>
+  <br/>
 </div>
 
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
