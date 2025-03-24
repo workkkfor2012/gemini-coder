@@ -28,7 +28,7 @@ With Gemini Coder you can do all the coding for free!
 
 - 100% free and open source
 - 0% wizardry - plain context + your instructions
-- Designed for big codebases
+- Designed for complex codebases
 - Lightweight (~1MB unpacked)
 - Available in the [Open VSX Registry](https://open-vsx.org/extension/robertpiosik/gemini-coder)
 
