@@ -27,7 +27,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   if (!workspace_folders) {
     vscode.window.showInformationMessage(
-      'Please open a workspace folder to use this extension.'
+      'Please open a project to use Gemini Coder.'
     )
     return {
       workspace_provider: undefined,
