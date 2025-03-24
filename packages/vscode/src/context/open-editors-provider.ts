@@ -384,20 +384,29 @@ export class OpenEditorsProvider
   }
 
   private _get_open_editors(): vscode.Uri[] {
-    const open_files: vscode.Uri[] = []
+    // Use a Map to track unique file paths and their URIs
+    const open_files_map = new Map<string, vscode.Uri>()
 
     // Add files from all tab groups
     vscode.window.tabGroups.all.forEach((tab_group) => {
       tab_group.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
-          open_files.push(tab.input.uri)
-          // Also update our preview tabs tracking
-          this._preview_tabs.set(tab.input.uri.fsPath, !!tab.isPreview)
+          const uri = tab.input.uri
+          const file_path = uri.fsPath
+
+          // Only add if not already in the map
+          if (!open_files_map.has(file_path)) {
+            open_files_map.set(file_path, uri)
+          }
+
+          // Update preview state regardless
+          this._preview_tabs.set(file_path, !!tab.isPreview)
         }
       })
     })
 
-    return open_files
+    // Return just the values (URIs) from the map
+    return Array.from(open_files_map.values())
   }
 
   // Calculate token count for a file

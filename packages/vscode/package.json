@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder",
   "description": "Copy context for chatbots or initialize them hands-free! Use the free Gemini API for FIM completions, file refactoring and applying changes.",
-  "version": "1.0.273",
+  "version": "1.0.274",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -340,32 +340,22 @@
         },
         {
           "command": "geminiCoder.newFile",
-          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "1_creation@1"
         },
         {
           "command": "geminiCoder.newFolder",
-          "when": "view == geminiCoderViewWorkspace && !viewItem",
+          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "1_creation@2"
         },
         {
           "command": "geminiCoder.rename",
-          "when": "view == geminiCoderViewWorkspace && !viewItem",
-          "group": "1_modification@1"
-        },
-        {
-          "command": "geminiCoder.rename",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "when": "view == geminiCoderViewWorkspace",
           "group": "1_modification@1"
         },
         {
           "command": "geminiCoder.delete",
-          "when": "view == geminiCoderViewWorkspace && !viewItem",
-          "group": "1_modification@2"
-        },
-        {
-          "command": "geminiCoder.delete",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "when": "view == geminiCoderViewWorkspace",
           "group": "1_modification@2"
         }
       ]

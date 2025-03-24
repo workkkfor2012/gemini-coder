@@ -17,7 +17,12 @@ export type UpdateSavedWebsitesMessage = {
   websites: Website[]
 }
 
+export type ChatInitializedMessage = {
+  action: 'chat-initialized'
+}
+
 export type Message =
   | GetPageDataMessage
   | PageDataMessage
   | UpdateSavedWebsitesMessage
+  | ChatInitializedMessage

@@ -285,6 +285,11 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
     input_element: get_textarea_element(),
     message: params.message
   })
+
+  // Process next chat from the queue
+  browser.runtime.sendMessage({
+    action: 'chat-initialized'
+  })
 }
 
 const main = async () => {
