@@ -387,6 +387,14 @@ export class WorkspaceProvider
     // Get a list of currently open files to preserve their check state
     const open_files = new Set(this.get_open_editors().map((uri) => uri.fsPath))
 
+    // Find which open files are currently checked
+    const checked_open_files = Array.from(this.checked_items.entries())
+      .filter(
+        ([path, state]) =>
+          open_files.has(path) && state == vscode.TreeItemCheckboxState.Checked
+      )
+      .map(([path]) => path)
+
     // Create a new map to hold only the open files' check states
     const new_checked_items = new Map<string, vscode.TreeItemCheckboxState>()
 
@@ -412,6 +420,22 @@ export class WorkspaceProvider
           dir_path = path.dirname(dir_path)
         }
       }
+    }
+
+    // Show info message if there are still checked open files
+    if (checked_open_files.length > 0) {
+      vscode.window
+        .showInformationMessage(
+          `${checked_open_files.length} open file${
+            checked_open_files.length == 1 ? '' : 's'
+          } remain checked. Clear checks in open editors to clear those as well.`,
+          'Clear open editors'
+        )
+        .then((selection) => {
+          if (selection == 'Clear open editors') {
+            vscode.commands.executeCommand('geminiCoder.clearChecksOpenEditors')
+          }
+        })
     }
 
     this.refresh()
