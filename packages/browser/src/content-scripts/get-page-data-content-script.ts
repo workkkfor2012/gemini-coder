@@ -1,15 +1,24 @@
 import browser from 'webextension-polyfill'
 import { HtmlParser } from '../utils/html-parser'
 
+const is_absolute_url = (url: string): boolean => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 const get_favicon_url = (html: string) => {
   const regex =
-    /<link[^>]*rel=["'](icon|shortcut icon|apple-touch-icon)["'][^>]*href=["']([^"']+)["']/gi
+    /<link[^>]*rel=["']([^"']+)["'][^>]*\shref=["']([^"']+)["'][^>]*>/gi
   const matches = [...html.matchAll(regex)]
-  const favicon_rels = ['icon', 'shortcut icon', 'apple-touch-icon']
+  const favicon_rels = ['icon', 'alternate icon', 'shortcut icon', 'apple-touch-icon']
 
   for (let rel of favicon_rels) {
     for (let match of matches) {
-      if (match[1] == rel) {
+      if (match[1] == rel && is_absolute_url(match[2])) {
         return match[2]
       }
     }
@@ -21,10 +30,10 @@ const get_favicon_url = (html: string) => {
 const get_favicon_base64 = async (favicon_url: string): Promise<string> => {
   try {
     // Ensure favicon URL is absolute
-    const absoluteUrl = new URL(favicon_url, document.location.href).href
+    const absolute_url = new URL(favicon_url, document.location.href).href
 
     // Fetch the favicon
-    const response = await fetch(absoluteUrl)
+    const response = await fetch(absolute_url)
     const blob = await response.blob()
 
     // Convert blob to base64

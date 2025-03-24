@@ -8,21 +8,5 @@ body {
 button {
   background: none;
   border: none;
-  padding: 4px 8px;
-}
-
-.actions {
-  display: flex;
-  justify-content: flex-end;
-  margin: 16px;
-}
-
-.save-button {
-  color: white;
-  background-color: #2196f3;
-}
-
-.delete-button {
-  color: white;
-  background-color: red;
+  cursor: pointer;
 }

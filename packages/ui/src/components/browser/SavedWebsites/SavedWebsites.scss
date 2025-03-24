@@ -9,8 +9,12 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #dddddd;
   gap: 8px;
+  background-color: #dddddd;
+
+  &:nth-child(odd) {
+    background-color: #cbcbcb;
+  }
 
   &__left {
     display: flex;

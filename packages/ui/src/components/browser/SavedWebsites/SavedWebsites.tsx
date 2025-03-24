@@ -24,7 +24,9 @@ export const SavedWebsites: React.FC<Props> = (props) => {
           key={website.url}
           className={styles.item}
           title={
-            website.title + ` (${Math.ceil(website.content.length / 4)} tokens)`
+            website.title +
+            ` - ${Math.ceil(website.content.length / 4)} tokens` +
+            `${website.is_selection ? ' (text selection)' : ''}`
           }
         >
           <div className={styles.item__left}>

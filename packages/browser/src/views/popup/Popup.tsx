@@ -3,6 +3,7 @@ import browser from 'webextension-polyfill'
 import { HtmlParser } from '../../utils/html-parser'
 import { StoredWebsite, use_websites_store } from './hooks/use-websites-store'
 import { SavedWebsites } from '@ui/components/browser/SavedWebsites'
+import { WebsiteActions } from '@ui/components/browser/WebsiteActions'
 
 export const Popup: React.FC = () => {
   const [current_url, set_current_url] = useState<string>('')
@@ -116,30 +117,13 @@ export const Popup: React.FC = () => {
         on_link_click={open_website_in_new_tab}
       />
 
-      <div className="actions">
-        {!is_loading && (
-          <>
-            {parsed_html ? (
-              <div>
-                {!is_saved ? (
-                  <button onClick={save_current_page} className="save-button">
-                    {is_selection ? 'Use selected text' : 'Use for context'}
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => remove_saved_page(current_url)}
-                    className="delete-button"
-                  >
-                    Remove
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p>No content could be parsed from this page.</p>
-            )}
-          </>
-        )}
-      </div>
+      <WebsiteActions
+        is_loading={is_loading}
+        parsed_html={!!parsed_html}
+        is_saved={is_saved}
+        on_save={save_current_page}
+        on_remove={() => remove_saved_page(current_url)}
+      />
     </div>
   )
 }
