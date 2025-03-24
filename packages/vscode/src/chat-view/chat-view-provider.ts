@@ -53,7 +53,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
     token_count_emitter.on('token-count-updated', () => {
       if (this._webview_view) {
-        this._recalculate_token_count()
+        this._calculate_token_count()
       }
     })
 
@@ -148,13 +148,13 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
           false
         )
         if (is_fim_mode && this._webview_view) {
-          this._recalculate_token_count()
+          this._calculate_token_count()
         }
       }
     })
   }
 
-  private _recalculate_token_count() {
+  private _calculate_token_count() {
     const files_collector = new FilesCollector(
       this._workspace_provider,
       this._open_editors_provider,
@@ -568,6 +568,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               'isFimMode',
               message.enabled
             )
+            this._calculate_token_count()
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             this._send_message<ExtensionMessage>({
               command: 'EDITOR_STATE_CHANGED',
@@ -579,7 +580,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               hasSelection: this._has_active_selection
             })
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
-            this._recalculate_token_count()
+            this._calculate_token_count()
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
