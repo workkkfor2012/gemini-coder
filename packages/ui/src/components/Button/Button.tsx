@@ -1,5 +1,5 @@
 import { FC } from 'react'
-import styles from './Button.module.scss'
+import styles from './Button.scss'
 
 type Props = {
   on_click: () => void

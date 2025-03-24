@@ -69,6 +69,9 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
     const script_uri = webview.asWebviewUri(
       vscode.Uri.joinPath(this._extension_uri, 'out', 'api.js')
     )
+    const style_uri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extension_uri, 'out', 'api.css')
+    )
 
     return `
       <!DOCTYPE html>
@@ -76,6 +79,7 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="${style_uri}">
       </head>
       <body>
           <div id="root"></div>

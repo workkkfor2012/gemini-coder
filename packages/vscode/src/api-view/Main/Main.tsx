@@ -1,4 +1,4 @@
-import styles from './Main.module.scss'
+import styles from './Main.scss'
 import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
 import { Button } from '@ui/components/Button'
 import { Separator } from '@ui/components/Separator'

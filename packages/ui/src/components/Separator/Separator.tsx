@@ -1,4 +1,4 @@
-import styles from './Separator.module.scss'
+import styles from './Separator.scss'
 import cn from 'classnames'
 
 export namespace Separator {

@@ -1,20 +1,21 @@
 const path = require('path')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
+const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 
 /**
  * Creates a webpack configuration for React webviews
  * @param {string} name - Name of the entry (chat or api)
- * @param {string} entryPath - Path to the entry file
+ * @param {string} entry_path - Path to the entry file
  * @returns {import('webpack').Configuration}
  */
-function createWebviewConfig(name, entryPath) {
+function create_webview_config(name, entry_path) {
   return {
     name,
     mode: 'production',
     target: 'web',
     entry: {
-      [name]: entryPath
+      [name]: entry_path
     },
     output: {
       path: path.resolve(__dirname, 'out'),
@@ -37,22 +38,22 @@ function createWebviewConfig(name, entryPath) {
       rules: [
         {
           test: /\.css$/,
-          use: ['style-loader', 'css-loader']
+          use: [MiniCssExtractPlugin.loader, 'css-loader']
         },
         {
-          test: /\.scss$/i,
+          test: /\.scss$/,
           use: [
-            'style-loader',
-            'css-loader',
+            MiniCssExtractPlugin.loader,
             {
-              loader: 'sass-loader',
+              loader: 'css-loader',
               options: {
-                implementation: require('sass-embedded'),
-                sassOptions: {
-                  silenceDeprecations: ['legacy-js-api']
-                }
+                modules: {
+                  localIdentName: '[name]__[local]__[hash:base64:5]'
+                },
+                importLoaders: 1
               }
-            }
+            },
+            'sass-loader'
           ]
         },
         {
@@ -78,6 +79,11 @@ function createWebviewConfig(name, entryPath) {
         }
       ]
     },
+    plugins: [
+      new MiniCssExtractPlugin({
+        filename: '[name].css'
+      })
+    ],
     stats: 'errors-only'
   }
 }
@@ -144,8 +150,8 @@ const config = [
     ],
     stats: 'errors-only'
   },
-  createWebviewConfig('chat', './src/chat-view/app.tsx'),
-  createWebviewConfig('api', './src/api-view/app.tsx')
+  create_webview_config('chat', './src/chat-view/app.tsx'),
+  create_webview_config('api', './src/api-view/app.tsx')
 ]
 
 module.exports = config

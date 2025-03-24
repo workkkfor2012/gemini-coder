@@ -1,4 +1,4 @@
-import styles from './Presets.module.scss'
+import styles from './Presets.scss'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { IconButton } from '../IconButton/IconButton'
 import { Button } from '../Button/Button'

@@ -1,4 +1,4 @@
-import styles from './IconButton.module.scss'
+import styles from './IconButton.scss'
 import cn from 'classnames'
 
 type Props = {

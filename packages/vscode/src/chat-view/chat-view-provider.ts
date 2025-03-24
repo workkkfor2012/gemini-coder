@@ -670,12 +670,17 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       vscode.Uri.joinPath(this._extension_uri, 'out', 'chat.js')
     )
 
+    const style_uri = webview.asWebviewUri(
+      vscode.Uri.joinPath(this._extension_uri, 'out', 'chat.css')
+    )
+
     return `
       <!DOCTYPE html>
       <html lang="en">
       <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="${style_uri}">
         <script>
           window.resources_uri = "${resources_uri}";
         </script>
@@ -686,11 +691,5 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       </body>
       </html>
     `
-  }
-
-  public dispose() {
-    if (this._config_listener) {
-      this._config_listener.dispose()
-    }
   }
 }

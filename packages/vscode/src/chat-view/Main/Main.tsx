@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import styles from './Main.module.scss'
+import styles from './Main.scss'
 import { Presets as UiPresets } from '@ui/components/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/ChatInput'
 import { ChatHeader as UiChatHeader } from '@ui/components/ChatHeader'
