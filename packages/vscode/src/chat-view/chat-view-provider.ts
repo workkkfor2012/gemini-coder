@@ -22,7 +22,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
-  private _token_count_listener: vscode.Disposable | undefined
+  private _workspace_file_change_listener: vscode.Disposable | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -52,13 +52,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       }
     )
 
-    // Subscribe to token count updates
-    this._token_count_listener = {
-      dispose: () => {
-        tokenCountEmitter.removeAllListeners('token-count-updated')
-      }
-    }
-
     tokenCountEmitter.on('token-count-updated', (tokenCount: number) => {
       if (this._webview_view) {
         this._send_message<TokenCountMessage>({
@@ -68,9 +61,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       }
     })
 
+    // Add listener for workspace file changes to update token count in FIM mode
+    this._workspace_file_change_listener =
+      vscode.workspace.onDidChangeTextDocument((event) => {
+        // Don't recalculate for the active file in FIM mode since we handle that separately
+        if (
+          vscode.window.activeTextEditor &&
+          event.document !== vscode.window.activeTextEditor.document
+        ) {
+          const is_fim_mode = this._context.workspaceState.get<boolean>(
+            'isFimMode',
+            false
+          )
+
+          if (is_fim_mode && this._webview_view) {
+            this._recalculate_token_count()
+          }
+        }
+      })
+
     this._context.subscriptions.push(
       this._config_listener,
-      this._token_count_listener
+      this._workspace_file_change_listener
     )
 
     const update_editor_state = () => {
@@ -155,8 +167,62 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         event.document === vscode.window.activeTextEditor.document
       ) {
         this._update_active_file_info()
+
+        // Also recalculate token count when active file changes in FIM mode
+        const is_fim_mode = this._context.workspaceState.get<boolean>(
+          'isFimMode',
+          false
+        )
+        if (is_fim_mode && this._webview_view) {
+          this._recalculate_token_count()
+        }
       }
     })
+  }
+
+  private _recalculate_token_count() {
+    const files_collector = new FilesCollector(
+      this._workspace_provider,
+      this._open_editors_provider,
+      this._websites_provider
+    )
+
+    const is_fim_mode = this._context.workspaceState.get<boolean>(
+      'isFimMode',
+      false
+    )
+    const active_editor = vscode.window.activeTextEditor
+    const active_path = active_editor?.document.uri.fsPath
+
+    const options = {
+      disable_xml: true,
+      ...(is_fim_mode && active_path ? { exclude_path: active_path } : {})
+    }
+
+    files_collector
+      .collect_files(options)
+      .then((context_text) => {
+        let current_token_count = Math.floor(context_text.length / 4)
+
+        if (active_editor && is_fim_mode) {
+          const document = active_editor.document
+          const text = document.getText()
+          const file_token_count = Math.floor(text.length / 4)
+          current_token_count += file_token_count
+        }
+
+        this._send_message<TokenCountMessage>({
+          command: 'TOKEN_COUNT_UPDATED',
+          tokenCount: current_token_count
+        })
+      })
+      .catch((error) => {
+        console.error('Error calculating token count:', error)
+        this._send_message<TokenCountMessage>({
+          command: 'TOKEN_COUNT_UPDATED',
+          tokenCount: 0
+        })
+      })
   }
 
   private _send_message<
@@ -539,32 +605,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               hasSelection: this._has_active_selection
             })
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
-            // Trigger a token count calculation and send it to the webview
-            const files_collector = new FilesCollector(
-              this._workspace_provider,
-              this._open_editors_provider,
-              this._websites_provider
-            )
-
-            // Calculate the current token count
-            files_collector
-              .collect_files({ disable_xml: true })
-              .then((contextText) => {
-                const currentTokenCount = Math.floor(contextText.length / 4)
-
-                this._send_message<TokenCountMessage>({
-                  command: 'TOKEN_COUNT_UPDATED',
-                  tokenCount: currentTokenCount
-                })
-              })
-              .catch((error) => {
-                console.error('Error calculating token count:', error)
-                // Send 0 if there's an error
-                this._send_message<TokenCountMessage>({
-                  command: 'TOKEN_COUNT_UPDATED',
-                  tokenCount: 0
-                })
-              })
+            this._recalculate_token_count()
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
@@ -676,8 +717,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     if (this._config_listener) {
       this._config_listener.dispose()
     }
-    if (this._token_count_listener) {
-      this._token_count_listener.dispose()
+    if (this._workspace_file_change_listener) {
+      this._workspace_file_change_listener.dispose()
     }
   }
 }
