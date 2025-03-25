@@ -5,17 +5,17 @@ sidebar_position: 4
 
 # Refactor
 
-Gemini Coder's refactoring feature allows you to modify the current file based on a natural language instructions. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file must be regenerated.
+Gemini Coder's refactoring feature allows you to modify the current file based on a natural language instructions. This is perfect where code insertions at cursor position (Fill-In-the-Middle) aren't enough but it is at the cost of speed as the whole file is regenerated.
 
 _Structure of the generated message:_
 
 ```
 <files>
-  <file name="...">...</file>
-  ...
+  [CONTEXT FILES]
+  <file name="...">...</file> (current file)
 </files>
-User requested refactor of a file "[PATH]". In your response send fully updated file only, without explanations or any other text.
-[Refactoring instructions]
+User requested refactor of a file "[NAME]". In your response send fully updated file only, without explanations or any other text.
+[REFACTORING INSTRUCTIONS]
 ```
 
 ## How it works

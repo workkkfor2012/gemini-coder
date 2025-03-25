@@ -1,0 +1,88 @@
+---
+hide_table_of_contents: true
+sidebar_position: 3
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+# Fill-In-the-Middle (FIM)
+
+Gemini Coder's FIM feature enables you inserting AI generated code completions directly at cursor's position while using the selected context. This feature uses frontier models, much bigger than those in other tools' "tab completion" features and is designed for on-demand use. We observe that the trade-off between speed and accuracy of this approach is worth the increase in latency.
+
+_Structure of the generated message:_
+
+<Tabs groupId="fim-message-structure">
+  <TabItem value="api" label="API">
+
+```
+<files>
+  [CONTEXT]
+  <file name="...">
+    ...
+    <fill missing code>
+    ...
+  </file>
+</files>
+Somewhere in files you encountered the <fill missing code> symbol. Send the missing code only, without explanations, or any other text.
+```
+
+  </TabItem>
+  <TabItem value="chat" label="CHAT">
+
+Chat instruction asks for reasoning behind the decision about completion.
+
+```
+<files>
+  [CONTEXT]
+  <file name="...">
+    ...
+    <fill missing code>
+    ...
+  </file>
+</files>
+Somewhere in files you encountered the <fill missing code> symbol. Send the missing code and explain your reasoning.
+```
+
+  </TabItem>
+</Tabs>
+
+## How it works
+
+### Select context
+
+Click on the Gemini icon in the activity bar and choose relevant files for context.
+
+### Position cursor
+
+Place your cursor where you want to generate completion.
+
+### Run FIM
+
+Execute `Gemini Coder: FIM Completion` from the Command Palette to use the default model or use `Gemini Coder: FIM Completion with...` to select any other model.
+
+### Completion
+
+AI generated completion is inserted.
+
+:::info
+Bind `Gemini Coder: FIM Completion` to a keyboard shortcut for fastest access.
+:::
+
+## Available commands
+
+##### `Gemini Coder: FIM Completion`
+
+Get fill-in-the-middle completion using the default model.
+
+##### `Gemini Coder: FIM Completion with...`
+
+Lets you select which model to use for FIM completion.
+
+##### `Gemini Coder: FIM Completion to Clipboard`
+
+Instead of inserting completion directly, copies the FIM completion content to your clipboard for use in other tools.
+
+##### `Gemini Coder: Change Default FIM Model`
+
+Configure which model should be used as the default for FIM completions.
