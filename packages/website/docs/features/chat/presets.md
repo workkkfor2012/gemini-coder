@@ -32,11 +32,11 @@ Supported configuration options:
 
 #### ✅ `model`
 
-- `gemini-2.0-flash`: Gemini 2.0 Flash
-- `gemini-2.0-flash-lite`: Gemini 2.0 Flash-Lite
-- `gemini-2.5-pro-exp-03-25`: Gemini 2.5 Pro Experimental 03-25
-- `gemini-2.0-pro-exp-02-05`: Gemini 2.0 Pro Experimental 02-05
-- `gemini-2.0-flash-thinking-exp-01-21`: Gemini 2.0 Flash Thinking Experimental 01-21
+- Gemini 2.0 Flash: `gemini-2.0-flash`
+- Gemini 2.0 Flash-Lite: `gemini-2.0-flash-lite`
+- Gemini 2.5 Pro Exp 03-25: `gemini-2.5-pro-exp-03-25`
+- Gemini 2.0 Pro Exp 02-05: `gemini-2.0-pro-exp-02-05`
+- Gemini 2.0 Flash Thinking Exp 01-21: `gemini-2.0-flash-thinking-exp-01-21`
 
 #### ✅ `systemInstructions`
 
@@ -102,13 +102,13 @@ Range: `0-1`
 
 #### ✅ `model`
 
-- `4o`: GPT-4o
-- `o1`: o1
-- `o3-mini`: o3-mini
-- `sonnet-3.5`: Claude 3.5 Sonnet
-- `sonnet-3.7`: Claude 3.7 Sonnet
-- `sonnet-3.7-thinking`: Claude 3.7 Sonnet Thinking
-- `gemini-2.0-flash`: Gemini 2.0 Flash
+- GPT-4o: `4o`
+- o1: `o1`
+- o3-mini: `o3-mini`
+- Claude 3.5 Sonnet: `sonnet-3.5`
+- Claude 3.7 Sonnet: `sonnet-3.7`
+- Claude 3.7 Sonnet Thinking: `sonnet-3.7-thinking`
+- Gemini 2.0 Flash: `gemini-2.0-flash`
 
 #### ❌ `systemInstructions`
 
