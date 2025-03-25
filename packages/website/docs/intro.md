@@ -3,11 +3,11 @@ sidebar_position: 1
 hide_table_of_contents: true
 ---
 
-## Introduction
+# Introduction
 
-The extension lets you conveniently pick folders and individual files and copy them for chatbots. With our browser extension you can initalize them hands-free!
+Gemini Coder lets you conveniently pick folders and files and copy them for chatbots. With our browser extension you can initalize them hands-free!
 
-Gemini Coder uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
+The extension uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
 
 - **100% free & open source:** MIT License
 - **Versitale:** Not limited to Gemini or AI Studio
