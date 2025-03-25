@@ -4,7 +4,7 @@ hide_table_of_contents: true
 
 # Presets
 
-Presets in Gemini Coder allow you to create general or task-specific chat configurations. They are stored in your settings under key `geminiCoder.presets`.
+Presets allow you to create general or task-specific chat configurations. They are stored in your settings under key `geminiCoder.presets`.
 
 Here is an example of a preset:
 
@@ -21,7 +21,7 @@ Here is an example of a preset:
 }
 ```
 
-We make every effort to let you control initialization of your favorite chatbot to the fullest. Check below what options you have when working on your presets.
+We make every effort to let you control initialization of your favorite chatbot to the fullest. Check below what configuration options are available across supported chatbots.
 
 <details>
 <summary><strong>AI Studio</strong></summary>

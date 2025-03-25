@@ -3,7 +3,7 @@ hide_table_of_contents: true
 sidebar_position: 3
 ---
 
-# Fill-In-the-Middle
+# Fill-In-the-Middle (FIM)
 
 Gemini Coder's FIM feature enables you inserting AI generated code completions directly at cursor's position using the selected context. This feature uses frontier models, much bigger than those in other tools' "tab completion" features and is designed for on-demand use. We observe that the trade-off between speed and accuracy of this approach is worth the slight increase in input latency.
 

@@ -2,7 +2,7 @@
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
   <h1>Gemini Coder</h1>
-  <h2>The free 1M context AI coding assistant</h2>
+  <h2>The free 2M context AI coding assistant</h2>
   <h4>Copy context for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
   <br/>
