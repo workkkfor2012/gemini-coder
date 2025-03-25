@@ -20,6 +20,15 @@ export const BUILT_IN_PROVIDERS: Provider[] = [
     instruction: ''
   },
   {
+    name: 'Gemini 2.5 Pro Experimental 03-25',
+    endpointUrl:
+      'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+    bearerToken: '',
+    model: 'gemini-2.5-pro-exp-03-25',
+    temperature: 0,
+    instruction: ''
+  },
+  {
     name: 'Gemini 2.0 Pro Experimental 02-05',
     endpointUrl:
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',

@@ -22,14 +22,15 @@
 
 ## Introduction
 
-The extension lets you granularly **pick and copy context** or **initalize chats in the web browser**, hands-free! Use the same context using powerful API features: **Fill-In-the-Middle (FIM)** completions and **file refactoring**. To integrate AI suggested changes with a single click, copy them and hit **Apply changes** ✨.
+The extension lets you conveniently pick folders and individual files and copy them for chatbots. With our browser extension you can initalize them hands-free!
 
-With Gemini Coder you can do all the coding for free!
+Gemini Coder uses the same context for its essential API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
 
-- MIT License
-- Use your own API key
-- Works with all popular chatbots
-- Lightweight (~1MB unpacked)
+- **Open source:** MIT License
+- **Versitale:** Not limited to Gemini & AI Studio
+- **Private:** Does not collect telemetry
+- **Local:** Talks with the web browser via WebSockets
+- **Lightweight:** Unpacked build is just ~1MB
 
 ## You own the context
 
