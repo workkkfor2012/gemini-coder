@@ -32,7 +32,7 @@ const FeatureList: FeatureItem[] = [
     description: (
       <>
         Use Fill-In-the-Middle (FIM) completions, refactor entire files, and apply
-        AI-suggested changes with ease.
+        AI-suggested changes with a single click.
       </>
     )
   }

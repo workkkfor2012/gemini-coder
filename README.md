@@ -1,8 +1,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
-  <h1>Gemini Coder</h1>
-  <h2>The free 1M context AI coding assistant</h2>
+  <h1>Gemini Coder - the free 1M context AI coding assistant</h1>
   <h4>Copy context for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
   <br/>
@@ -33,33 +32,34 @@ Gemini Coder uses the same context for its essential API features: **Fill-In-the
 - **Versitale:** Not limited to Gemini & AI Studio
 - **Private:** Does not collect telemetry
 - **Local:** Talks with the web browser via WebSockets
+- **One of a kind**: Lets you use any website for context
 - **Lightweight:** Unpacked build is just ~1MB
 
 ## You own the context
 
-> Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
-
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 
-- **You select** which folders/files provide relevant context
+- **You select** which folders and files provide relevant context
 - **You control** what examples of coding conventions to include
 - **You know** how much tokens is used with API calls and web chats at any moment
 
 The result? Unmatched in accuracy, speed and cost AI assistance.
 
+> Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
+
 ## Features
 
-- Hand-picking [context](https://gemini-coder.netlify.app/docs/context) for chatbots and API features.
+- Hand-picking context for chatbots and API features (FIM and file refactoring).
 - Dedicated [web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) with support for:
-  - **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
-  - **[Gemini](https://gemini.google.com/app)**
-  - [ChatGPT](https://chatgpt.com/)
-  - [Claude](https://claude.ai/new)
-  - [GitHub Copilot](https://github.com/copilot)
-  - [Grok](https://grok.com/)
-  - [DeepSeek](https://chat.deepseek.com/)
-  - [Mistral](https://chat.mistral.ai/chat)
-  - [HuggingChat](https://huggingface.co/chat/)
+  - AI Studio
+  - Gemini
+  - ChatGPT
+  - Claude
+  - GitHub Copilot
+  - Grok
+  - DeepSeek
+  - Mistral
+  - HuggingChat
   - Open WebUI (localhost)
 - Special purpose chat configurations with presets.
 - Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying changes](https://gemini-coder.netlify.app/docs/features/apply-changes).

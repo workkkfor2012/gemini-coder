@@ -13,6 +13,7 @@ Gemini Coder uses the same context for its essential API features: **Fill-In-the
 - **Versitale:** Not limited to Gemini & AI Studio
 - **Private:** Does not collect telemetry
 - **Local:** Talks with the web browser via WebSockets
+- **One of a kind**: Lets you use any website for context
 - **Lightweight:** Unpacked build is just ~1MB
 
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
