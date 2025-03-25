@@ -27,11 +27,11 @@
 
 The extension lets you conveniently pick folders and individual files and copy them for chatbots. With our browser extension you can initalize them hands-free!
 
-Gemini Coder uses the same context for its essential API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
+Gemini Coder uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
 
 - **100% free & open source:** MIT License
-- **Versitale:** Not limited to Gemini & AI Studio
-- **Private:** Does not collect telemetry
+- **Versitale:** Not limited to Gemini or AI Studio
+- **Private:** Does not collect any usage data
 - **Local:** Talks with the web browser via WebSockets
 - **One of a kind**: Lets you use any website for context
 - **Lightweight:** Unpacked build is just ~1MB
@@ -48,23 +48,20 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
-## Features
+## Supported chatbots
 
-- Hand-picking context for chatbots and API features (FIM and file refactoring).
-- Dedicated [web browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) with support for:
-  - AI Studio
-  - Gemini
-  - ChatGPT
-  - Claude
-  - GitHub Copilot
-  - Grok
-  - DeepSeek
-  - Mistral
-  - HuggingChat
-  - Open WebUI (localhost)
-- Special purpose chat configurations with presets.
-- Use [your own API key](https://aistudio.google.com/app/apikey) with built-in Gemini models for [FIM completions](https://gemini-coder.netlify.app/docs/features/fim), [file refactoring](https://gemini-coder.netlify.app/docs/features/refactor) and [applying changes](https://gemini-coder.netlify.app/docs/features/apply-changes).
-- Configure your favorite OpenAI API compatible providers.
+Gemini Coder works with many popular chatbots
+
+- **AI Studio**
+- **Gemini**
+- ChatGPT
+- Claude
+- GitHub Copilot
+- Grok
+- DeepSeek
+- Mistral
+- HuggingChat
+- Open WebUI (localhost)
 
 ## Quick start for chat
 
