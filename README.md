@@ -4,7 +4,7 @@
   <h1>Gemini Coder</h1>
   <h2>The free 2M context AI coding assistant</h2>
   <h4>Copy context for chatbots or initialize them hands-free!<br/>
-  Use the free Gemini API for FIM completions, file refactoring and applying changes.</h4>
+  Use the free Gemini API for FIM completions, file refactoring and applying AI-suggested changes.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>

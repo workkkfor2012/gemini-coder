@@ -5,13 +5,9 @@ hide_table_of_contents: true
 
 # Privacy
 
-Gemini Coder is open source, does not collect any data and works 100% locally.
+Gemini Coder does not collect any usage data
 
 ## Core principles
-
-### Open source
-
-The entire codebase is distributed under MIT license.
 
 ### No tracking
 
@@ -23,4 +19,8 @@ When using API-based features (FIM completions, File refactoring or Applying cha
 
 ### Web browser communication
 
-The VS Code extension sets up the WebSocket server locally on your system, which orchestrates bi-directional message flow between all VS Code processes and the web browser integration.
+The VS Code extension manages its own WebSocket server which orchestrates bi-directional message flow between all VS Code processes and the web browser integration.
+
+### Open source
+
+Gemini Coder is open source under the MIT license. This means the entire codebase is publicly available for review and audit. You can verify for yourself that the extension operates as described and adheres to these privacy principles.

@@ -1,0 +1,71 @@
+---
+hide_table_of_contents: true
+sidebar_position: 5
+---
+
+import Tabs from '@theme/Tabs'
+import TabItem from '@theme/TabItem'
+
+# Apply changes
+
+The feature helps you integrate AI-suggested changes to your codebase with a single click. Copy the AI's response (or just a single file block) to your clipboard, then return to VS Code and click the "Apply changes" button in the status bar (or use the corresponding command).
+
+Full responses to be parsed correctly, code blocks should be formatted in one of two variants:
+
+<Tabs groupId="apply-changes-format">
+  <TabItem value="format" label='"name" attribute'>
+
+````markdown
+```typescript name=path/to/your/file.ts
+// Code content for the file goes here...
+```
+````
+
+  </TabItem>
+  <TabItem value="comment" label="First line comment">
+
+````markdown
+```typescript
+// path/to/your/file.ts
+// Code content for the file goes here...
+```
+````
+
+  </TabItem>
+</Tabs>
+
+## How it Works
+
+- If you copied updates for a single file, make sure its original version is currently seen (active editor)
+- If you copied whole response, this is what happens:
+  - text surrounding code blocks is discarded
+  - you'll be prompted to choose between **Intelligent update** (uses AI to merge partial changes) and **Fast replace** (directly replaces file content, assuming clipboard has full files).
+    - **Intelligent update**: For each file block found, the AI uses the existing file content and the provided block content (treated as instructions/diff) to generate the fully updated file. If a file doesn't exist, it will be created (after confirmation).
+    - **Fast replace**: For each file block found, the content is used to either overwrite an existing file or create a new one (after confirmation). This mode is instantaneous but assumes the clipboard contains the complete, final content for each file.
+  - In both modes, you get an option to **Revert** the changes immediately after they are applied.
+
+_Structure of the generated message:_
+
+```
+<file>...</file>
+User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
+[Clipboard-stored instructions]
+```
+
+## Available commands
+
+##### `Gemini Coder: Apply Changes`
+
+Applies changes to the current file using the default model.
+
+##### `Gemini Coder: Apply Changes with...`
+
+Lets you select which model to use for applying changes.
+
+##### `Gemini Coder: Apply Changes to Clipboard`
+
+Instead of applying changes directly with API, copies the apply changes prompt to your clipboard for use in other tools.
+
+##### `Gemini Coder: Change Default Apply Changes Model`
+
+Configure which model should be used as the default for applying changes.
