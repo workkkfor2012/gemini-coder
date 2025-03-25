@@ -27,8 +27,8 @@ The extension lets you granularly **pick and copy context** or **initalize chats
 With Gemini Coder you can do all the coding for free!
 
 - MIT License
-- No paid feautres
-- No usage limits
+- Use your own API key
+- Works with all popular chatbots
 - Lightweight (~1MB unpacked)
 
 ## You own the context
