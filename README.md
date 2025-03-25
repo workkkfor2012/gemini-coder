@@ -3,7 +3,7 @@
   <br/>
   <h1>Gemini Coder</h1>
   <h2>The free 2M context AI coding assistant</h2>
-  <h4>Copy context for chatbots or initialize them hands-free!<br/>
+  <h4>copy files for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for FIM completions, file refactoring and applying AI-suggested changes.</h4>
   <br/>
 
