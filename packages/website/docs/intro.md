@@ -9,7 +9,7 @@ The extension lets you conveniently pick folders and individual files and copy t
 
 Gemini Coder uses the same context for its essential API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
 
-- **Open source:** MIT License
+- **100% free & open source:** MIT License
 - **Versitale:** Not limited to Gemini & AI Studio
 - **Private:** Does not collect telemetry
 - **Local:** Talks with the web browser via WebSockets
