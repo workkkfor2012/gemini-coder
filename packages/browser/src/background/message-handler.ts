@@ -11,11 +11,14 @@ interface ChatQueueItem {
   message: InitializeChatsMessage
   remaining_chats: number
   current_index: number
+  timeout_id?: number
 }
 
 // Global queue of chat initialization requests
 const chat_queue: ChatQueueItem[] = []
 let is_processing = false
+
+const CHAT_INITIALIZATION_TIMEOUT = 5000
 
 /**
  * Handle different types of incoming WebSocket messages
@@ -61,6 +64,12 @@ const process_next_chat = async () => {
 
   const current_queue_item = chat_queue[0]
 
+  // Clear any existing timeout
+  if (current_queue_item.timeout_id) {
+    clearTimeout(current_queue_item.timeout_id)
+    current_queue_item.timeout_id = undefined
+  }
+
   if (
     current_queue_item.current_index >= current_queue_item.message.chats.length
   ) {
@@ -99,6 +108,13 @@ const process_next_chat = async () => {
 
   // Increment the current index for the next chat
   current_queue_item.current_index++
+  
+  // Set a timeout to automatically proceed if no confirmation is received
+  current_queue_item.timeout_id = setTimeout(() => {
+    console.warn(`Chat initialization timeout for ${current_chat.url}. Moving to next chat.`)
+    current_queue_item.remaining_chats--
+    process_next_chat()
+  }, CHAT_INITIALIZATION_TIMEOUT) as unknown as number
 }
 
 /**
@@ -136,6 +152,12 @@ const handle_initialize_chats_message = async (
 const handle_chat_initialized = async () => {
   // Process the next chat in the queue if one exists
   if (chat_queue.length > 0) {
+    // Clear the timeout since we received confirmation
+    if (chat_queue[0].timeout_id) {
+      clearTimeout(chat_queue[0].timeout_id)
+      chat_queue[0].timeout_id = undefined
+    }
+    
     chat_queue[0].remaining_chats--
     await process_next_chat()
   }
@@ -145,7 +167,7 @@ const handle_chat_initialized = async () => {
  * Set up message listeners for extension
  */
 export const setup_message_listeners = () => {
-  browser.runtime.onMessage.addListener((message, _, sendResponse): any => {
+  browser.runtime.onMessage.addListener((message, _, __): any => {
     if (is_message(message)) {
       if (message.action == 'update-saved-websites' && message.websites) {
         send_saved_websites(message.websites)
