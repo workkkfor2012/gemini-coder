@@ -5,19 +5,11 @@ sidebar_position: 2
 
 # Chat
 
-Chat view is a conventient way to generate messages with context and instructions.
-
-With the [browser integration](/docs/installation/web-browser-integration), chats can be initialized hands-free. Gemini Coder Connector supports AI Studio, Gemini, ChatGPT, Claude and many more popular chatbots.
+Chat view is a conventient way to generate coding prompts for chatbots.
 
 :::tip
 
 As longer conversations notably decrease model's performance, instead of submitting follow-up messages in the chatbot consider starting with refined instructions.
-
-:::
-
-:::tip
-
-Gemini Coder gives you tools to [quickly integrate](/docs/features/apply-changes) AI suggested code.
 
 :::
 
@@ -38,17 +30,17 @@ Gemini Coder gives you tools to [quickly integrate](/docs/features/apply-changes
 5. **Apply changes:**
    Just copy the response and use the [Apply Changes](/docs/features/apply-changes) feature to integrate the suggested changes automatically.
 
-## Chatbot compatibility
+## Compatibility
 
-- **[AI Studio](https://aistudio.google.com/app/prompts/new_chat)**
-- **[Gemini](https://gemini.google.com/app)**
-- [ChatGPT](https://chatgpt.com/)
-- [Claude](https://claude.ai/new)
-- [GitHub Copilot](https://github.com/copilot)
-- [Grok](https://grok.com/)
-- [DeepSeek](https://chat.deepseek.com/)
-- [Mistral](https://chat.mistral.ai/chat)
-- [HuggingChat](https://huggingface.co/chat/)
+- **AI Studio**
+- **Gemini**
+- ChatGPT
+- Claude
+- GitHub Copilot
+- Grok
+- DeepSeek
+- Mistral
+- HuggingChat
 - Open WebUI (localhost)
 
 ## Presets

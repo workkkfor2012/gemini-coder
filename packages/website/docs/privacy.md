@@ -15,11 +15,11 @@ Gemini Coder does not collect any usage statistics.
 
 ### API communication
 
-When using API-based features (FIM completions, File refactoring or Applying changes) your messages are sent directly to the model provider.
+All your requests are sent directly to the model provider, e.g. Gemini API.
 
 ### Web browser communication
 
-The VS Code extension manages its own WebSocket server which orchestrates bi-directional message flow between all VS Code processes and the web browser integration.
+A local WebSocket server is used for bi-directional message passing.
 
 ### Open source
 
