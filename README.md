@@ -21,13 +21,9 @@
 
 </div>
 
-<img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
-
-## Introduction
-
 Gemini Coder lets you conveniently copy folders and files for chatbots. With our browser extension you can initalize them with your instruction hands-free!
 
-The extension uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just one-click.
+The extension uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with your codebase with just a single click.
 
 - **100% free & open source:** MIT License
 - **Versitale:** Not limited to Gemini or AI Studio
@@ -36,13 +32,19 @@ The extension uses the same context for built-in API features: **Fill-In-the-Mid
 - **One of a kind**: Lets you use any website for context
 - **Lightweight:** Unpacked build is just ~1MB
 
+<br/>
+
+<img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
+
+<br/>
+
 ## You own the context
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 
 - **You select** which folders and files provide relevant context
 - **You control** what examples of coding conventions to include
-- **You know** how much tokens is used with API calls and web chats at any moment
+- **You know** how much tokens is used in web chats and FIM/refactoring requests
 
 The result? Unmatched in accuracy, speed and cost AI assistance.
 
