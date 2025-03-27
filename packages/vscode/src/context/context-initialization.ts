@@ -10,7 +10,6 @@ import {
 } from './websites-provider'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
-import { select_saved_context } from './saved-contexts'
 import { EventEmitter } from 'events'
 
 export const token_count_emitter = new EventEmitter()
@@ -176,13 +175,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
       await vscode.env.clipboard.writeText(context_text)
       vscode.window.showInformationMessage(`Context copied to clipboard.`)
     }),
-    vscode.commands.registerCommand(
-      'geminiCoder.selectSavedContext',
-      async () => {
-        await select_saved_context(workspace_provider)
-        update_activity_bar_badge_token_count()
-      }
-    ),
     vscode.commands.registerCommand('geminiCoder.collapseFolders', async () => {
       workspace_view.dispose()
       await new Promise((resolve) => setTimeout(resolve, 0))
