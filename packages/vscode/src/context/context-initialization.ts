@@ -3,7 +3,11 @@ import { WorkspaceProvider } from './workspace-provider'
 import { FileItem } from './workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
 import { OpenEditorsProvider } from './open-editors-provider'
-import { WebsitesProvider, WebsiteItem } from './websites-provider'
+import {
+  WebsitesProvider,
+  WebsiteItem,
+  EmptyMessageItem
+} from './websites-provider'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
 import { select_saved_context } from './saved-contexts'
@@ -23,7 +27,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   let websites_provider: WebsitesProvider | undefined
   let workspace_view: vscode.TreeView<FileItem>
   let open_editors_view: vscode.TreeView<FileItem>
-  let websites_view: vscode.TreeView<WebsiteItem>
+  let websites_view: vscode.TreeView<WebsiteItem | EmptyMessageItem>
 
   if (!workspace_folders) {
     vscode.window.showInformationMessage(
