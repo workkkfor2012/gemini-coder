@@ -32,6 +32,11 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
   // Function to check if all files in a directory are selected
   function are_all_files_selected(dir_path: string): boolean {
     try {
+      // First check if the directory itself is already selected
+      if (selected_paths_set.has(dir_path)) {
+        return true;
+      }
+      
       // Check if directory exists
       const abs_dir_path = path.join(workspace_root, dir_path)
       if (
@@ -131,18 +136,6 @@ export function save_context_command(
         return
       }
 
-      const context_name = await vscode.window.showInputBox({
-        prompt: 'Enter a name for this context',
-        placeHolder: 'e.g., Backend API Context'
-      })
-
-      if (!context_name) {
-        return // User cancelled
-      }
-
-      // Use the new condense_paths function to generate a more compact list
-      const condensed_paths = condense_paths(checked_files, workspace_root)
-
       const config_dir = path.join(workspace_root, '.vscode')
       const config_file_path = path.join(config_dir, 'gemini-coder.json')
       let config: ConfigStructure = { savedContexts: [] }
@@ -190,6 +183,65 @@ export function save_context_command(
         return
       }
 
+      // Get existing context names
+      const existing_context_names = config.savedContexts!.map(
+        (ctx) => ctx.name
+      )
+
+      // Create quick pick items
+      const quick_pick_items = [
+        {
+          label: '$(add) Create new...'
+        },
+        ...existing_context_names.map((name) => ({
+          label: name
+        }))
+      ]
+
+      let context_name: string | undefined
+
+      // Show quick pick with existing contexts and option to create new
+      const selected_item = await vscode.window.showQuickPick(
+        quick_pick_items,
+        {
+          placeHolder: 'Select existing context to overwrite or create new one'
+        }
+      )
+
+      if (!selected_item) {
+        return // User cancelled
+      }
+
+      if (selected_item.label == '$(add) Create new...') {
+        // User wants to create a new context
+        context_name = await vscode.window.showInputBox({
+          prompt: 'Enter a name for this context',
+          placeHolder: 'e.g., Backend API Context'
+        })
+
+        if (!context_name) {
+          return // User cancelled
+        }
+
+        // Check if the name conflicts with existing one
+        if (existing_context_names.includes(context_name)) {
+          const overwrite = await vscode.window.showWarningMessage(
+            `A context named "${context_name}" already exists. Overwrite?`,
+            { modal: true },
+            'Overwrite'
+          )
+          if (overwrite !== 'Overwrite') {
+            return // User chose not to overwrite
+          }
+        }
+      } else {
+        // User selected an existing context to overwrite
+        context_name = selected_item.label
+      }
+
+      // Use the new condense_paths function to generate a more compact list
+      const condensed_paths = condense_paths(checked_files, workspace_root)
+
       const new_context: SavedContext = {
         name: context_name,
         paths: condensed_paths
@@ -199,15 +251,7 @@ export function save_context_command(
         (ctx) => ctx.name == context_name
       )
 
-      if (existing_index !== -1) {
-        const overwrite = await vscode.window.showWarningMessage(
-          `A context named "${context_name}" already exists. Overwrite?`,
-          { modal: true },
-          'Overwrite'
-        )
-        if (overwrite != 'Overwrite') {
-          return // User chose not to overwrite
-        }
+      if (existing_index != -1) {
         // Replace existing context
         config.savedContexts![existing_index] = new_context
       } else {
