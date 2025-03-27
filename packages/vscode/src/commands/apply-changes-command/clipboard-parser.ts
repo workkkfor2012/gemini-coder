@@ -9,7 +9,7 @@ export interface ClipboardFile {
  */
 const is_likely_filename = (str: string): boolean => {
   // Check if it ends with a file extension (e.g., .js, .py, .ts)
-  // File extensions are typically 1-4 characters after the dot
+  // File extensions are typically 1-10 characters after the dot
   return /\.\w{1,10}$/.test(str.trim())
 }
 
@@ -24,9 +24,12 @@ const extract_filename_from_comment = (line: string): string | null => {
     .replace(/\s*\*\/$/, '') // Also remove trailing */ if present
     .trim()
 
+  // Check for "File:" prefix and remove it if present
+  const file_stripped = stripped.replace(/^(?:[Ff]ile|[Ff]ilename|[Pp]ath):\s*/, '').trim()
+
   // If the stripped result looks like a filename with extension, return it
-  if (is_likely_filename(stripped)) {
-    return stripped
+  if (is_likely_filename(file_stripped)) {
+    return file_stripped
   }
 
   return null
@@ -108,7 +111,7 @@ export const parse_clipboard_multiple_files = (
       } else {
         // Check if we're on the first content line and it might contain a filename in a comment
         if (is_first_content_line && !current_file_name) {
-          // Try to extract filename from comments like "// filename.js"
+          // Try to extract filename from comments like "// filename.js" or "// File: path/to/filename.js"
           if (
             line.trim().startsWith('//') ||
             line.trim().startsWith('#') ||
