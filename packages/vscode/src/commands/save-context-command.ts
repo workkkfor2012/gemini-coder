@@ -34,9 +34,9 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
     try {
       // First check if the directory itself is already selected
       if (selected_paths_set.has(dir_path)) {
-        return true;
+        return true
       }
-      
+
       // Check if directory exists
       const abs_dir_path = path.join(workspace_root, dir_path)
       if (
@@ -84,7 +84,7 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
 
   for (const dir of directories) {
     // Skip "." as it represents the workspace root itself
-    if (dir === '.') continue
+    if (dir == '.') continue
 
     if (are_all_files_selected(dir)) {
       // Remove all individual files in this directory from the result
@@ -105,6 +105,14 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
   }
 
   return Array.from(condensed_paths)
+}
+
+// Function to check if two path arrays have the same content regardless of order
+function arePathsEqual(paths1: string[], paths2: string[]): boolean {
+  if (paths1.length != paths2.length) return false
+
+  const set1 = new Set(paths1)
+  return paths2.every((path) => set1.has(path))
 }
 
 export function save_context_command(
@@ -183,6 +191,21 @@ export function save_context_command(
         return
       }
 
+      // Use the condense_paths function to generate a more compact list
+      const condensed_paths = condense_paths(checked_files, workspace_root)
+
+      // Check if there's already a context with identical paths
+      if (config.savedContexts && config.savedContexts.length > 0) {
+        for (const existingContext of config.savedContexts) {
+          if (arePathsEqual(existingContext.paths, condensed_paths)) {
+            vscode.window.showInformationMessage(
+              `A context with identical paths already exists: "${existingContext.name}"`
+            )
+            return // Return early
+          }
+        }
+      }
+
       // Get existing context names
       const existing_context_names = config.savedContexts!.map(
         (ctx) => ctx.name
@@ -238,9 +261,6 @@ export function save_context_command(
         // User selected an existing context to overwrite
         context_name = selected_item.label
       }
-
-      // Use the new condense_paths function to generate a more compact list
-      const condensed_paths = condense_paths(checked_files, workspace_root)
 
       const new_context: SavedContext = {
         name: context_name,
