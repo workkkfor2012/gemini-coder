@@ -111,6 +111,12 @@
         "icon": "$(bookmark)"
       },
       {
+        "command": "geminiCoder.saveContext",
+        "title": "Save Current Context",
+        "category": "Gemini Coder",
+        "icon": "$(save)"
+      },
+      {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
         "category": "Gemini Coder",
@@ -287,19 +293,24 @@
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.checkAll",
+          "command": "geminiCoder.saveContext",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@3"
         },
         {
-          "command": "geminiCoder.clearChecks",
+          "command": "geminiCoder.checkAll",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@4"
         },
         {
-          "command": "geminiCoder.collapseFolders",
+          "command": "geminiCoder.clearChecks",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@5"
+        },
+        {
+          "command": "geminiCoder.collapseFolders",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@6"
         },
         {
           "command": "geminiCoder.checkAllOpenEditors",

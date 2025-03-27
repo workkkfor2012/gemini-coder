@@ -37,6 +37,7 @@ import {
   fim_in_chat_command,
   fim_in_chat_with_command
 } from './commands/fim-in-chat-command'
+import { save_context_command } from './commands/save-context-command'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -184,6 +185,7 @@ export function activate(context: vscode.ExtensionContext) {
     new_folder_command(),
     rename_command(),
     delete_command(),
+    save_context_command(workspace_provider),
     {
       dispose: () => {
         if (websocket_server_instance) {

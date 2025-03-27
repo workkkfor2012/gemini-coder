@@ -84,34 +84,33 @@ Gemini Coder works with many popular chatbots:
 
 #### FIM Completions
 
-- `Gemini Coder: FIM Completion` - Get fill-in-the-middle completion using default model
-- `Gemini Coder: FIM Completion with...` - Get fill-in-the-middle completion with model selection
-- `Gemini Coder: FIM Completion to Clipboard` - Copy FIM completion content to clipboard
-- `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions
+- `Gemini Coder: FIM Completion` - Get fill-in-the-middle completion using default model.
+- `Gemini Coder: FIM Completion with...` - Get fill-in-the-middle completion with model selection.
+- `Gemini Coder: FIM Completion to Clipboard` - Copy FIM completion content to clipboard.
+- `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions.
 
 #### Refactoring
 
-- `Gemini Coder: Refactor this File` - Apply changes based on refactoring instruction
-- `Gemini Coder: Refactor this File with...` - Refactor with model selection
-- `Gemini Coder: Refactor to Clipboard` - Copy refactoring content to clipboard
-- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring
+- `Gemini Coder: Refactor this File` - Apply changes based on refactoring instruction.
+- `Gemini Coder: Refactor this File with...` - Refactor with model selection.
+- `Gemini Coder: Refactor to Clipboard` - Copy refactoring content to clipboard.
+- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring.
 
 #### Applying Changes
 
-- `Gemini Coder: Apply Changes` - Apply changes suggested by AI using clipboard content
-- `Gemini Coder: Apply Changes with...` - Apply changes with model selection
-- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard
-- `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes
+- `Gemini Coder: Apply Changes` - Apply changes suggested by AI using clipboard content.
+- `Gemini Coder: Apply Changes with...` - Apply changes with model selection.
+- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard.
+- `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes.
 
 #### Chat
 
-- `Gemini Coder: Web Chat` - Enter instructions and open web chat hands-free
-- `Gemini Coder: Chat to Clipboard` - Enter instructions and copy to clipboard
+- `Gemini Coder: Web Chat` - Enter instructions and open web chat hands-free.
+- `Gemini Coder: Chat to Clipboard` - Enter instructions and copy to clipboard.
 
 #### Context
 
-- `Gemini Coder: Copy Context` - Copy selected files as XML context
-- `Gemini Coder: Select Saved Context` - Restore checbox states in the workspace tree
+- `Gemini Coder: Copy Context` - Copy selected files as XML context.
 
 ## Set up custom providers
 
