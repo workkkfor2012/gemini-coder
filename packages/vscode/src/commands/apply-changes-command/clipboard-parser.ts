@@ -1,43 +1,22 @@
-// Interface for clipboard file data
 export interface ClipboardFile {
   file_path: string
   content: string
 }
 
-/**
- * Check if string looks like a filename with extension
- */
-const is_likely_filename = (str: string): boolean => {
-  // Check if it ends with a file extension (e.g., .js, .py, .ts)
-  // File extensions are typically 1-10 characters after the dot
-  return /\.\w{1,10}$/.test(str.trim())
-}
-
-/**
- * Try to extract filename from a comment line
- */
 const extract_filename_from_comment = (line: string): string | null => {
-  // Strip common comment prefixes: //, #, --, /*
   const stripped = line
     .trim()
     .replace(/^(\/\/|#|--|\/\*|\*)\s*/, '')
-    .replace(/\s*\*\/$/, '') // Also remove trailing */ if present
     .trim()
 
-  // Check for "File:" prefix and remove it if present
-  const file_stripped = stripped.replace(/^(?:[Ff]ile|[Ff]ilename|[Pp]ath):\s*/, '').trim()
-
-  // If the stripped result looks like a filename with extension, return it
-  if (is_likely_filename(file_stripped)) {
-    return file_stripped
+  const path_match = stripped.match(/(?:[\w\-\.\/]+\/)*[\w\-\.]+\.\w{1,10}/)
+  if (path_match && path_match[0]) {
+    return path_match[0]
   }
 
   return null
 }
 
-/**
- * Parse clipboard text to check for multiple files format
- */
 export const parse_clipboard_multiple_files = (
   clipboard_text: string
 ): ClipboardFile[] => {
@@ -111,13 +90,8 @@ export const parse_clipboard_multiple_files = (
       } else {
         // Check if we're on the first content line and it might contain a filename in a comment
         if (is_first_content_line && !current_file_name) {
-          // Try to extract filename from comments like "// filename.js" or "// File: path/to/filename.js"
-          if (
-            line.trim().startsWith('//') ||
-            line.trim().startsWith('#') ||
-            line.trim().startsWith('/*') ||
-            line.trim().startsWith('*')
-          ) {
+          // Try to extract filename from comments
+          if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
             const extracted_filename = extract_filename_from_comment(line)
             if (extracted_filename) {
               current_file_name = extracted_filename
@@ -155,9 +129,6 @@ export const parse_clipboard_multiple_files = (
   return files
 }
 
-/**
- * Check if clipboard contains multiple files
- */
 export const is_multiple_files_clipboard = (clipboardText: string): boolean => {
   // Check for standard format with name= attribute
   const file_block_regex = /```(\w+)?\s*name=(?:"[^"]+"|[^\s"]+)/g
