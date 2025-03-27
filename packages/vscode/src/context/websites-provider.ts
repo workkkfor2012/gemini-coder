@@ -53,14 +53,30 @@ export class WebsiteItem extends vscode.TreeItem {
   }
 }
 
+// Message item for empty state
+export class EmptyMessageItem extends vscode.TreeItem {
+  constructor() {
+    super(
+      'No websites available for context',
+      vscode.TreeItemCollapsibleState.None
+    )
+    this.description = 'Use the browser extension to add websites'
+    this.tooltip = 'Use the browser extension to add websites'
+    this.iconPath = new vscode.ThemeIcon('info')
+    this.contextValue = 'empty'
+  }
+}
+
 export class WebsitesProvider
-  implements vscode.TreeDataProvider<WebsiteItem>, vscode.Disposable
+  implements
+    vscode.TreeDataProvider<WebsiteItem | EmptyMessageItem>,
+    vscode.Disposable
 {
   private _websites: Website[] = []
   private _checked_websites: Map<string, vscode.TreeItemCheckboxState> =
     new Map()
   private _onDidChangeTreeData = new vscode.EventEmitter<
-    WebsiteItem | undefined | null | void
+    WebsiteItem | EmptyMessageItem | undefined | null | void
   >()
   readonly onDidChangeTreeData = this._onDidChangeTreeData.event
 
@@ -87,7 +103,11 @@ export class WebsitesProvider
   }
 
   // TreeDataProvider implementation
-  getTreeItem(element: WebsiteItem): vscode.TreeItem {
+  getTreeItem(element: WebsiteItem | EmptyMessageItem): vscode.TreeItem {
+    if (element instanceof EmptyMessageItem) {
+      return element
+    }
+
     // Get the checkbox state or default to unchecked
     const checkbox_state =
       this._checked_websites.get(element.url) ??
@@ -96,7 +116,11 @@ export class WebsitesProvider
     return element
   }
 
-  getChildren(): Thenable<WebsiteItem[]> {
+  getChildren(): Thenable<(WebsiteItem | EmptyMessageItem)[]> {
+    if (this._websites.length == 0) {
+      return Promise.resolve([new EmptyMessageItem()])
+    }
+
     return Promise.resolve(
       this._websites.map(
         (website) =>
