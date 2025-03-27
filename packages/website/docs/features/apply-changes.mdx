@@ -10,6 +10,14 @@ import TabItem from '@theme/TabItem'
 
 The feature helps you integrate AI-suggested changes to your codebase with a single click. Copy the full response (or just a single file block) to your clipboard, then return to VS Code and click the "Apply changes" button in the status bar (or use the corresponding command).
 
+_Structure of the generated message:_
+
+```
+<file>...</file>
+User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
+[CODE BLOCK CONTENT]
+```
+
 Full responses targeting multiple files to be parsed correctly, code blocks must contain filenames in expected places. "name" attribute format is requested by the default system instructions the extension automatically places when using AI Studio. The other format is commonly used by some other supported chatbots.
 
 <Tabs groupId="apply-changes-format">
@@ -17,7 +25,7 @@ Full responses targeting multiple files to be parsed correctly, code blocks must
 
 ````markdown
 ```typescript name=path/to/your/file.ts
-// Code content for the file goes here...
+Code content for the file goes here...
 ```
 ````
 
@@ -27,27 +35,20 @@ Full responses targeting multiple files to be parsed correctly, code blocks must
 ````markdown
 ```typescript
 // path/to/your/file.ts
-// Code content for the file goes here...
+Code content for the file goes here...
 ```
 ````
 
 ````markdown
 ```typescript
 // Add this to path/to/your/file.ts
-// Code content for the file goes here...
+Code content for the file goes here...
 ```
 ````
 
   </TabItem>
 </Tabs>
 
-_Structure of the generated message:_
-
-```
-<file>...</file>
-User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
-[CODE BLOCK CONTENT]
-```
 
 ## How it Works
 
