@@ -2,18 +2,24 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { WorkspaceProvider } from '../context/workspace-provider'
+import { should_ignore_file } from '../context/extension-utils'
+import { ignored_extensions } from '../context/ignored-extensions'
 
-interface SavedContext {
+type SavedContext = {
   name: string
   paths: string[]
 }
 
-interface ConfigStructure {
+type ConfigStructure = {
   savedContexts?: SavedContext[]
 }
 
 // Improved function to properly condense paths
-function condense_paths(paths: string[], workspace_root: string): string[] {
+function condense_paths(
+  paths: string[],
+  workspace_root: string,
+  workspace_provider: WorkspaceProvider
+): string[] {
   // Convert absolute paths to relative paths and create a Set for fast lookup
   const relative_paths = paths.map((p) => path.relative(workspace_root, p))
   const selected_paths_set = new Set(relative_paths)
@@ -29,7 +35,7 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
     dir_to_children.get(parent_dir)!.push(rel_path)
   }
 
-  // Function to check if all files in a directory are selected
+  // Function to check if all files in a directory are selected (excluding ignored files)
   function are_all_files_selected(dir_path: string): boolean {
     try {
       // First check if the directory itself is already selected
@@ -52,6 +58,23 @@ function condense_paths(paths: string[], workspace_root: string): string[] {
       for (const entry of all_entries) {
         const entry_path = path.join(dir_path, entry)
         const abs_entry_path = path.join(workspace_root, entry_path)
+
+        // Skip files/directories that are excluded by gitignore
+        const relative_entry_path = path.relative(
+          workspace_root,
+          abs_entry_path
+        )
+        if (workspace_provider.is_excluded(relative_entry_path)) {
+          continue
+        }
+
+        // Skip files with ignored extensions
+        if (
+          !fs.lstatSync(abs_entry_path).isDirectory() &&
+          should_ignore_file(entry, new Set(ignored_extensions))
+        ) {
+          continue
+        }
 
         if (fs.lstatSync(abs_entry_path).isDirectory()) {
           // If it's a directory, check if all its files are selected
@@ -192,7 +215,11 @@ export function save_context_command(
       }
 
       // Use the condense_paths function to generate a more compact list
-      const condensed_paths = condense_paths(checked_files, workspace_root)
+      const condensed_paths = condense_paths(
+        checked_files,
+        workspace_root,
+        workspace_provider
+      )
 
       // Check if there's already a context with identical paths
       if (config.savedContexts && config.savedContexts.length > 0) {
