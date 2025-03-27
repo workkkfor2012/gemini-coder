@@ -428,7 +428,7 @@ export class WorkspaceProvider
         .showInformationMessage(
           `${checked_open_files.length} open file${
             checked_open_files.length == 1 ? '' : 's'
-          } remain checked. Clear checks in open editors to clear those as well.`,
+          } remain checked. Do you want to clear checks in open editors as well?`,
           'Clear open editors'
         )
         .then((selection) => {
