@@ -43,7 +43,7 @@ Supported configuration options:
 
 Range: `0-1`
 
-#### ��� `options`
+#### ❌ `options`
 
 </details>
 

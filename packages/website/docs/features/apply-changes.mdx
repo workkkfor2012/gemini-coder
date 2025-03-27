@@ -8,9 +8,9 @@ import TabItem from '@theme/TabItem'
 
 # Apply changes
 
-The feature helps you integrate AI-suggested changes to your codebase with a single click. Copy the AI's response (or just a single file block) to your clipboard, then return to VS Code and click the "Apply changes" button in the status bar (or use the corresponding command).
+The feature helps you integrate AI-suggested changes to your codebase with a single click. Copy the full response (or just a single file block) to your clipboard, then return to VS Code and click the "Apply changes" button in the status bar (or use the corresponding command).
 
-Full responses to be parsed correctly, code blocks should be formatted in one of two variants:
+Full responses targeting multiple files to be parsed correctly, code blocks must contain filenames in expected places. "name" attribute format is requested by the default system instructions the extension automatically places when using AI Studio. The other format is commonly used by some other supported chatbots.
 
 <Tabs groupId="apply-changes-format">
   <TabItem value="format" label='"name" attribute'>
@@ -31,26 +31,49 @@ Full responses to be parsed correctly, code blocks should be formatted in one of
 ```
 ````
 
+````markdown
+```typescript
+// Add this to path/to/your/file.ts
+// Code content for the file goes here...
+```
+````
+
   </TabItem>
 </Tabs>
-
-## How it Works
-
-- If you copied updates for a single file, make sure its original version is currently seen (active editor)
-- If you copied whole response, this is what happens:
-  - text surrounding code blocks is discarded
-  - you'll be prompted to choose between **Intelligent update** (uses AI to merge partial changes) and **Fast replace** (directly replaces file content, assuming clipboard has full files).
-    - **Intelligent update**: For each file block found, the AI uses the existing file content and the provided block content (treated as instructions/diff) to generate the fully updated file. If a file doesn't exist, it will be created (after confirmation).
-    - **Fast replace**: For each file block found, the content is used to either overwrite an existing file or create a new one (after confirmation). This mode is instantaneous but assumes the clipboard contains the complete, final content for each file.
-  - In both modes, you get an option to **Revert** the changes immediately after they are applied.
 
 _Structure of the generated message:_
 
 ```
 <file>...</file>
 User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.
-[Clipboard-stored instructions]
+[Code block content]
 ```
+
+## How it Works
+
+You copied...
+
+<Tabs groupId="apply-changes-format">
+  <TabItem value="format" label='whole response'>
+
+     - Text surrounding code blocks are discarded.
+     - Each code block containing file name is extracted.
+     - You'll be prompted to choose between **Intelligent update** and **Fast replace**
+       - **Intelligent update**: For each file block found, the extension sends separate messages to the default model set for applying changes with the original file and the provided block content (treated as instructions/diff) to generate the fully updated file. If a file doesn't exist, it will be created.
+       - **Fast replace**: For each file block found, the content is used to either overwrite an existing file or create a new one. This mode is instantaneous but assumes the clipboard contains the complete, final content for each file.
+     - In both modes, you get an option to **Revert** the changes immediately after they are applied.
+
+  </TabItem>
+  <TabItem value="comment" label="single code block">
+   - Uses the content from your active file in VS Code.
+   - The code block from the clipboard is treated as instructions for changes.
+   - The extension sends a message to the AI model with your file content and the clipboard instructions.
+   - Your active file is replaced with the AI-generated update.
+   - You get an option to **Revert** the changes immediately after they are applied.
+
+  </TabItem>
+
+</Tabs>
 
 ## Available commands
 

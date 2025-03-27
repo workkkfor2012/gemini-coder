@@ -38,7 +38,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 Gemini Coder works with many popular chatbots:
 
-- **AI Studio**
+- **AI Studio** - fully supported (model, temperature, system instructions)
 - **Gemini**
 - ChatGPT
 - Claude
