@@ -108,7 +108,7 @@
         "command": "geminiCoder.selectSavedContext",
         "title": "Select Saved Context",
         "category": "Gemini Coder",
-        "icon": "$(bookmark)"
+        "icon": "$(checklist)"
       },
       {
         "command": "geminiCoder.saveContext",
@@ -281,6 +281,68 @@
       }
     ],
     "menus": {
+      "commandPalette": [
+        {
+          "command": "geminiCoder.clearChecks",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.clearChecksOpenEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.checkAll",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.checkAllOpenEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.collapseFolders",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.closeEditor",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.closeAllEditors",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.saveAll",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.newFile",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.newFolder",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.rename",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.delete",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.previewWebsite",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.selectSavedContext",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.saveContext",
+          "when": "false"
+        }
+      ],
       "view/title": [
         {
           "command": "geminiCoder.copyContext",
