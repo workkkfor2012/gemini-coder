@@ -112,9 +112,9 @@ Gemini Coder works with many popular chatbots:
 
 - `Gemini Coder: Copy Context` - Copy selected files as XML context.
 
-## Set up custom providers
+## Set up custom model providers
 
-The extension supports OpenAI API compatible model providers for API actions.
+The extension supports OpenAI-API compatible model providers for API features.
 
 ```json
   "geminiCoder.providers": [
@@ -136,31 +136,6 @@ The extension supports OpenAI API compatible model providers for API actions.
     },
   ],
 ```
-
-## Saved contexts
-
-Quickly restore checkbox states. You can configure them creating `.vscode/gemini-coder.json` in the workspace root and following the example below.
-
-```json
-{
-  "savedContexts": [
-    {
-      "name": "Backend only",
-      "paths": ["packages/server/src"]
-    },
-    {
-      "name": "Frontend only",
-      "paths": ["packages/client/src"]
-    }
-  ]
-}
-```
-
-To use saved contexts:
-
-1. In the workspace view actions toolbar find discette icon.
-2. Select a context.
-3. Paths listed in the selected context are checked.
 
 ## Contributing
 
