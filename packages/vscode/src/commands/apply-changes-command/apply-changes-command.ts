@@ -593,7 +593,7 @@ export function apply_changes_command(params: {
 
     if (!provider.bearerToken) {
       vscode.window.showErrorMessage(
-        'Bearer token is missing. Please add it in the settings.'
+        'API key is missing. Please add it in the settings.'
       )
       return
     }
