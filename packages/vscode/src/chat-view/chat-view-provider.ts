@@ -421,6 +421,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 message.preset_names
               )
             }
+            vscode.window.showInformationMessage(
+              message.preset_names.length > 1
+                ? 'Chats have been initialized in your default browser'
+                : 'Chat has been initialized in your default browser'
+            )
           } else if (message.command == 'COPY_PROMPT') {
             const files_collector = new FilesCollector(
               this._workspace_provider,
