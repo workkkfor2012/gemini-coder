@@ -526,15 +526,7 @@ export function apply_changes_command(params: {
       return // Provider selection failed or was cancelled
     }
 
-    if (!provider.bearerToken) {
-      vscode.window.showErrorMessage(
-        'API key is missing. Please add it in the settings.'
-      )
-      return
-    }
-
-    const system_instructions = provider.systemInstructions
-
+    // Handle multiple files case - check if we should use Fast Replace first
     if (is_multiple_files) {
       // Get the last used apply changes mode from global state
       const last_used_mode = params.context.globalState.get<string>(
@@ -577,7 +569,7 @@ export function apply_changes_command(params: {
         selected_mode.label
       )
 
-      // Handle Fast replace mode
+      // Handle Fast replace mode - we don't need the bearer token for this
       if (selected_mode.label == 'Fast replace') {
         const files = parse_clipboard_multiple_files(clipboard_text)
         const result = await replace_files_directly(files)
@@ -599,8 +591,18 @@ export function apply_changes_command(params: {
       }
     }
 
+    // At this point we need the bearer token for AI processing
+    if (!provider.bearerToken) {
+      vscode.window.showErrorMessage(
+        'API key is missing. Please add it in the settings.'
+      )
+      return
+    }
+
+    const system_instructions = provider.systemInstructions
+
     if (is_multiple_files) {
-      // Handle multiple files
+      // Handle multiple files with AI processing
       const files = parse_clipboard_multiple_files(clipboard_text)
 
       if (files.length == 0) {
