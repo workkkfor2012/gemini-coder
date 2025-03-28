@@ -9,7 +9,7 @@ import {
 } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
-import { WebsitesProvider } from '../context/websites-provider'
+import { WebsitesProvider } from '../context/providers/websites-provider'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext

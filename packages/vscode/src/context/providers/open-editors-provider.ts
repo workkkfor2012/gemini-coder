@@ -2,9 +2,9 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { FileItem } from './workspace-provider'
-import { SharedFileState } from './shared-file-state'
-import { ignored_extensions } from './ignored-extensions'
-import { should_ignore_file } from './extension-utils'
+import { SharedFileState } from '../shared-file-state'
+import { ignored_extensions } from '../constants/ignored-extensions'
+import { should_ignore_file } from '../utils/extension-utils'
 
 export class OpenEditorsProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable

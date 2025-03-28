@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import { WorkspaceProvider } from '../context/workspace-provider'
-import { should_ignore_file } from '../context/extension-utils'
-import { ignored_extensions } from '../context/ignored-extensions'
+import { WorkspaceProvider } from '../context/providers/workspace-provider'
+import { should_ignore_file } from '../context/utils/extension-utils'
+import { ignored_extensions } from '../context/constants/ignored-extensions'
 
 type SavedContext = {
   name: string

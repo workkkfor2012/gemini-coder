@@ -1,13 +1,13 @@
 import * as vscode from 'vscode'
-import { WorkspaceProvider } from './workspace-provider'
-import { FileItem } from './workspace-provider'
+import { WorkspaceProvider } from './providers/workspace-provider'
+import { FileItem } from './providers/workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
-import { OpenEditorsProvider } from './open-editors-provider'
+import { OpenEditorsProvider } from './providers/open-editors-provider'
 import {
   WebsitesProvider,
   WebsiteItem,
   EmptyMessageItem
-} from './websites-provider'
+} from './providers/websites-provider'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
 import { EventEmitter } from 'events'

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
-import { WorkspaceProvider } from '../context/workspace-provider'
+import { WorkspaceProvider } from '../context/providers/workspace-provider'
 
 type SavedContext = {
   name: string

@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { OpenEditorsProvider } from '../context/open-editors-provider'
+import { OpenEditorsProvider } from '../context/providers/open-editors-provider'
 
 export function open_file_from_workspace_command(
   open_editors_provider?: OpenEditorsProvider

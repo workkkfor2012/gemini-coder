@@ -4,12 +4,51 @@ import { ModelManager } from '../services/model-manager'
 export class ApiViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
   private _model_manager: ModelManager
+  private _config_listener: vscode.Disposable | undefined
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
     private readonly context: vscode.ExtensionContext
   ) {
     this._model_manager = new ModelManager(context)
+
+    // Add configuration change listener
+    this._config_listener = vscode.workspace.onDidChangeConfiguration(
+      (event) => {
+        if (
+          (event.affectsConfiguration('geminiCoder.providers') ||
+            event.affectsConfiguration('geminiCoder.apiKey')) &&
+          this._webview_view
+        ) {
+          this._send_updated_configuration()
+        }
+      }
+    )
+
+    // Add the listener to context subscriptions for proper disposal
+    this.context.subscriptions.push(this._config_listener)
+  }
+
+  private async _send_updated_configuration() {
+    if (!this._webview_view) return
+
+    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const providers = config.get('providers', [])
+    const api_key = config.get('apiKey', '')
+    const default_fim_model = this._model_manager.get_default_fim_model()
+    const default_refactoring_model =
+      this._model_manager.get_default_refactoring_model()
+    const default_apply_changes_model =
+      this._model_manager.get_default_apply_changes_model()
+
+    this._webview_view.webview.postMessage({
+      command: 'configuration',
+      providers,
+      api_key,
+      default_fim_model,
+      default_refactoring_model,
+      default_apply_changes_model
+    })
   }
 
   public resolveWebviewView(

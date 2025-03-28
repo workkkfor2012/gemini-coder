@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { WorkspaceProvider, FileItem } from './workspace-provider'
-import { OpenEditorsProvider } from './open-editors-provider'
+import { WorkspaceProvider, FileItem } from './providers/workspace-provider'
+import { OpenEditorsProvider } from './providers/open-editors-provider'
 
 export class SharedFileState {
   private static instance: SharedFileState

@@ -11,9 +11,9 @@ import {
   SelectionTextMessage,
   ActiveFileInfoMessage
 } from './types/messages'
-import { WebsitesProvider } from '../context/websites-provider'
-import { OpenEditorsProvider } from '@/context/open-editors-provider'
-import { WorkspaceProvider } from '@/context/workspace-provider'
+import { WebsitesProvider } from '../context/providers/websites-provider'
+import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
+import { WorkspaceProvider } from '@/context/providers/workspace-provider'
 import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
 import { token_count_emitter } from '@/context/context-initialization'
 

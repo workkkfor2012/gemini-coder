@@ -1,9 +1,9 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import * as vscode from 'vscode'
-import { WorkspaceProvider } from '../context/workspace-provider'
-import { OpenEditorsProvider } from '../context/open-editors-provider'
-import { WebsitesProvider } from '../context/websites-provider'
+import { WorkspaceProvider } from '../context/providers/workspace-provider'
+import { OpenEditorsProvider } from '../context/providers/open-editors-provider'
+import { WebsitesProvider } from '../context/providers/websites-provider'
 
 export class FilesCollector {
   private file_tree_provider: WorkspaceProvider
