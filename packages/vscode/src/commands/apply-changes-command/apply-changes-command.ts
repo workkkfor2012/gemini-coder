@@ -410,10 +410,19 @@ async function revert_files(
               if (fs.existsSync(file_path)) {
                 // Close any editors with the file open
                 const uri = vscode.Uri.file(file_path)
-                await vscode.commands.executeCommand(
-                  'workbench.action.closeActiveEditor',
-                  uri
+                // Try to close the editor if it's open
+                const text_editors = vscode.window.visibleTextEditors.filter(
+                  (editor) => editor.document.uri.toString() == uri.toString()
                 )
+                for (const editor of text_editors) {
+                  await vscode.window.showTextDocument(editor.document, {
+                    preview: false,
+                    preserveFocus: false
+                  })
+                  await vscode.commands.executeCommand(
+                    'workbench.action.closeActiveEditor'
+                  )
+                }
 
                 // Delete the file
                 fs.unlinkSync(file_path)
@@ -532,7 +541,13 @@ export function apply_changes_command(params: {
 
     // Handle multiple files case - check if we should use Fast Replace first
     if (is_multiple_files) {
-      if (default_apply_changes_mode == 'Always ask') {
+      // Determine if we need to ask the user for the mode
+      const should_ask_for_mode =
+        params.command == 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
+        (params.command == 'geminiCoder.applyChanges' && // Ask for 'applyChanges' only if setting is 'Always ask'
+          default_apply_changes_mode == 'Always ask')
+
+      if (should_ask_for_mode) {
         // Create mode options
         const mode_options = [
           {
@@ -554,6 +569,7 @@ export function apply_changes_command(params: {
         }
         selected_mode_label = selected_mode.label
       } else {
+        // Use the default mode if not asking
         selected_mode_label = default_apply_changes_mode
       }
 
@@ -966,14 +982,15 @@ export function apply_changes_command(params: {
                   `Operation failed and was aborted: ${error.message}`
                 )
               }
+              return false // Indicate failure
             }
           }
         )
         .then((result) => {
-          // Only show success message after the progress is complete
-          if (result !== undefined) {
-            // If result is defined, the operation completed
-            const response = vscode.window
+          // Only show success message after the progress is complete and successful
+          if (result === true) {
+            // If result is true, the operation completed successfully
+            vscode.window
               .showInformationMessage(
                 `Successfully updated ${total_files} ${
                   total_files > 1 ? 'files' : 'file'
@@ -981,7 +998,7 @@ export function apply_changes_command(params: {
                 'Revert'
               )
               .then((response) => {
-                if (response === 'Revert') {
+                if (response == 'Revert') {
                   revert_files(original_states)
                 }
               })
