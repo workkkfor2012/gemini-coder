@@ -492,6 +492,8 @@ export function apply_changes_command(params: {
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
     const verbose = config.get<boolean>('geminiCoder.verbose')
     const max_concurrency = 10
+    const default_apply_changes_mode =
+      config.get<string>('geminiCoder.defaultApplyChangesMode') || 'Always ask'
 
     // Get default model from global state instead of config
     const default_model_name = model_manager.get_default_apply_changes_model()
@@ -526,51 +528,37 @@ export function apply_changes_command(params: {
       return // Provider selection failed or was cancelled
     }
 
+    let selected_mode_label: string | undefined = undefined
+
     // Handle multiple files case - check if we should use Fast Replace first
     if (is_multiple_files) {
-      // Get the last used apply changes mode from global state
-      const last_used_mode = params.context.globalState.get<string>(
-        'lastUsedApplyChangesMode',
-        'Intelligent update'
-      )
+      if (default_apply_changes_mode == 'Always ask') {
+        // Create mode options
+        const mode_options = [
+          {
+            label: 'Intelligent update',
+            description: 'Use AI to apply shortened files'
+          },
+          {
+            label: 'Fast replace',
+            description: 'Suitable if files are in a "whole" format'
+          }
+        ]
 
-      // Create mode options with the last used mode at the top
-      const mode_options = [
-        {
-          label: last_used_mode,
-          description:
-            last_used_mode === 'Intelligent update'
-              ? 'Use AI to apply shortened files'
-              : 'Suitable if files are in a "whole" format'
-        },
-        {
-          label:
-            last_used_mode === 'Intelligent update'
-              ? 'Fast replace'
-              : 'Intelligent update',
-          description:
-            last_used_mode === 'Intelligent update'
-              ? 'Suitable if files are in a "whole" format'
-              : 'Use AI to apply shortened files'
+        const selected_mode = await vscode.window.showQuickPick(mode_options, {
+          placeHolder: 'Choose how to apply changes'
+        })
+
+        if (!selected_mode) {
+          return // User cancelled
         }
-      ]
-
-      const selected_mode = await vscode.window.showQuickPick(mode_options, {
-        placeHolder: 'Choose how to apply changes'
-      })
-
-      if (!selected_mode) {
-        return // User cancelled
+        selected_mode_label = selected_mode.label
+      } else {
+        selected_mode_label = default_apply_changes_mode
       }
 
-      // Save the selected mode as the last used mode
-      params.context.globalState.update(
-        'lastUsedApplyChangesMode',
-        selected_mode.label
-      )
-
       // Handle Fast replace mode - we don't need the bearer token for this
-      if (selected_mode.label == 'Fast replace') {
+      if (selected_mode_label == 'Fast replace') {
         const files = parse_clipboard_multiple_files(clipboard_text)
         const result = await replace_files_directly(files)
 
@@ -587,11 +575,12 @@ export function apply_changes_command(params: {
             await revert_files(result.original_states)
           }
         }
-        return
+        return // Exit after fast replace
       }
+      // If not 'Fast replace', it must be 'Intelligent update', continue below
     }
 
-    // At this point we need the bearer token for AI processing
+    // At this point we need the bearer token for AI processing (Intelligent update or single file)
     if (!provider.bearerToken) {
       vscode.window.showErrorMessage(
         'API key is missing. Please add it in the settings.'
@@ -602,7 +591,7 @@ export function apply_changes_command(params: {
     const system_instructions = provider.systemInstructions
 
     if (is_multiple_files) {
-      // Handle multiple files with AI processing
+      // Handle multiple files with AI processing ('Intelligent update' mode)
       const files = parse_clipboard_multiple_files(clipboard_text)
 
       if (files.length == 0) {
