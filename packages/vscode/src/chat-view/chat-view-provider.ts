@@ -246,6 +246,54 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
+  // Inside ChatViewProvider class, add this new helper method
+  private async _validate_presets(preset_names: string[]): Promise<string[]> {
+    // Get current presets from configuration
+    const config = vscode.workspace.getConfiguration()
+    const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
+    const available_preset_names = web_chat_presets.map((preset) => preset.name)
+
+    // Filter out any presets that no longer exist
+    const valid_presets = preset_names.filter((name) =>
+      available_preset_names.includes(name)
+    )
+
+    // If no valid presets, show the picker
+    if (valid_presets.length == 0) {
+      const preset_quick_pick_items = web_chat_presets.map((preset) => ({
+        label: preset.name,
+        description: `${preset.chatbot}${
+          preset.model ? ` - ${preset.model}` : ''
+        }`,
+        picked: false
+      }))
+
+      const selected_presets = await vscode.window.showQuickPick(
+        preset_quick_pick_items,
+        {
+          placeHolder: 'Select one or more chat presets',
+          canPickMany: true
+        }
+      )
+
+      if (selected_presets && selected_presets.length > 0) {
+        const selected_names = selected_presets.map((preset) => preset.label)
+        await this._context.globalState.update(
+          'selectedPresets',
+          selected_names
+        )
+        this._send_message<ExtensionMessage>({
+          command: 'PRESETS_SELECTED_FROM_PICKER',
+          names: selected_names
+        })
+        return selected_names
+      }
+      return []
+    }
+
+    return valid_presets
+  }
+
   async resolveWebviewView(
     webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
@@ -347,6 +395,21 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               message.indices
             )
           } else if (message.command == 'SEND_PROMPT') {
+            // Validate presets first
+            const valid_preset_names = await this._validate_presets(
+              message.preset_names
+            )
+
+            // If no presets were selected in the picker
+            if (valid_preset_names.length == 0) {
+              vscode.window.showInformationMessage(
+                'Please select at least one preset to continue.'
+              )
+              return
+            }
+
+            console.log(valid_preset_names)
+
             const files_collector = new FilesCollector(
               this._workspace_provider,
               this._open_editors_provider,
@@ -394,7 +457,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
               this.websocket_server_instance.initialize_chats(
                 text,
-                message.preset_names
+                valid_preset_names
               )
             } else if (!is_fim_mode) {
               const context_text = await files_collector.collect_files({
@@ -409,7 +472,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               // Apply prefixes and suffixes to the instruction
               const modified_instruction = apply_preset_affixes_to_instruction(
                 instruction,
-                message.preset_names
+                valid_preset_names
               )
 
               const text = `${
@@ -418,11 +481,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
               this.websocket_server_instance.initialize_chats(
                 text,
-                message.preset_names
+                valid_preset_names
               )
             }
             vscode.window.showInformationMessage(
-              message.preset_names.length > 1
+              valid_preset_names.length > 1
                 ? 'Chats have been initialized in the connected web browser.'
                 : 'Chat has been initialized in the connected web browser.'
             )
