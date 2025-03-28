@@ -487,6 +487,54 @@ export function apply_changes_command(params: {
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
+    const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
+    const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+    const gemini_temperature = config.get<number>('geminiCoder.temperature')
+    const verbose = config.get<boolean>('geminiCoder.verbose')
+    const max_concurrency = 10
+
+    // Get default model from global state instead of config
+    const default_model_name = model_manager.get_default_apply_changes_model()
+
+    const all_providers = [
+      ...BUILT_IN_PROVIDERS.map((provider) => ({
+        ...provider,
+        bearerToken: gemini_api_key || '',
+        temperature: gemini_temperature
+      })),
+      ...user_providers
+    ]
+
+    let provider: Provider | undefined
+    if (params.use_default_model) {
+      provider = all_providers.find((p) => p.name == default_model_name)
+      if (!provider) {
+        vscode.window.showErrorMessage(
+          `Default apply changes model is not set or invalid. Please set it in the settings.`
+        )
+        return
+      }
+    } else {
+      provider = await get_selected_provider(
+        params.context,
+        all_providers,
+        default_model_name
+      )
+    }
+
+    if (!provider) {
+      return // Provider selection failed or was cancelled
+    }
+
+    if (!provider.bearerToken) {
+      vscode.window.showErrorMessage(
+        'API key is missing. Please add it in the settings.'
+      )
+      return
+    }
+
+    const system_instructions = provider.systemInstructions
+
     if (is_multiple_files) {
       // Get the last used apply changes mode from global state
       const last_used_mode = params.context.globalState.get<string>(
@@ -543,62 +591,13 @@ export function apply_changes_command(params: {
             'Revert'
           )
 
-          if (response === 'Revert') {
+          if (response == 'Revert') {
             await revert_files(result.original_states)
           }
         }
         return
       }
     }
-
-    // Continue with Intelligent mode (existing logic)
-    const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const gemini_api_key = config.get<string>('geminiCoder.apiKey')
-    const gemini_temperature = config.get<number>('geminiCoder.temperature')
-    const verbose = config.get<boolean>('geminiCoder.verbose')
-    const max_concurrency = 10
-
-    // Get default model from global state instead of config
-    const default_model_name = model_manager.get_default_apply_changes_model()
-
-    const all_providers = [
-      ...BUILT_IN_PROVIDERS.map((provider) => ({
-        ...provider,
-        bearerToken: gemini_api_key || '',
-        temperature: gemini_temperature
-      })),
-      ...user_providers
-    ]
-
-    let provider: Provider | undefined
-    if (params.use_default_model) {
-      provider = all_providers.find((p) => p.name == default_model_name)
-      if (!provider) {
-        vscode.window.showErrorMessage(
-          `Default apply changes model is not set or invalid. Please set it in the settings.`
-        )
-        return
-      }
-    } else {
-      provider = await get_selected_provider(
-        params.context,
-        all_providers,
-        default_model_name
-      )
-    }
-
-    if (!provider) {
-      return // Provider selection failed or was cancelled
-    }
-
-    if (!provider.bearerToken) {
-      vscode.window.showErrorMessage(
-        'API key is missing. Please add it in the settings.'
-      )
-      return
-    }
-
-    const system_instructions = provider.systemInstructions
 
     if (is_multiple_files) {
       // Handle multiple files
@@ -677,309 +676,326 @@ export function apply_changes_command(params: {
       // Store original file states for reversion
       const original_states: OriginalFileState[] = []
 
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: progress_title,
-          cancellable: true
-        },
-        async (progress, token) => {
-          // Create a cancelToken that will be used for all API requests
-          const cancel_token_source = axios.CancelToken.source()
+      vscode.window
+        .withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: progress_title,
+            cancellable: true
+          },
+          async (progress, token) => {
+            // Create a cancelToken that will be used for all API requests
+            const cancel_token_source = axios.CancelToken.source()
 
-          // Link VSCode cancellation token to our axios cancel token
-          token.onCancellationRequested(() => {
-            cancel_token_source.cancel('Cancelled by user.')
-          })
+            // Link VSCode cancellation token to our axios cancel token
+            token.onCancellationRequested(() => {
+              cancel_token_source.cancel('Cancelled by user.')
+            })
 
-          // Store document changes for applying in a second pass
-          type DocumentChange = {
-            document: vscode.TextDocument | null
-            content: string
-            isNew: boolean
-            filePath: string
-          }
-          const documentChanges: DocumentChange[] = []
-
-          // Focus on the largest file for progress tracking
-          let largest_file: { path: string; size: number } | null = null
-          let largest_file_progress = 0 // Progress percentage for largest file
-          let previous_largest_file_progress = 0 // Track previous progress value
-          let completed_count = 0
-
-          try {
-            // Find largest existing file to track
-            for (const file of existing_files) {
-              try {
-                const file_uri = vscode.Uri.file(
-                  path.join(
-                    vscode.workspace.workspaceFolders![0].uri.fsPath,
-                    file.file_path
-                  )
-                )
-                const document = await vscode.workspace.openTextDocument(
-                  file_uri
-                )
-
-                // Store original file state for potential reversion
-                original_states.push({
-                  file_path: file.file_path,
-                  content: document.getText(),
-                  is_new: false
-                })
-
-                const content_size = document.getText().length
-
-                if (!largest_file || content_size > largest_file.size) {
-                  largest_file = {
-                    path: file.file_path,
-                    size: content_size
-                  }
-                }
-              } catch (error) {
-                console.log(
-                  `Error checking file size for ${file.file_path}`,
-                  error
-                )
-              }
+            // Store document changes for applying in a second pass
+            type DocumentChange = {
+              document: vscode.TextDocument | null
+              content: string
+              isNew: boolean
+              filePath: string
             }
+            const documentChanges: DocumentChange[] = []
 
-            // Mark new files for reversion tracking
-            for (const file of new_files) {
-              original_states.push({
-                file_path: file.file_path,
-                content: '',
-                is_new: true
-              })
-            }
+            // Focus on the largest file for progress tracking
+            let largest_file: { path: string; size: number } | null = null
+            let largest_file_progress = 0 // Progress percentage for largest file
+            let previous_largest_file_progress = 0 // Track previous progress value
+            let completed_count = 0
 
-            // Process all files in parallel batches
-            for (let i = 0; i < files.length; i += max_concurrency) {
-              if (token.isCancellationRequested) {
-                return
-              }
-
-              const batch = files.slice(i, i + max_concurrency)
-
-              // Create an array to hold the promises for this batch
-              const promises = batch.map(async (file) => {
+            try {
+              // Find largest existing file to track
+              for (const file of existing_files) {
                 try {
-                  // Check if file exists in workspace
-                  const file_exists = await vscode.workspace
-                    .findFiles(file.file_path, null, 1)
-                    .then((files) => files.length > 0)
-
-                  // For new files, just store the information for creation later
-                  if (!file_exists) {
-                    completed_count++
-                    return {
-                      document: null,
-                      content: file.content,
-                      isNew: true,
-                      filePath: file.file_path
-                    }
-                  }
-
-                  // For existing files, process them with AI
                   const file_uri = vscode.Uri.file(
                     path.join(
                       vscode.workspace.workspaceFolders![0].uri.fsPath,
                       file.file_path
                     )
                   )
-
                   const document = await vscode.workspace.openTextDocument(
                     file_uri
                   )
-                  const document_text = document.getText()
 
-                  // Process the file content with AI
-                  const updated_content = await process_file({
-                    provider,
-                    filePath: file.file_path,
-                    fileContent: document_text,
-                    instruction: file.content,
-                    system_instructions,
-                    verbose: verbose || false,
-                    cancelToken: cancel_token_source.token,
-                    onProgress: (receivedLength, totalLength) => {
-                      // Only update progress if this is the largest file
-                      if (largest_file && file.file_path == largest_file.path) {
-                        previous_largest_file_progress = largest_file_progress
-                        largest_file_progress = Math.min(
-                          Math.round((receivedLength / totalLength) * 100),
-                          100
+                  // Store original file state for potential reversion
+                  original_states.push({
+                    file_path: file.file_path,
+                    content: document.getText(),
+                    is_new: false
+                  })
+
+                  const content_size = document.getText().length
+
+                  if (!largest_file || content_size > largest_file.size) {
+                    largest_file = {
+                      path: file.file_path,
+                      size: content_size
+                    }
+                  }
+                } catch (error) {
+                  console.log(
+                    `Error checking file size for ${file.file_path}`,
+                    error
+                  )
+                }
+              }
+
+              // Mark new files for reversion tracking
+              for (const file of new_files) {
+                original_states.push({
+                  file_path: file.file_path,
+                  content: '',
+                  is_new: true
+                })
+              }
+
+              // Process all files in parallel batches
+              for (let i = 0; i < files.length; i += max_concurrency) {
+                if (token.isCancellationRequested) {
+                  return
+                }
+
+                const batch = files.slice(i, i + max_concurrency)
+
+                // Create an array to hold the promises for this batch
+                const promises = batch.map(async (file) => {
+                  try {
+                    // Check if file exists in workspace
+                    const file_exists = await vscode.workspace
+                      .findFiles(file.file_path, null, 1)
+                      .then((files) => files.length > 0)
+
+                    // For new files, just store the information for creation later
+                    if (!file_exists) {
+                      completed_count++
+                      return {
+                        document: null,
+                        content: file.content,
+                        isNew: true,
+                        filePath: file.file_path
+                      }
+                    }
+
+                    // For existing files, process them with AI
+                    const file_uri = vscode.Uri.file(
+                      path.join(
+                        vscode.workspace.workspaceFolders![0].uri.fsPath,
+                        file.file_path
+                      )
+                    )
+
+                    const document = await vscode.workspace.openTextDocument(
+                      file_uri
+                    )
+                    const document_text = document.getText()
+
+                    // Process the file content with AI
+                    const updated_content = await process_file({
+                      provider,
+                      filePath: file.file_path,
+                      fileContent: document_text,
+                      instruction: file.content,
+                      system_instructions,
+                      verbose: verbose || false,
+                      cancelToken: cancel_token_source.token,
+                      onProgress: (receivedLength, totalLength) => {
+                        // Only update progress if this is the largest file
+                        if (
+                          largest_file &&
+                          file.file_path == largest_file.path
+                        ) {
+                          previous_largest_file_progress = largest_file_progress
+                          largest_file_progress = Math.min(
+                            Math.round((receivedLength / totalLength) * 100),
+                            100
+                          )
+
+                          // Calculate the increment since last update
+                          const increment =
+                            largest_file_progress -
+                            previous_largest_file_progress
+
+                          progress.report({
+                            increment: increment > 0 ? increment : 0
+                          })
+                        }
+                      }
+                    })
+
+                    // Handle errors and rate limits
+                    if (!updated_content) {
+                      throw new Error(
+                        `Failed to apply changes to ${file.file_path}`
+                      )
+                    }
+
+                    if (updated_content == 'rate_limit') {
+                      const body = {
+                        messages: [
+                          ...(system_instructions
+                            ? [{ role: 'system', content: system_instructions }]
+                            : []),
+                          {
+                            role: 'user',
+                            content: `<file name="${file.file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
+                          }
+                        ],
+                        model: provider.model,
+                        temperature: provider.temperature
+                      }
+
+                      const fallback_content = await handle_rate_limit_fallback(
+                        all_providers,
+                        default_model_name,
+                        body,
+                        cancel_token_source.token
+                      )
+
+                      if (!fallback_content) {
+                        throw new Error(
+                          `Rate limit reached for ${file.file_path} and fallback failed`
                         )
+                      }
 
-                        // Calculate the increment since last update
-                        const increment =
-                          largest_file_progress - previous_largest_file_progress
+                      completed_count++
 
+                      // Update progress if this is the largest file
+                      if (largest_file && file.file_path == largest_file.path) {
+                        // Calculate increment for final progress update
+                        const increment = 100 - largest_file_progress
+                        largest_file_progress = 100
                         progress.report({
                           increment: increment > 0 ? increment : 0
                         })
                       }
+
+                      // Store the document and its new content for applying later
+                      return {
+                        document,
+                        content: cleanup_api_response({
+                          content: fallback_content
+                        }),
+                        isNew: false,
+                        filePath: file.file_path
+                      }
+                    } else {
+                      completed_count++
+
+                      // Update progress if this is the largest file
+                      if (
+                        largest_file &&
+                        file.file_path === largest_file.path
+                      ) {
+                        // Calculate increment for final progress update
+                        const increment = 100 - largest_file_progress
+                        largest_file_progress = 100
+                        progress.report({
+                          increment: increment > 0 ? increment : 0
+                        })
+                      }
+
+                      // Store the document and its new content for applying later
+                      return {
+                        document,
+                        content: updated_content,
+                        isNew: false,
+                        filePath: file.file_path
+                      }
                     }
-                  })
-
-                  // Handle errors and rate limits
-                  if (!updated_content) {
-                    throw new Error(
-                      `Failed to apply changes to ${file.file_path}`
-                    )
-                  }
-
-                  if (updated_content == 'rate_limit') {
-                    const body = {
-                      messages: [
-                        ...(system_instructions
-                          ? [{ role: 'system', content: system_instructions }]
-                          : []),
-                        {
-                          role: 'user',
-                          content: `<file name="${file.file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${file.content}`
-                        }
-                      ],
-                      model: provider.model,
-                      temperature: provider.temperature
-                    }
-
-                    const fallback_content = await handle_rate_limit_fallback(
-                      all_providers,
-                      default_model_name,
-                      body,
-                      cancel_token_source.token
-                    )
-
-                    if (!fallback_content) {
+                  } catch (error: any) {
+                    // Re-throw the error to be caught by the Promise.all
+                    if (axios.isCancel(error)) {
+                      throw new Error('Operation cancelled')
+                    } else {
+                      console.error(
+                        `Error processing file ${file.file_path}:`,
+                        error
+                      )
                       throw new Error(
-                        `Rate limit reached for ${file.file_path} and fallback failed`
+                        `Error processing ${file.file_path}: ${
+                          error.message || 'Unknown error'
+                        }`
                       )
                     }
-
-                    completed_count++
-
-                    // Update progress if this is the largest file
-                    if (largest_file && file.file_path == largest_file.path) {
-                      // Calculate increment for final progress update
-                      const increment = 100 - largest_file_progress
-                      largest_file_progress = 100
-                      progress.report({
-                        increment: increment > 0 ? increment : 0
-                      })
-                    }
-
-                    // Store the document and its new content for applying later
-                    return {
-                      document,
-                      content: cleanup_api_response({
-                        content: fallback_content
-                      }),
-                      isNew: false,
-                      filePath: file.file_path
-                    }
-                  } else {
-                    completed_count++
-
-                    // Update progress if this is the largest file
-                    if (largest_file && file.file_path === largest_file.path) {
-                      // Calculate increment for final progress update
-                      const increment = 100 - largest_file_progress
-                      largest_file_progress = 100
-                      progress.report({
-                        increment: increment > 0 ? increment : 0
-                      })
-                    }
-
-                    // Store the document and its new content for applying later
-                    return {
-                      document,
-                      content: updated_content,
-                      isNew: false,
-                      filePath: file.file_path
-                    }
                   }
-                } catch (error: any) {
-                  // Re-throw the error to be caught by the Promise.all
-                  if (axios.isCancel(error)) {
-                    throw new Error('Operation cancelled')
-                  } else {
-                    console.error(
-                      `Error processing file ${file.file_path}:`,
-                      error
-                    )
-                    throw new Error(
-                      `Error processing ${file.file_path}: ${
-                        error.message || 'Unknown error'
-                      }`
-                    )
-                  }
+                })
+
+                // Wait for all promises in this batch and collect results
+                // If any promise rejects, the whole Promise.all will reject
+                const results = await Promise.all(promises)
+
+                // Store results to process after all files have been processed
+                for (const result of results) {
+                  documentChanges.push(result)
                 }
-              })
-
-              // Wait for all promises in this batch and collect results
-              // If any promise rejects, the whole Promise.all will reject
-              const results = await Promise.all(promises)
-
-              // Store results to process after all files have been processed
-              for (const result of results) {
-                documentChanges.push(result)
-              }
-            }
-
-            // Only apply changes if ALL files were processed successfully
-            // Apply all changes and create new files in a second pass
-            for (const change of documentChanges) {
-              // For new files, create them
-              if (change.isNew) {
-                await create_file_if_needed(change.filePath, change.content)
-                continue
               }
 
-              // For existing files, apply the changes
-              const document = change.document
-              if (!document) continue
-              const editor = await vscode.window.showTextDocument(document)
-              await editor.edit((edit) => {
-                edit.replace(
-                  new vscode.Range(
-                    document.positionAt(0),
-                    document.positionAt(document.getText().length)
-                  ),
-                  change.content
+              // Only apply changes if ALL files were processed successfully
+              // Apply all changes and create new files in a second pass
+              for (const change of documentChanges) {
+                // For new files, create them
+                if (change.isNew) {
+                  await create_file_if_needed(change.filePath, change.content)
+                  continue
+                }
+
+                // For existing files, apply the changes
+                const document = change.document
+                if (!document) continue
+                const editor = await vscode.window.showTextDocument(document)
+                await editor.edit((edit) => {
+                  edit.replace(
+                    new vscode.Range(
+                      document.positionAt(0),
+                      document.positionAt(document.getText().length)
+                    ),
+                    change.content
+                  )
+                })
+
+                await format_document(document)
+                await document.save()
+              }
+
+              // Return true to complete the progress
+              return true
+            } catch (error: any) {
+              // If any file processing fails, cancel the entire operation
+              cancel_token_source.cancel('Operation failed')
+
+              // Show error message
+              if (error.message == 'Operation cancelled') {
+                vscode.window.showInformationMessage('Operation was cancelled.')
+              } else {
+                vscode.window.showErrorMessage(
+                  `Operation failed and was aborted: ${error.message}`
                 )
-              })
-
-              await format_document(document)
-              await document.save()
-            }
-
-            // Show success message with Revert option
-            const response = await vscode.window.showInformationMessage(
-              `Successfully updated ${total_files} ${
-                total_files > 1 ? 'files' : 'file'
-              }.`,
-              'Revert'
-            )
-
-            if (response === 'Revert') {
-              await revert_files(original_states)
-            }
-          } catch (error: any) {
-            // If any file processing fails, cancel the entire operation
-            cancel_token_source.cancel('Operation failed')
-
-            // Show error message
-            if (error.message == 'Operation cancelled') {
-              vscode.window.showInformationMessage('Operation was cancelled.')
-            } else {
-              vscode.window.showErrorMessage(
-                `Operation failed and was aborted: ${error.message}`
-              )
+              }
             }
           }
-        }
-      )
+        )
+        .then((result) => {
+          // Only show success message after the progress is complete
+          if (result !== undefined) {
+            // If result is defined, the operation completed
+            const response = vscode.window
+              .showInformationMessage(
+                `Successfully updated ${total_files} ${
+                  total_files > 1 ? 'files' : 'file'
+                }.`,
+                'Revert'
+              )
+              .then((response) => {
+                if (response === 'Revert') {
+                  revert_files(original_states)
+                }
+              })
+          }
+        })
     } else {
       // Single file
       const editor = vscode.window.activeTextEditor
@@ -1001,129 +1017,122 @@ export function apply_changes_command(params: {
       // Track previous length for progress calculation
       let previous_length = 0
 
-      vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: 'Waiting for the updated file',
-          cancellable: true
-        },
-        async (progress, token) => {
-          // Link VSCode cancellation token to our axios cancel token
-          token.onCancellationRequested(() => {
-            cancel_token_source.cancel()
-          })
+      // Variables to hold processing results outside the progress scope
+      let result_content = ''
+      let success = false
 
-          try {
-            const refactored_content = await process_file({
-              provider,
-              filePath: file_path,
-              fileContent: document_text,
-              instruction,
-              system_instructions,
-              verbose: verbose || false,
-              cancelToken: cancel_token_source.token, // Pass the cancelToken
-              onProgress: (receivedLength, totalLength) => {
-                // Calculate actual increment since last progress report
-                const actual_increment = receivedLength - previous_length
-                previous_length = receivedLength
-
-                // Calculate actual increment as percentage
-                const increment_percentage =
-                  (actual_increment / totalLength) * 100
-
-                progress.report({
-                  increment: increment_percentage
-                })
-              }
+      await vscode.window
+        .withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: 'Waiting for the updated file',
+            cancellable: true
+          },
+          async (progress, token) => {
+            // Link VSCode cancellation token to our axios cancel token
+            token.onCancellationRequested(() => {
+              cancel_token_source.cancel()
             })
 
-            if (token.isCancellationRequested) {
-              return
-            }
+            try {
+              const refactored_content = await process_file({
+                provider,
+                filePath: file_path,
+                fileContent: document_text,
+                instruction,
+                system_instructions,
+                verbose: verbose || false,
+                cancelToken: cancel_token_source.token, // Pass the cancelToken
+                onProgress: (receivedLength, totalLength) => {
+                  // Calculate actual increment since last progress report
+                  const actual_increment = receivedLength - previous_length
+                  previous_length = receivedLength
 
-            if (!refactored_content) {
-              // If process_file returns null, it could be due to cancellation or an error
-              // Since we've already handled cancellation, we only show an error for non-cancellation cases
-              if (!token.isCancellationRequested) {
-                vscode.window.showErrorMessage(
-                  'Applying changes failed. Please try again later.'
-                )
-              }
-              return
-            } else if (refactored_content == 'rate_limit') {
-              const body = {
-                messages: [
-                  ...(system_instructions
-                    ? [{ role: 'system', content: system_instructions }]
-                    : []),
-                  {
-                    role: 'user',
-                    content: `<file name="${file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${instruction}`
-                  }
-                ],
-                model: provider.model,
-                temperature: provider.temperature
-              }
+                  // Calculate actual increment as percentage
+                  const increment_percentage =
+                    (actual_increment / totalLength) * 100
 
-              const fallback_content = await handle_rate_limit_fallback(
-                all_providers,
-                default_model_name,
-                body,
-                cancel_token_source.token
-              )
+                  progress.report({
+                    increment: increment_percentage
+                  })
+                }
+              })
 
-              if (!fallback_content) {
+              if (token.isCancellationRequested) {
                 return
               }
 
-              // Continue with the fallback content
-              const cleaned_content = cleanup_api_response({
-                content: fallback_content
-              })
-              const full_range = new vscode.Range(
-                document.positionAt(0),
-                document.positionAt(document_text.length)
-              )
-              await editor.edit((edit_builder) => {
-                edit_builder.replace(full_range, cleaned_content)
-              })
-              await format_document(document)
-              await document.save()
-
-              // Show success message with Revert option
-              const response = await vscode.window.showInformationMessage(
-                'Changes have been applied!',
-                'Revert'
-              )
-
-              if (response == 'Revert') {
-                // Revert single file changes
-                await editor.edit((editBuilder) => {
-                  const full_range = new vscode.Range(
-                    document.positionAt(0),
-                    document.positionAt(document.getText().length)
+              if (!refactored_content) {
+                // If process_file returns null, it could be due to cancellation or an error
+                // Since we've already handled cancellation, we only show an error for non-cancellation cases
+                if (!token.isCancellationRequested) {
+                  vscode.window.showErrorMessage(
+                    'Applying changes failed. Please try again later.'
                   )
-                  editBuilder.replace(full_range, original_content)
-                })
-                await document.save()
-                vscode.window.showInformationMessage(
-                  'Changes reverted successfully.'
+                }
+                return
+              } else if (refactored_content == 'rate_limit') {
+                const body = {
+                  messages: [
+                    ...(system_instructions
+                      ? [{ role: 'system', content: system_instructions }]
+                      : []),
+                    {
+                      role: 'user',
+                      content: `<file name="${file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n${apply_changes_instruction} ${instruction}`
+                    }
+                  ],
+                  model: provider.model,
+                  temperature: provider.temperature
+                }
+
+                const fallback_content = await handle_rate_limit_fallback(
+                  all_providers,
+                  default_model_name,
+                  body,
+                  cancel_token_source.token
                 )
+
+                if (!fallback_content) {
+                  return
+                }
+
+                // Store the cleaned content for use after progress completes
+                result_content = cleanup_api_response({
+                  content: fallback_content
+                })
+                success = true
+              } else {
+                // Store the cleaned content for use after progress completes
+                result_content = cleanup_api_response({
+                  content: refactored_content
+                })
+                success = true
               }
-              return
+            } catch (error) {
+              if (axios.isCancel(error)) {
+                return
+              }
+              console.error('Refactoring error:', error)
+              vscode.window.showErrorMessage(
+                'An error occurred during refactoring. See console for details.'
+              )
             }
-
-            const cleaned_content = cleanup_api_response({
-              content: refactored_content
-            })
-
+          }
+        )
+        .then(async () => {
+          // Only proceed if we have successful results
+          if (success && result_content) {
+            // Apply changes after progress is complete
             const full_range = new vscode.Range(
               document.positionAt(0),
               document.positionAt(document_text.length)
             )
+
             await editor.edit((edit_builder) => {
-              edit_builder.replace(full_range, cleaned_content)
+              edit_builder.replace(full_range, result_content)
             })
+
             await format_document(document)
             await document.save()
 
@@ -1147,17 +1156,8 @@ export function apply_changes_command(params: {
                 'Changes reverted successfully.'
               )
             }
-          } catch (error) {
-            if (axios.isCancel(error)) {
-              return
-            }
-            console.error('Refactoring error:', error)
-            vscode.window.showErrorMessage(
-              'An error occurred during refactoring. See console for details.'
-            )
           }
-        }
-      )
+        })
     }
   })
 }
