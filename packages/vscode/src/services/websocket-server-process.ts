@@ -1,7 +1,7 @@
 const WebSocket = require('ws') // ws works only with requrie
 import * as http from 'http'
 import * as process from 'process'
-import * as crypto from 'crypto'
+// import * as crypto from 'crypto' // No longer needed for client ID
 
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { Website } from '@shared/types/websocket-message'
@@ -13,19 +13,21 @@ interface BrowserClient {
 
 interface VSCodeClient {
   ws: WebSocket
-  client_id: string
+  client_id: number
 }
 
 // Use Map to store VS Code clients with their IDs
-const vscode_clients: Map<string, VSCodeClient> = new Map()
+const vscode_clients: Map<number, VSCodeClient> = new Map()
+let vscode_client_counter = 0
 let current_browser_client: BrowserClient | null = null
 const connections: Set<WebSocket> = new Set()
 
 let saved_websites: Website[] = []
 
-// Function to generate a unique client ID
-function generate_client_id(): string {
-  return crypto.randomBytes(16).toString('hex')
+// Function to generate a unique client ID using a counter
+function generate_client_id(): number {
+  vscode_client_counter += 1
+  return vscode_client_counter
 }
 
 // Create HTTP server
@@ -125,7 +127,6 @@ wss.on('connection', (ws: any, request: any) => {
     console.log(`Browser client connected (version: ${version})`)
     notify_vscode_clients() // Notify when a browser connects
   } else {
-    // Generate a unique client ID for this VS Code client
     const client_id = generate_client_id()
     vscode_clients.set(client_id, { ws, client_id })
     console.log(`VS Code client connected with ID: ${client_id}`)

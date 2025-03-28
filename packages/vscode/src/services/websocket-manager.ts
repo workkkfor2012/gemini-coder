@@ -21,7 +21,7 @@ export class WebSocketManager {
   private reconnect_timer: NodeJS.Timeout | null = null
   private has_connected_browsers: boolean = false
   private websites_provider: WebsitesProvider | null = null
-  private client_id: string | null = null
+  private client_id: number | null = null
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
     this._on_connection_status_change.event
@@ -195,10 +195,6 @@ export class WebSocketManager {
       throw new Error('Does not have connected browsers')
     }
 
-    if (!this.client_id) {
-      throw new Error('Client ID not assigned yet')
-    }
-
     const config = vscode.workspace.getConfiguration()
     const web_chat_presets = config.get<any[]>('geminiCoder.presets') ?? []
 
@@ -223,7 +219,7 @@ export class WebSocketManager {
           }
         })
         .filter((chat) => chat !== null), // Filter out any null chats
-      client_id: this.client_id // Include client ID with every initialize-chats message
+      client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
     }
 
     const verbose = config.get<boolean>('geminiCoder.verbose')

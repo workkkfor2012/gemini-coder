@@ -10,7 +10,7 @@ export type InitializeChatsMessage = {
   action: 'initialize-chats'
   text: string
   chats: Chat[]
-  client_id: string // Client ID to identify which editor sent this message
+  client_id: number // Client ID to identify which editor sent this message
 }
 
 export type Website = {
@@ -33,7 +33,7 @@ export type BrowserConnectionStatusMessage = {
 
 export type ClientIdAssignmentMessage = {
   action: 'client-id-assignment'
-  client_id: string
+  client_id: number
 }
 
 export type WebSocketMessage =
