@@ -1,6 +1,7 @@
 const WebSocket = require('ws') // ws works only with requrie
 import * as http from 'http'
 import * as process from 'process'
+import * as crypto from 'crypto'
 
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { Website } from '@shared/types/websocket-message'
@@ -10,11 +11,22 @@ interface BrowserClient {
   version: string
 }
 
-const vscode_clients: Set<WebSocket> = new Set()
+interface VSCodeClient {
+  ws: WebSocket
+  client_id: string
+}
+
+// Use Map to store VS Code clients with their IDs
+const vscode_clients: Map<string, VSCodeClient> = new Map()
 let current_browser_client: BrowserClient | null = null
 const connections: Set<WebSocket> = new Set()
 
 let saved_websites: Website[] = []
+
+// Function to generate a unique client ID
+function generate_client_id(): string {
+  return crypto.randomBytes(16).toString('hex')
+}
 
 // Create HTTP server
 const server = http.createServer((req: any, res: any) => {
@@ -43,11 +55,11 @@ function notify_vscode_clients(): void {
     has_connected_browsers: has_connected_browser
   })
 
-  vscode_clients.forEach((client) => {
-    if (client.readyState == WebSocket.OPEN) {
-      client.send(message)
+  for (const client of vscode_clients.values()) {
+    if (client.ws.readyState == WebSocket.OPEN) {
+      client.ws.send(message)
     }
-  })
+  }
 }
 
 // Send saved websites to a client
@@ -113,8 +125,19 @@ wss.on('connection', (ws: any, request: any) => {
     console.log(`Browser client connected (version: ${version})`)
     notify_vscode_clients() // Notify when a browser connects
   } else {
-    vscode_clients.add(ws)
-    console.log('VS Code client connected')
+    // Generate a unique client ID for this VS Code client
+    const client_id = generate_client_id()
+    vscode_clients.set(client_id, { ws, client_id })
+    console.log(`VS Code client connected with ID: ${client_id}`)
+
+    // Send the client ID to the VS Code client
+    ws.send(
+      JSON.stringify({
+        action: 'client-id-assignment',
+        client_id
+      })
+    )
+
     // Send initial status to new VS Code client
     ws.send(
       JSON.stringify({
@@ -144,22 +167,24 @@ wss.on('connection', (ws: any, request: any) => {
 
       // Handle different message types
       if (msg_data.action == 'initialize-chats') {
-        connections.forEach((client) => {
-          if (client !== ws && client.readyState == WebSocket.OPEN) {
-            client.send(msg_string)
-          }
-        })
+        if (
+          current_browser_client &&
+          current_browser_client.ws.readyState === WebSocket.OPEN
+        ) {
+          // Forward the message with client ID to browser client
+          current_browser_client.ws.send(msg_string)
+        }
       } else if (msg_data.action == 'update-saved-websites') {
         // Store the updated websites
         saved_websites = msg_data.websites
         console.log(`Received ${saved_websites.length} saved websites`)
 
         // Forward to VS Code clients
-        vscode_clients.forEach((client) => {
-          if (client.readyState == WebSocket.OPEN) {
-            client.send(msg_string)
+        for (const client of vscode_clients.values()) {
+          if (client.ws.readyState == WebSocket.OPEN) {
+            client.ws.send(msg_string)
           }
-        })
+        }
       }
     } catch (error) {
       console.error('Error processing message:', error)
@@ -178,8 +203,14 @@ wss.on('connection', (ws: any, request: any) => {
       console.log(`Browser client disconnected (version: ${version})`)
       notify_vscode_clients() // Notify when the browser disconnects
     } else if (!is_browser_client) {
-      vscode_clients.delete(ws)
-      console.log('VS Code client disconnected')
+      // Find and remove the VS Code client by its websocket instance
+      for (const [client_id, client] of vscode_clients.entries()) {
+        if (client.ws === ws) {
+          vscode_clients.delete(client_id)
+          console.log(`VS Code client disconnected: ${client_id}`)
+          break
+        }
+      }
     }
     connections.delete(ws)
   })
@@ -196,7 +227,14 @@ wss.on('connection', (ws: any, request: any) => {
       console.log(`Browser client error disconnect (version: ${version})`)
       notify_vscode_clients() // Notify when the browser disconnects due to error
     } else if (!is_browser_client) {
-      vscode_clients.delete(ws)
+      // Find and remove the VS Code client by its websocket instance
+      for (const [client_id, client] of vscode_clients.entries()) {
+        if (client.ws === ws) {
+          vscode_clients.delete(client_id)
+          console.log(`VS Code client error disconnect: ${client_id}`)
+          break
+        }
+      }
     }
     connections.delete(ws)
   })

@@ -21,6 +21,7 @@ export class WebSocketManager {
   private reconnect_timer: NodeJS.Timeout | null = null
   private has_connected_browsers: boolean = false
   private websites_provider: WebsitesProvider | null = null
+  private client_id: string | null = null
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
     this._on_connection_status_change.event
@@ -118,6 +119,9 @@ export class WebSocketManager {
       this.client = null
     }
 
+    // Reset client ID when reconnecting
+    this.client_id = null
+
     // Connect to the WebSocket server
     this.client = new WebSocket.WebSocket(
       `ws://localhost:${this.port}?token=${this.security_token}`
@@ -132,7 +136,10 @@ export class WebSocketManager {
       try {
         const message = JSON.parse(data.toString())
         console.log('Incoming WS message:', message)
-        if (message.action == 'browser-connection-status') {
+
+        if (message.action == 'client-id-assignment') {
+          this.client_id = message.client_id
+        } else if (message.action == 'browser-connection-status') {
           this.has_connected_browsers = message.has_connected_browsers
           this._on_connection_status_change.fire(this.has_connected_browsers)
         } else if (message.action == 'update-saved-websites') {
@@ -188,6 +195,10 @@ export class WebSocketManager {
       throw new Error('Does not have connected browsers')
     }
 
+    if (!this.client_id) {
+      throw new Error('Client ID not assigned yet')
+    }
+
     const config = vscode.workspace.getConfiguration()
     const web_chat_presets = config.get<any[]>('geminiCoder.presets') ?? []
 
@@ -211,7 +222,8 @@ export class WebSocketManager {
             options: preset.options
           }
         })
-        .filter((chat) => chat !== null) // Filter out any null chats
+        .filter((chat) => chat !== null), // Filter out any null chats
+      client_id: this.client_id // Include client ID with every initialize-chats message
     }
 
     const verbose = config.get<boolean>('geminiCoder.verbose')
