@@ -548,8 +548,14 @@ export function apply_changes_command(params: {
           default_apply_changes_mode == 'Always ask')
 
       if (should_ask_for_mode) {
-        // Create mode options
-        const mode_options = [
+        // Modify the mode_options creation to put last used option on top
+        const last_used_mode = params.context.globalState.get<string>(
+          'lastUsedApplyChangesMode'
+        )
+        const mode_options = []
+
+        // Define all available modes
+        const all_modes = [
           {
             label: 'Intelligent update',
             description: 'Use AI to apply shortened files'
@@ -560,6 +566,29 @@ export function apply_changes_command(params: {
           }
         ]
 
+        // If there's a last used mode, put it first
+        if (last_used_mode) {
+          const last_used_mode_option = all_modes.find(
+            (mode) => mode.label == last_used_mode
+          )
+          if (last_used_mode_option) {
+            mode_options.push({
+              ...last_used_mode_option,
+              description: `${last_used_mode_option.description} (Last used)`
+            })
+
+            // Add the rest of the modes
+            mode_options.push(
+              ...all_modes.filter((mode) => mode.label != last_used_mode)
+            )
+          } else {
+            mode_options.push(...all_modes)
+          }
+        } else {
+          // No last used mode, use the default order
+          mode_options.push(...all_modes)
+        }
+
         const selected_mode = await vscode.window.showQuickPick(mode_options, {
           placeHolder: 'Choose how to apply changes'
         })
@@ -568,6 +597,15 @@ export function apply_changes_command(params: {
           return // User cancelled
         }
         selected_mode_label = selected_mode.label
+
+        // Add this after selecting the mode
+        if (selected_mode) {
+          // Store the last used mode in global state
+          params.context.globalState.update(
+            'lastUsedApplyChangesMode',
+            selected_mode.label
+          )
+        }
       } else {
         // Use the default mode if not asking
         selected_mode_label = default_apply_changes_mode
