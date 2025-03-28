@@ -709,8 +709,8 @@ export function apply_changes_command(params: {
         // Only updating existing files
         progress_title =
           existing_files.length > 1
-            ? `Waiting for ${existing_files.length} updated files`
-            : 'Waiting for the updated file'
+            ? `Waiting for ${existing_files.length} updated files...`
+            : 'Waiting for the updated file...'
       } else {
         // Only creating new files
         progress_title = `Creating ${new_files.length} new file${
@@ -1071,7 +1071,7 @@ export function apply_changes_command(params: {
         .withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: 'Waiting for the updated file',
+            title: 'Waiting for the updated file...',
             cancellable: true
           },
           async (progress, token) => {
