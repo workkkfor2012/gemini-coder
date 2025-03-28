@@ -60,8 +60,8 @@ export class EmptyMessageItem extends vscode.TreeItem {
       'No websites available for context',
       vscode.TreeItemCollapsibleState.None
     )
-    this.description = 'Use the browser extension to add websites'
-    this.tooltip = 'Use the browser extension to add websites'
+    this.description = 'Use the browser extension to add some'
+    this.tooltip = 'Use the browser extension to add some'
     this.iconPath = new vscode.ThemeIcon('info')
     this.contextValue = 'empty'
   }
