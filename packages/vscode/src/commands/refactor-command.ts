@@ -259,7 +259,7 @@ export function refactor_command(params: {
     vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: 'Waiting for the updated file',
+        title: 'Waiting for the updated file...',
         cancellable: true
       },
       async (progress, token) => {
