@@ -11,9 +11,10 @@ const add_button_to_message_footer = (params: {
   // Create button element
   const button = document.createElement('button')
   button.className = 'fast-replace-button'
-  button.textContent = 'Fast replace'
+  button.textContent = 'Gemini Coder: Fast replace'
+  button.style.fontSize = '12px'
   button.style.marginLeft = '8px'
-  button.style.padding = '4px 8px'
+  button.style.padding = '3px 6px'
   button.style.borderRadius = '4px'
   button.style.color = 'white'
   button.style.backgroundColor = 'black'

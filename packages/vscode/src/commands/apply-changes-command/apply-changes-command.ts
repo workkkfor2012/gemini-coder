@@ -127,16 +127,16 @@ async function format_document(document: vscode.TextDocument): Promise<void> {
  */
 async function process_file(params: {
   provider: Provider
-  filePath: string
-  fileContent: string
+  file_path: string
+  file_content: string
   instruction: string
   system_instructions?: string
   verbose: boolean
-  cancelToken?: CancelToken // Add cancelToken parameter
-  onProgress?: (chunkLength: number, totalLength: number) => void
+  cancel_token?: CancelToken // Add cancelToken parameter
+  on_progress?: (chunkLength: number, totalLength: number) => void
 }): Promise<string | null> {
   const apply_changes_prompt = `${apply_changes_instruction} ${params.instruction}`
-  const file_content = `<file name="${params.filePath}"><![CDATA[${params.fileContent}]]></file>`
+  const file_content = `<file name="${params.file_path}">\n<![CDATA[\n${params.file_content}\n]]>\n</file>\n`
   const content = `${file_content}\n${apply_changes_prompt}`
 
   const messages = [
@@ -157,32 +157,32 @@ async function process_file(params: {
 
   if (params.verbose) {
     console.log(
-      `[Gemini Coder] Apply Changes Prompt for ${params.filePath}:`,
+      `[Gemini Coder] Apply Changes Prompt for ${params.file_path}:`,
       content
     )
   }
 
-  // Use provided cancelToken instead of creating a new one
+  // Use provided cancel token instead of creating a new one
   try {
-    let total_length = params.fileContent.length // Use file content length as base for progress
+    let total_length = params.file_content.length // Use file content length as base for progress
     let received_length = 0
 
     const refactored_content = await make_api_request(
       params.provider,
       body,
-      params.cancelToken, // Use the passed cancelToken
+      params.cancel_token, // Use the passed cancel token
       (chunk: string) => {
         // Update progress when receiving chunks
         received_length += chunk.length
-        if (params.onProgress) {
-          params.onProgress(received_length, total_length)
+        if (params.on_progress) {
+          params.on_progress(received_length, total_length)
         }
       }
     )
 
     if (!refactored_content) {
       vscode.window.showErrorMessage(
-        `Applying changes to ${params.filePath} failed. Please try again later.`
+        `Applying changes to ${params.file_path} failed. Please try again later.`
       )
       return null
     } else if (refactored_content == 'rate_limit') {
@@ -199,9 +199,9 @@ async function process_file(params: {
     }
 
     // For other errors, show the error message as before
-    console.error(`Refactoring error for ${params.filePath}:`, error)
+    console.error(`Refactoring error for ${params.file_path}:`, error)
     vscode.window.showErrorMessage(
-      `An error occurred during refactoring ${params.filePath}. See console for details.`
+      `An error occurred during refactoring ${params.file_path}. See console for details.`
     )
     return null
   }
@@ -853,13 +853,13 @@ export function apply_changes_command(params: {
                     // Process the file content with AI
                     const updated_content = await process_file({
                       provider,
-                      filePath: file.file_path,
-                      fileContent: document_text,
+                      file_path: file.file_path,
+                      file_content: document_text,
                       instruction: file.content,
                       system_instructions,
                       verbose: verbose || false,
-                      cancelToken: cancel_token_source.token,
-                      onProgress: (receivedLength, totalLength) => {
+                      cancel_token: cancel_token_source.token,
+                      on_progress: (receivedLength, totalLength) => {
                         // Only update progress if this is the largest file
                         if (
                           largest_file &&
@@ -1095,13 +1095,13 @@ export function apply_changes_command(params: {
             try {
               const refactored_content = await process_file({
                 provider,
-                filePath: file_path,
-                fileContent: document_text,
+                file_path: file_path,
+                file_content: document_text,
                 instruction,
                 system_instructions,
                 verbose: verbose || false,
-                cancelToken: cancel_token_source.token, // Pass the cancelToken
-                onProgress: (receivedLength, totalLength) => {
+                cancel_token: cancel_token_source.token, // Pass the cancelToken
+                on_progress: (receivedLength, totalLength) => {
                   // Calculate actual increment since last progress report
                   const actual_increment = receivedLength - previous_length
                   previous_length = receivedLength
