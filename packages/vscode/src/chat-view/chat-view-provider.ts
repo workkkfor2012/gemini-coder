@@ -462,8 +462,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             }
             vscode.window.showInformationMessage(
               valid_preset_names.length > 1
-                ? 'Chats have been initialized in the connected web browser.'
-                : 'Chat has been initialized in the connected web browser.'
+                ? 'Chats have been initialized in the connected browser.'
+                : 'Chat has been initialized in the connected browser.'
             )
           } else if (message.command == 'COPY_PROMPT') {
             const files_collector = new FilesCollector(
