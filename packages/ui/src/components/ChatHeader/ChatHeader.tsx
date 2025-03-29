@@ -10,7 +10,9 @@ export const ChatHeader: React.FC = () => {
         <span>·</span>
         <a href="https://github.com/robertpiosik/gemini-coder/discussions">Send feedback</a>
         <span>·</span>
-        <a href="bit.ly/donate-to-gemini-coder-from-vs-code">Buy me a coffee</a>
+        <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details">Rate</a>
+        <span>·</span>
+        <a href="bit.ly/donate-to-gemini-coder-from-vs-code">Donate</a>
       </div>
     </div>
   )
