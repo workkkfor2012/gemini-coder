@@ -8,23 +8,57 @@ const add_button_to_message_footer = (params: {
   // Check if button already exists to avoid duplicates
   if (params.footer.querySelector('.fast-replace-button')) return
 
+  // Find the parent chat-turn-container
+  const chat_turn_container = params.footer.closest('.chat-turn-container')
+  if (!chat_turn_container) {
+    console.warn(
+      'Could not find chat-turn-container for footer:',
+      params.footer
+    )
+    return
+  }
+
+  // Check if the container has any code block with name= attribute
+  const language_spans = chat_turn_container.querySelectorAll(
+    'ms-code-block footer > span.language'
+  )
+  let has_name_attribute = false
+
+  language_spans.forEach((span) => {
+    if (span.textContent?.includes('name=')) {
+      has_name_attribute = true
+    }
+  })
+
+  // Only proceed if we found at least one code block with name= attribute
+  if (!has_name_attribute) return
+
   // Create button element
   const button = document.createElement('button')
   button.className = 'fast-replace-button'
-  button.textContent = 'Gemini Coder: Fast replace'
+  button.textContent = 'Apply changes with fast replace'
+  button.title =
+    'Replaces original files in the editor with their updated versions. Suitable for the "whole" format.'
   button.style.fontSize = '12px'
   button.style.marginLeft = '8px'
-  button.style.padding = '3px 6px'
+  button.style.padding = '3px 8px'
   button.style.borderRadius = '4px'
   button.style.color = 'white'
-  button.style.backgroundColor = 'black'
-  button.style.border = '1px solid white'
+  button.style.background =
+    'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
+  button.style.border = 'none'
   button.style.cursor = 'pointer'
 
   // Add event listener for button click
   button.addEventListener('click', () => {
+    // Disable the button immediately to prevent multiple clicks
+    button.disabled = true
+    button.style.opacity = '0.5'
+    button.style.cursor = 'pointer'
+    button.textContent = 'Changes have been applied'
+
     // Find the parent chat-turn-container
-    const chat_turn_container = params.footer.closest('div.chat-turn-container')
+    const chat_turn_container = params.footer.closest('.chat-turn-container')
     if (chat_turn_container) {
       // Find the ms-chat-turn-options element within the container
       const options = chat_turn_container.querySelector(
@@ -48,8 +82,7 @@ const add_button_to_message_footer = (params: {
     }
   })
 
-  // Append button to the footer
-  params.footer.appendChild(button)
+  params.footer.insertBefore(button, params.footer.children[2])
 }
 
 // Function to observe DOM for new message footers
