@@ -5,8 +5,6 @@ import { Presets as UiPresets } from '@ui/components/Presets'
 import {
   WebviewMessage,
   ExtensionMessage,
-  InitialPromptMessage,
-  InitialFimPromptMessage,
   ConnectionStatusMessage,
   PresetsMessage,
   SelectedPresetsMessage,
@@ -28,9 +26,6 @@ import '@vscode/codicons/dist/codicon.css'
 import '@ui/styles/styles.css'
 
 function App() {
-  const [normal_mode_instruction, set_normal_mode_instruction] =
-    useState<string>()
-  const [fim_mode_instruction, set_fim_mode_instruction] = useState<string>()
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
@@ -47,8 +42,6 @@ function App() {
 
   useEffect(() => {
     const initialMessages = [
-      { command: 'GET_LAST_PROMPT' },
-      { command: 'GET_LAST_FIM_PROMPT' },
       { command: 'GET_CONNECTION_STATUS' },
       { command: 'GET_PRESETS' },
       { command: 'GET_SELECTED_PRESETS' },
@@ -58,24 +51,14 @@ function App() {
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
       { command: 'GET_CHAT_HISTORY' },
       { command: 'GET_FIM_CHAT_HISTORY' },
-      { command: 'GET_CURRENT_TOKEN_COUNT' },
+      { command: 'GET_CURRENT_TOKEN_COUNT' }
     ] as WebviewMessage[]
 
-    initialMessages.forEach(message => vscode.postMessage(message))
+    initialMessages.forEach((message) => vscode.postMessage(message))
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data as ExtensionMessage
       switch (message.command) {
-        case 'INITIAL_PROMPT':
-          set_normal_mode_instruction(
-            (message as InitialPromptMessage).instruction
-          )
-          break
-        case 'INITIAL_FIM_PROMPT':
-          set_fim_mode_instruction(
-            (message as InitialFimPromptMessage).instruction
-          )
-          break
         case 'CONNECTION_STATUS':
           set_is_connected((message as ConnectionStatusMessage).connected)
           break
@@ -177,7 +160,7 @@ function App() {
       const is_duplicate =
         chat_history &&
         chat_history.length > 0 &&
-        chat_history[0] === params.instruction
+        chat_history[0] == params.instruction
 
       if (!is_duplicate) {
         const new_history = [params.instruction, ...chat_history!].slice(0, 100)
@@ -220,22 +203,6 @@ function App() {
     } as WebviewMessage)
   }
 
-  const handle_instruction_change = (instruction: string) => {
-    if (is_fim_mode) {
-      vscode.postMessage({
-        command: 'SAVE_FIM_INSTRUCTION',
-        instruction
-      } as WebviewMessage)
-      set_fim_mode_instruction(instruction)
-    } else {
-      vscode.postMessage({
-        command: 'SAVE_CHAT_INSTRUCTION',
-        instruction
-      } as WebviewMessage)
-      set_normal_mode_instruction(instruction)
-    }
-  }
-
   const handle_presets_selection_change = (selected_names: string[]) => {
     vscode.postMessage({
       command: 'SAVE_SELECTED_PRESETS',
@@ -267,8 +234,6 @@ function App() {
   }
 
   if (
-    normal_mode_instruction === undefined ||
-    fim_mode_instruction === undefined ||
     is_connected === undefined ||
     presets === undefined ||
     is_fim_mode === undefined ||
@@ -282,12 +247,9 @@ function App() {
 
   return (
     <Main
-      initial_normal_instruction={normal_mode_instruction}
-      initial_fim_instruction={fim_mode_instruction}
       initialize_chats={handle_initialize_chats}
       show_preset_picker={handle_show_preset_picker}
       copy_to_clipboard={handle_copy_to_clipboard}
-      on_instruction_change={handle_instruction_change}
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}
@@ -310,4 +272,3 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(<App />)
-]]

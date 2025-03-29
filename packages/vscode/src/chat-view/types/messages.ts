@@ -3,14 +3,6 @@ export interface BaseMessage {
 }
 
 // Messages from webview to extension
-export interface GetLastPromptMessage extends BaseMessage {
-  command: 'GET_LAST_PROMPT'
-}
-
-export interface GetLastFimPromptMessage extends BaseMessage {
-  command: 'GET_LAST_FIM_PROMPT'
-}
-
 export interface SaveChatInstructionMessage extends BaseMessage {
   command: 'SAVE_CHAT_INSTRUCTION'
   instruction: string
@@ -108,16 +100,6 @@ export interface GetCurrentTokenCountMessage extends BaseMessage {
 }
 
 // Messages from extension to webview:
-export interface InitialPromptMessage extends BaseMessage {
-  command: 'INITIAL_PROMPT'
-  instruction: string
-}
-
-export interface InitialFimPromptMessage extends BaseMessage {
-  command: 'INITIAL_FIM_PROMPT'
-  instruction: string
-}
-
 export interface ConnectionStatusMessage extends BaseMessage {
   command: 'CONNECTION_STATUS'
   connected: boolean
@@ -196,8 +178,6 @@ export interface ActiveFileInfoMessage extends BaseMessage {
 
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
-  | GetLastPromptMessage
-  | GetLastFimPromptMessage
   | SaveChatInstructionMessage
   | SaveFimInstructionMessage
   | GetConnectionStatusMessage
@@ -221,8 +201,6 @@ export type WebviewMessage =
   | GetCurrentTokenCountMessage
 
 export type ExtensionMessage =
-  | InitialPromptMessage
-  | InitialFimPromptMessage
   | ConnectionStatusMessage
   | PresetsMessage
   | SelectedPresetsMessage

@@ -334,30 +334,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               ? 'fim-chat-history'
               : 'chat-history'
             await this._context.workspaceState.update(key, message.messages)
-          } else if (message.command == 'GET_LAST_PROMPT') {
-            const last_instruction =
-              this._context.workspaceState.get<string>('lastChatPrompt') || ''
-            this._send_message<ExtensionMessage>({
-              command: 'INITIAL_PROMPT',
-              instruction: last_instruction
-            })
-          } else if (message.command == 'GET_LAST_FIM_PROMPT') {
-            const last_fim_instruction =
-              this._context.workspaceState.get<string>('lastFimPrompt') || ''
-            this._send_message<ExtensionMessage>({
-              command: 'INITIAL_FIM_PROMPT',
-              instruction: last_fim_instruction
-            })
-          } else if (message.command == 'SAVE_CHAT_INSTRUCTION') {
-            await this._context.workspaceState.update(
-              'lastChatPrompt',
-              message.instruction
-            )
-          } else if (message.command == 'SAVE_FIM_INSTRUCTION') {
-            await this._context.workspaceState.update(
-              'lastFimPrompt',
-              message.instruction
-            )
           } else if (message.command == 'GET_CONNECTION_STATUS') {
             this._send_message<ExtensionMessage>({
               command: 'CONNECTION_STATUS',

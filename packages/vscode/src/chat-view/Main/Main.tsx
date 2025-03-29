@@ -12,10 +12,7 @@ type Props = {
   }) => void
   show_preset_picker: (instruction: string) => Promise<string[]>
   copy_to_clipboard: (instruction: string) => void
-  on_instruction_change: (instruction: string) => void
   open_settings: () => void
-  initial_normal_instruction: string
-  initial_fim_instruction: string
   is_connected: boolean
   presets: UiPresets.Preset[]
   selected_presets: string[]
@@ -34,13 +31,8 @@ type Props = {
 }
 
 export const Main: React.FC<Props> = (props) => {
-  // Separate state for normal and FIM mode instructions
-  const [normal_instruction, set_normal_instruction] = useState(
-    props.initial_normal_instruction
-  )
-  const [fim_instruction, set_fim_instruction] = useState(
-    props.initial_fim_instruction
-  )
+  const [normal_instruction, set_normal_instruction] = useState('')
+  const [fim_instruction, set_fim_instruction] = useState('')
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   // Current instruction is determined by mode
@@ -90,7 +82,6 @@ export const Main: React.FC<Props> = (props) => {
     } else {
       set_normal_instruction(value)
     }
-    props.on_instruction_change(value)
   }
 
   const handle_submit = async () => {
