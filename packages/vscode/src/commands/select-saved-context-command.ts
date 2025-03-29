@@ -29,7 +29,7 @@ async function apply_saved_context(
 
   if (existing_paths.length == 0) {
     vscode.window.showWarningMessage(
-      `No valid paths found in context "${context.name}"`
+      `No valid paths found in context "${context.name}".`
     )
     return
   }
