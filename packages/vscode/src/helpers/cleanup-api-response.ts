@@ -33,7 +33,8 @@ export function cleanup_api_response(params: { content: string }): string {
         /\s*```\s*$/, // Markdown code block end
         /\s*<\/files>\s*$/, // Files wrapper end
         /\s*<\/file>\s*$/, // File wrapper end
-        /\s*\]\]>\s*$/ // CDATA end
+        /\s*\]\]>\s*$/, // CDATA end
+        /\s*\]\]\s*$/ // Potentially incomplete CDATA end (just "]]", seen in Gemini Flash Thinking reponse)
       ]
 
       for (const pattern of closing_patterns) {
