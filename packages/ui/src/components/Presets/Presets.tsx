@@ -29,7 +29,7 @@ export namespace Presets {
     on_expanded_presets_change: (expanded_indices: number[]) => void
     is_fim_mode: boolean
     on_preset_copy: (name: string) => void
-    on_presets_reorder?: (reordered_presets: Preset[]) => void
+    on_presets_reorder: (reordered_presets: Preset[]) => void
   }
 }
 
@@ -201,9 +201,20 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                       })}
                     >
                       <div className={styles.presets__item__details__actions}>
+                        <label>
+                          Use by default
+                          <input
+                            type="checkbox"
+                            checked={
+                              props.selected_presets.includes(preset.name) ||
+                              false
+                            }
+                            onChange={() => handle_checkbox_change(preset.name)}
+                          />
+                        </label>
                         <div
                           className={
-                            styles.presets__item__details__actions__left
+                            styles.presets__item__details__actions__buttons
                           }
                         >
                           <IconButton
@@ -221,17 +232,6 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                             />
                           )}
                         </div>
-                        <label>
-                          Use by default
-                          <input
-                            type="checkbox"
-                            checked={
-                              props.selected_presets.includes(preset.name) ||
-                              false
-                            }
-                            onChange={() => handle_checkbox_change(preset.name)}
-                          />
-                        </label>
                       </div>
 
                       <div className={styles.presets__item__details__row}>

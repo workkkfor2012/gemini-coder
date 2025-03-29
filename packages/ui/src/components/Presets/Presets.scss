@@ -76,10 +76,6 @@
           cursor: grab;
           opacity: 0.5;
 
-          &:hover {
-            opacity: 1;
-          }
-
           &:active {
             cursor: grabbing;
           }
@@ -100,6 +96,7 @@
     }
 
     &__details {
+      position: relative;
       display: flex;
       flex-direction: column;
       padding: 8px;
@@ -113,21 +110,24 @@
       }
 
       &__actions {
+        position: absolute;
+        top: 6px;
+        right: 6px;
         display: flex;
-        justify-content: space-between;
-        margin-bottom: 8px;
-
-        &__left {
-          display: flex;
-          gap: 4px;
-        }
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 5px;
 
         > label {
           display: flex;
           align-items: center;
           gap: 4px;
           cursor: pointer;
-          order: 1;
+        }
+
+        &__buttons {
+          display: flex;
+          gap: 4px;
         }
       }
 
