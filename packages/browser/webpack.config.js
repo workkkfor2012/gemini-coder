@@ -28,7 +28,7 @@ module.exports = (_, argv) => {
   return {
     entry: {
       'send-prompt-content-script':
-        './src/content-scripts/send-prompt-content-script.ts',
+        './src/content-scripts/send-prompt-content-script/send-prompt-content-script.ts',
       'get-page-data-content-script':
         './src/content-scripts/get-page-data-content-script.ts',
       background: './src/background/main.ts',

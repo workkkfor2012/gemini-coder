@@ -1,5 +1,6 @@
 import browser from 'webextension-polyfill'
-import { Chat, InitializeChatsMessage } from '@shared/types/websocket-message'
+import { Chat } from '@shared/types/websocket-message'
+import { inject_apply_changes_buttons } from './inject-apply-changes-buttons'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -239,8 +240,8 @@ const set_model = async (model: string) => {
 
       // Find the option with the matching text
       for (const option of model_options) {
-        const labelElement = option.querySelector('[class*="ItemLabel"]')
-        if (labelElement && labelElement.textContent == model_map[model]) {
+        const label_element = option.querySelector('[class*="ItemLabel"]')
+        if (label_element && label_element.textContent == model_map[model]) {
           ;(option as HTMLElement).click()
           await new Promise((r) => requestAnimationFrame(r))
           break
@@ -442,6 +443,8 @@ const main = async () => {
 
   // Clean up the storage entry after using it
   await browser.storage.local.remove(storage_key)
+
+  inject_apply_changes_buttons({ is_ai_studio })
 }
 
 window.onload = main
