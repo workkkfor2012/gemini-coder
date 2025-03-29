@@ -105,6 +105,22 @@ export function activate(context: vscode.ExtensionContext) {
       open_editors_provider: open_editors_provider,
       context
     }),
+    apply_changes_command({
+      command: 'geminiCoder.applyChangesFastReplace',
+      file_tree_provider: workspace_provider,
+      open_editors_provider: open_editors_provider,
+      context,
+      use_default_model: true,
+      mode: 'Fast replace'
+    }),
+    apply_changes_command({
+      command: 'geminiCoder.applyChangesIntelligentUpdate',
+      file_tree_provider: workspace_provider,
+      open_editors_provider: open_editors_provider,
+      context,
+      use_default_model: true,
+      mode: 'Intelligent update'
+    }),
     refactor_command({
       command: 'geminiCoder.refactor',
       context,

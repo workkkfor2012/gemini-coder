@@ -481,6 +481,7 @@ export function apply_changes_command(params: {
   open_editors_provider?: any
   context: vscode.ExtensionContext
   use_default_model?: boolean
+  mode?: 'Fast replace' | 'Intelligent update'
 }) {
   const model_manager = new ModelManager(params.context)
 
@@ -501,8 +502,12 @@ export function apply_changes_command(params: {
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
     const verbose = config.get<boolean>('geminiCoder.verbose')
     const max_concurrency = 10
+
+    // Modify the default mode selection to respect forced mode
     const default_apply_changes_mode =
-      config.get<string>('geminiCoder.defaultApplyChangesMode') || 'Always ask'
+      params.mode ||
+      config.get<string>('geminiCoder.defaultApplyChangesMode') ||
+      'Always ask'
 
     // Get default model from global state instead of config
     const default_model_name = model_manager.get_default_apply_changes_model()
@@ -541,74 +546,81 @@ export function apply_changes_command(params: {
 
     // Handle multiple files case - check if we should use Fast Replace first
     if (is_multiple_files) {
-      // Determine if we need to ask the user for the mode
-      const should_ask_for_mode =
-        params.command == 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
-        (params.command == 'geminiCoder.applyChanges' && // Ask for 'applyChanges' only if setting is 'Always ask'
-          default_apply_changes_mode == 'Always ask')
+      if (params.mode) {
+        selected_mode_label = params.mode
+      } else {
+        // Determine if we need to ask the user for the mode
+        const should_ask_for_mode =
+          params.command == 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
+          (params.command == 'geminiCoder.applyChanges' && // Ask for 'applyChanges' only if setting is 'Always ask'
+            default_apply_changes_mode == 'Always ask')
 
-      if (should_ask_for_mode) {
-        // Modify the mode_options creation to put last used option on top
-        const last_used_mode = params.context.globalState.get<string>(
-          'lastUsedApplyChangesMode'
-        )
-        const mode_options = []
-
-        // Define all available modes
-        const all_modes = [
-          {
-            label: 'Intelligent update',
-            description: 'Use AI to apply shortened files'
-          },
-          {
-            label: 'Fast replace',
-            description: 'Suitable if files are in a "whole" format'
-          }
-        ]
-
-        // If there's a last used mode, put it first
-        if (last_used_mode) {
-          const last_used_mode_option = all_modes.find(
-            (mode) => mode.label == last_used_mode
+        if (should_ask_for_mode) {
+          // Modify the mode_options creation to put last used option on top
+          const last_used_mode = params.context.globalState.get<string>(
+            'lastUsedApplyChangesMode'
           )
-          if (last_used_mode_option) {
-            mode_options.push({
-              ...last_used_mode_option,
-              description: `${last_used_mode_option.description} (Last used)`
-            })
+          const mode_options = []
 
-            // Add the rest of the modes
-            mode_options.push(
-              ...all_modes.filter((mode) => mode.label != last_used_mode)
+          // Define all available modes
+          const all_modes = [
+            {
+              label: 'Intelligent update',
+              description: 'Use AI to apply shortened files'
+            },
+            {
+              label: 'Fast replace',
+              description: 'Suitable if files are in a "whole" format'
+            }
+          ]
+
+          // If there's a last used mode, put it first
+          if (last_used_mode) {
+            const last_used_mode_option = all_modes.find(
+              (mode) => mode.label == last_used_mode
             )
+            if (last_used_mode_option) {
+              mode_options.push({
+                ...last_used_mode_option,
+                description: `${last_used_mode_option.description} (Last used)`
+              })
+
+              // Add the rest of the modes
+              mode_options.push(
+                ...all_modes.filter((mode) => mode.label != last_used_mode)
+              )
+            } else {
+              mode_options.push(...all_modes)
+            }
           } else {
+            // No last used mode, use the default order
             mode_options.push(...all_modes)
           }
-        } else {
-          // No last used mode, use the default order
-          mode_options.push(...all_modes)
-        }
 
-        const selected_mode = await vscode.window.showQuickPick(mode_options, {
-          placeHolder: 'Choose how to apply changes'
-        })
-
-        if (!selected_mode) {
-          return // User cancelled
-        }
-        selected_mode_label = selected_mode.label
-
-        // Add this after selecting the mode
-        if (selected_mode) {
-          // Store the last used mode in global state
-          params.context.globalState.update(
-            'lastUsedApplyChangesMode',
-            selected_mode.label
+          const selected_mode = await vscode.window.showQuickPick(
+            mode_options,
+            {
+              placeHolder: 'Choose how to apply changes'
+            }
           )
+
+          if (!selected_mode) {
+            return // User cancelled
+          }
+          selected_mode_label = selected_mode.label
+
+          // Add this after selecting the mode
+          if (selected_mode) {
+            // Store the last used mode in global state
+            params.context.globalState.update(
+              'lastUsedApplyChangesMode',
+              selected_mode.label
+            )
+          }
+        } else {
+          // Use the default mode if not asking
+          selected_mode_label = default_apply_changes_mode
         }
-      } else {
-        // Use the default mode if not asking
-        selected_mode_label = default_apply_changes_mode
       }
 
       // Handle Fast replace mode - we don't need the bearer token for this

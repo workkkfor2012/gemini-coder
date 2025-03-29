@@ -148,10 +148,7 @@ export class WebSocketManager {
             (message as UpdateSavedWebsitesMessage).websites
           )
         } else if (message.action == 'invoke-fast-replace') {
-          // Verify client ID matches before executing command
-          // Execute the fast replace command
-          console.log('Executing fast replace command')
-          vscode.commands.executeCommand('geminiCoder.applyChanges')
+          vscode.commands.executeCommand('geminiCoder.applyChangesFastReplace')
         }
       } catch (error) {
         console.error('Error processing message:', error)
