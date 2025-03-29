@@ -408,8 +408,6 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               return
             }
 
-            console.log(valid_preset_names)
-
             const files_collector = new FilesCollector(
               this._workspace_provider,
               this._open_editors_provider,

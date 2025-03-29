@@ -150,28 +150,44 @@ function App() {
 
     // Update the appropriate chat history based on mode
     if (is_fim_mode) {
-      const new_history = [params.instruction, ...chat_history_fim_mode!].slice(
-        0,
-        100
-      )
-      set_chat_history_fim_mode(new_history)
+      // Check if this instruction is already at the top of history
+      const is_duplicate =
+        chat_history_fim_mode &&
+        chat_history_fim_mode.length > 0 &&
+        chat_history_fim_mode[0] == params.instruction
 
-      // Save to workspace state
-      vscode.postMessage({
-        command: 'SAVE_CHAT_HISTORY',
-        messages: new_history,
-        is_fim_mode: true
-      } as WebviewMessage)
+      if (!is_duplicate) {
+        const new_history = [
+          params.instruction,
+          ...chat_history_fim_mode!
+        ].slice(0, 100)
+        set_chat_history_fim_mode(new_history)
+
+        // Save to workspace state
+        vscode.postMessage({
+          command: 'SAVE_CHAT_HISTORY',
+          messages: new_history,
+          is_fim_mode: true
+        } as WebviewMessage)
+      }
     } else {
-      const new_history = [params.instruction, ...chat_history!].slice(0, 100)
-      set_chat_history(new_history)
+      // Check if this instruction is already at the top of history
+      const is_duplicate =
+        chat_history &&
+        chat_history.length > 0 &&
+        chat_history[0] === params.instruction
 
-      // Save to workspace state
-      vscode.postMessage({
-        command: 'SAVE_CHAT_HISTORY',
-        messages: new_history,
-        is_fim_mode: false
-      } as WebviewMessage)
+      if (!is_duplicate) {
+        const new_history = [params.instruction, ...chat_history!].slice(0, 100)
+        set_chat_history(new_history)
+
+        // Save to workspace state
+        vscode.postMessage({
+          command: 'SAVE_CHAT_HISTORY',
+          messages: new_history,
+          is_fim_mode: false
+        } as WebviewMessage)
+      }
     }
   }
 
