@@ -273,14 +273,8 @@ export function refactor_command(params: {
             body,
             cancel_token_source.token,
             (chunk: string) => {
-              // Update progress on each chunk
               received_length += chunk.length
-              const percentage = Math.min(
-                Math.round((received_length / total_length) * 100),
-                100
-              )
               progress.report({
-                message: `${percentage}% received...`,
                 increment: (chunk.length / total_length) * 100
               })
             }

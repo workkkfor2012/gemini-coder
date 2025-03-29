@@ -389,80 +389,66 @@ async function revert_files(
   original_states: OriginalFileState[]
 ): Promise<boolean> {
   try {
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: 'Reverting changes',
-        cancellable: false
-      },
-      async (progress) => {
-        const total_count = original_states.length
-        let processed_count = 0
-
-        for (const state of original_states) {
-          // For new files that were created, delete them
-          if (state.is_new) {
-            if (vscode.workspace.workspaceFolders) {
-              const file_path = path.join(
-                vscode.workspace.workspaceFolders[0].uri.fsPath,
-                state.file_path
-              )
-              if (fs.existsSync(file_path)) {
-                // Close any editors with the file open
-                const uri = vscode.Uri.file(file_path)
-                // Try to close the editor if it's open
-                const text_editors = vscode.window.visibleTextEditors.filter(
-                  (editor) => editor.document.uri.toString() == uri.toString()
-                )
-                for (const editor of text_editors) {
-                  await vscode.window.showTextDocument(editor.document, {
-                    preview: false,
-                    preserveFocus: false
-                  })
-                  await vscode.commands.executeCommand(
-                    'workbench.action.closeActiveEditor'
-                  )
-                }
-
-                // Delete the file
-                fs.unlinkSync(file_path)
-              }
-            }
-          } else {
-            // For existing files that were modified, restore original content
-            const file_uri = vscode.Uri.file(
-              path.join(
-                vscode.workspace.workspaceFolders![0].uri.fsPath,
-                state.file_path
-              )
+    for (const state of original_states) {
+      // For new files that were created, delete them
+      if (state.is_new) {
+        if (vscode.workspace.workspaceFolders) {
+          const file_path = path.join(
+            vscode.workspace.workspaceFolders[0].uri.fsPath,
+            state.file_path
+          )
+          if (fs.existsSync(file_path)) {
+            // Close any editors with the file open
+            const uri = vscode.Uri.file(file_path)
+            // Try to close the editor if it's open
+            const text_editors = vscode.window.visibleTextEditors.filter(
+              (editor) => editor.document.uri.toString() == uri.toString()
             )
-
-            try {
-              const document = await vscode.workspace.openTextDocument(file_uri)
-              const editor = await vscode.window.showTextDocument(document)
-              await editor.edit((edit) => {
-                edit.replace(
-                  new vscode.Range(
-                    document.positionAt(0),
-                    document.positionAt(document.getText().length)
-                  ),
-                  state.content
-                )
+            for (const editor of text_editors) {
+              await vscode.window.showTextDocument(editor.document, {
+                preview: false,
+                preserveFocus: false
               })
-              await document.save()
-            } catch (err) {
-              console.error(`Error reverting file ${state.file_path}:`, err)
+              await vscode.commands.executeCommand(
+                'workbench.action.closeActiveEditor'
+              )
             }
-          }
 
-          processed_count++
-          progress.report({
-            message: `${processed_count}/${total_count} files reverted`,
-            increment: (1 / total_count) * 100
+            // Delete the file
+            fs.unlinkSync(file_path)
+          }
+        }
+      } else {
+        // For existing files that were modified, restore original content
+        const file_uri = vscode.Uri.file(
+          path.join(
+            vscode.workspace.workspaceFolders![0].uri.fsPath,
+            state.file_path
+          )
+        )
+
+        try {
+          const document = await vscode.workspace.openTextDocument(file_uri)
+          const editor = await vscode.window.showTextDocument(document)
+          await editor.edit((edit) => {
+            edit.replace(
+              new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length)
+              ),
+              state.content
+            )
           })
+          await document.save()
+        } catch (err) {
+          console.error(`Error reverting file ${state.file_path}:`, err)
+          // Optionally, notify the user about the specific file error
+          vscode.window.showWarningMessage(
+            `Could not revert file: ${state.file_path}. It might have been closed or deleted.`
+          )
         }
       }
-    )
+    }
 
     vscode.window.showInformationMessage('Changes successfully reverted.')
     return true
