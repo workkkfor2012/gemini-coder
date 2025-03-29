@@ -181,6 +181,9 @@ async function process_file(params: {
     )
 
     if (!refactored_content) {
+      if (axios.isCancel(params.cancel_token?.reason)) {
+        return null // Silent cancellation
+      }
       vscode.window.showErrorMessage(
         `Applying changes to ${params.file_path} failed. Please try again later.`
       )
@@ -192,10 +195,10 @@ async function process_file(params: {
     return cleanup_api_response({
       content: refactored_content
     })
-  } catch (error) {
-    // Check if this is a cancellation error
+  } catch (error: any) {
+    // First check for cancellation
     if (axios.isCancel(error)) {
-      return null
+      return null // Silent cancellation
     }
 
     // For other errors, show the error message as before
@@ -869,8 +872,10 @@ export function apply_changes_command(params: {
                       }
                     })
 
-                    // Handle errors and rate limits
                     if (!updated_content) {
+                      if (token.isCancellationRequested) {
+                        throw new Error('Operation cancelled')
+                      }
                       throw new Error(
                         `Failed to apply changes to ${file.file_path}`
                       )
@@ -951,7 +956,11 @@ export function apply_changes_command(params: {
                     }
                   } catch (error: any) {
                     // Re-throw the error to be caught by the Promise.all
-                    if (axios.isCancel(error)) {
+                    if (
+                      token.isCancellationRequested ||
+                      error.message === 'Operation cancelled' ||
+                      axios.isCancel(error)
+                    ) {
                       throw new Error('Operation cancelled')
                     } else {
                       console.error(
@@ -1010,14 +1019,20 @@ export function apply_changes_command(params: {
               // If any file processing fails, cancel the entire operation
               cancel_token_source.cancel('Operation failed')
 
-              // Show error message
-              if (error.message == 'Operation cancelled') {
-                vscode.window.showInformationMessage('Operation was cancelled.')
-              } else {
-                vscode.window.showErrorMessage(
-                  `Operation failed and was aborted: ${error.message}`
-                )
+              // Check for cancellation or cancellation-related errors
+              if (
+                error.message === 'Operation cancelled' ||
+                axios.isCancel(error) ||
+                error.message?.includes('Failed to apply changes')
+              ) {
+                // Silent cancellation - no error message needed
+                return false
               }
+
+              // Show error message only for other types of errors
+              vscode.window.showErrorMessage(
+                `An error occurred during processing: ${error.message}`
+              )
               return false // Indicate failure
             }
           }
@@ -1155,7 +1170,7 @@ export function apply_changes_command(params: {
               }
             } catch (error) {
               if (axios.isCancel(error)) {
-                return
+                return // Silently return on cancellation
               }
               console.error('Refactoring error:', error)
               vscode.window.showErrorMessage(
