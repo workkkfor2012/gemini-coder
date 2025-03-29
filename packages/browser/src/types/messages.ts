@@ -21,8 +21,14 @@ export type ChatInitializedMessage = {
   action: 'chat-initialized'
 }
 
+export type InvokeFastReplaceMessage = {
+  action: 'invoke-fast-replace'
+  client_id: number
+}
+
 export type Message =
   | GetPageDataMessage
   | PageDataMessage
   | UpdateSavedWebsitesMessage
   | ChatInitializedMessage
+  | InvokeFastReplaceMessage

@@ -309,6 +309,7 @@ const main = async () => {
   const stored_data = storage[storage_key] as {
     text: string
     current_chat: Chat
+    client_id: number
   }
 
   if (!stored_data) {
@@ -444,7 +445,10 @@ const main = async () => {
   // Clean up the storage entry after using it
   await browser.storage.local.remove(storage_key)
 
-  inject_apply_changes_buttons({ is_ai_studio })
+  inject_apply_changes_buttons({
+    client_id: stored_data.client_id,
+    is_ai_studio
+  })
 }
 
 window.onload = main

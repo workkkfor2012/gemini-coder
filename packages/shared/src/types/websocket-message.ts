@@ -31,6 +31,11 @@ export type BrowserConnectionStatusMessage = {
   has_connected_browsers: boolean
 }
 
+export type InvokeFastReplaceMessage = {
+  action: 'invoke-fast-replace'
+  client_id: number
+}
+
 export type ClientIdAssignmentMessage = {
   action: 'client-id-assignment'
   client_id: number
@@ -41,3 +46,4 @@ export type WebSocketMessage =
   | UpdateSavedWebsitesMessage
   | BrowserConnectionStatusMessage
   | ClientIdAssignmentMessage
+  | InvokeFastReplaceMessage

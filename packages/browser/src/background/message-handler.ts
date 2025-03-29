@@ -1,9 +1,10 @@
 import {
   WebSocketMessage,
-  InitializeChatsMessage
+  InitializeChatsMessage,
+  InvokeFastReplaceMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
-import { send_saved_websites } from './websocket'
+import { send_saved_websites, send_message_to_server } from './websocket'
 import { is_message } from '@/utils/is-message'
 
 // Queue to manage multiple chat initialization
@@ -96,7 +97,8 @@ const process_next_chat = async () => {
   await browser.storage.local.set({
     [`chat-init:${batch_id}`]: {
       text: current_queue_item.message.text,
-      current_chat: current_chat
+      current_chat: current_chat,
+      client_id: current_queue_item.message.client_id
     }
   })
 
@@ -108,10 +110,12 @@ const process_next_chat = async () => {
 
   // Increment the current index for the next chat
   current_queue_item.current_index++
-  
+
   // Set a timeout to automatically proceed if no confirmation is received
   current_queue_item.timeout_id = setTimeout(() => {
-    console.warn(`Chat initialization timeout for ${current_chat.url}. Moving to next chat.`)
+    console.warn(
+      `Chat initialization timeout for ${current_chat.url}. Moving to next chat.`
+    )
     current_queue_item.remaining_chats--
     process_next_chat()
   }, CHAT_INITIALIZATION_TIMEOUT) as unknown as number
@@ -147,7 +151,7 @@ const handle_initialize_chats_message = async (
 }
 
 /**
- * Handler for chat-initialized messages from content scripts
+ * Handle chat-initialized messages from content scripts
  */
 const handle_chat_initialized = async () => {
   // Process the next chat in the queue if one exists
@@ -157,7 +161,7 @@ const handle_chat_initialized = async () => {
       clearTimeout(chat_queue[0].timeout_id)
       chat_queue[0].timeout_id = undefined
     }
-    
+
     chat_queue[0].remaining_chats--
     await process_next_chat()
   }
@@ -173,6 +177,11 @@ export const setup_message_listeners = () => {
         send_saved_websites(message.websites)
       } else if (message.action == 'chat-initialized') {
         handle_chat_initialized()
+      } else if (message.action == 'invoke-fast-replace') {
+        send_message_to_server({
+          action: 'invoke-fast-replace',
+          client_id: message.client_id
+        } as InvokeFastReplaceMessage)
       }
     }
   })

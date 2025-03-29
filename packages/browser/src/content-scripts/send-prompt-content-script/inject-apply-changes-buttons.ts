@@ -1,7 +1,12 @@
+import browser from 'webextension-polyfill'
+
 // Function to add a button to message footers
-const add_button_to_message_footer = (footer: Element) => {
+const add_button_to_message_footer = (params: {
+  footer: Element
+  client_id: number
+}) => {
   // Check if button already exists to avoid duplicates
-  if (footer.querySelector('.fast-replace-button')) return
+  if (params.footer.querySelector('.fast-replace-button')) return
 
   // Create button element
   const button = document.createElement('button')
@@ -10,39 +15,59 @@ const add_button_to_message_footer = (footer: Element) => {
   button.style.marginLeft = '8px'
   button.style.padding = '4px 8px'
   button.style.borderRadius = '4px'
-  button.style.backgroundColor = '#f0f0f0'
-  button.style.border = '1px solid #ccc'
+  button.style.color = 'white'
+  button.style.backgroundColor = 'black'
+  button.style.border = '1px solid white'
   button.style.cursor = 'pointer'
 
   // Add event listener for button click
-  button.addEventListener('click', (e) => {
-    e.preventDefault()
-    e.stopPropagation()
-    // Handle button click action
-    console.log('Fast replace')
-    
+  button.addEventListener('click', () => {
+    // Find the parent chat-turn-container
+    const chat_turn_container = params.footer.closest('div.chat-turn-container')
+    if (chat_turn_container) {
+      // Find the ms-chat-turn-options element within the container
+      const options = chat_turn_container.querySelector(
+        'ms-chat-turn-options > div > button'
+      )
+      if (options) {
+        // Simulate a click on the ms-chat-turn-options element
+        ;(options as any).click()
+        const markdown_copy_button = Array.from(
+          document.querySelectorAll('button')
+        ).find((button) => button.textContent?.includes('markdown_copy'))
+
+        if (markdown_copy_button) {
+          ;(markdown_copy_button as any).click()
+          browser.runtime.sendMessage({
+            action: 'invoke-fast-replace',
+            client_id: params.client_id
+          })
+        }
+      }
+    }
   })
 
   // Append button to the footer
-  footer.appendChild(button)
+  params.footer.appendChild(button)
 }
 
 // Function to observe DOM for new message footers
 export const inject_apply_changes_buttons = (params: {
+  client_id: number
   is_ai_studio: boolean
 }) => {
   if (params.is_ai_studio) {
     const attribute_observer = new MutationObserver((mutations) => {
       mutations.forEach((mutation) => {
         if (
-          mutation.type === 'attributes' &&
-          (mutation.attributeName === 'disabled' ||
-            mutation.attributeName === 'mattooltipclass')
+          mutation.type == 'attributes' &&
+          (mutation.attributeName == 'disabled' ||
+            mutation.attributeName == 'mattooltipclass')
         ) {
           const target = mutation.target as Element
           if (
-            target.nodeName === 'BUTTON' &&
-            target.getAttribute('mattooltipclass') === 'run-button-tooltip' &&
+            target.nodeName == 'BUTTON' &&
+            target.getAttribute('mattooltipclass') == 'run-button-tooltip' &&
             target.hasAttribute('disabled')
           ) {
             console.log(
@@ -52,7 +77,10 @@ export const inject_apply_changes_buttons = (params: {
             const allFooters = document.querySelectorAll('div.turn-footer')
             allFooters.forEach((footer) => {
               if (footer.textContent?.includes('thumb_up')) {
-                add_button_to_message_footer(footer)
+                add_button_to_message_footer({
+                  footer,
+                  client_id: params.client_id
+                })
               }
             })
           }

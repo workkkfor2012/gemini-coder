@@ -155,40 +155,35 @@ wss.on('connection', (ws: any, request: any) => {
 
   // Handle messages from clients
   ws.on('message', (message: any) => {
-    try {
-      const msg_string = message.toString()
+    const msg_string = message.toString()
+    const msg_data = JSON.parse(msg_string)
 
-      // Handle ping message specially
-      if (msg_string == 'ping') {
-        // Just keep the connection alive, no response needed
-        return
+    // Handle different message types
+    if (msg_data.action == 'initialize-chats') {
+      if (
+        current_browser_client &&
+        current_browser_client.ws.readyState === WebSocket.OPEN
+      ) {
+        // Forward the message with client ID to browser client
+        current_browser_client.ws.send(msg_string)
       }
+    } else if (msg_data.action == 'update-saved-websites') {
+      // Store the updated websites
+      saved_websites = msg_data.websites
 
-      const msg_data = JSON.parse(msg_string)
-
-      // Handle different message types
-      if (msg_data.action == 'initialize-chats') {
-        if (
-          current_browser_client &&
-          current_browser_client.ws.readyState === WebSocket.OPEN
-        ) {
-          // Forward the message with client ID to browser client
-          current_browser_client.ws.send(msg_string)
-        }
-      } else if (msg_data.action == 'update-saved-websites') {
-        // Store the updated websites
-        saved_websites = msg_data.websites
-        console.log(`Received ${saved_websites.length} saved websites`)
-
-        // Forward to VS Code clients
-        for (const client of vscode_clients.values()) {
-          if (client.ws.readyState == WebSocket.OPEN) {
-            client.ws.send(msg_string)
-          }
+      // Forward to VS Code clients
+      for (const client of vscode_clients.values()) {
+        if (client.ws.readyState == WebSocket.OPEN) {
+          client.ws.send(msg_string)
         }
       }
-    } catch (error) {
-      console.error('Error processing message:', error)
+    } else if (msg_data.action == 'invoke-fast-replace') {
+      // Forward the message to the specific VS Code client based on client_id
+      const target_client_id = msg_data.client_id
+      const target_client = vscode_clients.get(target_client_id)
+      if (target_client && target_client.ws.readyState == WebSocket.OPEN) {
+        target_client.ws.send(msg_string)
+      }
     }
   })
 

@@ -110,6 +110,19 @@ export function send_saved_websites(websites: Website[]) {
 }
 
 /**
+ * Send a generic message to the WebSocket server
+ */
+export function send_message_to_server(message: any) {
+  if (websocket?.readyState == WebSocket.OPEN) {
+    console.debug('Sending message to server:', message)
+    websocket.send(JSON.stringify(message))
+    return true
+  }
+  console.warn('WebSocket not connected, cannot send message:', message)
+  return false
+}
+
+/**
  * Retrieve and send current saved websites
  */
 async function send_current_saved_websites() {

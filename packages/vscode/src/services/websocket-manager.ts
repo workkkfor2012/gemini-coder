@@ -5,7 +5,8 @@ import * as path from 'path'
 import * as net from 'net'
 import {
   InitializeChatsMessage,
-  UpdateSavedWebsitesMessage
+  UpdateSavedWebsitesMessage,
+  InvokeFastReplaceMessage
 } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
@@ -146,6 +147,11 @@ export class WebSocketManager {
           this.websites_provider?.update_websites(
             (message as UpdateSavedWebsitesMessage).websites
           )
+        } else if (message.action == 'invoke-fast-replace') {
+          // Verify client ID matches before executing command
+          // Execute the fast replace command
+          console.log('Executing fast replace command')
+          vscode.commands.executeCommand('geminiCoder.applyChanges')
         }
       } catch (error) {
         console.error('Error processing message:', error)
