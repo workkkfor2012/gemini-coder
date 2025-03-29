@@ -384,6 +384,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               return
             }
 
+            await vscode.workspace.saveAll()
+
             const files_collector = new FilesCollector(
               this._workspace_provider,
               this._open_editors_provider,
