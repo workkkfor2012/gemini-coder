@@ -157,6 +157,9 @@ export function refactor_command(params: {
     const document_path = document.uri.fsPath
     const document_text = document.getText()
 
+    // Store original content for potential reversion
+    const original_content = document_text
+
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
@@ -312,7 +315,27 @@ export function refactor_command(params: {
             // Format the document after applying changes
             await format_document(document)
 
-            vscode.window.showInformationMessage(`Changes have been applied!`)
+            // Show success message with Revert option
+            const response = await vscode.window.showInformationMessage(
+              'Changes have been applied!',
+              'Revert'
+            )
+
+            // Handle revert action if selected
+            if (response == 'Revert') {
+              await editor.edit((editBuilder) => {
+                const full_range = new vscode.Range(
+                  document.positionAt(0),
+                  document.positionAt(document.getText().length)
+                )
+                editBuilder.replace(full_range, original_content)
+              })
+              await document.save()
+              vscode.window.showInformationMessage(
+                'Changes reverted successfully.'
+              )
+            }
+
             return
           }
 
@@ -332,7 +355,26 @@ export function refactor_command(params: {
           // Format the document after applying changes
           await format_document(document)
 
-          vscode.window.showInformationMessage(`Changes have been applied!`)
+          // Show success message with Revert option
+          const response = await vscode.window.showInformationMessage(
+            'Changes have been applied!',
+            'Revert'
+          )
+
+          // Handle revert action if selected
+          if (response == 'Revert') {
+            await editor.edit((editBuilder) => {
+              const full_range = new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length)
+              )
+              editBuilder.replace(full_range, original_content)
+            })
+            await document.save()
+            vscode.window.showInformationMessage(
+              'Changes reverted successfully.'
+            )
+          }
         } catch (error) {
           if (axios.isCancel(error)) return
           console.error('Refactoring error:', error)
