@@ -28,6 +28,7 @@ type Props = {
   token_count: number
   selection_text?: string
   active_file_length?: number
+  on_presets_reorder: (reordered_presets: UiPresets.Preset[]) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -195,6 +196,7 @@ export const Main: React.FC<Props> = (props) => {
         }}
         on_preset_copy={handle_preset_copy}
         is_fim_mode={props.is_fim_mode}
+        on_presets_reorder={props.on_presets_reorder}
       />
     </div>
   )

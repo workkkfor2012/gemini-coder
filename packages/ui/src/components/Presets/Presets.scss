@@ -69,6 +69,21 @@
         display: flex;
         align-items: center;
         gap: 4px;
+
+        &__drag_handle {
+          display: flex;
+          align-items: center;
+          cursor: grab;
+          opacity: 0.5;
+
+          &:hover {
+            opacity: 1;
+          }
+
+          &:active {
+            cursor: grabbing;
+          }
+        }
       }
     }
 

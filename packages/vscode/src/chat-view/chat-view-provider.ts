@@ -625,6 +625,22 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
             this._calculate_token_count()
+          } else if (message.command == 'SAVE_PRESETS_ORDER') {
+            const config = vscode.workspace.getConfiguration()
+            await config.update(
+              'geminiCoder.presets',
+              message.presets.map((preset) => ({
+                name: preset.name,
+                chatbot: preset.chatbot,
+                promptPrefix: preset.prompt_prefix,
+                promptSuffix: preset.prompt_suffix,
+                model: preset.model,
+                temperature: preset.temperature,
+                systemInstructions: preset.system_instructions,
+                options: preset.options
+              })),
+              true
+            )
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

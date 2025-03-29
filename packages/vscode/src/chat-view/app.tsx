@@ -233,6 +233,26 @@ function App() {
     set_is_fim_mode(!is_fim_mode)
   }
 
+  const handle_presets_reorder = (reordered_presets: UiPresets.Preset[]) => {
+    // Update local state
+    set_presets(reordered_presets)
+
+    // Send message to extension to save the new order
+    vscode.postMessage({
+      command: 'SAVE_PRESETS_ORDER',
+      presets: reordered_presets.map((preset) => ({
+        name: preset.name,
+        chatbot: String(preset.chatbot),
+        prompt_prefix: preset.prompt_prefix,
+        prompt_suffix: preset.prompt_suffix,
+        model: preset.model,
+        temperature: preset.temperature,
+        system_instructions: preset.system_instructions,
+        options: preset.options
+      }))
+    } as WebviewMessage)
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -266,6 +286,7 @@ function App() {
       token_count={token_count}
       selection_text={selection_text}
       active_file_length={active_file_length}
+      on_presets_reorder={handle_presets_reorder}
     />
   )
 }

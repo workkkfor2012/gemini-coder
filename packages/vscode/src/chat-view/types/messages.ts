@@ -39,6 +39,11 @@ export interface SaveExpandedPresetsMessage extends BaseMessage {
   indices: number[]
 }
 
+export interface SavePresetsOrderMessage extends BaseMessage {
+  command: 'SAVE_PRESETS_ORDER'
+  presets: PresetMessageFormat[]
+}
+
 export interface SendPromptMessage extends BaseMessage {
   command: 'SEND_PROMPT'
   instruction: string
@@ -186,6 +191,7 @@ export type WebviewMessage =
   | SaveSelectedPresetsMessage
   | GetExpandedPresetsMessage
   | SaveExpandedPresetsMessage
+  | SavePresetsOrderMessage
   | SendPromptMessage
   | CopyPromptMessage
   | ShowErrorMessage

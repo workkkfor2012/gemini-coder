@@ -38,6 +38,9 @@ export const Multiple = () => {
       }
       is_fim_mode={false}
       on_preset_copy={(name) => console.log('on_preset_copy', name)}
+      on_presets_reorder={(reordered) =>
+        console.log('on_presets_reorder', reordered)
+      }
     />
   )
 }
@@ -59,6 +62,9 @@ export const Empty = () => {
       }
       is_fim_mode={false}
       on_preset_copy={(name) => console.log('on_preset_copy', name)}
+      on_presets_reorder={(reordered) =>
+        console.log('on_presets_reorder', reordered)
+      }
     />
   )
 }
