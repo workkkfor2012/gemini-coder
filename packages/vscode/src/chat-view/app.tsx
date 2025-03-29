@@ -46,20 +46,22 @@ function App() {
   const [active_file_length, set_active_file_length] = useState<number>(0)
 
   useEffect(() => {
-    vscode.postMessage({ command: 'GET_LAST_PROMPT' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_LAST_FIM_PROMPT' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_CONNECTION_STATUS' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_PRESETS' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_SELECTED_PRESETS' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_EXPANDED_PRESETS' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_FIM_MODE' } as WebviewMessage)
-    vscode.postMessage({ command: 'REQUEST_EDITOR_STATE' } as WebviewMessage)
-    vscode.postMessage({
-      command: 'REQUEST_EDITOR_SELECTION_STATE'
-    } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_CHAT_HISTORY' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_FIM_CHAT_HISTORY' } as WebviewMessage)
-    vscode.postMessage({ command: 'GET_CURRENT_TOKEN_COUNT' } as WebviewMessage)
+    const initialMessages = [
+      { command: 'GET_LAST_PROMPT' },
+      { command: 'GET_LAST_FIM_PROMPT' },
+      { command: 'GET_CONNECTION_STATUS' },
+      { command: 'GET_PRESETS' },
+      { command: 'GET_SELECTED_PRESETS' },
+      { command: 'GET_EXPANDED_PRESETS' },
+      { command: 'GET_FIM_MODE' },
+      { command: 'REQUEST_EDITOR_STATE' },
+      { command: 'REQUEST_EDITOR_SELECTION_STATE' },
+      { command: 'GET_CHAT_HISTORY' },
+      { command: 'GET_FIM_CHAT_HISTORY' },
+      { command: 'GET_CURRENT_TOKEN_COUNT' },
+    ] as WebviewMessage[]
+
+    initialMessages.forEach(message => vscode.postMessage(message))
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data as ExtensionMessage
@@ -308,3 +310,4 @@ function App() {
 
 const root = ReactDOM.createRoot(document.getElementById('root') as HTMLElement)
 root.render(<App />)
+]]

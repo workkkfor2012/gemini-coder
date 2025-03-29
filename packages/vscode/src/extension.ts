@@ -72,7 +72,12 @@ export function activate(context: vscode.ExtensionContext) {
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
         'geminiCoderViewChat',
-        chat_view_provider
+        chat_view_provider,
+        {
+          webviewOptions: {
+            retainContextWhenHidden: true
+          }
+        }
       )
     )
   }
