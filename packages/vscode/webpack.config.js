@@ -50,12 +50,12 @@ function create_webview_config(name, entry_path) {
                 modules: {
                   getLocalIdent: (context, localIdentName, localName) => {
                     const filename = context.resourcePath
-                    const is_module = /\.module\.(scss|css)$/i.test(filename)
-                    if (is_module) {
-                      const module_name = path
+                    const isModule = /\.module\.(scss|css)$/i.test(filename)
+                    if (isModule) {
+                      const moduleName = path
                         .basename(filename)
                         .replace(/\.module\.(scss|css)$/i, '')
-                      return `${module_name}__${localName}`
+                      return `${moduleName}__${localName}`
                     }
                     return localName
                   }
@@ -63,7 +63,15 @@ function create_webview_config(name, entry_path) {
                 importLoaders: 1
               }
             },
-            'sass-loader'
+            {
+              loader: 'sass-loader',
+              options: {
+                additionalData: `@use "${path.resolve(
+                  __dirname,
+                  '../ui/src/styles/foundation'
+                )}" as *;`
+              }
+            }
           ]
         },
         {

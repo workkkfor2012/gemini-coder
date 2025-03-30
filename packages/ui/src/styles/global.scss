@@ -1,3 +1,7 @@
+:root {
+  @include variables;
+}
+
 *,
 *::before,
 *::after {
@@ -5,7 +9,7 @@
 }
 
 body {
-  padding: 0 12px;
+  padding: 0 var(--padding-12px);
 }
 
 button {

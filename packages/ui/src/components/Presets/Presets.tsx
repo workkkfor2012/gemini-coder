@@ -201,37 +201,18 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                       })}
                     >
                       <div className={styles.presets__item__details__actions}>
-                        <label>
-                          Use by default
-                          <input
-                            type="checkbox"
-                            checked={
-                              props.selected_presets.includes(preset.name) ||
-                              false
-                            }
-                            onChange={() => handle_checkbox_change(preset.name)}
-                          />
-                        </label>
-                        <div
-                          className={
-                            styles.presets__item__details__actions__buttons
-                          }
-                        >
+                        {has_affixes && (
                           <IconButton
-                            codicon_icon="send"
-                            on_click={() => props.on_preset_click(preset.name)}
-                            title="Send"
+                            codicon_icon="copy"
+                            on_click={() => props.on_preset_copy!(preset.name)}
+                            title="Copy to clipboard"
                           />
-                          {has_affixes && (
-                            <IconButton
-                              codicon_icon="copy"
-                              on_click={() =>
-                                props.on_preset_copy!(preset.name)
-                              }
-                              title="Copy to clipboard"
-                            />
-                          )}
-                        </div>
+                        )}
+                        <IconButton
+                          codicon_icon="send"
+                          on_click={() => props.on_preset_click(preset.name)}
+                          title="Send"
+                        />
                       </div>
 
                       <div className={styles.presets__item__details__row}>
@@ -258,6 +239,21 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                           values={preset.options}
                         />
                       </div>
+
+                      {/* Checkbox moved below details */}
+                      <label
+                        className={styles.presets__item__details__default_check}
+                      >
+                        Use by default
+                        <input
+                          type="checkbox"
+                          checked={
+                            props.selected_presets.includes(preset.name) ||
+                            false
+                          }
+                          onChange={() => handle_checkbox_change(preset.name)}
+                        />
+                      </label>
                     </div>
                   </>
                 )}

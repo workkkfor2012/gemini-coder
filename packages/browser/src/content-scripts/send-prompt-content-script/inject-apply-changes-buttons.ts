@@ -38,10 +38,10 @@ const add_button_to_message_footer = (params: {
   button.className = 'fast-replace-button'
   button.textContent = 'Apply changes with fast replace'
   button.title =
-    'Replaces original files in the editor with their updated versions. Suitable for the "whole" format.'
-  button.style.fontSize = '12px'
+    'Replaces original files in the editor. Suitable if generated in the "whole" format. Action can be reverted from a dialog in the editor\'s notifications area.'
+  button.style.fontSize = '13px'
   button.style.marginLeft = '8px'
-  button.style.padding = '3px 8px'
+  button.style.padding = '4px 9px'
   button.style.borderRadius = '4px'
   button.style.color = 'white'
   button.style.background =

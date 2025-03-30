@@ -15,7 +15,7 @@
 }
 
 .textarea {
-  padding: 5px 7px;
+  padding: var(--padding-5px) var(--padding-7px);
   font-family: sans-serif;
   font-size: inherit;
   line-height: 1.5;
@@ -42,7 +42,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  padding: 5px 7px;
+  padding: var(--padding-5px) var(--padding-7px);
   font-family: sans-serif;
   font-size: inherit;
   line-height: 1.5;
@@ -72,34 +72,34 @@
   display: flex;
   bottom: 0;
   right: 0;
-  padding: 6px;
-  gap: 16px;
+  padding: var(--padding-6px);
+  gap: var(--padding-16px);
   justify-content: space-between;
 
   &__left {
     display: flex;
-    gap: 4px;
+    gap: var(--padding-4px);
 
     &__button {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 0 6px;
+      gap: var(--padding-4px);
+      padding: 0 var(--padding-6px);
       height: 20px;
       border-radius: 5px;
       color: var(--vscode-icon-foreground);
-      font-size: 12px;
+      font-size: var(--font-size-12px);
 
       &:hover {
         background-color: var(--vscode-toolbar-hoverBackground);
       }
 
       &--fim {
-        padding-left: 2px;
+        padding-left: var(--padding-2px);
       }
 
       &--selection > span {
-        padding-bottom: 2px;
+        padding-bottom: var(--padding-2px);
       }
 
       &--disabled {
@@ -126,7 +126,7 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: var(--padding-4px);
 
     &__count {
       font-size: 0.9em;

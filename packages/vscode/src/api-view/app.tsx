@@ -4,7 +4,7 @@ import { Main } from './Main/Main'
 const vscode = acquireVsCodeApi()
 
 import '@vscode/codicons/dist/codicon.css'
-import '@ui/styles/styles.css'
+import '@ui/styles/global.scss'
 
 function App() {
   const [providers, set_providers] = useState<any[]>([])

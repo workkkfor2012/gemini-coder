@@ -13,14 +13,19 @@ const config: StorybookConfig = {
       css: {
         modules: {
           generateScopedName: (name, filename) => {
-            const is_module = /\.module\.(scss|css)$/i.test(filename)
-            if (is_module) {
-              const module_name = path
+            const isModule = /\.module\.(scss|css)$/i.test(filename)
+            if (isModule) {
+              const moduleName = path
                 .basename(filename)
                 .replace(/\.module\.(scss|css)$/i, '')
-              return `${module_name}__${name}`
+              return `${moduleName}__${name}`
             }
             return name
+          }
+        },
+        preprocessorOptions: {
+          scss: {
+            additionalData: `@use "${path.resolve(__dirname, '../src/styles/foundation')}" as *;`
           }
         }
       },

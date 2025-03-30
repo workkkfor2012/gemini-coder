@@ -7,7 +7,7 @@
   justify-content: center;
   min-height: 28px;
   font-size: 13px;
-  padding: 4px 16px;
+  padding: var(--padding-4px) var(--padding-16px);
   font-family: system-ui, sans-serif;
   border: none;
   border-radius: 2px;

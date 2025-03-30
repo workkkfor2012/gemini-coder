@@ -7,9 +7,11 @@
 
 .links {
   display: flex;
-  gap: 2px;
+  gap: var(--padding-2px);
   font-size: 0.8em;
   color: var(--vscode-descriptionForeground);
+  flex-wrap: wrap;
+  justify-content: flex-end;
 
   > a {
     text-decoration: none;

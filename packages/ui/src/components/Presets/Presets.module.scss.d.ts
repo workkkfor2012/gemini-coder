@@ -8,9 +8,8 @@ declare const styles: {
   readonly "presets__item__details": string;
   readonly "presets__item__details--disabled": string;
   readonly "presets__item__details__actions": string;
-  readonly "presets__item__details__actions__buttons": string;
+  readonly "presets__item__details__default_check": string;
   readonly "presets__item__details__row": string;
-  readonly "presets__item__details__row__checkbox": string;
   readonly "presets__item__details__row__field": string;
   readonly "presets__item__details__row__field__label": string;
   readonly "presets__item__details__row__field__value": string;
