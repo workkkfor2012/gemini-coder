@@ -259,105 +259,93 @@ export function refactor_command(params: {
     const total_length = document_text.length
     let received_length = 0
 
-    vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: 'Waiting for the updated file...',
-        cancellable: true
-      },
-      async (progress, token) => {
-        token.onCancellationRequested(() => {
-          cancel_token_source.cancel('Cancelled by user.')
-        })
+    // Variables to hold processing results outside the progress scope
+    let result_content = ''
+    let success = false
 
-        try {
-          const refactored_content = await make_api_request(
-            provider,
-            body,
-            cancel_token_source.token,
-            (chunk: string) => {
-              received_length += chunk.length
-              progress.report({
-                increment: (chunk.length / total_length) * 100
-              })
-            }
-          )
-
-          if (!refactored_content) {
-            vscode.window.showErrorMessage(
-              'Applying changes failed. Please try again later.'
-            )
-            return
-          } else if (refactored_content == 'rate_limit') {
-            const fallback_content = await handle_rate_limit_fallback(
-              all_providers,
-              default_model_name,
-              body,
-              cancel_token_source.token
-            )
-
-            if (!fallback_content) {
-              return
-            }
-
-            // Continue with the fallback content
-            const cleaned_content = cleanup_api_response({
-              content: fallback_content
-            })
-            const full_range = new vscode.Range(
-              document.positionAt(0),
-              document.positionAt(document_text.length)
-            )
-            await editor.edit((edit_builder) => {
-              edit_builder.replace(full_range, cleaned_content)
-            })
-
-            // Format the document after applying changes
-            await format_document(document)
-
-            // Show success message with Revert option
-            const response = await vscode.window.showInformationMessage(
-              'Changes have been applied!',
-              'Revert'
-            )
-
-            // Handle revert action if selected
-            if (response == 'Revert') {
-              await editor.edit((editBuilder) => {
-                const full_range = new vscode.Range(
-                  document.positionAt(0),
-                  document.positionAt(document.getText().length)
-                )
-                editBuilder.replace(full_range, original_content)
-              })
-              await document.save()
-              vscode.window.showInformationMessage(
-                'Changes reverted successfully.'
-              )
-            }
-
-            return
-          }
-
-          // Continue with the rest of the code only if we have valid content
-          const cleaned_content = cleanup_api_response({
-            content: refactored_content
+    await vscode.window
+      .withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Waiting for the updated file...',
+          cancellable: true
+        },
+        async (progress, token) => {
+          token.onCancellationRequested(() => {
+            cancel_token_source.cancel('Cancelled by user.')
           })
 
+          try {
+            const refactored_content = await make_api_request(
+              provider,
+              body,
+              cancel_token_source.token,
+              (chunk: string) => {
+                received_length += chunk.length
+                progress.report({
+                  increment: (chunk.length / total_length) * 100
+                })
+              }
+            )
+
+            if (!refactored_content) {
+              vscode.window.showErrorMessage(
+                'Refactoring failed. Please try again later.'
+              )
+              return false
+            } else if (refactored_content == 'rate_limit') {
+              const fallback_content = await handle_rate_limit_fallback(
+                all_providers,
+                default_model_name,
+                body,
+                cancel_token_source.token
+              )
+
+              if (!fallback_content) {
+                return false
+              }
+
+              // Store the cleaned content for use after progress completes
+              result_content = cleanup_api_response({
+                content: fallback_content
+              })
+              success = true
+              return true
+            }
+
+            // Store the cleaned content for use after progress completes
+            result_content = cleanup_api_response({
+              content: refactored_content
+            })
+            success = true
+            return true
+          } catch (error) {
+            if (axios.isCancel(error)) return false
+            console.error('Refactoring error:', error)
+            vscode.window.showErrorMessage(
+              'An error occurred during refactoring. See console for details.'
+            )
+            return false
+          }
+        }
+      )
+      .then(async () => {
+        // Only proceed if we have successful results
+        if (success && result_content) {
           const full_range = new vscode.Range(
             document.positionAt(0),
             document.positionAt(document_text.length)
           )
           await editor.edit((edit_builder) => {
-            edit_builder.replace(full_range, cleaned_content)
+            edit_builder.replace(full_range, result_content)
           })
 
-          // Format the document after applying changes
+          // Format the document after refactoring
           await format_document(document)
 
           // Show success message with Revert option
           const response = await vscode.window.showInformationMessage(
-            'Changes have been applied!',
+            'File has been refactored.',
             'Revert'
           )
 
@@ -372,17 +360,10 @@ export function refactor_command(params: {
             })
             await document.save()
             vscode.window.showInformationMessage(
-              'Changes reverted successfully.'
+              'Refactoring has been reverted.'
             )
           }
-        } catch (error) {
-          if (axios.isCancel(error)) return
-          console.error('Refactoring error:', error)
-          vscode.window.showErrorMessage(
-            'An error occurred during refactoring. See console for details.'
-          )
         }
-      }
-    )
+      })
   })
 }
