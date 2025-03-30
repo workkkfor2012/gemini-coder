@@ -1,4 +1,4 @@
-import styles from './ChatHeader.scss'
+import styles from './ChatHeader.module.scss'
 
 export const ChatHeader: React.FC = () => {
   return (

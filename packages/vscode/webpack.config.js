@@ -48,7 +48,17 @@ function create_webview_config(name, entry_path) {
               loader: 'css-loader',
               options: {
                 modules: {
-                  localIdentName: '[name]__[local]__[hash:base64:5]'
+                  getLocalIdent: (context, localIdentName, localName) => {
+                    const filename = context.resourcePath
+                    const is_module = /\.module\.(scss|css)$/i.test(filename)
+                    if (is_module) {
+                      const module_name = path
+                        .basename(filename)
+                        .replace(/\.module\.(scss|css)$/i, '')
+                      return `${module_name}__${localName}`
+                    }
+                    return localName
+                  }
                 },
                 importLoaders: 1
               }

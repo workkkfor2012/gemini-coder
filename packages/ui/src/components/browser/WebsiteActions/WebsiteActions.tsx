@@ -1,5 +1,5 @@
 import React from 'react'
-import styles from './WebsiteActions.scss'
+import styles from './WebsiteActions.module.scss'
 import cn from 'classnames'
 
 type Props = {

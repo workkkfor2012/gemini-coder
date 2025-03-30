@@ -1,5 +1,5 @@
 import { useRef, useEffect, useMemo, useState } from 'react'
-import styles from './ChatInput.scss'
+import styles from './ChatInput.module.scss'
 import TextareaAutosize from 'react-textarea-autosize'
 import cn from 'classnames'
 
