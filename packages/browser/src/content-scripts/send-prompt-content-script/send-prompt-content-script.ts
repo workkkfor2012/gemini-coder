@@ -451,4 +451,8 @@ const main = async () => {
   })
 }
 
-window.onload = main
+if (document.readyState == 'loading') {
+  document.addEventListener('DOMContentLoaded', main)
+} else {
+  main()
+}
