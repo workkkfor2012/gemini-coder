@@ -450,7 +450,7 @@ export class WorkspaceProvider
     element.checkboxState = checkboxState
 
     // Get token count and add it to description
-    const token_count = element.token_count
+    const token_count = element.tokenCount
 
     if (token_count !== undefined) {
       // Format token count for display (e.g., 1.2k for 1,200)
@@ -558,11 +558,29 @@ export class WorkspaceProvider
           continue
         }
 
-        if (entry.isDirectory()) {
-          // Recurse into subdirectory
+        let is_directory = entry.isDirectory()
+        let is_symbolic_link = entry.isSymbolicLink()
+        let is_broken_link = false
+
+        // Resolve symbolic link to determine if it points to a directory
+        if (is_symbolic_link) {
+          try {
+            const stats = await fs.promises.stat(full_path)
+            is_directory = stats.isDirectory()
+          } catch {
+            // The symlink is broken
+            is_broken_link = true
+          }
+        }
+
+        if (is_directory && !is_broken_link) {
+          // Recurse into subdirectory (including resolved symlinks that are directories)
           total_tokens += await this.calculate_directory_tokens(full_path)
-        } else if (entry.isFile()) {
-          // Add file tokens
+        } else if (
+          entry.isFile() ||
+          (is_symbolic_link && !is_broken_link && !is_directory)
+        ) {
+          // Add file tokens (including resolved symlinks that are files)
           total_tokens += await this.calculate_file_tokens(full_path)
         }
       }
@@ -683,7 +701,8 @@ export class WorkspaceProvider
           false, // isGitIgnored is now irrelevant as we're skipping ignored files
           is_symbolic_link,
           false, // is not an open file
-          token_count
+          token_count,
+          undefined
         )
 
         items.push(item)
@@ -1022,7 +1041,7 @@ export class FileItem extends vscode.TreeItem {
     public isGitIgnored: boolean,
     public isSymbolicLink: boolean = false,
     public isOpenFile: boolean = false,
-    public token_count?: number,
+    public tokenCount?: number,
     description?: string
   ) {
     super(label, collapsibleState)
