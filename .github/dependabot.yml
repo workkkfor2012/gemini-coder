@@ -1,0 +1,13 @@
+# Dependabot configuration file for PNPM workspace
+version: 2
+updates:
+  # Check for updates to npm dependencies in each package in the workspace
+  - package-ecosystem: 'npm'
+    directory: '/packages/*'
+    schedule:
+      interval: 'weekly'
+    # Group all dependencies in each package into a single PR
+    groups:
+      workspace-dependencies:
+        patterns:
+          - '*'
