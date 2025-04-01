@@ -34,9 +34,7 @@ async function apply_saved_context(
     return
   }
 
-  // Apply checked state to files
   await workspace_provider.set_checked_files(existing_paths)
-
   vscode.window.showInformationMessage(`Applied context "${context.name}".`)
 }
 

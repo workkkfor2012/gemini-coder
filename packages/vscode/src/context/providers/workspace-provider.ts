@@ -1023,7 +1023,7 @@ export class WorkspaceProvider
 
   // Update the setting when it changes
   public update_attach_open_files_setting(value: boolean): void {
-    if (this.attach_open_files === value) {
+    if (this.attach_open_files == value) {
       return
     }
     this.attach_open_files = value
