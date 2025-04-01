@@ -6,6 +6,10 @@ updates:
     directory: '/'
     schedule:
       interval: 'weekly'
+    # Add this to prevent major version updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       workspace-dependencies:
         patterns:
@@ -16,6 +20,10 @@ updates:
     directory: '/packages/website'
     schedule:
       interval: 'weekly'
+    # Add this to prevent major version updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       workspace-dependencies:
         patterns:
@@ -26,6 +34,10 @@ updates:
     directory: '/packages/vscode'
     schedule:
       interval: 'weekly'
+    # Add this to prevent major version updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       workspace-dependencies:
         patterns:
@@ -36,6 +48,10 @@ updates:
     directory: '/packages/ui'
     schedule:
       interval: 'weekly'
+    # Add this to prevent major version updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       workspace-dependencies:
         patterns:
@@ -46,6 +62,10 @@ updates:
     directory: '/packages/browser'
     schedule:
       interval: 'weekly'
+    # Add this to prevent major version updates
+    ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
     groups:
       workspace-dependencies:
         patterns:
