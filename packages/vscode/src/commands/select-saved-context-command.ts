@@ -38,7 +38,7 @@ async function apply_saved_context(
   vscode.window.showInformationMessage(`Applied context "${context.name}".`)
 }
 
-async function saveConfig(
+async function save_config(
   config_path: string,
   config: GeminiCoderConfig
 ): Promise<void> {
@@ -143,7 +143,7 @@ export function select_saved_context_command(
                 config.savedContexts = config.savedContexts.filter(
                   (c) => c.name != item.context.name
                 )
-                await saveConfig(config_path, config)
+                await save_config(config_path, config)
                 vscode.window.showInformationMessage(
                   `Deleted context "${item.context.name}"`
                 )
@@ -165,13 +165,9 @@ export function select_saved_context_command(
         })
 
         quick_pick.show()
-
-        // Wait for the user to select an item or cancel
         const selected = await quick_pick_promise
-
         if (!selected) return
 
-        // Apply the selected context
         await apply_saved_context(
           selected.context,
           workspace_root,
