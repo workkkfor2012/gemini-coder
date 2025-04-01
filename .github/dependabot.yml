@@ -1,12 +1,51 @@
 # Dependabot configuration file for PNPM workspace
 version: 2
 updates:
-  # Check for updates to npm dependencies in each package in the workspace
+  # Check for updates to npm dependencies in the root package
   - package-ecosystem: 'npm'
-    directory: '/packages/*'
+    directory: '/'
     schedule:
       interval: 'weekly'
-    # Group all dependencies in each package into a single PR
+    groups:
+      workspace-dependencies:
+        patterns:
+          - '*'
+  
+  # Check for updates to npm dependencies in the website package
+  - package-ecosystem: 'npm'
+    directory: '/packages/website'
+    schedule:
+      interval: 'weekly'
+    groups:
+      workspace-dependencies:
+        patterns:
+          - '*'
+  
+  # Check for updates to npm dependencies in the vscode package
+  - package-ecosystem: 'npm'
+    directory: '/packages/vscode'
+    schedule:
+      interval: 'weekly'
+    groups:
+      workspace-dependencies:
+        patterns:
+          - '*'
+  
+  # Check for updates to npm dependencies in the ui package
+  - package-ecosystem: 'npm'
+    directory: '/packages/ui'
+    schedule:
+      interval: 'weekly'
+    groups:
+      workspace-dependencies:
+        patterns:
+          - '*'
+  
+  # Check for updates to npm dependencies in the browser package
+  - package-ecosystem: 'npm'
+    directory: '/packages/browser'
+    schedule:
+      interval: 'weekly'
     groups:
       workspace-dependencies:
         patterns:
