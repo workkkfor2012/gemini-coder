@@ -1,71 +1,29 @@
 # Dependabot configuration file for PNPM workspace
 version: 2
 updates:
-  # Check for updates to npm dependencies in the root package
-  - package-ecosystem: 'npm'
-    directory: '/'
-    schedule:
-      interval: 'weekly'
-    # Add this to prevent major version updates
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      workspace-dependencies:
-        patterns:
-          - '*'
-  
-  # Check for updates to npm dependencies in the website package
-  - package-ecosystem: 'npm'
-    directory: '/packages/website'
-    schedule:
-      interval: 'weekly'
-    # Add this to prevent major version updates
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      workspace-dependencies:
-        patterns:
-          - '*'
-  
   # Check for updates to npm dependencies in the vscode package
   - package-ecosystem: 'npm'
     directory: '/packages/vscode'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
     # Add this to prevent major version updates
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       workspace-dependencies:
         patterns:
           - '*'
-  
-  # Check for updates to npm dependencies in the ui package
-  - package-ecosystem: 'npm'
-    directory: '/packages/ui'
-    schedule:
-      interval: 'weekly'
-    # Add this to prevent major version updates
-    ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
-    groups:
-      workspace-dependencies:
-        patterns:
-          - '*'
-  
+
   # Check for updates to npm dependencies in the browser package
   - package-ecosystem: 'npm'
     directory: '/packages/browser'
     schedule:
-      interval: 'weekly'
+      interval: 'monthly'
     # Add this to prevent major version updates
     ignore:
-      - dependency-name: "*"
-        update-types: ["version-update:semver-major"]
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       workspace-dependencies:
         patterns:
