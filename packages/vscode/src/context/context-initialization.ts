@@ -261,7 +261,9 @@ export function context_initialization(context: vscode.ExtensionContext): {
           `
       }
     ),
-    select_saved_context_command(workspace_provider)
+    select_saved_context_command(workspace_provider, () => {
+      update_activity_bar_badge_token_count()
+    })
   )
 
   // Handle checkbox state changes asynchronously for file tree

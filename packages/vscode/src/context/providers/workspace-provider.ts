@@ -973,6 +973,10 @@ export class WorkspaceProvider
   }
 
   public is_excluded(relative_path: string): boolean {
+    if (!relative_path || relative_path.trim() === '') {
+      return false // Skip empty paths instead of trying to process them
+    }
+
     // .git is never gitignored, should be excluded manually
     if (relative_path.split(path.sep).some((part) => part == '.git')) {
       return true

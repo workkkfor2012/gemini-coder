@@ -54,7 +54,8 @@ async function save_config(
 }
 
 export function select_saved_context_command(
-  workspace_provider: WorkspaceProvider | undefined
+  workspace_provider: WorkspaceProvider | undefined,
+  on_context_selected: () => void
 ): vscode.Disposable {
   return vscode.commands.registerCommand(
     'geminiCoder.selectSavedContext',
@@ -173,6 +174,7 @@ export function select_saved_context_command(
           workspace_root,
           workspace_provider
         )
+        on_context_selected()
       } catch (error: any) {
         vscode.window.showErrorMessage(
           `Error reading saved contexts: ${error.message}`
