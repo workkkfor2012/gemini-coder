@@ -239,8 +239,8 @@ async function create_file_if_needed(
   const document = await vscode.workspace.openTextDocument(full_path)
   await vscode.window.showTextDocument(document)
 
-  // Format the new file
   await format_document(document)
+  await document.save()
 
   return true
 }

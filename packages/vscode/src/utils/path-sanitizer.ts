@@ -2,6 +2,7 @@ import * as path from 'path'
 
 /**
  * Sanitizes a file or folder name to prevent path traversal attacks
+ * but allows valid path segments separated by slashes
  *
  * @param name The raw name input from the user
  * @returns A sanitized version of the name with dangerous characters removed
@@ -13,9 +14,10 @@ export function sanitize_file_name(name: string): string {
   // Remove leading slashes, backslashes, and dots to prevent absolute paths or relative navigation
   sanitized = sanitized.replace(/^[\/\\\.]+/, '')
 
-  // Replace any remaining slashes or backslashes with underscores
-  sanitized = sanitized.replace(/[\/\\]/g, '_')
+  // Convert Windows-style backslashes to forward slashes for consistency
+  sanitized = sanitized.replace(/\\/g, '/')
 
+  // Return the sanitized name, preserving valid path segments
   return sanitized
 }
 
@@ -23,7 +25,7 @@ export function sanitize_file_name(name: string): string {
  * Ensures a path stays within its parent directory by validating the final path
  *
  * @param parent_path The parent directory path
- * @param file_name The filename to append
+ * @param file_name The filename to append (can include nested path segments)
  * @returns A safe file path or null if path traversal was detected
  */
 export function create_safe_path(

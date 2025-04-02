@@ -45,6 +45,10 @@ export function new_file_command() {
           // File doesn't exist, which is what we want
         }
 
+        // Ensure parent directories exist
+        const directory = path.dirname(file_path)
+        await vscode.workspace.fs.createDirectory(vscode.Uri.file(directory))
+
         // Create the file with empty content
         await vscode.workspace.fs.writeFile(
           vscode.Uri.file(file_path),
