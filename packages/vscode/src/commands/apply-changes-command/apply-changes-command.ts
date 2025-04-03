@@ -15,7 +15,10 @@ import {
   is_multiple_files_clipboard
 } from './clipboard-parser'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
-import { sanitize_file_name, create_safe_path } from '../../utils/path-sanitizer' 
+import {
+  sanitize_file_name,
+  create_safe_path
+} from '../../utils/path-sanitizer'
 
 // Interface to store original file state for reversion
 interface OriginalFileState {
@@ -226,14 +229,16 @@ async function create_file_if_needed(
   }
 
   const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
-  
+
   const safe_path = create_safe_path(workspace_folder, filePath)
-  
+
   if (!safe_path) {
-    vscode.window.showErrorMessage(`Invalid file path: ${filePath}. Path may contain traversal attempts.`)
+    vscode.window.showErrorMessage(
+      `Invalid file path: ${filePath}. Path may contain traversal attempts.`
+    )
     return false
   }
-  
+
   // Ensure directory exists
   const directory = path.dirname(safe_path)
   if (!fs.existsSync(directory)) {
@@ -266,19 +271,19 @@ async function replace_files_directly(
     // Filter out files with invalid paths
     const safe_files: ClipboardFile[] = []
     const unsafe_files: string[] = []
-    
+
     if (vscode.workspace.workspaceFolders?.length == 0) {
       vscode.window.showErrorMessage('No workspace folder open.')
       return { success: false }
     }
-    
+
     const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
-    
+
     // First validate all file paths
     for (const file of files) {
       // Sanitize and validate the file path
       const sanitized_path = sanitize_file_name(file.file_path)
-      
+
       // Check if the path would be safe
       if (create_safe_path(workspace_folder, sanitized_path)) {
         safe_files.push({
@@ -289,14 +294,14 @@ async function replace_files_directly(
         unsafe_files.push(file.file_path)
       }
     }
-    
+
     // Show warning if unsafe paths were detected
     if (unsafe_files.length > 0) {
       const unsafe_list = unsafe_files.join('\n')
       vscode.window.showErrorMessage(
         `Detected ${unsafe_files.length} unsafe file path(s) that may attempt directory traversal:\n${unsafe_list}\n\nThese files will be skipped.`
       )
-      
+
       if (safe_files.length === 0) {
         return { success: false }
       }
@@ -358,10 +363,10 @@ async function replace_files_directly(
           const file_exists = await vscode.workspace
             .findFiles(file.file_path, null, 1)
             .then((files) => files.length > 0)
-            
+
           // Create safe path for file operations
           const safe_path = create_safe_path(workspace_folder, file.file_path)
-          
+
           if (!safe_path) {
             // This should not happen as we've already filtered unsafe paths,
             // but keeping this as a safety measure
@@ -447,18 +452,18 @@ async function revert_files(
       vscode.window.showErrorMessage('No workspace folder open.')
       return false
     }
-    
+
     const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
-    
+
     for (const state of original_states) {
       // FIX: Validate the file path for reversion
       const safe_path = create_safe_path(workspace_folder, state.file_path)
-      
+
       if (!safe_path) {
         console.error(`Cannot revert file with unsafe path: ${state.file_path}`)
         continue
       }
-      
+
       // For new files that were created, delete them
       if (state.is_new) {
         if (fs.existsSync(safe_path)) {
@@ -707,16 +712,16 @@ export function apply_changes_command(params: {
     if (is_multiple_files) {
       // Handle multiple files with AI processing ('Intelligent update' mode)
       const raw_files = parse_clipboard_multiple_files(clipboard_text)
-      
+
       // Sanitize file paths in the parsed files
       const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
       const files: ClipboardFile[] = []
       const skipped_files: string[] = []
-      
+
       for (const file of raw_files) {
         // Sanitize and validate the file path
         const sanitized_path = sanitize_file_name(file.file_path)
-        
+
         // Check if the path would be safe
         if (create_safe_path(workspace_folder, sanitized_path)) {
           files.push({
@@ -727,14 +732,14 @@ export function apply_changes_command(params: {
           skipped_files.push(file.file_path)
         }
       }
-      
+
       // Show warning if unsafe paths were detected
       if (skipped_files.length > 0) {
         const skipped_list = skipped_files.join('\n')
         vscode.window.showErrorMessage(
           `Detected ${skipped_files.length} unsafe file path(s) that may attempt directory traversal:\n${skipped_list}\n\nThese files will be skipped.`
         )
-        
+
         if (files.length === 0) {
           return
         }
@@ -847,13 +852,18 @@ export function apply_changes_command(params: {
               for (const file of existing_files) {
                 try {
                   // Create safe path for file operations
-                  const safe_path = create_safe_path(workspace_folder, file.file_path)
-                  
+                  const safe_path = create_safe_path(
+                    workspace_folder,
+                    file.file_path
+                  )
+
                   if (!safe_path) {
-                    console.error(`Path validation failed for: ${file.file_path}`)
+                    console.error(
+                      `Path validation failed for: ${file.file_path}`
+                    )
                     continue
                   }
-                  
+
                   const file_uri = vscode.Uri.file(safe_path)
                   const document = await vscode.workspace.openTextDocument(
                     file_uri
@@ -919,13 +929,18 @@ export function apply_changes_command(params: {
                     }
 
                     // Create safe path for file operations
-                    const safe_path = create_safe_path(workspace_folder, file.file_path)
-                    
+                    const safe_path = create_safe_path(
+                      workspace_folder,
+                      file.file_path
+                    )
+
                     if (!safe_path) {
-                      console.error(`Path validation failed for: ${file.file_path}`)
+                      console.error(
+                        `Path validation failed for: ${file.file_path}`
+                      )
                       throw new Error(`Invalid file path: ${file.file_path}`)
                     }
-                    
+
                     const file_uri = vscode.Uri.file(safe_path)
 
                     const document = await vscode.workspace.openTextDocument(
