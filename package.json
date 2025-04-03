@@ -1,4 +1,7 @@
 {
   "name": "gemini-coder",
-  "description": "Monorepo containing VS Code and browser extensions."
+  "description": "Monorepo containing VS Code and browser extensions.",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
 }
