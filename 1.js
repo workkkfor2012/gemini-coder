@@ -16,34 +16,53 @@ app.all('/chat/completions', (req, res) => {
         }
     });
 
-    const openapiResponse = {
-        "id": "chatcmpl-123",
-        "object": "chat.completion",
-        "created": 1712112000,
-        "model": "gpt-4o",
-        "choices": [
-            {
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": `Okay, I will create the file \`hello.py\` with the content \`print("Hello World!")\`.
+    const content = `Okay, I will create the file \`hello.py\` with the content \`print("Hello World!")\`.
 <write_to_file>
 <path>hello.py</path>
 <content>
 print("Hello World!")
 </content>
 <line_count>1</line_count>
-</write_to_file>`
+</write_to_file>` 
+
+
+    const openapiResponse = {
+        "id": "chatcmpl-B9MBs8CjcvOU2jLn4n570S5qMJKcT",
+        "object": "chat.completion",
+        "created": 1741569952,
+        "model": "gpt-4o",
+        "choices": [
+            {
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": content,
+                    "refusal": null,
+                    "annotations": []
                 },
+                "logprobs": null,
                 "finish_reason": "stop"
             }
         ],
         "usage": {
-            "prompt_tokens": 14,
-            "completion_tokens": 16,
-            "total_tokens": 30
-        }
+            "prompt_tokens": 19,
+            "completion_tokens": 10,
+            "total_tokens": 29,
+            "prompt_tokens_details": {
+                "cached_tokens": 0,
+                "audio_tokens": 0
+            },
+            "completion_tokens_details": {
+                "reasoning_tokens": 0,
+                "audio_tokens": 0,
+                "accepted_prediction_tokens": 0,
+                "rejected_prediction_tokens": 0
+            }
+        },
+        "service_tier": "default"
     }
+
+
 
     res.setHeader('Content-Type', 'application/json');
     res.status(200).json(openapiResponse);
