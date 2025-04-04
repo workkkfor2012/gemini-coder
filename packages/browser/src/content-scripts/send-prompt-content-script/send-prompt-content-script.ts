@@ -165,66 +165,78 @@ const enter_message_and_send = async (params: {
       if (goodResponseBtn) {
         console.log('[send-prompt-content-script] Model response completed - Good response button found in last turn');
         
-        // Find and show outer actions container
-        const outerContainer = lastTurn.querySelector('.actions-container') as HTMLElement;
-        if (outerContainer) {
-          outerContainer.style.display = 'block';
-          outerContainer.style.visibility = 'visible';
-          console.log('[send-prompt-content-script] Forced display of outer actions container');
-          
-          // Find and show inner actions container
-          const actionsContainer = outerContainer.querySelector('.actions.hover-or-edit') as HTMLElement;
-          if (actionsContainer) {
-            // Force show the container and ensure proper styling
-            actionsContainer.style.display = 'flex';
-            actionsContainer.style.opacity = '1';
-            actionsContainer.style.visibility = 'visible';
-            console.log('[send-prompt-content-script] Forced display of inner actions container');
+        // Wait 1s for actions-container to appear after goodResponseBtn
+        setTimeout(() => {
+          const outerContainer = lastTurn.querySelector('.actions-container') as HTMLElement;
+          if (outerContainer) {
+            outerContainer.style.display = 'block';
+            outerContainer.style.visibility = 'visible';
+            console.log('[send-prompt-content-script] Forced display of outer actions container');
             
-            // First get the model response text
-            const responseText = lastTurn.querySelector('.model-response-content')?.textContent || '';
-            console.log('[send-prompt-content-script] Model response:', responseText);
-            
-            // Then find and click the options button inside ms-chat-turn-options
-            const optionsButton = actionsContainer.querySelector('ms-chat-turn-options button[aria-label="Open options"]') as HTMLElement;
-            if (optionsButton) {
-              optionsButton.click();
-              console.log('[send-prompt-content-script] Opened options menu');
+            // Find and show inner actions container
+            const actionsContainer = outerContainer.querySelector('.actions.hover-or-edit') as HTMLElement;
+            if (actionsContainer) {
+              // Force show the container and ensure proper styling
+              actionsContainer.style.display = 'flex';
+              actionsContainer.style.opacity = '1';
+              actionsContainer.style.visibility = 'visible';
+              console.log('[send-prompt-content-script] Forced display of inner actions container');
               
-              // Wait for menu to open then click Copy button
-              setTimeout(() => {
-                const copyButton = document.querySelector('button.mat-mdc-menu-item .copy-rendered-button')?.closest('button');
-                if (copyButton) {
-                  console.log('[send-prompt-content-script] Found Copy button');
-                  copyButton.click();
-                  
-                  // Read clipboard content and log it
-                  navigator.clipboard.readText()
-                    .then(clipboardText => {
-                      console.log('[send-prompt-content-script] Clipboard content:', clipboardText);
-                    })
-                    .catch(err => {
-                      console.log('[send-prompt-content-script] Could not read clipboard, using direct text:', responseText);
-                    });
-                }
+              // First get the model response text
+              const responseText = lastTurn.querySelector('.model-response-content')?.textContent || '';
+              console.log('[send-prompt-content-script] Model response:', responseText);
+              
+              // Then find and click the options button inside ms-chat-turn-options
+              const optionsButton = actionsContainer.querySelector('ms-chat-turn-options button[aria-label="Open options"]') as HTMLElement;
+              if (optionsButton) {
+                optionsButton.click();
+                console.log('[send-prompt-content-script] Opened options menu');
                 
-                // Set completion flag
-                browser.storage.local.set({
-                  'model-response-completed': true,
-                  'last-response-text': responseText // Also store the text
-                }).then(() => {
-                  console.log('[send-prompt-content-script] Set completion flags');
-                });
-              }, 3000);
+                // Wait for menu to open then click Copy button
+                setTimeout(() => {
+                  const copyButton = document.querySelector('button.mat-mdc-menu-item .copy-rendered-button')?.closest('button');
+                  if (copyButton) {
+                    console.log('[send-prompt-content-script] Found Copy button - first click');
+                    copyButton.click();
+                    
+                    // Wait 100ms then click again
+                    setTimeout(() => {
+                      console.log('[send-prompt-content-script] Second copy button click');
+                      copyButton.click();
+                      
+                      // Read clipboard content and log it after second click
+                      setTimeout(() => {
+                        navigator.clipboard.readText()
+                          .then(clipboardText => {
+                            console.log('[send-prompt-content-script] Clipboard content:', clipboardText);
+                          })
+                          .catch(err => {
+                            console.log('[send-prompt-content-script] Could not read clipboard, using direct text:', responseText);
+                          });
+                      }, 100);
+                    }, 100);
+                  }
+                  
+                  // Set completion flag
+                  browser.storage.local.set({
+                    'model-response-completed': true,
+                    'last-response-text': responseText // Also store the text
+                  }).then(() => {
+                    console.log('[send-prompt-content-script] Set completion flags');
+                  });
+                }, 3000);
+              } else {
+                console.log('[send-prompt-content-script] ms-chat-turn-options not found');
+              }
             } else {
-              console.log('[send-prompt-content-script] ms-chat-turn-options not found');
+              console.log('[send-prompt-content-script] inner actions container not found');
             }
           } else {
-            console.log('[send-prompt-content-script] inner actions container not found');
+            console.log('[send-prompt-content-script] outer actions container not found');
           }
-        } else {
-          console.log('[send-prompt-content-script] outer actions container not found');
-        }
+          
+          responseObserver.disconnect();
+        }, 1000);
         
         responseObserver.disconnect();
       }
@@ -516,7 +528,7 @@ if (document.readyState == 'loading') {
 
 // --- New Message Listener for handling inject command from background script ---
 console.log('[send-prompt-content-script] Setting up onMessage listener.'); // Log listener setup
-browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => { // Keep non-async
+browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => {
   console.log('[send-prompt-content-script] Received message:', message) // Log all received messages
   if (message && message.action === 'do_inject' && typeof message.text === 'string') {
     console.log(`[send-prompt-content-script] Handling 'do_inject' action with text: "${message.text}"`)
@@ -524,23 +536,22 @@ browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => { 
     if (target_element) {
       console.log('[send-prompt-content-script] Found target element:', target_element);
       // Use enter_message_and_send to inject AND attempt to send
-      // Note: enter_message_and_send is async, but the listener itself is not waiting for it.
-      // This is generally fine for this use case.
       enter_message_and_send({
           input_element: target_element,
           message: message.text
+      }).then(() => {
+        sendResponse({ success: true });
+      }).catch((error) => {
+        sendResponse({ success: false, error: error.message });
       });
-      // Indicate success (optional, background script doesn't currently wait for response)
-      // sendResponse({ success: true });
+      // Return true to indicate we will respond asynchronously
+      return true;
     } else {
       console.error('[send-prompt-content-script] Could not find target input element to inject text.')
-      // Indicate failure (optional)
-      // sendResponse({ success: false, error: 'Input element not found' });
+      sendResponse({ success: false, error: 'Input element not found' });
+      return true;
     }
-    // Message was handled
   }
-  // Always return true if this listener is intended to handle *some* messages.
-  // This signals that sendResponse *might* be called asynchronously later,
-  // often satisfying the type checker.
+  // For unhandled messages, return true but don't call sendResponse
   return true;
 })
