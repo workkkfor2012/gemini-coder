@@ -337,6 +337,25 @@ async function replace_files_directly(
       }
     }
 
+    // If there are new files, ask for confirmation before proceeding
+    if (new_files.length > 0) {
+      const new_file_list = new_files.map((file) => file.file_path).join('\n')
+      const confirmation = await vscode.window.showWarningMessage(
+        `This will create ${new_files.length} new ${
+          new_files.length == 1 ? 'file' : 'files'
+        }:\n${new_file_list}\n\nDo you want to continue?`,
+        { modal: true },
+        'Yes'
+      )
+
+      if (confirmation != 'Yes') {
+        vscode.window.showInformationMessage(
+          'Operation cancelled. No files were modified.'
+        )
+        return { success: false }
+      }
+    }
+
     // Store original file states for reversion
     const original_states: OriginalFileState[] = []
 
@@ -700,6 +719,11 @@ export function apply_changes_command(params: {
         const result = await replace_files_directly(files)
 
         if (result.success && result.original_states) {
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            result.original_states
+          )
+
           const total_files = files.length
           const response = await vscode.window.showInformationMessage(
             `Successfully replaced ${total_files} ${

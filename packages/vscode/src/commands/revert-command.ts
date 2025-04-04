@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
-import * as path from 'path'
 import * as fs from 'fs'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
+import { create_safe_path } from '../utils/path-sanitizer'
 
 interface OriginalFileState {
   file_path: string
@@ -26,36 +26,41 @@ async function revert_last_applied_changes(
   }
 
   try {
-    // Create a map of workspace names to their root paths
-    const workspace_map = new Map<string, string>()
-    if (vscode.workspace.workspaceFolders) {
-      vscode.workspace.workspaceFolders.forEach((folder) => {
-        workspace_map.set(folder.name, folder.uri.fsPath)
-      })
+    if (vscode.workspace.workspaceFolders?.length == 0) {
+      vscode.window.showErrorMessage('No workspace folder open.')
+      return false
     }
 
+    // Create a map of workspace names to their root paths
+    const workspace_map = new Map<string, string>()
+    vscode.workspace.workspaceFolders!.forEach((folder) => {
+      workspace_map.set(folder.name, folder.uri.fsPath)
+    })
+
     // Default workspace is the first one
-    const default_workspace = vscode.workspace.workspaceFolders?.[0].uri.fsPath
+    const default_workspace = vscode.workspace.workspaceFolders![0].uri.fsPath
 
     for (const state of original_states) {
-      // Determine the correct workspace root
+      // Determine the correct workspace root for this file
       let workspace_root = default_workspace
       if (state.workspace_name) {
         workspace_root =
           workspace_map.get(state.workspace_name) || default_workspace
       }
 
-      if (!workspace_root) {
-        console.error(`No workspace found for file: ${state.file_path}`)
+      // Validate the file path for reversion
+      const safe_path = create_safe_path(workspace_root, state.file_path)
+
+      if (!safe_path) {
+        console.error(`Cannot revert file with unsafe path: ${state.file_path}`)
         continue
       }
 
       // For new files that were created, delete them
       if (state.is_new) {
-        const file_path = path.join(workspace_root, state.file_path)
-        if (fs.existsSync(file_path)) {
+        if (fs.existsSync(safe_path)) {
           // Close any editors with the file open
-          const uri = vscode.Uri.file(file_path)
+          const uri = vscode.Uri.file(safe_path)
           // Try to close the editor if it's open
           const text_editors = vscode.window.visibleTextEditors.filter(
             (editor) => editor.document.uri.toString() === uri.toString()
@@ -71,13 +76,11 @@ async function revert_last_applied_changes(
           }
 
           // Delete the file
-          fs.unlinkSync(file_path)
+          fs.unlinkSync(safe_path)
         }
       } else {
         // For existing files that were modified, restore original content
-        const file_uri = vscode.Uri.file(
-          path.join(workspace_root, state.file_path)
-        )
+        const file_uri = vscode.Uri.file(safe_path)
 
         try {
           const document = await vscode.workspace.openTextDocument(file_uri)
@@ -94,7 +97,6 @@ async function revert_last_applied_changes(
           await document.save()
         } catch (err) {
           console.error(`Error reverting file ${state.file_path}:`, err)
-          // Optionally, notify the user about the specific file error
           vscode.window.showWarningMessage(
             `Could not revert file: ${state.file_path}. It might have been closed or deleted.`
           )
