@@ -137,41 +137,110 @@ const enter_message_and_send = async (params: {
       return;
   }
 
-  // Start monitoring for response completion
-  const responseObserver = new MutationObserver((mutations) => {
-    const chatSession = document.querySelector('ms-chat-session');
-    if (!chatSession) return;
-    
-    const lastTurn = chatSession.lastElementChild;
-    if (lastTurn?.tagName === 'MS-CHAT-TURN') {
+  // Start monitoring for response completion with 2s delay
+  let responseObserver: MutationObserver;
+  const startMonitoring = () => {
+    console.log('[send-prompt-content-script] Starting to monitor for response completion');
+    responseObserver = new MutationObserver(() => {
+      // Step 1: Check if chat session exists
+      const chatSession = document.querySelector('ms-chat-session');
+      if (!chatSession) {
+        console.log('[send-prompt-content-script] No chat session found');
+        return;
+      }
+
+      // Step 2: Check if any chat turns exist
+      const chatTurns = chatSession.querySelectorAll('ms-chat-turn');
+      if (chatTurns.length === 0) {
+        console.log('[send-prompt-content-script] No chat turns found');
+        return;
+      }
+      console.log(`[send-prompt-content-script] Found ${chatTurns.length} chat turns`);
+
+      // Step 3: Get last chat turn
+      const lastTurn = chatTurns[chatTurns.length - 1];
+      
+      // Step 4: Check for good response button
       const goodResponseBtn = lastTurn.querySelector('button[aria-label="Good response"]');
       if (goodResponseBtn) {
-        console.log('[send-prompt-content-script] Model response completed');
+        console.log('[send-prompt-content-script] Model response completed - Good response button found in last turn');
+        
+        // Find and show outer actions container
+        const outerContainer = lastTurn.querySelector('.actions-container') as HTMLElement;
+        if (outerContainer) {
+          outerContainer.style.display = 'block';
+          outerContainer.style.visibility = 'visible';
+          console.log('[send-prompt-content-script] Forced display of outer actions container');
+          
+          // Find and show inner actions container
+          const actionsContainer = outerContainer.querySelector('.actions.hover-or-edit') as HTMLElement;
+          if (actionsContainer) {
+            // Force show the container and ensure proper styling
+            actionsContainer.style.display = 'flex';
+            actionsContainer.style.opacity = '1';
+            actionsContainer.style.visibility = 'visible';
+            console.log('[send-prompt-content-script] Forced display of inner actions container');
+            
+            // Then find and click the options button inside ms-chat-turn-options
+            const optionsButton = actionsContainer.querySelector('ms-chat-turn-options button[aria-label="Open options"]') as HTMLElement;
+            if (optionsButton) {
+              console.log('[send-prompt-content-script] Found options button');
+              optionsButton.click();
+              console.log('[send-prompt-content-script] Clicked options button');
+              
+              // Set completion flag for get-page-data script
+              browser.storage.local.set({
+                'model-response-completed': true
+              }).then(() => {
+                console.log('[send-prompt-content-script] Set model-response-completed flag');
+              });
+            } else {
+              console.log('[send-prompt-content-script] ms-chat-turn-options not found');
+            }
+          } else {
+            console.log('[send-prompt-content-script] inner actions container not found');
+          }
+        } else {
+          console.log('[send-prompt-content-script] outer actions container not found');
+        }
+        
         responseObserver.disconnect();
       }
-    }
-  });
+    });
 
-  responseObserver.observe(document.body, {
-    childList: true,
-    subtree: true
-  });
+    responseObserver.observe(document.body, {
+      childList: true,
+      subtree: true
+    });
+  };
+
+  setTimeout(startMonitoring, 2000);
 
   // Now try to send/submit
   const form = params.input_element?.closest('form');
 
+  // First send attempt
   if (is_claude) {
     await new Promise(resolve => setTimeout(resolve, 500));
     const claude_button = document.querySelector('fieldset > div:first-child button') as HTMLElement | null;
     if (claude_button) {
+        claude_button.click();
+        // Second send attempt after 500ms
+        await new Promise(resolve => setTimeout(resolve, 500));
         claude_button.click();
     }
   } else if (is_ai_studio) {
     const send_button_aria = document.querySelector('button[aria-label="Run"]') as HTMLElement | null;
     if (send_button_aria) {
         send_button_aria.click();
+        // Second send attempt after 500ms
+        await new Promise(resolve => setTimeout(resolve, 500));
+        send_button_aria.click();
     }
   } else if (form && !is_github_copilot) {
+    form.requestSubmit();
+    // Second send attempt after 500ms
+    await new Promise(resolve => setTimeout(resolve, 500));
     form.requestSubmit();
   } else {
     const enter_event = new KeyboardEvent('keydown', {
@@ -181,6 +250,9 @@ const enter_message_and_send = async (params: {
       which: 13,
       bubbles: true
     });
+    params.input_element.dispatchEvent(enter_event);
+    // Second send attempt after 500ms
+    await new Promise(resolve => setTimeout(resolve, 500));
     params.input_element.dispatchEvent(enter_event);
   }
 }
