@@ -11,8 +11,9 @@ export function sanitize_file_name(name: string): string {
   // Remove path traversal sequences
   let sanitized = name.replace(/\.\.\//g, '').replace(/\.\.\\/g, '')
 
-  // Remove leading slashes, backslashes, and dots to prevent absolute paths or relative navigation
-  sanitized = sanitized.replace(/^[\/\\\.]+/, '')
+  // Remove leading slashes and backslashes to prevent absolute paths
+  // but preserve leading dots for hidden files
+  sanitized = sanitized.replace(/^[\/\\]+/, '')
 
   // Convert Windows-style backslashes to forward slashes for consistency
   sanitized = sanitized.replace(/\\/g, '/')
