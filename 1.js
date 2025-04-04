@@ -2,53 +2,49 @@ const express = require('express');
 const app = express();
 const port = 12345;
 
-app.use(express.json());
 
-app.all('/chat/completions', (req, res) => {
-    const userContent = req.body;
-    console.log('Received from client:', userContent); // Log all client content
-    const fs = require('fs');
-    fs.appendFile('1.json', JSON.stringify(userContent, null, 4) + '\n', (err) => {
-        if (err) {
-            console.error('Error writing to file', err);
-        } else {
-            console.log('Content written to 1.json');
-        }
-    });
 
-    const openapiResponse = {
-        "id": "chatcmpl-123",
-        "object": "chat.completion",
-        "created": 1712112000,
-        "model": "gpt-4o",
-        "choices": [
-            {
-                "index": 0,
-                "message": {
-                    "role": "assistant",
-                    "content": `Okay, I will create the file \`hello.py\` with the content \`print("Hello World!")\`.
+const content = `Okay, I will create the file \`hello.py\` with the content \`print("Hello World!")\`.
 <write_to_file>
 <path>hello.py</path>
 <content>
 print("Hello World!")
 </content>
 <line_count>1</line_count>
-</write_to_file>`
-                },
-                "finish_reason": "stop"
-            }
-        ],
-        "usage": {
-            "prompt_tokens": 14,
-            "completion_tokens": 16,
-            "total_tokens": 30
-        }
-    }
+</write_to_file>` 
 
+
+app.post('/chat/completions', async (req, res) => {
     res.setHeader('Content-Type', 'application/json');
-    res.status(200).json(openapiResponse);
+    res.setHeader('Transfer-Encoding', 'chunked');
+
+    const sendChunk = (content) => {
+        const chunk = JSON.stringify({
+            id: "chatcmpl-123",
+            object: "chat.completion.chunk",
+            created: 1694268190,
+            model: "gpt-4o-mini",
+            system_fingerprint: "fp_44709d6fcb",
+            choices: [{
+                index: 0,
+                delta: content,
+                logprobs: null,
+                finish_reason: null
+            }]
+        });
+        res.write(chunk + '\n');
+    };
+
+    sendChunk({ role: "assistant", content: "" });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    sendChunk({ content: "Hello" });
+    await new Promise(resolve => setTimeout(resolve, 100));
+    sendChunk({});
+    await new Promise(resolve => setTimeout(resolve, 100));
+
+    res.end();
 });
 
 app.listen(port, () => {
-    console.log(`Server is running on http://localhost:${port}`);
+    console.log(`Server is running on port ${port}`);
 });
