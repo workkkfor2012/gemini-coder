@@ -188,7 +188,7 @@ function condense_paths(
 }
 
 // Function to check if two path arrays have the same content regardless of order
-function arePathsEqual(paths1: string[], paths2: string[]): boolean {
+function are_paths_equal(paths1: string[], paths2: string[]): boolean {
   if (paths1.length != paths2.length) return false
 
   const set1 = new Set(paths1)
@@ -316,7 +316,7 @@ export function save_context_command(
       // Check if there's already a context with identical paths
       if (saved_contexts.length > 0) {
         for (const existingContext of saved_contexts) {
-          if (arePathsEqual(existingContext.paths, all_prefixed_paths)) {
+          if (are_paths_equal(existingContext.paths, all_prefixed_paths)) {
             vscode.window.showInformationMessage(
               `A context with identical paths already exists: "${existingContext.name}"`
             )
