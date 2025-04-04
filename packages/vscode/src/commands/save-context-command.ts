@@ -137,22 +137,22 @@ function arePathsEqual(paths1: string[], paths2: string[]): boolean {
 
 // Add workspace prefix to paths for multi-root workspace support
 function add_workspace_prefix(
-  relative_paths: string[], 
+  relative_paths: string[],
   workspace_root: string
 ): string[] {
   // Find matching workspace folder for this workspace root
   const workspaceFolders = vscode.workspace.workspaceFolders || []
-  const currentWorkspace = workspaceFolders.find(folder => 
-    folder.uri.fsPath === workspace_root
+  const currentWorkspace = workspaceFolders.find(
+    (folder) => folder.uri.fsPath === workspace_root
   )
 
   // If not in a workspace or there's only one workspace folder, no need for prefixes
   if (!currentWorkspace || workspaceFolders.length <= 1) {
     return relative_paths
   }
-  
+
   // Add the workspace name as a prefix to each path
-  return relative_paths.map(p => `${currentWorkspace.name}:${p}`)
+  return relative_paths.map((p) => `${currentWorkspace.name}:${p}`)
 }
 
 // Helper function to group files by workspace root
@@ -161,26 +161,26 @@ function group_files_by_workspace(
 ): Map<string, string[]> {
   const workspaceFolders = vscode.workspace.workspaceFolders || []
   const filesByWorkspace = new Map<string, string[]>()
-  
+
   // Initialize map with empty arrays for each workspace
-  workspaceFolders.forEach(folder => {
+  workspaceFolders.forEach((folder) => {
     filesByWorkspace.set(folder.uri.fsPath, [])
   })
-  
+
   // Group files by which workspace they belong to
   for (const file of checked_files) {
     // Find the workspace that contains this file
-    const workspace = workspaceFolders.find(folder => 
+    const workspace = workspaceFolders.find((folder) =>
       file.startsWith(folder.uri.fsPath)
     )
-    
+
     if (workspace) {
       const files = filesByWorkspace.get(workspace.uri.fsPath) || []
       files.push(file)
       filesByWorkspace.set(workspace.uri.fsPath, files)
     }
   }
-  
+
   return filesByWorkspace
 }
 
@@ -208,15 +208,13 @@ export function save_context_command(
 
       const checked_files = workspace_provider.get_checked_files()
       if (checked_files.length == 0) {
-        vscode.window.showWarningMessage(
-          'There is nothing to save.'
-        )
+        vscode.window.showWarningMessage('There is nothing to save.')
         return
       }
 
       let all_prefixed_paths: string[] = []
       const workspaceFolders = vscode.workspace.workspaceFolders || []
-      
+
       if (workspaceFolders.length <= 1) {
         // Single workspace - process as before
         const condensed_paths = condense_paths(
@@ -224,22 +222,25 @@ export function save_context_command(
           workspace_root,
           workspace_provider
         )
-        all_prefixed_paths = add_workspace_prefix(condensed_paths, workspace_root)
+        all_prefixed_paths = add_workspace_prefix(
+          condensed_paths,
+          workspace_root
+        )
       } else {
         // Multi-root workspace - process each workspace separately
         const filesByWorkspace = group_files_by_workspace(checked_files)
-        
+
         // Process each workspace's files separately
         filesByWorkspace.forEach((files, root) => {
           if (files.length === 0) return
-          
+
           // Condense paths for this workspace
           const condensed_paths = condense_paths(
             files,
             root,
             workspace_provider
           )
-          
+
           // Add workspace prefixes
           const prefixed_paths = add_workspace_prefix(condensed_paths, root)
           all_prefixed_paths = [...all_prefixed_paths, ...prefixed_paths]
@@ -248,7 +249,7 @@ export function save_context_command(
 
       // Get saved contexts from workspace state
       const saved_contexts: SavedContext[] = extContext.workspaceState.get(
-        SAVED_CONTEXTS_STATE_KEY, 
+        SAVED_CONTEXTS_STATE_KEY,
         []
       )
 
@@ -265,7 +266,7 @@ export function save_context_command(
       }
 
       // Get existing context names
-      const existing_context_names = saved_contexts.map(ctx => ctx.name)
+      const existing_context_names = saved_contexts.map((ctx) => ctx.name)
 
       // Create quick pick items
       const quick_pick_items = [
@@ -328,7 +329,7 @@ export function save_context_command(
       )
 
       const updated_contexts = [...saved_contexts]
-      
+
       if (existing_index != -1) {
         // Replace existing context
         updated_contexts[existing_index] = new_context
@@ -342,11 +343,13 @@ export function save_context_command(
 
       try {
         // Save to workspace state
-        await extContext.workspaceState.update(SAVED_CONTEXTS_STATE_KEY, updated_contexts)
+        await extContext.workspaceState.update(
+          SAVED_CONTEXTS_STATE_KEY,
+          updated_contexts
+        )
         vscode.window.showInformationMessage(
           `Context "${context_name}" saved successfully.`
         )
-
       } catch (error) {
         vscode.window.showErrorMessage(`Error saving context: ${error}`)
       }
