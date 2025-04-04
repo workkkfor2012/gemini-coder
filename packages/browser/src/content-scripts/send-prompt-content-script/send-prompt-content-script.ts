@@ -181,19 +181,41 @@ const enter_message_and_send = async (params: {
             actionsContainer.style.visibility = 'visible';
             console.log('[send-prompt-content-script] Forced display of inner actions container');
             
+            // First get the model response text
+            const responseText = lastTurn.querySelector('.model-response-content')?.textContent || '';
+            console.log('[send-prompt-content-script] Model response:', responseText);
+            
             // Then find and click the options button inside ms-chat-turn-options
             const optionsButton = actionsContainer.querySelector('ms-chat-turn-options button[aria-label="Open options"]') as HTMLElement;
             if (optionsButton) {
-              console.log('[send-prompt-content-script] Found options button');
               optionsButton.click();
-              console.log('[send-prompt-content-script] Clicked options button');
+              console.log('[send-prompt-content-script] Opened options menu');
               
-              // Set completion flag for get-page-data script
-              browser.storage.local.set({
-                'model-response-completed': true
-              }).then(() => {
-                console.log('[send-prompt-content-script] Set model-response-completed flag');
-              });
+              // Wait for menu to open then click Copy button
+              setTimeout(() => {
+                const copyButton = document.querySelector('button.mat-mdc-menu-item .copy-rendered-button')?.closest('button');
+                if (copyButton) {
+                  console.log('[send-prompt-content-script] Found Copy button');
+                  copyButton.click();
+                  
+                  // Read clipboard content and log it
+                  navigator.clipboard.readText()
+                    .then(clipboardText => {
+                      console.log('[send-prompt-content-script] Clipboard content:', clipboardText);
+                    })
+                    .catch(err => {
+                      console.log('[send-prompt-content-script] Could not read clipboard, using direct text:', responseText);
+                    });
+                }
+                
+                // Set completion flag
+                browser.storage.local.set({
+                  'model-response-completed': true,
+                  'last-response-text': responseText // Also store the text
+                }).then(() => {
+                  console.log('[send-prompt-content-script] Set completion flags');
+                });
+              }, 3000);
             } else {
               console.log('[send-prompt-content-script] ms-chat-turn-options not found');
             }
