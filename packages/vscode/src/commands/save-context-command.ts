@@ -32,7 +32,10 @@ function condense_paths(
   }
 
   // Function to check if all files in a directory are selected (excluding ignored files)
-  function are_all_files_selected(dir_path: string, condensed_paths_set: Set<string>): boolean {
+  function are_all_files_selected(
+    dir_path: string,
+    condensed_paths_set: Set<string>
+  ): boolean {
     try {
       // First check if the directory itself is already selected
       if (selected_paths_set.has(dir_path)) {
@@ -56,8 +59,12 @@ function condense_paths(
         const abs_entry_path = path.join(workspace_root, entry_path)
 
         // Skip files/directories that are excluded by gitignore
+        // IMPORTANT: Use the current workspace root for this file
+        const current_workspace_root =
+          workspace_provider.get_workspace_root_for_file(abs_entry_path) ||
+          workspace_root
         const relative_entry_path = path.relative(
-          workspace_root,
+          current_workspace_root, // Use the proper workspace root for this file
           abs_entry_path
         )
         if (workspace_provider.is_excluded(relative_entry_path)) {
@@ -76,7 +83,10 @@ function condense_paths(
           // If it's a directory, check if either:
           // 1. All its files are selected recursively, or
           // 2. The directory itself is already in the condensed paths set
-          if (!condensed_paths_set.has(entry_path) && !are_all_files_selected(entry_path, condensed_paths_set)) {
+          if (
+            !condensed_paths_set.has(entry_path) &&
+            !are_all_files_selected(entry_path, condensed_paths_set)
+          ) {
             return false
           }
         } else {
@@ -138,17 +148,28 @@ function condense_paths(
     const parent_dir = path.dirname(dir)
     if (parent_dir !== '.') {
       // Check if all subdirectories of the parent are in the condensed paths
-      const parent_children = fs.readdirSync(path.join(workspace_root, parent_dir))
-        .map(child => path.join(parent_dir, child))
-        .filter(child_path => {
+      const parent_children = fs
+        .readdirSync(path.join(workspace_root, parent_dir))
+        .map((child) => path.join(parent_dir, child))
+        .filter((child_path) => {
           const abs_child_path = path.join(workspace_root, child_path)
-          return fs.existsSync(abs_child_path) && 
-                 fs.lstatSync(abs_child_path).isDirectory() && 
-                 !workspace_provider.is_excluded(child_path)
+          // IMPORTANT: Use the current workspace root for this file
+          const current_workspace_root =
+            workspace_provider.get_workspace_root_for_file(abs_child_path) ||
+            workspace_root
+          const relative_child_path = path.relative(
+            current_workspace_root,
+            abs_child_path
+          )
+          return (
+            fs.existsSync(abs_child_path) &&
+            fs.lstatSync(abs_child_path).isDirectory() &&
+            !workspace_provider.is_excluded(relative_child_path)
+          )
         })
 
       // Check if all valid subdirectories are in condensed_paths
-      const all_subdirs_selected = parent_children.every(child => 
+      const all_subdirs_selected = parent_children.every((child) =>
         condensed_paths.has(child)
       )
 
