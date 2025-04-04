@@ -81,9 +81,9 @@ export class OpenEditorsProvider
             )
           }
           if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
-            const oldIgnoredExtensions = new Set(this._ignored_extensions)
+            const old_ignored_extensions = new Set(this._ignored_extensions)
             this._load_ignored_extensions()
-            this._uncheck_ignored_files(oldIgnoredExtensions)
+            this._uncheck_ignored_files(old_ignored_extensions)
             this.refresh()
           }
         }

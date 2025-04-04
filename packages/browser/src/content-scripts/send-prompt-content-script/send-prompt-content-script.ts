@@ -91,7 +91,7 @@ const enter_message_and_send = async (params: {
       })
       ;(
         document.querySelector(
-          'fieldset > div:first-child button'
+          'fieldset button.bg-accent-main-000'
         ) as HTMLElement
       ).click()
     } else if (form) {

@@ -76,9 +76,9 @@ export class WorkspaceProvider
             )
           }
           if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
-            const oldIgnoredExtensions = new Set(this.ignored_extensions)
+            const old_ignored_extensions = new Set(this.ignored_extensions)
             this.load_ignored_extensions()
-            this.uncheck_ignored_files(oldIgnoredExtensions)
+            this.uncheck_ignored_files(old_ignored_extensions)
             this.refresh()
           }
         }

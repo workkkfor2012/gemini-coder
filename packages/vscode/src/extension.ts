@@ -52,7 +52,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Migrate saved contexts from file-based to workspace state storage
   // Delete a few weeks after 3 Apr 2025
-  await migrate_saved_contexts(context)
+  migrate_saved_contexts(context)
 
   // Connect WebSocketManager with WebsitesProvider
   if (websocket_server_instance && websites_provider) {
