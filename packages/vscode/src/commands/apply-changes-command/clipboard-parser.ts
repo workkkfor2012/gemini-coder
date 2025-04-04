@@ -20,8 +20,14 @@ const extract_filename_from_comment = (line: string): string | null => {
 
 // Helper function to check if path starts with a workspace name and extract it
 const extract_workspace_and_path = (
-  file_path: string
+  file_path: string,
+  has_single_root = false
 ): { workspace_name?: string; relative_path: string } => {
+  // If workspace has only one root folder, don't try to extract workspace name
+  if (has_single_root) {
+    return { relative_path: file_path }
+  }
+
   // Check if the path might contain a workspace prefix (contains a slash)
   if (!file_path.includes('/')) {
     return { relative_path: file_path }
@@ -44,7 +50,8 @@ const extract_workspace_and_path = (
 }
 
 export const parse_clipboard_multiple_files = (
-  clipboard_text: string
+  clipboard_text: string,
+  has_single_root = false
 ): ClipboardFile[] => {
   const files: ClipboardFile[] = []
 
@@ -75,9 +82,11 @@ export const parse_clipboard_multiple_files = (
         // Otherwise use the second capture group
         current_file_name = (name_match[1] || name_match[2]).trim()
 
-        // Check if file path starts with a workspace name
-        const { workspace_name, relative_path } =
-          extract_workspace_and_path(current_file_name)
+        // Check if file path starts with a workspace name - pass hasSingleRoot
+        const { workspace_name, relative_path } = extract_workspace_and_path(
+          current_file_name,
+          has_single_root
+        )
         if (workspace_name) {
           current_workspace_name = workspace_name
           current_file_name = relative_path // Store just the relative path
@@ -97,9 +106,11 @@ export const parse_clipboard_multiple_files = (
         // Otherwise use the second capture group
         current_file_name = (name_match[1] || name_match[2]).trim()
 
-        // Check if file path starts with a workspace name
-        const { workspace_name, relative_path } =
-          extract_workspace_and_path(current_file_name)
+        // Check if file path starts with a workspace name - pass hasSingleRoot
+        const { workspace_name, relative_path } = extract_workspace_and_path(
+          current_file_name,
+          has_single_root
+        )
         if (workspace_name) {
           current_workspace_name = workspace_name
           current_file_name = relative_path // Store just the relative path
@@ -142,9 +153,9 @@ export const parse_clipboard_multiple_files = (
           if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
             const extracted_filename = extract_filename_from_comment(line)
             if (extracted_filename) {
-              // Check if extracted filename contains workspace prefix
+              // Check if extracted filename contains workspace prefix - pass hasSingleRoot
               const { workspace_name, relative_path } =
-                extract_workspace_and_path(extracted_filename)
+                extract_workspace_and_path(extracted_filename, has_single_root)
               current_file_name = relative_path
               if (workspace_name) {
                 current_workspace_name = workspace_name

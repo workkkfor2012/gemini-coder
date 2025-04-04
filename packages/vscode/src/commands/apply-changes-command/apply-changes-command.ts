@@ -584,6 +584,9 @@ export function apply_changes_command(params: {
       return
     }
 
+    // Check if workspace has only one root folder
+    const has_single_root = vscode.workspace.workspaceFolders?.length === 1
+
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
@@ -715,7 +718,10 @@ export function apply_changes_command(params: {
 
       // Handle Fast replace mode - we don't need the bearer token for this
       if (selected_mode_label == 'Fast replace') {
-        const files = parse_clipboard_multiple_files(clipboard_text)
+        const files = parse_clipboard_multiple_files(
+          clipboard_text,
+          has_single_root
+        )
         const result = await replace_files_directly(files)
 
         if (result.success && result.original_states) {
@@ -757,7 +763,10 @@ export function apply_changes_command(params: {
 
     if (is_multiple_files) {
       // Handle multiple files with AI processing ('Intelligent update' mode)
-      const raw_files = parse_clipboard_multiple_files(clipboard_text)
+      const raw_files = parse_clipboard_multiple_files(
+        clipboard_text,
+        has_single_root
+      )
 
       // Sanitize file paths in the parsed files
       const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
