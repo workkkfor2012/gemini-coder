@@ -11,7 +11,6 @@ type SavedContext = {
   paths: string[]
 }
 
-// Improved function to properly condense paths
 function condense_paths(
   paths: string[],
   workspace_root: string,
@@ -33,7 +32,7 @@ function condense_paths(
   }
 
   // Function to check if all files in a directory are selected (excluding ignored files)
-  function are_all_files_selected(dir_path: string): boolean {
+  function are_all_files_selected(dir_path: string, condensed_paths_set: Set<string>): boolean {
     try {
       // First check if the directory itself is already selected
       if (selected_paths_set.has(dir_path)) {
@@ -74,8 +73,10 @@ function condense_paths(
         }
 
         if (fs.lstatSync(abs_entry_path).isDirectory()) {
-          // If it's a directory, check if all its files are selected
-          if (!are_all_files_selected(entry_path)) {
+          // If it's a directory, check if either:
+          // 1. All its files are selected recursively, or
+          // 2. The directory itself is already in the condensed paths set
+          if (!condensed_paths_set.has(entry_path) && !are_all_files_selected(entry_path, condensed_paths_set)) {
             return false
           }
         } else {
@@ -102,11 +103,12 @@ function condense_paths(
     (a, b) => b.split(path.sep).length - a.split(path.sep).length
   )
 
+  // First pass: condense individual files to immediate directories
   for (const dir of directories) {
     // Skip "." as it represents the workspace root itself
-    if (dir == '.') continue
+    if (dir === '.') continue
 
-    if (are_all_files_selected(dir)) {
+    if (are_all_files_selected(dir, condensed_paths)) {
       // Remove all individual files in this directory from the result
       for (const file of dir_to_children.get(dir)!) {
         condensed_paths.delete(file)
@@ -117,9 +119,46 @@ function condense_paths(
 
       // Also remove any subdirectories that might have been added
       for (const p of Array.from(condensed_paths)) {
-        if (p.startsWith(dir + path.sep)) {
+        if (p !== dir && p.startsWith(dir + path.sep)) {
           condensed_paths.delete(p)
         }
+      }
+    }
+  }
+
+  // Second pass: condense directories up to their parents if all subdirectories are included
+  // Sort directories from shallowest to deepest for this pass
+  directories.sort(
+    (a, b) => a.split(path.sep).length - b.split(path.sep).length
+  )
+
+  for (const dir of directories) {
+    if (dir === '.') continue
+
+    const parent_dir = path.dirname(dir)
+    if (parent_dir !== '.') {
+      // Check if all subdirectories of the parent are in the condensed paths
+      const parent_children = fs.readdirSync(path.join(workspace_root, parent_dir))
+        .map(child => path.join(parent_dir, child))
+        .filter(child_path => {
+          const abs_child_path = path.join(workspace_root, child_path)
+          return fs.existsSync(abs_child_path) && 
+                 fs.lstatSync(abs_child_path).isDirectory() && 
+                 !workspace_provider.is_excluded(child_path)
+        })
+
+      // Check if all valid subdirectories are in condensed_paths
+      const all_subdirs_selected = parent_children.every(child => 
+        condensed_paths.has(child)
+      )
+
+      if (all_subdirs_selected && parent_children.length > 0) {
+        // Remove all subdirectories from the result
+        for (const child of parent_children) {
+          condensed_paths.delete(child)
+        }
+        // Add the parent directory
+        condensed_paths.add(parent_dir)
       }
     }
   }
