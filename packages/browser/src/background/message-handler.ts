@@ -3,6 +3,11 @@ import {
   InitializeChatsMessage,
   InvokeFastReplaceMessage
 } from '@shared/types/websocket-message'
+// Define a simple type for the message coming from our Python server
+type InjectTextMessage = {
+  action: 'inject_text'
+  text: string
+}
 import browser from 'webextension-polyfill'
 import { send_saved_websites, send_message_to_server } from './websocket'
 import { is_message } from '@/utils/is-message'
@@ -24,11 +29,24 @@ const CHAT_INITIALIZATION_TIMEOUT = 5000
 /**
  * Handle different types of incoming WebSocket messages
  */
-export const handle_messages = (message: WebSocketMessage) => {
-  if (message.action == 'initialize-chats') {
-    handle_initialize_chats_message(message as InitializeChatsMessage)
+export const handle_messages = (message: any) => { // Use 'any' for now to handle custom message
+  // Check if it's a message defined in shared types first
+  if (message && typeof message.action === 'string') {
+    const known_message = message as WebSocketMessage // Cast for checks
+    if (known_message.action == 'initialize-chats') {
+      handle_initialize_chats_message(known_message as InitializeChatsMessage)
+    }
+    // Handle the custom inject_text action from Python server
+    else if (message.action == 'inject_text' && typeof message.text === 'string') {
+      handle_inject_text(message as InjectTextMessage)
+    }
+    // Add handlers for other known message types as needed
+    else {
+      console.warn('Received unknown WebSocket message action:', message.action)
+    }
+  } else {
+    console.warn('Received invalid WebSocket message format:', message)
   }
-  // Add handlers for other message types as needed
 }
 
 /**
@@ -147,6 +165,68 @@ const handle_initialize_chats_message = async (
 
     // Start processing if not already doing so
     await start_processing()
+  }
+}
+
+/**
+ * Handle inject_text message from the Python server
+ */
+const handle_inject_text = async (message: InjectTextMessage) => {
+  console.log(`Received inject_text action with text: "${message.text}"`)
+  try {
+    // Find the active Gemini tab in the current window
+    // --- DEBUG: Log all tab URLs before querying ---
+    try {
+      const allTabs = await browser.tabs.query({});
+      console.log('All current tab URLs:', allTabs.map(t => t.url));
+    } catch (logError) {
+      console.error("Error querying all tabs for logging:", logError);
+    }
+    // --- END DEBUG ---
+
+    // Find *any* AI Studio tab
+    const tabs = await browser.tabs.query({
+      url: '*://aistudio.google.com/*' // Keep the specific URL pattern
+    });
+
+    if (tabs.length === 1 && tabs[0].id && tabs[0].windowId) {
+      // Found exactly one AI Studio tab
+      const target_tab_id = tabs[0].id;
+      const target_window_id = tabs[0].windowId;
+      console.log(`Found unique AI Studio tab with ID: ${target_tab_id} in window ${target_window_id}.`);
+
+      try {
+        // 1. Focus the window containing the tab
+        console.log(`Focusing window ${target_window_id}...`);
+        await browser.windows.update(target_window_id, { focused: true });
+
+        // 2. Activate the tab within the window
+        console.log(`Activating tab ${target_tab_id}...`);
+        await browser.tabs.update(target_tab_id, { active: true });
+
+        // 3. Send the message to the now active tab
+        console.log(`Attempting to send 'do_inject' message to tab ${target_tab_id}...`);
+        // Send message to the content script (try without specifying frameId first)
+        await browser.tabs.sendMessage(
+          target_tab_id,
+          {
+            action: 'do_inject',
+            text: message.text
+          }
+        );
+        console.log(`Successfully sent 'do_inject' message to content script in tab ${target_tab_id}`);
+
+      } catch (error) {
+        console.error(`Error activating tab or sending message to tab ${target_tab_id}:`, error);
+      }
+    } else if (tabs.length === 0) {
+      console.warn('No AI Studio tab found.');
+    } else {
+      console.warn(`Found ${tabs.length} AI Studio tabs. Cannot determine the correct target.`);
+    }
+    // Removed the redundant/incorrect else block that was causing the syntax error.
+  } catch (error) {
+    console.error('Error handling inject_text message:', error)
   }
 }
 

@@ -34,16 +34,16 @@ export async function connect_websocket() {
   is_reconnecting = true
 
   try {
-    // Check server health before attempting WebSocket connection
-    const isHealthy = await checkServerHealth()
-    if (!isHealthy) {
-      console.debug('Server health check failed, retrying in 5 seconds...')
-      setTimeout(() => {
-        is_reconnecting = false
-        connect_websocket()
-      }, CONFIG.RECONNECT_DELAY)
-      return
-    }
+    // Temporarily disable server health check for debugging handshake issues
+    // const isHealthy = await checkServerHealth()
+    // if (!isHealthy) {
+    //   console.debug('Server health check failed, retrying in 5 seconds...')
+    //   setTimeout(() => {
+    //     is_reconnecting = false
+    //     connect_websocket()
+    //   }, CONFIG.RECONNECT_DELAY)
+    //   return
+    // }
 
     // Get manifest data for version
     const manifest = browser.runtime.getManifest()
@@ -54,7 +54,9 @@ export async function connect_websocket() {
     )
 
     websocket.onopen = () => {
-      console.log('Connected with the VS Code!')
+      // Log successful connection with server address
+      const server_address = `ws://localhost:${DEFAULT_PORT}`
+      console.info(`Successfully connected to WebSocket server at ${server_address}`)
       is_reconnecting = false
 
       // Send any saved websites immediately after connection is established

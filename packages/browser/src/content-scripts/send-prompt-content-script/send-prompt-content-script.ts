@@ -2,6 +2,7 @@ import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
 import { inject_apply_changes_buttons } from './inject-apply-changes-buttons'
 
+console.log('[send-prompt-content-script] Script loaded and running.'); // Log script load
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
 
@@ -15,9 +16,8 @@ const batch_id = is_gemini_coder_hash
 
 const ai_studio_url =
   'https://aistudio.google.com/prompts/new_chat#gemini-coder'
-const is_ai_studio = current_url.includes(
-  'aistudio.google.com/prompts/new_chat'
-)
+// Use a more general check for AI Studio URL
+const is_ai_studio = current_url.includes('aistudio.google.com/')
 
 const gemini_url = 'https://gemini.google.com/app#gemini-coder'
 const is_gemini = current_url.includes('gemini.google.com/app')
@@ -47,95 +47,141 @@ const is_grok = current_url.includes('grok.com/')
 const is_open_webui = document.title.includes('Open WebUI')
 
 export const get_textarea_element = () => {
-  const chatbot_selectors = {
-    [ai_studio_url]: 'footer textarea',
-    [gemini_url]: 'div[contenteditable="true"]',
-    [chatgpt_url]: 'div#prompt-textarea',
-    [claude_url]: 'div[contenteditable=true]',
-    [github_copilot_url]: 'textarea#copilot-chat-textarea',
-    [deepseek_url]: 'textarea',
-    [mistral_url]: 'textarea'
-  } as any
-
-  // Find the appropriate selector based on the URL without the hash
-  let selector = null
-  for (const [url, sel] of Object.entries(chatbot_selectors)) {
-    if (current_url.includes(url.split('#')[0])) {
-      selector = sel
-      break
-    }
+  // Define selectors based on the *base* URL without hash
+  const chatbot_selectors: Record<string, string> = {
+    'aistudio.google.com/': 'textarea[aria-label="Type something"]', // AI Studio
+    'gemini.google.com/app': 'div[contenteditable="true"]',          // Gemini App
+    'chatgpt.com/': 'div#prompt-textarea',                           // ChatGPT
+    'claude.ai/new': 'div[contenteditable=true]',                     // Claude (New Chat)
+    'github.com/copilot': 'textarea#copilot-chat-textarea',          // GitHub Copilot
+    'chat.deepseek.com/': 'textarea',                                // Deepseek
+    'chat.mistral.ai/chat': 'textarea'                               // Mistral
+    // Add other selectors as needed
   }
 
-  const active_element = selector
-    ? (document.querySelector(selector as string) as HTMLElement)
-    : (document.activeElement as HTMLElement)
-  return active_element
+  let selector: string | null = null;
+  for (const [domain_path, sel] of Object.entries(chatbot_selectors)) {
+      // Check if the current URL includes the domain/path key
+      if (current_url.includes(domain_path)) {
+          selector = sel;
+          console.log(`[send-prompt-content-script] Matched URL pattern: ${domain_path}, using selector: ${selector}`);
+          break;
+      }
+  }
+
+  // Fallback to active element if no specific selector found or matches
+  const target_element = selector
+    ? (document.querySelector(selector) as HTMLElement | null)
+    : (document.activeElement as HTMLElement | null);
+
+  if (!target_element && selector) {
+      console.warn(`[send-prompt-content-script] Could not find element with selector "${selector}", falling back to active element.`);
+      return document.activeElement as HTMLElement | null;
+  }
+  if (!target_element && !selector) {
+      console.warn(`[send-prompt-content-script] No matching URL pattern found, using active element.`);
+  }
+
+  return target_element;
+}
+
+/**
+ * Injects text into a textarea or contenteditable element without sending/submitting.
+ */
+const inject_text_into_element = (params: {
+  input_element: HTMLElement | null
+  text: string
+}) => {
+  if (!params.input_element) {
+    console.warn('[send-prompt-content-script] Cannot inject text: input element not found or null.')
+    return
+  }
+
+  if (params.input_element.isContentEditable) {
+    params.input_element.innerText = params.text
+    // Dispatch input and change events for frameworks that might listen
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
+    console.log('[send-prompt-content-script] Injected text into contenteditable element.')
+  } else if (params.input_element.tagName === 'TEXTAREA') {
+    (params.input_element as HTMLTextAreaElement).value = params.text
+    // Dispatch input and change events
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
+    console.log('[send-prompt-content-script] Injected text into textarea element.')
+  } else {
+    console.warn('[send-prompt-content-script] Cannot inject text: element is not a textarea or contenteditable.')
+  }
 }
 
 const enter_message_and_send = async (params: {
   input_element: HTMLElement | null
   message: string
-}) => {
-  if (params.input_element && params.input_element.isContentEditable) {
-    // Handle contenteditable element
-    params.input_element.innerText = params.message
-    // Dispatch input and change events
-    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
-    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
-    const form = params.input_element.closest('form')
-    if (is_claude) {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true)
-        }, 500)
-      })
-      ;(
-        document.querySelector(
-          'fieldset > div:first-child button'
-        ) as HTMLElement
-      ).click()
-    } else if (form) {
-      requestAnimationFrame(() => {
-        form.requestSubmit()
-      })
-    } else {
-      const enter_event = new KeyboardEvent('keydown', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true
-      })
-      params.input_element.dispatchEvent(enter_event)
+}): Promise<void> => {
+  if (!params.input_element) {
+      console.error('[send-prompt-content-script] Cannot send message: input element is null.');
+      return;
+  }
+
+  // Inject the text first
+  if (params.input_element.isContentEditable) {
+    params.input_element.innerText = params.message;
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }));
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }));
+  } else if (params.input_element.tagName === 'TEXTAREA') {
+    (params.input_element as HTMLTextAreaElement).value = params.message;
+    params.input_element.dispatchEvent(new Event('input', { bubbles: true }));
+    params.input_element.dispatchEvent(new Event('change', { bubbles: true }));
+  } else {
+      console.error('[send-prompt-content-script] Cannot inject message before sending: element is not textarea or contenteditable.');
+      return;
+  }
+
+  // Start monitoring for response completion
+  const responseObserver = new MutationObserver((mutations) => {
+    const chatSession = document.querySelector('ms-chat-session');
+    if (!chatSession) return;
+    
+    const lastTurn = chatSession.lastElementChild;
+    if (lastTurn?.tagName === 'MS-CHAT-TURN') {
+      const goodResponseBtn = lastTurn.querySelector('button[aria-label="Good response"]');
+      if (goodResponseBtn) {
+        console.log('[send-prompt-content-script] Model response completed');
+        responseObserver.disconnect();
+      }
     }
-  } else if (
-    params.input_element &&
-    params.input_element.tagName == 'TEXTAREA'
-  ) {
-    // Handle input or textarea element
-    ;(params.input_element as HTMLTextAreaElement).value = params.message
-    // Dispatch input and change events
-    params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
-    params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
-    const form = params.input_element.closest('form')
-    if (form && !is_github_copilot) {
-      requestAnimationFrame(() => {
-        form.requestSubmit()
-      })
-    } else if (is_ai_studio) {
-      requestAnimationFrame(() => {
-        ;(document.querySelector('run-button > button') as HTMLElement)?.click()
-      })
-    } else {
-      const enter_event = new KeyboardEvent('keydown', {
-        key: 'Enter',
-        code: 'Enter',
-        keyCode: 13,
-        which: 13,
-        bubbles: true
-      })
-      params.input_element.dispatchEvent(enter_event)
+  });
+
+  responseObserver.observe(document.body, {
+    childList: true,
+    subtree: true
+  });
+
+  // Now try to send/submit
+  const form = params.input_element?.closest('form');
+
+  if (is_claude) {
+    await new Promise(resolve => setTimeout(resolve, 500));
+    const claude_button = document.querySelector('fieldset > div:first-child button') as HTMLElement | null;
+    if (claude_button) {
+        claude_button.click();
     }
+  } else if (is_ai_studio) {
+    const send_button_aria = document.querySelector('button[aria-label="Run"]') as HTMLElement | null;
+    if (send_button_aria) {
+        send_button_aria.click();
+    }
+  } else if (form && !is_github_copilot) {
+    form.requestSubmit();
+  } else {
+    const enter_event = new KeyboardEvent('keydown', {
+      key: 'Enter',
+      code: 'Enter',
+      keyCode: 13,
+      which: 13,
+      bubbles: true
+    });
+    params.input_element.dispatchEvent(enter_event);
   }
 }
 
@@ -208,7 +254,7 @@ const set_model = async (model: string) => {
         'ms-model-option > div:last-child'
       ) as HTMLElement
       if (model_name_element?.textContent?.trim() == model) {
-        ;(option as HTMLElement).click()
+        (option as HTMLElement).click()
         break
       }
     }
@@ -242,7 +288,7 @@ const set_model = async (model: string) => {
       for (const option of model_options) {
         const label_element = option.querySelector('[class*="ItemLabel"]')
         if (label_element && label_element.textContent == model_map[model]) {
-          ;(option as HTMLElement).click()
+          (option as HTMLElement).click()
           await new Promise((r) => requestAnimationFrame(r))
           break
         }
@@ -294,161 +340,78 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
 }
 
 const main = async () => {
-  if (!is_gemini_coder_hash) return
+  // --- Logic for handling initialization via URL hash ---
+  if (is_gemini_coder_hash) {
+      console.log('[send-prompt-content-script] Found gemini-coder hash, initializing chat...');
+      // Remove the hash from the URL to avoid reloading the content script if the page is refreshed
+      history.replaceState(
+        null,
+        '',
+        window.location.pathname + window.location.search
+      )
 
-  // Remove the hash from the URL to avoid reloading the content script if the page is refreshed
-  history.replaceState(
-    null,
-    '',
-    window.location.pathname + window.location.search
-  )
+      // Get the message using the batch ID from the hash
+      const storage_key = `chat-init:${batch_id}`
+      const storage = await browser.storage.local.get(storage_key)
+      const stored_data = storage[storage_key] as {
+        text: string
+        current_chat: Chat
+        client_id: number
+      }
 
-  // Get the message using the batch ID from the hash
-  const storage_key = `chat-init:${batch_id}`
-  const storage = await browser.storage.local.get(storage_key)
-  const stored_data = storage[storage_key] as {
-    text: string
-    current_chat: Chat
-    client_id: number
+      if (!stored_data) {
+        console.error('[send-prompt-content-script] Chat initialization data not found for batch ID:', batch_id)
+        return
+      }
+
+      // Now directly use the current_chat instead of searching for it
+      const message_text = stored_data.text
+      const current_chat = stored_data.current_chat
+
+      if (!current_chat) {
+        console.error('[send-prompt-content-script] Chat configuration not found')
+        return
+      }
+
+      // Quirks mitigation (Wait for page elements to likely be ready)
+      // Consider more robust checks if needed
+      if (is_ai_studio) {
+        await new Promise(resolve => setTimeout(resolve, 1000)); // Increased delay for AI Studio
+      } else if (is_gemini) {
+         await new Promise(resolve => setTimeout(resolve, 500));
+      } else if (is_chatgpt) {
+         await new Promise(resolve => setTimeout(resolve, 500));
+         const reason_button = document.querySelector('button[aria-label="Reason"]') as HTMLButtonElement | null
+         reason_button?.click() // Dismiss potential overlays
+         await new Promise(resolve => setTimeout(resolve, 100));
+      } else if (is_claude) {
+         await new Promise(resolve => setTimeout(resolve, 500));
+      } else {
+         await new Promise(resolve => setTimeout(resolve, 500)); // Generic delay
+      }
+
+      console.log('[send-prompt-content-script] Initializing chat with data:', stored_data);
+      await initialize_chat({
+        message: message_text,
+        chat: current_chat
+      })
+
+      // Clean up the storage entry after using it
+      await browser.storage.local.remove(storage_key)
+      console.log('[send-prompt-content-script] Removed chat initialization data for batch ID:', batch_id);
+
+      // Inject apply changes buttons *after* initialization
+      inject_apply_changes_buttons({
+        client_id: stored_data.client_id,
+        is_ai_studio
+      })
+  } else {
+      // If not initializing via hash, still inject apply changes buttons
+      // Need a way to get client_id if not from stored_data
+      // For now, let's assume client_id might come from a different message or default to 0
+      console.log('[send-prompt-content-script] No gemini-coder hash found, injecting apply buttons only.');
+      inject_apply_changes_buttons({ client_id: 0, is_ai_studio }); // Use default client_id 0 for now
   }
-
-  if (!stored_data) {
-    console.error('Chat initialization data not found for batch ID:', batch_id)
-    return
-  }
-
-  // Now directly use the current_chat instead of searching for it
-  const message_text = stored_data.text
-  const current_chat = stored_data.current_chat
-
-  if (!current_chat) {
-    console.error('Chat configuration not found')
-    return
-  }
-
-  // Quirks mitigation
-  if (is_ai_studio) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('.title-container')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
-  } else if (is_gemini) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('toolbox-drawer')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-  } else if (is_chatgpt) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('span[data-radix-focus-guard]')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-    const reason_button = document.querySelector('button[aria-label="Reason"]')
-    ;(reason_button as HTMLButtonElement)?.click()
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 100)
-    })
-  } else if (is_claude) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('fieldset')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-  } else if (is_github_copilot) {
-    await new Promise((resolve) => {
-      const check_for_model_selector = () => {
-        const model_button = Array.from(
-          document.querySelectorAll('button')
-        ).find((button) => {
-          const button_text = button.textContent?.trim() || ''
-          return button_text.startsWith('Model:')
-        })
-
-        if (model_button) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_model_selector, 100)
-        }
-      }
-      check_for_model_selector()
-    })
-  } else if (is_mistral) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
-  } else if (is_open_webui) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('img[src="/static/favicon.png"]')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-  } else if (is_deepseek) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
-  } else if (is_grok) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('textarea')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
-      }
-      resolve(null)
-    })
-  }
-
-  await initialize_chat({
-    message: message_text,
-    chat: current_chat
-  })
-
-  // Clean up the storage entry after using it
-  await browser.storage.local.remove(storage_key)
-
-  inject_apply_changes_buttons({
-    client_id: stored_data.client_id,
-    is_ai_studio
-  })
 }
 
 if (document.readyState == 'loading') {
@@ -456,3 +419,34 @@ if (document.readyState == 'loading') {
 } else {
   main()
 }
+
+// --- New Message Listener for handling inject command from background script ---
+console.log('[send-prompt-content-script] Setting up onMessage listener.'); // Log listener setup
+browser.runtime.onMessage.addListener((message: any, sender, sendResponse) => { // Keep non-async
+  console.log('[send-prompt-content-script] Received message:', message) // Log all received messages
+  if (message && message.action === 'do_inject' && typeof message.text === 'string') {
+    console.log(`[send-prompt-content-script] Handling 'do_inject' action with text: "${message.text}"`)
+    const target_element = get_textarea_element()
+    if (target_element) {
+      console.log('[send-prompt-content-script] Found target element:', target_element);
+      // Use enter_message_and_send to inject AND attempt to send
+      // Note: enter_message_and_send is async, but the listener itself is not waiting for it.
+      // This is generally fine for this use case.
+      enter_message_and_send({
+          input_element: target_element,
+          message: message.text
+      });
+      // Indicate success (optional, background script doesn't currently wait for response)
+      // sendResponse({ success: true });
+    } else {
+      console.error('[send-prompt-content-script] Could not find target input element to inject text.')
+      // Indicate failure (optional)
+      // sendResponse({ success: false, error: 'Input element not found' });
+    }
+    // Message was handled
+  }
+  // Always return true if this listener is intended to handle *some* messages.
+  // This signals that sendResponse *might* be called asynchronously later,
+  // often satisfying the type checker.
+  return true;
+})

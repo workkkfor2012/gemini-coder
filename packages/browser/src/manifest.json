@@ -12,7 +12,7 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "alarms", "activeTab"],
+  "permissions": ["storage", "alarms", "activeTab", "tabs"],
   "host_permissions": ["http://localhost:55155/", "ws://localhost:55155/"],
   "action": {
     "default_title": "Gemini Coder Connector",
@@ -24,7 +24,7 @@
   "content_scripts": [
     {
       "matches": [
-        "https://aistudio.google.com/prompts/new_chat",
+        "*://aistudio.google.com/*",
         "https://gemini.google.com/app",
         "https://chatgpt.com/",
         "https://claude.ai/new",
