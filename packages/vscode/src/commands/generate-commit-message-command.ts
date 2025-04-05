@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import axios from 'axios'
 import * as path from 'path'
+import * as fs from 'fs'
 import { ModelManager } from '../services/model-manager'
 import { make_api_request } from '../helpers/make-api-request'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
@@ -199,10 +200,12 @@ async function collect_affected_files(
     // Get the repository workspace root
     const root_path = repository.rootUri.fsPath
 
-    // Get changed files - using the correct API method
-    // Access changes through the state object, which is the proper VS Code Git API way
-    const changes = repository.state.workingTreeChanges || []
-    if (!changes || changes.length == 0) {
+    // Get changed files based on whether we're using staged or unstaged changes
+    const changes = use_staged
+      ? repository.state.indexChanges || []
+      : repository.state.workingTreeChanges || []
+
+    if (!changes.length) {
       return ''
     }
 
@@ -213,27 +216,14 @@ async function collect_affected_files(
       const relative_path = path.relative(root_path, file_path)
 
       try {
+        // Read file content except for deleted files
         let content = ''
-        if (use_staged) {
-          // For staged files, get content from the index
+        if (change.status != 6) {
+          // Not deleted
           try {
-            content = execSync(`git show :"${relative_path}"`, {
-              cwd: root_path
-            }).toString()
-          } catch {
-            // File might be newly created and not in index yet
-          }
-        } else {
-          // For unstaged changes, get content from HEAD
-          if (change.status == 5 || change.status == 6) {
-            // 5 - modified, 6 - deleted
-            try {
-              content = execSync(`git show HEAD:"${relative_path}"`, {
-                cwd: root_path
-              }).toString()
-            } catch {
-              // File might be newly added to git and not in HEAD yet
-            }
+            content = fs.readFileSync(file_path, 'utf8')
+          } catch (err) {
+            console.error(`Error reading file ${file_path}:`, err)
           }
         }
 

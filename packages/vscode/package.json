@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the free 2M context AI coding assistant",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for FIM completions, file refactoring and applying AI-suggested changes.",
-  "version": "1.0.321",
+  "version": "1.0.322",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -477,14 +477,14 @@
         "geminiCoder.apiKey": {
           "type": "string",
           "scope": "resource",
-          "markdownDescription": "Create yours in [AI Studio](https://aistudio.google.com/app/apikey).",
+          "markdownDescription": "Get in [AI Studio](https://aistudio.google.com/app/apikey).",
           "default": ""
         },
         "geminiCoder.commitMessagePrompt": {
           "type": "string",
           "scope": "resource",
           "description": "The prompt text used when generating commit messages.",
-          "default": "Generate commit message for these changes."
+          "default": "Write a concise and informative summary for the following diff. Use an imperative tone to maintain clarity and directness in your response."
         },
         "geminiCoder.temperature": {
           "type": "number",
