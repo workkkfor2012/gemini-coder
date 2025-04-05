@@ -124,12 +124,15 @@ const enter_message_and_send = async (params: {
   }
 
   // Inject the text first
+  // Append a space to the message to potentially trigger input detection
+  const message_with_space = params.message + ' ';
+
   if (params.input_element.isContentEditable) {
-    params.input_element.innerText = params.message;
+    params.input_element.innerText = message_with_space;
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }));
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }));
   } else if (params.input_element.tagName === 'TEXTAREA') {
-    (params.input_element as HTMLTextAreaElement).value = params.message;
+    (params.input_element as HTMLTextAreaElement).value = message_with_space;
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }));
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }));
   } else {
