@@ -6,12 +6,12 @@ import {
   fim_completion_with_command,
   fim_completion_with_suggestions_command,
   fim_completion_with_suggestions_with_command
-} from './commands/fim-completion-command'
+} from './commands/fim-completion-commands'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
   web_chat_command,
   web_chat_with_command
-} from './commands/web-chat-command'
+} from './commands/web-chat-commands'
 import { chat_to_clipboard_command } from './commands/chat-to-clipboard-command'
 import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
@@ -32,7 +32,7 @@ import { delete_command } from './commands/delete-command'
 import {
   fim_in_chat_command,
   fim_in_chat_with_command
-} from './commands/fim-in-chat-command'
+} from './commands/fim-in-chat-commands'
 import { save_context_command } from './commands/save-context-command'
 import { revert_command } from './commands/revert-command'
 import { migrate_saved_contexts } from './utils/migrate-saved-contexts'
