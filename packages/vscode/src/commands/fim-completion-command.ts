@@ -19,7 +19,7 @@ async function get_selected_provider(
     !all_providers.some((p) => p.name == default_model_name)
   ) {
     vscode.window.showErrorMessage('Default model is not set or valid.')
-    return
+    return undefined
   }
 
   // Get the last used models from global state
@@ -120,7 +120,8 @@ async function build_completion_payload(
   document: vscode.TextDocument,
   position: vscode.Position,
   file_tree_provider: any,
-  open_editors_provider?: any
+  open_editors_provider?: any,
+  suggestions?: string
 ): Promise<string> {
   const document_path = document.uri.fsPath
   const text_before_cursor = document.getText(
@@ -147,15 +148,36 @@ async function build_completion_payload(
     )}"><![CDATA[${text_before_cursor}`,
     after: `${text_after_cursor}]]></file>\n</files>`
   }
-  return `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction}`
+
+  return `${payload.before}<fill missing code>${
+    payload.after
+  }\n${autocomplete_instruction}${
+    suggestions ? ` Follow suggestions: ${suggestions}` : ''
+  }`
 }
 
+// Core function that contains the shared logic
 async function perform_fim_completion(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext,
-  provider: Provider
+  provider: Provider,
+  with_suggestions: boolean = false
 ) {
+  // Handle suggestions if needed
+  let suggestions: string | undefined
+  if (with_suggestions) {
+    suggestions = await vscode.window.showInputBox({
+      placeHolder: 'Enter suggestions',
+      prompt: 'E.g. include explanatory comments'
+    })
+
+    // If user cancels the input box (not the same as empty input), return
+    if (suggestions === undefined) {
+      return
+    }
+  }
+
   const config = vscode.workspace.getConfiguration()
   const verbose = config.get<boolean>('geminiCoder.verbose')
 
@@ -180,7 +202,8 @@ async function perform_fim_completion(
       document,
       position,
       file_tree_provider,
-      open_editors_provider
+      open_editors_provider,
+      suggestions
     )
 
     const messages = [
@@ -271,7 +294,7 @@ async function perform_fim_completion(
 }
 
 /**
- * Register the command for FIM completion using the default model
+ * Register all FIM completion commands
  */
 export function register_fim_completion(
   file_tree_provider: any,
@@ -280,6 +303,7 @@ export function register_fim_completion(
 ) {
   const model_manager = new ModelManager(context)
 
+  // Default FIM completion (no suggestions)
   return vscode.commands.registerCommand(
     'geminiCoder.fimCompletion',
     async () => {
@@ -312,14 +336,15 @@ export function register_fim_completion(
         file_tree_provider,
         open_editors_provider,
         context,
-        provider
+        provider,
+        false // without suggestions
       )
     }
   )
 }
 
 /**
- * Register the command for FIM completion with model selection
+ * Register FIM completion with model selection
  */
 export function register_fim_completion_with(
   file_tree_provider: any,
@@ -363,7 +388,109 @@ export function register_fim_completion_with(
         file_tree_provider,
         open_editors_provider,
         context,
-        provider
+        provider,
+        false // without suggestions
+      )
+    }
+  )
+}
+
+/**
+ * Register FIM completion with suggestions using the default model
+ */
+export function register_fim_completion_with_suggestions(
+  file_tree_provider: any,
+  open_editors_provider: any,
+  context: vscode.ExtensionContext
+) {
+  const model_manager = new ModelManager(context)
+
+  return vscode.commands.registerCommand(
+    'geminiCoder.fimCompletionWithSuggestions',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
+      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_temperature = config.get<number>('geminiCoder.temperature')
+
+      // Get default model from global state
+      const default_model_name = model_manager.get_default_fim_model()
+
+      const all_providers = [
+        ...BUILT_IN_PROVIDERS.map((provider) => ({
+          ...provider,
+          bearerToken: gemini_api_key || '',
+          temperature: gemini_temperature
+        })),
+        ...user_providers
+      ]
+
+      const provider = all_providers.find((p) => p.name == default_model_name)
+
+      if (!provider) {
+        vscode.window.showErrorMessage('Default model is not set or valid.')
+        return
+      }
+
+      await perform_fim_completion(
+        file_tree_provider,
+        open_editors_provider,
+        context,
+        provider,
+        true // with suggestions
+      )
+    }
+  )
+}
+
+/**
+ * Register FIM completion with suggestions with model selection
+ */
+export function register_fim_completion_with_suggestions_with(
+  file_tree_provider: any,
+  open_editors_provider: any,
+  context: vscode.ExtensionContext
+) {
+  const model_manager = new ModelManager(context)
+
+  return vscode.commands.registerCommand(
+    'geminiCoder.fimCompletionWithSuggestionsWith',
+    async () => {
+      const config = vscode.workspace.getConfiguration()
+      const user_providers =
+        config.get<Provider[]>('geminiCoder.providers') || []
+      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_temperature = config.get<number>('geminiCoder.temperature')
+
+      // Get default model from global state
+      const default_model_name = model_manager.get_default_fim_model()
+
+      const all_providers = [
+        ...BUILT_IN_PROVIDERS.map((provider) => ({
+          ...provider,
+          bearerToken: gemini_api_key || '',
+          temperature: gemini_temperature
+        })),
+        ...user_providers
+      ]
+
+      const provider = await get_selected_provider(
+        context,
+        all_providers,
+        default_model_name
+      )
+
+      if (!provider) {
+        return // Provider selection failed or was cancelled
+      }
+
+      await perform_fim_completion(
+        file_tree_provider,
+        open_editors_provider,
+        context,
+        provider,
+        true // with suggestions
       )
     }
   )

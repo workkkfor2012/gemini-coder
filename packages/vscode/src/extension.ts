@@ -3,13 +3,11 @@ import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command/apply-changes-command'
 import {
   register_fim_completion,
-  register_fim_completion_with
-} from './commands/fim-completion-command'
-import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
-import {
+  register_fim_completion_with,
   register_fim_completion_with_suggestions,
   register_fim_completion_with_suggestions_with
-} from './commands/fim-completion-with-suggestions-command'
+} from './commands/fim-completion-command'
+import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
 import { fim_completion_with_suggestions_to_clipboard_command } from './commands/fim-completion-with-suggestions-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
