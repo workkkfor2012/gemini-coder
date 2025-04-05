@@ -293,6 +293,17 @@
         "command": "geminiCoder.revert",
         "title": "Revert Last Applied Changes",
         "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.generateCommitMessage",
+        "title": "Generate Commit Message with Gemini Coder",
+        "category": "Gemini Coder",
+        "icon": "$(sparkle)"
+      },
+      {
+        "command": "geminiCoder.changeDefaultCommitMessageModel",
+        "title": "Change Default Commit Message Model",
+        "category": "Gemini Coder"
       }
     ],
     "menus": {
@@ -355,6 +366,10 @@
         },
         {
           "command": "geminiCoder.saveContext",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.generateCommitMessage",
           "when": "false"
         }
       ],
@@ -446,6 +461,13 @@
           "when": "view == geminiCoderViewWorkspace",
           "group": "1_modification@2"
         }
+      ],
+      "scm/title": [
+        {
+          "command": "geminiCoder.generateCommitMessage",
+          "group": "navigation",
+          "when": "scmProvider == git"
+        }
       ]
     },
     "configuration": {
@@ -457,6 +479,12 @@
           "scope": "resource",
           "markdownDescription": "Create yours in [AI Studio](https://aistudio.google.com/app/apikey).",
           "default": ""
+        },
+        "geminiCoder.commitMessagePrompt": {
+          "type": "string",
+          "scope": "resource",
+          "description": "The prompt text used when generating commit messages.",
+          "default": "Generate commit message for these changes."
         },
         "geminiCoder.temperature": {
           "type": "number",
