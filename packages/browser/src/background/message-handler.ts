@@ -217,7 +217,41 @@ const handle_inject_text = async (message: InjectTextMessage) => {
         console.log(`Successfully sent 'do_inject' message to content script in tab ${target_tab_id}`);
 
       } catch (error) {
-        console.error(`Error activating tab or sending message to tab ${target_tab_id}:`, error);
+        // Log the initial error regardless
+        console.error(`Initial error activating tab or sending message to tab ${target_tab_id}:`, error);
+
+        // Check if it's the specific error indicating the content script isn't there
+        if (error instanceof Error && error.message.includes('Receiving end does not exist')) {
+          console.log(`Content script likely missing in tab ${target_tab_id} (maybe due to extension reload). Attempting re-injection...`);
+          try {
+            // Inject the content script programmatically
+            await browser.scripting.executeScript({
+              target: { tabId: target_tab_id },
+              // Ensure this path matches the compiled output location relative to the extension root
+              files: ['send-prompt-content-script.js']
+            });
+            console.log(`Successfully injected script into tab ${target_tab_id}.`);
+
+            // Wait a brief moment for the script to load and set up its listener
+            await new Promise(resolve => setTimeout(resolve, 200)); // 200ms delay
+
+            // Retry sending the message once after injection
+            console.log(`Retrying to send 'do_inject' message to tab ${target_tab_id}...`);
+            await browser.tabs.sendMessage(
+              target_tab_id,
+              {
+                action: 'do_inject',
+                text: message.text
+              }
+            );
+            console.log(`Successfully sent 'do_inject' message on retry to tab ${target_tab_id}`);
+
+          } catch (retryError) {
+            // Log errors related to injection or the retry attempt
+            console.error(`Error during script injection or retry sending message to tab ${target_tab_id}:`, retryError);
+          }
+        }
+        // If it was a different type of error, we've already logged it initially.
       }
     } else if (tabs.length === 0) {
       console.warn('No AI Studio tab found.');
@@ -262,7 +296,15 @@ export const setup_message_listeners = () => {
           action: 'invoke-fast-replace',
           client_id: message.client_id
         } as InvokeFastReplaceMessage)
-      }
-    }
+     } else if (message.action == 'clipboard-content-ready' && typeof message.text === 'string') {
+       // Received clipboard content from content script, forward it to the server
+       console.log("Received clipboard content from content script:", message.text);
+       // Use a specific action name for the server to understand the context
+       send_message_to_server({
+         action: 'model_response_copied',
+         text: message.text
+       });
+     }
+   }
   })
 }

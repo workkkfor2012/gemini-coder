@@ -12,8 +12,12 @@
     "48": "icons/icon48.png",
     "128": "icons/icon128.png"
   },
-  "permissions": ["storage", "alarms", "activeTab", "tabs"],
-  "host_permissions": ["http://localhost:55155/", "ws://localhost:55155/"],
+  "permissions": ["storage", "alarms", "activeTab", "tabs", "scripting"],
+  "host_permissions": [
+    "http://localhost:55155/",
+    "ws://localhost:55155/",
+    "*://aistudio.google.com/*"
+  ],
   "action": {
     "default_title": "Gemini Coder Connector",
     "default_popup": "popup.html"

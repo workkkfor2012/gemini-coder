@@ -38,17 +38,22 @@ async def handle_message(websocket, message_json: str):
     try:
         message_data = json.loads(message_json)
         # 检查消息是否符合协议格式
-        if "text" in message_data:
+        # Check for specific actions first
+        action = message_data.get("action")
+        if action == "ping":
+            # Client is sending a keep-alive ping, just log it or ignore
+            logging.debug(f"Received ping from plugin.") # Use debug level to avoid cluttering logs
+            pass # Or handle pong if needed, but usually not necessary for keep-alive
+        elif action == "model_response_copied" and "text" in message_data:
             received_text = message_data["text"]
-            logging.info(f"Received from plugin: {received_text}")
-
-            # --- 在这里添加处理接收到文本的逻辑 ---
-            # 例如，简单地回显收到的消息:
-            # response_text = f"Backend received: {received_text}"
-            # await send_to_plugin(response_text)
-
-            # 或者根据收到的文本执行其他操作...
+            logging.info(f"Received copied model response from plugin: {received_text}")
+            # --- 在这里添加处理复制内容的逻辑 ---
+            # 例如，可以将其保存到文件或数据库，或进行进一步处理
             # ---------------------------------------
+        elif "text" in message_data: # Handle generic text messages if needed
+            received_text = message_data["text"]
+            logging.info(f"Received generic text from plugin: {received_text}")
+            # --- 处理其他文本消息 ---
 
         else:
             # 如果消息格式不符合预期，记录警告
@@ -142,8 +147,10 @@ async def main():
     input_task = loop.create_task(input_loop(loop, executor))
 
     # 启动 WebSocket 服务器
+    # Disable automatic ping/pong to keep connection alive indefinitely from the server side
+    # Note: Connection might still drop due to network issues or client-side closure.
     server = await websockets.serve(connection_handler, host, port,
-                                    ping_interval=20, ping_timeout=20)
+                                    ping_interval=None, ping_timeout=None)
     logging.info("Server started. Waiting for plugin connection and terminal input...")
 
     # 等待服务器和输入任务完成

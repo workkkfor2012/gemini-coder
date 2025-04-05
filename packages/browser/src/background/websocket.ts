@@ -9,6 +9,7 @@ import localforage from 'localforage'
 // Store WebSocket instance and connection state
 let websocket: WebSocket | null = null
 let is_reconnecting = false
+let ping_interval_id: number | null = null // Store interval ID for ping
 
 /**
  * Check if the server is healthy before attempting connection
@@ -61,6 +62,12 @@ export async function connect_websocket() {
 
       // Send any saved websites immediately after connection is established
       send_current_saved_websites()
+
+      // Start sending pings every 20 seconds to keep connection alive
+      if (ping_interval_id) clearInterval(ping_interval_id); // Clear previous interval if any
+      ping_interval_id = setInterval(() => {
+        send_message_to_server({ action: 'ping' });
+      }, 20000) as unknown as number; // Send ping every 20 seconds
     }
 
     websocket.onmessage = async (event) => {
@@ -71,16 +78,27 @@ export async function connect_websocket() {
 
     websocket.onclose = () => {
       console.log('Disconnected from VS Code, attempting to reconnect...')
+      if (ping_interval_id) clearInterval(ping_interval_id); // Stop sending pings
+      ping_interval_id = null;
       websocket = null
       is_reconnecting = false
       setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
     }
 
-    websocket.onerror = () => {
+    websocket.onerror = (event) => {
+      // Log the error event for more details
+      console.error('WebSocket error observed:', event)
+      if (ping_interval_id) clearInterval(ping_interval_id); // Stop sending pings
+      ping_interval_id = null;
       is_reconnecting = false
       websocket = null
+      // Schedule reconnection on error as well
+      setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
     }
   } catch (error) {
+    // Also clear ping interval in case of connection setup error
+    if (ping_interval_id) clearInterval(ping_interval_id);
+    ping_interval_id = null;
     is_reconnecting = false
     setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
   }

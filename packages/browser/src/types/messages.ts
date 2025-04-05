@@ -26,9 +26,15 @@ export type InvokeFastReplaceMessage = {
   client_id: number
 }
 
+export type ClipboardContentReadyMessage = {
+  action: 'clipboard-content-ready'
+  text: string
+}
+
 export type Message =
   | GetPageDataMessage
   | PageDataMessage
   | UpdateSavedWebsitesMessage
   | ChatInitializedMessage
   | InvokeFastReplaceMessage
+  | ClipboardContentReadyMessage

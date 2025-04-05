@@ -8,9 +8,10 @@ export function setup_keep_alive() {
   if (!browser.browserAction) {
     const create_keep_alive_alarm = async () => {
       try {
+        // Set alarm interval significantly shorter than the 30s inactivity timeout
         chrome.alarms.create('keep-alive', {
-          when: Date.now() + 1000 * 30
-        }) // 30 seconds interval
+          when: Date.now() + 1000 * 20
+        }) // 20 seconds interval
       } catch (error) {
         console.error('Error creating KeepAlive alarm:', error)
       }
