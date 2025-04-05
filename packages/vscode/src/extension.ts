@@ -2,13 +2,11 @@ import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command/apply-changes-command'
 import {
-  register_fim_completion,
-  register_fim_completion_with,
-  register_fim_completion_with_suggestions,
-  register_fim_completion_with_suggestions_with
+  fim_completion_command,
+  fim_completion_with_command,
+  fim_completion_with_suggestions_command,
+  fim_completion_with_suggestions_with_command
 } from './commands/fim-completion-command'
-import { fim_completion_to_clipboard_command } from './commands/fim-completion-to-clipboard-command'
-import { fim_completion_with_suggestions_to_clipboard_command } from './commands/fim-completion-with-suggestions-to-clipboard-command'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
   web_chat_command,
@@ -39,6 +37,10 @@ import { save_context_command } from './commands/save-context-command'
 import { revert_command } from './commands/revert-command'
 import { migrate_saved_contexts } from './utils/migrate-saved-contexts'
 import { generate_commit_message_command } from './commands/generate-commit-message-command'
+import {
+  fim_completion_to_clipboard_command,
+  fim_completion_with_suggestions_to_clipboard_command
+} from './commands/fim-completion-to-clipboard-commands'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -153,18 +155,18 @@ export async function activate(context: vscode.ExtensionContext) {
       workspace_provider,
       open_editors_provider
     ),
-    register_fim_completion_with(
+    fim_completion_with_command(
       workspace_provider,
       open_editors_provider,
       context
     ),
-    register_fim_completion(workspace_provider, open_editors_provider, context),
-    register_fim_completion_with_suggestions(
+    fim_completion_command(workspace_provider, open_editors_provider, context),
+    fim_completion_with_suggestions_command(
       workspace_provider,
       open_editors_provider,
       context
     ),
-    register_fim_completion_with_suggestions_with(
+    fim_completion_with_suggestions_with_command(
       workspace_provider,
       open_editors_provider,
       context

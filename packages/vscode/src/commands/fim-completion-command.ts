@@ -296,7 +296,7 @@ async function perform_fim_completion(
 /**
  * Register all FIM completion commands
  */
-export function register_fim_completion(
+export function fim_completion_command(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext
@@ -346,7 +346,7 @@ export function register_fim_completion(
 /**
  * Register FIM completion with model selection
  */
-export function register_fim_completion_with(
+export function fim_completion_with_command(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext
@@ -398,7 +398,7 @@ export function register_fim_completion_with(
 /**
  * Register FIM completion with suggestions using the default model
  */
-export function register_fim_completion_with_suggestions(
+export function fim_completion_with_suggestions_command(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext
@@ -447,7 +447,7 @@ export function register_fim_completion_with_suggestions(
 /**
  * Register FIM completion with suggestions with model selection
  */
-export function register_fim_completion_with_suggestions_with(
+export function fim_completion_with_suggestions_with_command(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext
