@@ -31,6 +31,14 @@ function condense_paths(
     dir_to_children.get(parent_dir)!.push(rel_path)
   }
 
+  const config_ignored_extensions = vscode.workspace
+    .getConfiguration('geminiCoder')
+    .get('ignoredExtensions', [])
+  const all_ignored_extensions = new Set([
+    ...ignored_extensions,
+    ...config_ignored_extensions
+  ])
+
   // Function to check if all files in a directory are selected (excluding ignored files)
   function are_all_files_selected(
     dir_path: string,
@@ -51,7 +59,6 @@ function condense_paths(
         return false
       }
 
-      // Get all files in this directory
       const all_entries = fs.readdirSync(abs_dir_path)
 
       for (const entry of all_entries) {
@@ -74,7 +81,7 @@ function condense_paths(
         // Skip files with ignored extensions
         if (
           !fs.lstatSync(abs_entry_path).isDirectory() &&
-          should_ignore_file(entry, new Set(ignored_extensions))
+          should_ignore_file(entry, all_ignored_extensions)
         ) {
           continue
         }
