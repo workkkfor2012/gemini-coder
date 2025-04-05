@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the free 2M context AI coding assistant",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for FIM completions, file refactoring and applying AI-suggested changes.",
-  "version": "1.0.318",
+  "version": "1.0.319",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -561,16 +561,7 @@
               "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
-              "name": "AI Studio with 2.5 Pro Exp",
-              "chatbot": "AI Studio",
-              "promptPrefix": "",
-              "promptSuffix": "",
-              "model": "gemini-2.5-pro-exp-03-25",
-              "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
-            },
-            {
-              "name": "AI Studio with 2.5 Pro Prev",
+              "name": "AI Studio with 2.5 Pro Preview",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",

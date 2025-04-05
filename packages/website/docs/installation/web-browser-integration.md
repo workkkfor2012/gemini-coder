@@ -33,7 +33,7 @@ Websockets are used as reliable bi-directional communication channel for message
     "chats": [
       {
         "url": "https://aistudio.google.com/prompts/new_chat",
-        "model": "gemini-2.5-pro-exp-03-25",
+        "model": "gemini-2.5-pro-preview-03-25",
         "temperature": 0.5,
         "system_instructions": "You are a helpful assistant."
       },
