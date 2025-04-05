@@ -11,8 +11,9 @@ _Structure of the generated message:_
 
 ```
 <files>
-  [CONTEXT FILES]
-  <file name="...">...</file> (current file)
+  <file name="...">...</file> (Context files)
+  ...
+  <file name="...">...</file> (Current file)
 </files>
 User requested refactor of a file "[NAME]". In your response send fully updated file only, without explanations or any other text.
 [REFACTORING INSTRUCTIONS]
