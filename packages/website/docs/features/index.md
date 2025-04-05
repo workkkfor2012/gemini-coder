@@ -23,6 +23,6 @@ Modify a file based on natural language instructions.
 
 Integrate chat responses with the codebase.
 
-### [Generate Commit Message](./generate-commit-message)
+### [Generate Commit Message](./generate-commit-message))
 
 Create meaningful commit messages automatically.

@@ -22,9 +22,9 @@ function HomepageHeader() {
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
-            to="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"
+            to="/docs/intro"
           >
-            Install Extension
+            Read introduction
           </Link>
         </div>
       </div>
