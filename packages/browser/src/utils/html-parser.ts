@@ -110,7 +110,7 @@ export namespace HtmlParser {
         }
       })
       const article = new Readability(doc, { keepClasses: true }).parse()
-      if (article) {
+      if (article && article.content) {
         const title = article.title || title_element_text
         let content = turndown_service.turndown(article.content)
         content = strip_markdown_links(content)
