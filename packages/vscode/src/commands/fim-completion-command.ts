@@ -19,7 +19,7 @@ async function get_selected_provider(
     !all_providers.some((p) => p.name == default_model_name)
   ) {
     vscode.window.showErrorMessage('Default model is not set or valid.')
-    return undefined
+    return
   }
 
   // Get the last used models from global state
