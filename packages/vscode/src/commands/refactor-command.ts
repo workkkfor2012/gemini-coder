@@ -8,6 +8,7 @@ import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallbac
 import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
+import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
 
 async function format_document(document: vscode.TextDocument): Promise<void> {
   try {
@@ -159,6 +160,22 @@ export function refactor_command(params: {
 
     // Store original content for potential reversion
     const original_content = document_text
+
+    // Get the relative path of the file in the workspace
+    const file_path = vscode.workspace.asRelativePath(document.uri)
+
+    // Determine which workspace this file belongs to (for multi-root workspaces)
+    let workspace_name: string | undefined = undefined
+    if (
+      vscode.workspace.workspaceFolders &&
+      vscode.workspace.workspaceFolders.length > 1
+    ) {
+      // Find the workspace folder that contains this file
+      const workspace_folder = vscode.workspace.getWorkspaceFolder(document.uri)
+      if (workspace_folder) {
+        workspace_name = workspace_folder.name
+      }
+    }
 
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
@@ -343,6 +360,20 @@ export function refactor_command(params: {
           // Format the document after refactoring
           await format_document(document)
 
+          // Store original file state for potential reversion using the revert command
+          // Include workspace_name for multi-root workspace support
+          await params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            [
+              {
+                file_path: file_path,
+                content: original_content,
+                is_new: false,
+                workspace_name
+              }
+            ]
+          )
+
           // Show success message with Revert option
           const response = await vscode.window.showInformationMessage(
             'File has been refactored.',
@@ -361,6 +392,11 @@ export function refactor_command(params: {
             await document.save()
             vscode.window.showInformationMessage(
               'Refactoring has been reverted.'
+            )
+            // Clear the saved state since we've reverted
+            await params.context.workspaceState.update(
+              LAST_APPLIED_CHANGES_STATE_KEY,
+              null
             )
           }
         }
