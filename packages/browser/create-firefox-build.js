@@ -22,6 +22,9 @@ if (firefox_manifest.background && firefox_manifest.background.service_worker) {
 firefox_manifest.browser_action = firefox_manifest.action
 delete firefox_manifest.action
 
+// Should be removed week after 7 Apr 2025
+firefox_manifest.permissions.push('<all_urls>')
+
 // Filter not relevant permissions
 firefox_manifest.permissions = firefox_manifest.permissions.filter(
   (p) => p != 'alarms'
