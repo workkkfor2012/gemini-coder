@@ -103,6 +103,7 @@ The extension uses a [content script](https://github.com/robertpiosik/gemini-cod
 - `https://grok.com/`
 - `https://huggingface.co/chat/`
 - `http://openwebui/`
+- `http://localhost:*/`
 
 ### `storage`
 

@@ -1,5 +1,4 @@
 import styles from './Presets.module.scss'
-import { CHATBOTS } from '@shared/constants/chatbots'
 import { IconButton } from '../IconButton/IconButton'
 import { Button } from '../Button/Button'
 import cn from 'classnames'
@@ -9,7 +8,7 @@ export namespace Presets {
   export type Preset = {
     id?: string | number
     name: string
-    chatbot: keyof typeof CHATBOTS
+    chatbot: string
     prompt_prefix?: string
     prompt_suffix?: string
     model?: string

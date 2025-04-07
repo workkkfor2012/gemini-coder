@@ -205,15 +205,24 @@ export class WebSocketManager {
       text,
       chats: preset_names
         .map((name) => {
-          // Find preset by name
           const preset = web_chat_presets.find((p) => p.name == name)
           if (!preset) {
             return null
           }
 
           const chatbot = CHATBOTS[preset.chatbot]
+          let url: string
+          if (preset.chatbot == 'Open WebUI') {
+            if (preset.port) {
+              url = `http://localhost:${preset.port}/`
+            } else {
+              url = 'http://openwebui/'
+            }
+          } else {
+            url = chatbot.url
+          }
           return {
-            url: chatbot.url,
+            url,
             model: preset.model,
             temperature: preset.temperature,
             system_instructions: preset.systemInstructions,

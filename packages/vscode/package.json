@@ -664,6 +664,7 @@
             {
               "name": "Open WebUI",
               "chatbot": "Open WebUI",
+              "port": 3000,
               "promptPrefix": "",
               "promptSuffix": ""
             }
@@ -720,7 +721,7 @@
                   "Identify potential drawbacks.",
                   "Ask for clarifications if needed before proceeding."
                 ],
-                "description": "Suffix appended to all prompts sent with this chat"
+                "description": "Suffix appended to all prompts sent with this chat."
               },
               "model": {
                 "type": "string",
@@ -741,6 +742,10 @@
               "systemInstructions": {
                 "type": "string",
                 "description": "System instructions to use."
+              },
+              "port": {
+                "type": "number",
+                "description": "Applies to locally run Open WebUI chatbot only."
               }
             },
             "required": [
