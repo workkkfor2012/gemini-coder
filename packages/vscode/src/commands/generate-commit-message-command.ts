@@ -227,6 +227,10 @@ async function collect_affected_files(
           // Not deleted
           try {
             content = fs.readFileSync(file_path, 'utf8')
+            const estimated_tokens = Math.ceil(content.length / 4)
+            if (estimated_tokens > 20000) {
+              content = `[File is too large to include]\n`
+            }
           } catch (err) {
             console.error(`Error reading file ${file_path}:`, err)
           }
