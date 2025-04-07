@@ -175,11 +175,16 @@ export function generate_commit_message_command(
                 return
               }
 
-              repository.inputBox.value = fallback_response
+              // Remove trailing dot if it's the only dot
+              const processedResponse =
+                process_single_trailing_dot(fallback_response)
+              repository.inputBox.value = processedResponse
               return
             }
 
-            repository.inputBox.value = response
+            // Remove trailing dot if it's the only dot
+            const processedResponse = process_single_trailing_dot(response)
+            repository.inputBox.value = processedResponse
           }
         )
       } catch (error) {
@@ -239,4 +244,17 @@ async function collect_affected_files(
     console.error('Error collecting changed files:', error)
     return ''
   }
+}
+
+// Short commit messages should not end with dot
+function process_single_trailing_dot(message: string): string {
+  // Count the number of dots in the message
+  const dot_count = (message.match(/\./g) || []).length
+
+  // If there's exactly one dot and it's at the end, remove it
+  if (dot_count == 1 && message.endsWith('.')) {
+    return message.slice(0, -1)
+  }
+
+  return message
 }
