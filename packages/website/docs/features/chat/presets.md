@@ -186,11 +186,11 @@ Range: `0-1`
 
 #### ✅ Hands-free initialization
 
-#### ❌ `model`
+#### ✅ `model`
 
-#### ❌ `systemInstructions`
+#### ✅ `systemInstructions`
 
-#### ❌ `temperature`
+#### ✅ `temperature`
 
 #### ❌ `options`
 
