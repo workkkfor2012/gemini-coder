@@ -69,6 +69,7 @@ export function generate_commit_message_command(
         const user_providers =
           config.get<Provider[]>('geminiCoder.providers') || []
         const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+        const temperature = config.get<number>('geminiCoder.temperature')
         const commit_message_prompt = config.get<string>(
           'geminiCoder.commitMessagePrompt'
         )
@@ -79,11 +80,12 @@ export function generate_commit_message_command(
           model_manager.get_default_commit_message_model()
 
         // Set up providers
+
         const all_providers = [
           ...BUILT_IN_PROVIDERS.map((provider) => ({
             ...provider,
             bearerToken: gemini_api_key || '',
-            temperature: 0.2 // Allow some variance when regenerating
+            temperature
           })),
           ...user_providers
         ]

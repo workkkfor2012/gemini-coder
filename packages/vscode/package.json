@@ -496,7 +496,7 @@
         "geminiCoder.temperature": {
           "type": "number",
           "scope": "resource",
-          "description": "Temperature to use with built-in Gemini models for FIM completions and file refactor/apply changes commands.",
+          "description": "Temperature to use with built-in Gemini models.",
           "default": 0.2
         },
         "geminiCoder.defaultApplyChangesMode": {
