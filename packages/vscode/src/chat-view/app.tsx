@@ -30,7 +30,7 @@ function App() {
   const [presets, set_presets] = useState<UiPresets.Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
   const [expanded_presets, set_expanded_presets] = useState<number[]>([])
-  const [is_fim_mode, set_is_fim_mode] = useState<boolean>()
+  const [is_fim_mode, set_is_fim_mode] = useState<boolean>(false)
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
   const [has_active_selection, set_has_active_selection] = useState<boolean>()
   const [chat_history, set_chat_history] = useState<string[]>()

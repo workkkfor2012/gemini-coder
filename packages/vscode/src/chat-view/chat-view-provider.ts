@@ -9,7 +9,8 @@ import {
   PresetsMessage,
   TokenCountMessage,
   SelectionTextMessage,
-  ActiveFileInfoMessage
+  ActiveFileInfoMessage,
+  SaveFimModeMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -22,6 +23,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
   private _config_listener: vscode.Disposable | undefined
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
+  private _is_fim_mode: boolean = false
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -143,11 +145,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         this._update_active_file_info()
 
         // Also recalculate token count when active file changes in FIM mode
-        const is_fim_mode = this._context.workspaceState.get<boolean>(
-          'isFimMode',
-          false
-        )
-        if (is_fim_mode && this._webview_view) {
+        if (this._is_fim_mode && this._webview_view) {
           this._calculate_token_count()
         }
       }
@@ -161,16 +159,12 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       this._websites_provider
     )
 
-    const is_fim_mode = this._context.workspaceState.get<boolean>(
-      'isFimMode',
-      false
-    )
     const active_editor = vscode.window.activeTextEditor
     const active_path = active_editor?.document.uri.fsPath
 
     const options = {
       disable_xml: true,
-      ...(is_fim_mode && active_path ? { exclude_path: active_path } : {})
+      ...(this._is_fim_mode && active_path ? { exclude_path: active_path } : {})
     }
 
     files_collector
@@ -178,7 +172,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       .then((context_text) => {
         let current_token_count = Math.floor(context_text.length / 4)
 
-        if (active_editor && is_fim_mode) {
+        if (active_editor && this._is_fim_mode) {
           const document = active_editor.document
           const text = document.getText()
           const file_token_count = Math.floor(text.length / 4)
@@ -294,6 +288,28 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     return valid_presets
   }
 
+  private async handleFimMode(message: WebviewMessage) {
+    if (message.command == 'GET_FIM_MODE') {
+      const has_active_editor = !!vscode.window.activeTextEditor
+
+      if (this._is_fim_mode && !has_active_editor) {
+        this._is_fim_mode = false
+        this._send_message<ExtensionMessage>({
+          command: 'FIM_MODE',
+          enabled: false
+        })
+      } else {
+        this._send_message<ExtensionMessage>({
+          command: 'FIM_MODE',
+          enabled: this._is_fim_mode
+        })
+      }
+    } else if (message.command == 'SAVE_FIM_MODE') {
+      this._is_fim_mode = (message as SaveFimModeMessage).enabled
+      this._calculate_token_count()
+    }
+  }
+
   async resolveWebviewView(
     webview_view: vscode.WebviewView,
     context: vscode.WebviewViewResolveContext,
@@ -394,12 +410,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
             const active_editor = vscode.window.activeTextEditor
             const active_path = active_editor?.document.uri.fsPath
-            const is_fim_mode = this._context.workspaceState.get<boolean>(
-              'isFimMode',
-              false
-            )
 
-            if (is_fim_mode && active_editor) {
+            if (this._is_fim_mode && active_editor) {
               const document = active_editor.document
               const position = active_editor.selection.active
 
@@ -435,7 +447,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 text,
                 valid_preset_names
               )
-            } else if (!is_fim_mode) {
+            } else if (!this._is_fim_mode) {
               const context_text = await files_collector.collect_files({
                 active_path
               })
@@ -472,13 +484,9 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               this._websites_provider
             )
 
-            const is_fim_mode = this._context.workspaceState.get<boolean>(
-              'isFimMode',
-              false
-            )
             const active_editor = vscode.window.activeTextEditor
 
-            if (is_fim_mode && active_editor) {
+            if (this._is_fim_mode && active_editor) {
               const document = active_editor.document
               const position = active_editor.selection.active
               const active_path = document.uri.fsPath
@@ -512,7 +520,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               }`
 
               await vscode.env.clipboard.writeText(text)
-            } else if (!is_fim_mode) {
+            } else if (!this._is_fim_mode) {
               const active_path = active_editor?.document.uri.fsPath
               const context_text = await files_collector.collect_files({
                 active_path
@@ -588,31 +596,11 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
               'workbench.action.openSettings',
               'geminiCoder.presets'
             )
-          } else if (message.command == 'GET_FIM_MODE') {
-            const is_fim_mode = this._context.workspaceState.get<boolean>(
-              'isFimMode',
-              false
-            )
-            const has_active_editor = !!vscode.window.activeTextEditor
-
-            if (is_fim_mode && !has_active_editor) {
-              await this._context.workspaceState.update('isFimMode', false)
-              this._send_message<ExtensionMessage>({
-                command: 'FIM_MODE',
-                enabled: false
-              })
-            } else {
-              this._send_message<ExtensionMessage>({
-                command: 'FIM_MODE',
-                enabled: is_fim_mode
-              })
-            }
-          } else if (message.command == 'SAVE_FIM_MODE') {
-            await this._context.workspaceState.update(
-              'isFimMode',
-              message.enabled
-            )
-            this._calculate_token_count()
+          } else if (
+            message.command === 'GET_FIM_MODE' ||
+            message.command === 'SAVE_FIM_MODE'
+          ) {
+            await this.handleFimMode(message)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             this._send_message<ExtensionMessage>({
               command: 'EDITOR_STATE_CHANGED',
@@ -664,6 +652,10 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     this._send_message<ExtensionMessage>({
       command: 'EDITOR_SELECTION_CHANGED',
       hasSelection: this._has_active_selection
+    })
+    this._send_message<ExtensionMessage>({
+      command: 'FIM_MODE',
+      enabled: this._is_fim_mode
     })
 
     // Send initial file info
