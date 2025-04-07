@@ -311,7 +311,7 @@ async function replace_files_directly(
         `Detected ${unsafe_files.length} unsafe file path(s) that may attempt directory traversal:\n${unsafe_list}\n\nThese files will be skipped.`
       )
 
-      if (safe_files.length === 0) {
+      if (safe_files.length == 0) {
         return { success: false }
       }
     }
@@ -583,7 +583,7 @@ export function apply_changes_command(params: {
     }
 
     // Check if workspace has only one root folder
-    const has_single_root = vscode.workspace.workspaceFolders?.length === 1
+    const has_single_root = vscode.workspace.workspaceFolders?.length == 1
 
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
@@ -1130,7 +1130,7 @@ export function apply_changes_command(params: {
                       // Update progress if this is the largest file
                       if (
                         largest_file &&
-                        file.file_path === largest_file.path
+                        file.file_path == largest_file.path
                       ) {
                         // Calculate increment for final progress update
                         const increment = 100 - largest_file_progress
