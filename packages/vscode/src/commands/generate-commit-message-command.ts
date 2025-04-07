@@ -121,108 +121,92 @@ export function generate_commit_message_command(
         const formatted_token_count =
           token_count > 1000 ? Math.ceil(token_count / 1000) + 'K' : token_count
 
-        const generate_message = async () => {
-          await vscode.window.withProgress(
-            {
-              location: vscode.ProgressLocation.Notification,
-              title: `Generating commit message... (Sent ~${formatted_token_count} tokens)`,
-              cancellable: true
-            },
-            async (_, token) => {
-              // Prepare request to AI model
-              const model = provider.model
-              const temperature = provider.temperature
-              const system_instructions = provider.systemInstructions
+        await vscode.window.withProgress(
+          {
+            location: vscode.ProgressLocation.Notification,
+            title: `Waiting for commit message... (Sent ~${formatted_token_count} tokens)`,
+            cancellable: true
+          },
+          async (_, token) => {
+            // Prepare request to AI model
+            const model = provider.model
+            const temperature = provider.temperature
+            const system_instructions = provider.systemInstructions
 
-              const messages = [
-                ...(system_instructions
-                  ? [{ role: 'system', content: system_instructions }]
-                  : []),
-                {
-                  role: 'user',
-                  content: message
-                }
-              ]
-
-              const body = {
-                messages,
-                model,
-                temperature
+            const messages = [
+              ...(system_instructions
+                ? [{ role: 'system', content: system_instructions }]
+                : []),
+              {
+                role: 'user',
+                content: message
               }
+            ]
 
-              // Make API request
-              const cancel_token_source = axios.CancelToken.source()
+            const body = {
+              messages,
+              model,
+              temperature
+            }
 
-              token.onCancellationRequested(() => {
-                cancel_token_source.cancel('Operation cancelled by user')
-              })
+            // Make API request
+            const cancel_token_source = axios.CancelToken.source()
 
-              try {
-                const response = await make_api_request(
-                  provider,
+            token.onCancellationRequested(() => {
+              cancel_token_source.cancel('Operation cancelled by user')
+            })
+
+            try {
+              const response = await make_api_request(
+                provider,
+                body,
+                cancel_token_source.token
+              )
+
+              if (!response) {
+                vscode.window.showErrorMessage(
+                  'Failed to generate commit message. Please try again later.'
+                )
+                return
+              } else if (response == 'rate_limit') {
+                const fallback_response = await handle_rate_limit_fallback(
+                  all_providers,
+                  default_model_name,
                   body,
                   cancel_token_source.token
                 )
 
-                if (!response) {
-                  vscode.window.showErrorMessage(
-                    'Failed to generate commit message. Please try again later.'
-                  )
-                  return
-                } else if (response == 'rate_limit') {
-                  const fallback_response = await handle_rate_limit_fallback(
-                    all_providers,
-                    default_model_name,
-                    body,
-                    cancel_token_source.token
-                  )
-
-                  if (!fallback_response) {
-                    return
-                  }
-
-                  const processed_response =
-                    process_single_trailing_dot(fallback_response)
-                  repository.inputBox.value = processed_response
-
-                  show_regenerate_dialog()
+                if (!fallback_response) {
                   return
                 }
 
-                const processed_response = process_single_trailing_dot(response)
+                const processed_response =
+                  process_single_trailing_dot(fallback_response)
                 repository.inputBox.value = processed_response
 
-                show_regenerate_dialog()
-              } catch (error) {
-                if (axios.isCancel(error)) {
-                  vscode.window.showInformationMessage(
-                    'Commit message generation cancelled.'
-                  )
-                  return
-                }
-                throw error // Re-throw other errors to be caught by the outer try-catch
+                vscode.window.showInformationMessage(
+                  'Commit message generated successfully!'
+                )
+                return
               }
+
+              const processed_response = process_single_trailing_dot(response)
+              repository.inputBox.value = processed_response
+
+              vscode.window.showInformationMessage(
+                'Commit message generated successfully!'
+              )
+            } catch (error) {
+              if (axios.isCancel(error)) {
+                vscode.window.showInformationMessage(
+                  'Commit message generation cancelled.'
+                )
+                return
+              }
+              throw error // Re-throw other errors to be caught by the outer try-catch
             }
-          )
-        }
-
-        // Function to show dialog with Regenerate button
-        const show_regenerate_dialog = async () => {
-          const regenerate = 'Regenerate'
-          const result = await vscode.window.showInformationMessage(
-            'Commit message generated successfully!',
-            { modal: false },
-            regenerate
-          )
-
-          if (result == regenerate) {
-            // User clicked regenerate, generate a new commit message
-            await generate_message()
           }
-        }
-
-        // Initial generation
-        await generate_message()
+        )
       } catch (error) {
         console.error('Error generating commit message:', error)
         vscode.window.showErrorMessage(
