@@ -5,8 +5,7 @@ import * as path from 'path'
 import * as net from 'net'
 import {
   InitializeChatsMessage,
-  UpdateSavedWebsitesMessage,
-  InvokeFastReplaceMessage
+  UpdateSavedWebsitesMessage
 } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'

@@ -12,7 +12,7 @@ async function handle_chat_command(
   preset_names: string[]
 ) {
   // Get instruction from user
-  let last_chat_prompt =
+  const last_chat_prompt =
     context.workspaceState.get<string>('lastChatPrompt') || ''
   const instruction = await vscode.window.showInputBox({
     prompt: 'Type something',

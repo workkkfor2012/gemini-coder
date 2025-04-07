@@ -31,6 +31,11 @@ jobs:
       - name: Install dependencies
         run: pnpm i
 
+      - name: Lint
+        run: |
+          cd packages/vscode
+          pnpm lint
+
       - name: Build VS Code extension
         run: |
           cd packages/vscode

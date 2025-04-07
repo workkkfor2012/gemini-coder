@@ -10,7 +10,7 @@ const extract_filename_from_comment = (line: string): string | null => {
     .replace(/^(\/\/|#|--|\/\*|\*)\s*/, '')
     .trim()
 
-  const path_match = stripped.match(/(?:[\w\-\.\/]+\/)*[\w\-\.]+\.\w{1,10}/)
+  const path_match = stripped.match(/(?:[\w\-./]+\/)*[\w\-.]+\.\w{1,10}/)
   if (path_match && path_match[0]) {
     return path_match[0]
   }
@@ -59,7 +59,6 @@ export const parse_clipboard_multiple_files = (
   let state = 'TEXT' // States: TEXT, BLOCK_START, FILENAME, CONTENT, BLOCK_END
   let current_file_name = ''
   let current_content = ''
-  let block_start_index = -1
   let is_first_content_line = false
   let current_workspace_name: string | undefined = undefined
 
@@ -72,7 +71,6 @@ export const parse_clipboard_multiple_files = (
     // Check for code block start
     if (state == 'TEXT' && line.trim().startsWith('```')) {
       state = 'BLOCK_START'
-      block_start_index = i
       current_workspace_name = undefined // Reset workspace name for new block
 
       // Check if this line also contains the filename
@@ -143,7 +141,6 @@ export const parse_clipboard_multiple_files = (
         // Reset state variables
         current_file_name = ''
         current_content = ''
-        block_start_index = -1
         is_first_content_line = false
         current_workspace_name = undefined
       } else {
@@ -205,9 +202,8 @@ export const is_multiple_files_clipboard = (clipboardText: string): boolean => {
 
   // Check for standard format first
   let match_count = 0
-  let match
 
-  while ((match = file_block_regex.exec(clipboardText)) !== null) {
+  while (file_block_regex.exec(clipboardText) !== null) {
     match_count++
     if (match_count >= 1) {
       return true

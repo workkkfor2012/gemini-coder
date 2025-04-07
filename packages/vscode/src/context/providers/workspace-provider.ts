@@ -721,7 +721,7 @@ export class WorkspaceProvider
         }
 
         let is_directory = entry.isDirectory()
-        let is_symbolic_link = entry.isSymbolicLink()
+        const is_symbolic_link = entry.isSymbolicLink()
         let is_broken_link = false
 
         // Resolve symbolic link to determine if it points to a directory
@@ -816,7 +816,7 @@ export class WorkspaceProvider
 
         const uri = vscode.Uri.file(full_path)
         let is_directory = entry.isDirectory()
-        let is_symbolic_link = entry.isSymbolicLink()
+        const is_symbolic_link = entry.isSymbolicLink()
         let is_broken_link = false
 
         if (is_symbolic_link) {
@@ -1035,7 +1035,7 @@ export class WorkspaceProvider
         this.checked_items.set(full_path, state)
 
         let is_directory = entry.isDirectory()
-        let is_symbolic_link = entry.isSymbolicLink()
+        const is_symbolic_link = entry.isSymbolicLink()
         let is_broken_link = false
 
         if (is_symbolic_link) {

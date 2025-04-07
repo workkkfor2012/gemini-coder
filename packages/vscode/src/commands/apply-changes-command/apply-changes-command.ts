@@ -167,17 +167,15 @@ async function process_file(params: {
     )
   }
 
-  // Use provided cancel token instead of creating a new one
   try {
-    let total_length = params.file_content.length // Use file content length as base for progress
+    const total_length = params.file_content.length
     let received_length = 0
 
     const refactored_content = await make_api_request(
       params.provider,
       body,
-      params.cancel_token, // Use the passed cancel token
+      params.cancel_token,
       (chunk: string) => {
-        // Update progress when receiving chunks
         received_length += chunk.length
         if (params.on_progress) {
           params.on_progress(received_length, total_length)
@@ -919,7 +917,6 @@ export function apply_changes_command(params: {
             let largest_file: { path: string; size: number } | null = null
             let largest_file_progress = 0 // Progress percentage for largest file
             let previous_largest_file_progress = 0 // Track previous progress value
-            let completed_count = 0
 
             try {
               // Find largest existing file to track
@@ -1012,7 +1009,6 @@ export function apply_changes_command(params: {
 
                     // For new files, just store the information for creation later
                     if (!file_exists) {
-                      completed_count++
                       return {
                         document: null,
                         content: file.content,
@@ -1111,8 +1107,6 @@ export function apply_changes_command(params: {
                         )
                       }
 
-                      completed_count++
-
                       // Update progress if this is the largest file
                       if (largest_file && file.file_path == largest_file.path) {
                         // Calculate increment for final progress update
@@ -1133,8 +1127,6 @@ export function apply_changes_command(params: {
                         filePath: file.file_path
                       }
                     } else {
-                      completed_count++
-
                       // Update progress if this is the largest file
                       if (
                         largest_file &&
@@ -1284,7 +1276,7 @@ export function apply_changes_command(params: {
       // Store original content for potential reversion
       const original_content = document_text
 
-      let cancel_token_source = axios.CancelToken.source()
+      const cancel_token_source = axios.CancelToken.source()
       // Track previous length for progress calculation
       let previous_length = 0
 

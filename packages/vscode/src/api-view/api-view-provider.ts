@@ -56,7 +56,7 @@ export class ApiViewProvider implements vscode.WebviewViewProvider {
 
   public resolveWebviewView(
     webview_view: vscode.WebviewView,
-    context: vscode.WebviewViewResolveContext,
+    _: vscode.WebviewViewResolveContext,
     _token: vscode.CancellationToken
   ) {
     this._webview_view = webview_view

@@ -312,8 +312,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
 
   async resolveWebviewView(
     webview_view: vscode.WebviewView,
-    context: vscode.WebviewViewResolveContext,
-    _token: vscode.CancellationToken
+    _: vscode.WebviewViewResolveContext,
+    __: vscode.CancellationToken
   ) {
     this._webview_view = webview_view
 
@@ -678,7 +678,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private _send_presets_to_webview(webview: vscode.Webview) {
+  private _send_presets_to_webview(_: vscode.Webview) {
     const web_chat_presets_config = vscode.workspace
       .getConfiguration()
       .get('geminiCoder.presets', [])

@@ -10,7 +10,7 @@ export function chat_to_clipboard_command(
     'geminiCoder.chatToClipboard',
     async () => {
       // Main Instruction Input
-      let last_chat_prompt =
+      const last_chat_prompt =
         context.workspaceState.get<string>('lastChatPrompt') || ''
 
       const instruction = await vscode.window.showInputBox({

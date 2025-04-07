@@ -194,7 +194,7 @@ async function perform_fim_completion(
 
   const editor = vscode.window.activeTextEditor
   if (editor) {
-    let cancel_token_source = axios.CancelToken.source()
+    const cancel_token_source = axios.CancelToken.source()
     const document = editor.document
     const position = editor.selection.active
 

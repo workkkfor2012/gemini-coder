@@ -3,11 +3,7 @@ import { WorkspaceProvider } from './providers/workspace-provider'
 import { FileItem } from './providers/workspace-provider'
 import { FilesCollector } from '../helpers/files-collector'
 import { OpenEditorsProvider } from './providers/open-editors-provider'
-import {
-  WebsitesProvider,
-  WebsiteItem,
-  EmptyMessageItem
-} from './providers/websites-provider'
+import { WebsitesProvider, WebsiteItem } from './providers/websites-provider'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
 import { EventEmitter } from 'events'
@@ -23,11 +19,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   const workspace_folders = vscode.workspace.workspaceFolders
 
   let workspace_provider: WorkspaceProvider | undefined
-  let open_editors_provider: OpenEditorsProvider | undefined
-  let websites_provider: WebsitesProvider | undefined
   let workspace_view: vscode.TreeView<FileItem>
-  let open_editors_view: vscode.TreeView<FileItem>
-  let websites_view: vscode.TreeView<WebsiteItem | EmptyMessageItem>
 
   if (!workspace_folders) {
     vscode.window.showInformationMessage(
@@ -44,14 +36,19 @@ export function context_initialization(context: vscode.ExtensionContext): {
   workspace_provider = new WorkspaceProvider(workspace_folders as any)
 
   // Use the first workspace folder for open editors provider
-  open_editors_provider = new OpenEditorsProvider(workspace_folders as any)
-  websites_provider = new WebsitesProvider()
+  const open_editors_provider = new OpenEditorsProvider(
+    workspace_folders as any
+  )
+  const websites_provider = new WebsitesProvider()
 
   // Create websites tree view
-  websites_view = vscode.window.createTreeView('geminiCoderViewWebsites', {
-    treeDataProvider: websites_provider,
-    manageCheckboxStateManually: true
-  })
+  const websites_view = vscode.window.createTreeView(
+    'geminiCoderViewWebsites',
+    {
+      treeDataProvider: websites_provider,
+      manageCheckboxStateManually: true
+    }
+  )
   context.subscriptions.push(websites_provider, websites_view)
 
   // Create FilesCollector instance that can collect from both providers and websites provider
@@ -139,7 +136,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   // Register handlers for workspace view
   register_workspace_view_handlers(workspace_view)
 
-  open_editors_view = vscode.window.createTreeView(
+  const open_editors_view = vscode.window.createTreeView(
     'geminiCoderViewOpenEditors',
     {
       treeDataProvider: open_editors_provider,
@@ -349,7 +346,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   // Update when workspace folders change
   context.subscriptions.push(
-    vscode.workspace.onDidChangeWorkspaceFolders((event) => {
+    vscode.workspace.onDidChangeWorkspaceFolders(() => {
       // Reinitialize the workspace provider with the new workspace folders
       if (vscode.workspace.workspaceFolders) {
         // Create a new provider with the updated workspace folders

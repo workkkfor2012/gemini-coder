@@ -28,7 +28,7 @@ async function handle_fim_in_chat_command(
   }
 
   // Get optional suggestions from user
-  let last_fim_prompt =
+  const last_fim_prompt =
     context.workspaceState.get<string>('lastFimPrompt') || ''
   const suggestions = await vscode.window.showInputBox({
     placeHolder: 'Enter optional suggestions',

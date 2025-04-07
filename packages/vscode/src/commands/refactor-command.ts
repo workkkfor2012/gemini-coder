@@ -260,7 +260,7 @@ export function refactor_command(params: {
       }
     ]
 
-    let body = {
+    const body = {
       messages,
       model,
       temperature
@@ -270,11 +270,10 @@ export function refactor_command(params: {
       console.log('[Gemini Coder] Refactor Prompt:', content)
     }
 
-    let cancel_token_source = axios.CancelToken.source()
+    const cancel_token_source = axios.CancelToken.source()
 
     // Track total length and received length for progress
     const total_length = document_text.length
-    let received_length = 0
 
     // Variables to hold processing results outside the progress scope
     let result_content = ''
@@ -298,7 +297,6 @@ export function refactor_command(params: {
               body,
               cancel_token_source.token,
               (chunk: string) => {
-                received_length += chunk.length
                 progress.report({
                   increment: (chunk.length / total_length) * 100
                 })

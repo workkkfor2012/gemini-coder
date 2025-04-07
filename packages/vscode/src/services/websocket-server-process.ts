@@ -1,3 +1,4 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const WebSocket = require('ws') // ws works only with requrie
 import * as http from 'http'
 import * as process from 'process'

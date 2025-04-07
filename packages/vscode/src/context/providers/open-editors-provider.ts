@@ -451,9 +451,6 @@ export class OpenEditorsProvider
     const items: FileItem[] = []
     const open_files = this._get_open_editors()
 
-    // Get all checked workspace files for reference
-    const workspace_checked_files = this._shared_state.get_checked_files()
-
     for (const file_uri of open_files) {
       const file_path = file_uri.fsPath
 
