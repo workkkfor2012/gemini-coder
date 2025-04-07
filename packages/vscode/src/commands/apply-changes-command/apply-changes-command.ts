@@ -1152,7 +1152,7 @@ export function apply_changes_command(params: {
                     // Re-throw the error to be caught by the Promise.all
                     if (
                       token.isCancellationRequested ||
-                      error.message === 'Operation cancelled' ||
+                      error.message == 'Operation cancelled' ||
                       axios.isCancel(error)
                     ) {
                       throw new Error('Operation cancelled')
@@ -1215,7 +1215,7 @@ export function apply_changes_command(params: {
 
               // Check for cancellation or cancellation-related errors
               if (
-                error.message === 'Operation cancelled' ||
+                error.message == 'Operation cancelled' ||
                 axios.isCancel(error) ||
                 error.message?.includes('Failed to apply changes')
               ) {
