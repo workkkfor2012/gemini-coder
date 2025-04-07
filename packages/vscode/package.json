@@ -77,15 +77,15 @@
       "geminiCoder": [
         {
           "id": "geminiCoderViewOpenEditors",
-          "name": "Open Editors"
+          "name": "Context: Open Editors"
         },
         {
           "id": "geminiCoderViewWorkspace",
-          "name": "Workspace"
+          "name": "Context: Workspace"
         },
         {
           "id": "geminiCoderViewWebsites",
-          "name": "Websites"
+          "name": "Context: Websites"
         },
         {
           "id": "geminiCoderViewChat",
@@ -94,7 +94,7 @@
         },
         {
           "id": "geminiCoderViewApi",
-          "name": "API",
+          "name": "Settings: API",
           "type": "webview"
         }
       ]
