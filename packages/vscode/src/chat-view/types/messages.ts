@@ -119,6 +119,7 @@ export interface PresetMessageFormat {
   temperature?: number
   system_instructions?: string
   options?: string[]
+  port?: number
 }
 
 export interface PresetsMessage extends BaseMessage {

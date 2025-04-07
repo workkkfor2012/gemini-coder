@@ -248,7 +248,8 @@ function App() {
         model: preset.model,
         temperature: preset.temperature,
         system_instructions: preset.system_instructions,
-        options: preset.options
+        options: preset.options,
+        port: preset.port
       }))
     } as WebviewMessage)
   }

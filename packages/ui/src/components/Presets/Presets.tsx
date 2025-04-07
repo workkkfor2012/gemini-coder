@@ -15,6 +15,7 @@ export namespace Presets {
     temperature?: number
     system_instructions?: string
     options?: string[]
+    port?: number
   }
 
   export type Props = {

@@ -625,7 +625,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 model: preset.model,
                 temperature: preset.temperature,
                 systemInstructions: preset.system_instructions,
-                options: preset.options
+                options: preset.options,
+                port: preset.port
               })),
               true
             )
@@ -692,7 +693,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
         model: preset.model,
         temperature: preset.temperature,
         system_instructions: preset.systemInstructions,
-        options: preset.options
+        options: preset.options,
+        port: preset.port
       })
     )
 
@@ -704,7 +706,8 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
       model: preset.model,
       temperature: preset.temperature,
       system_instructions: preset.system_instructions,
-      options: preset.options
+      options: preset.options,
+      port: preset.port
     }))
 
     this._send_message<PresetsMessage>({
