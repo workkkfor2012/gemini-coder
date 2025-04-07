@@ -250,6 +250,48 @@ const set_model = async (model: string) => {
     } else if (model) {
       console.warn(`Model "${model}" not found in model map for GitHub Copilot`)
     }
+  } else if (is_gemini) {
+    const model_map: Record<string, string> = {
+      '2.0-flash': '2.0 Flash',
+      '2.0-flash-thinking': '2.0 Flash Thinking (experimental)',
+      '2.5-pro': '2.5 Pro (experimental)'
+    }
+
+    if (model && model in model_map) {
+      const model_selector_trigger = document.querySelector(
+        'button[data-test-id="bard-mode-menu-button"]'
+      ) as HTMLButtonElement
+
+      if (model_selector_trigger) {
+        model_selector_trigger.click()
+
+        await new Promise((r) => requestAnimationFrame(r))
+
+        const menu_content = document.querySelector('div.mat-mdc-menu-content')
+        if (menu_content) {
+          const model_options = Array.from(
+            menu_content.querySelectorAll('button[mat-menu-item]')
+          )
+
+          for (const option of model_options) {
+            const name_element = option.querySelector(
+              '.title-and-description > span:first-child'
+            )
+
+            if (
+              name_element &&
+              name_element.textContent?.trim() == model_map[model]
+            ) {
+              ;(option as HTMLElement).click()
+              await new Promise((r) => requestAnimationFrame(r))
+              break
+            }
+          }
+        }
+      }
+    } else if (model) {
+      console.warn(`Model "${model}" not found in model map for Gemini`)
+    }
   }
 }
 

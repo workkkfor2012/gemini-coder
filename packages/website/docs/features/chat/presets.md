@@ -52,7 +52,11 @@ Range: `0-1`
 
 #### ✅ Hands-free initialization
 
-#### ❌ `model`
+#### ✅ `model`
+
+- 2.0 Flash: `2.0-flash`
+- 2.0 Flash Thinking: `2.0-flash-thinking`
+- 2.5 Pro: `2.5-pro`
 
 #### ❌ `systemInstructions`
 
