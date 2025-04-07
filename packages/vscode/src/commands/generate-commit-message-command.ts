@@ -83,7 +83,7 @@ export function generate_commit_message_command(
           ...BUILT_IN_PROVIDERS.map((provider) => ({
             ...provider,
             bearerToken: gemini_api_key || '',
-            temperature: 0.3 // Allow some variance when regenerating
+            temperature: 0.2 // Allow some variance when regenerating
           })),
           ...user_providers
         ]
