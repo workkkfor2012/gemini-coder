@@ -649,6 +649,12 @@
               "promptSuffix": ""
             },
             {
+              "name": "HuggingChat",
+              "chatbot": "HuggingChat",
+              "promptPrefix": "",
+              "promptSuffix": ""
+            },
+            {
               "name": "Open WebUI",
               "chatbot": "Open WebUI",
               "promptPrefix": "",
