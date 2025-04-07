@@ -185,16 +185,14 @@ export function generate_commit_message_command(
                     process_single_trailing_dot(fallback_response)
                   repository.inputBox.value = processed_response
 
-                  // Show dialog with regenerate button after successful generation
-                  show_regenerate_dialog(repository)
+                  show_regenerate_dialog()
                   return
                 }
 
                 const processed_response = process_single_trailing_dot(response)
                 repository.inputBox.value = processed_response
 
-                // Show dialog with regenerate button after successful generation
-                show_regenerate_dialog(repository)
+                show_regenerate_dialog()
               } catch (error) {
                 if (axios.isCancel(error)) {
                   vscode.window.showInformationMessage(
@@ -209,7 +207,7 @@ export function generate_commit_message_command(
         }
 
         // Function to show dialog with Regenerate button
-        const show_regenerate_dialog = async (repo: any) => {
+        const show_regenerate_dialog = async () => {
           const regenerate = 'Regenerate'
           const result = await vscode.window.showInformationMessage(
             'Commit message generated successfully!',
