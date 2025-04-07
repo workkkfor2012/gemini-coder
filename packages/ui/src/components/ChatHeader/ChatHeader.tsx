@@ -16,7 +16,14 @@ export const ChatHeader: React.FC = () => {
           Rate
         </a>
         <span>·</span>
-        <a href="https://buymeacoffee.com/robertpiosik">Buy me a coffee</a>
+        <a href="https://buymeacoffee.com/robertpiosik">
+          <i
+            className="codicon codicon-coffee"
+            aria-hidden="true"
+            style={{ transform: 'translateY(1px)', fontSize: 'inherit' }}
+          ></i>{' '}
+          Buy me a coffee
+        </a>
       </div>
     </div>
   )
