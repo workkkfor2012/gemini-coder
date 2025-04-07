@@ -83,6 +83,7 @@ export namespace HtmlParser {
       const article = new Readability(doc, { keepClasses: true }).parse()
       if (article && article.content) {
         let content = turndown_service.turndown(article.content)
+        content = remove_markdown_images(content)
         return content
       }
     } catch (error) {
@@ -90,4 +91,11 @@ export namespace HtmlParser {
       return undefined
     }
   }
+}
+
+const remove_markdown_images = (text: string) => {
+  // First remove the image markdown
+  const without_images = text.replace(/!\[([^\]]*)\]\(([^)]*)\)/g, '')
+  // Then remove any resulting empty lines (two or more consecutive newlines)
+  return without_images.replace(/\n{3,}/g, '\n\n')
 }
