@@ -77,25 +77,30 @@
       "geminiCoder": [
         {
           "id": "geminiCoderViewOpenEditors",
-          "name": "Context: Open Editors"
+          "name": "Context: Open Editors",
+          "icon": "resources/activity-bar-icon.svg"
         },
         {
           "id": "geminiCoderViewWorkspace",
-          "name": "Context: Workspace"
+          "name": "Context: Workspace",
+          "icon": "resources/activity-bar-icon.svg"
         },
         {
           "id": "geminiCoderViewWebsites",
-          "name": "Context: Websites"
+          "name": "Context: Websites",
+          "icon": "resources/activity-bar-icon.svg"
         },
         {
           "id": "geminiCoderViewChat",
           "name": "Chat",
-          "type": "webview"
+          "type": "webview",
+          "icon": "resources/activity-bar-icon.svg"
         },
         {
           "id": "geminiCoderViewApi",
           "name": "Settings: API",
-          "type": "webview"
+          "type": "webview",
+          "icon": "resources/activity-bar-icon.svg"
         }
       ]
     },
