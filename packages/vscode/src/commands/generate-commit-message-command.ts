@@ -69,7 +69,6 @@ export function generate_commit_message_command(
         const user_providers =
           config.get<Provider[]>('geminiCoder.providers') || []
         const gemini_api_key = config.get<string>('geminiCoder.apiKey')
-        const gemini_temperature = config.get<number>('geminiCoder.temperature')
         const commit_message_prompt = config.get<string>(
           'geminiCoder.commitMessagePrompt'
         )
@@ -84,7 +83,7 @@ export function generate_commit_message_command(
           ...BUILT_IN_PROVIDERS.map((provider) => ({
             ...provider,
             bearerToken: gemini_api_key || '',
-            temperature: gemini_temperature
+            temperature: 0.3 // Allow some variance when regenerating
           })),
           ...user_providers
         ]
@@ -125,10 +124,10 @@ export function generate_commit_message_command(
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: `Generating commit message... (Sent about ${formatted_token_count} tokens)`,
-            cancellable: false
+            title: `Generating commit message... (Sent ~${formatted_token_count} tokens)`,
+            cancellable: true
           },
-          async () => {
+          async (_, token) => {
             // Prepare request to AI model
             const model = provider.model
             const temperature = provider.temperature
@@ -152,39 +151,52 @@ export function generate_commit_message_command(
 
             // Make API request
             const cancel_token_source = axios.CancelToken.source()
-            const response = await make_api_request(
-              provider,
-              body,
-              cancel_token_source.token
-            )
 
-            if (!response) {
-              vscode.window.showErrorMessage(
-                'Failed to generate commit message. Please try again later.'
-              )
-              return
-            } else if (response == 'rate_limit') {
-              const fallback_response = await handle_rate_limit_fallback(
-                all_providers,
-                default_model_name,
+            token.onCancellationRequested(() => {
+              cancel_token_source.cancel('Operation cancelled by user')
+            })
+
+            try {
+              const response = await make_api_request(
+                provider,
                 body,
                 cancel_token_source.token
               )
 
-              if (!fallback_response) {
+              if (!response) {
+                vscode.window.showErrorMessage(
+                  'Failed to generate commit message. Please try again later.'
+                )
+                return
+              } else if (response == 'rate_limit') {
+                const fallback_response = await handle_rate_limit_fallback(
+                  all_providers,
+                  default_model_name,
+                  body,
+                  cancel_token_source.token
+                )
+
+                if (!fallback_response) {
+                  return
+                }
+
+                const processed_response =
+                  process_single_trailing_dot(fallback_response)
+                repository.inputBox.value = processed_response
                 return
               }
 
-              // Remove trailing dot if it's the only dot
-              const processedResponse =
-                process_single_trailing_dot(fallback_response)
-              repository.inputBox.value = processedResponse
-              return
+              const processed_response = process_single_trailing_dot(response)
+              repository.inputBox.value = processed_response
+            } catch (error) {
+              if (axios.isCancel(error)) {
+                vscode.window.showInformationMessage(
+                  'Commit message generation cancelled.'
+                )
+                return
+              }
+              throw error // Re-throw other errors to be caught by the outer try-catch
             }
-
-            // Remove trailing dot if it's the only dot
-            const processedResponse = process_single_trailing_dot(response)
-            repository.inputBox.value = processedResponse
           }
         )
       } catch (error) {
@@ -229,7 +241,7 @@ async function collect_affected_files(
             content = fs.readFileSync(file_path, 'utf8')
             const estimated_tokens = Math.ceil(content.length / 4)
             if (estimated_tokens > 20000) {
-              content = `[File is too large to include]\n`
+              content = `[Large file not included]\n`
             }
           } catch (err) {
             console.error(`Error reading file ${file_path}:`, err)
