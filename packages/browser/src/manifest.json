@@ -33,7 +33,7 @@
         "https://chat.deepseek.com/",
         "https://chat.mistral.ai/chat",
         "https://huggingface.co/chat/",
-        "http://localhost:*/",
+        "http://localhost/",
         "http://openwebui/"
       ],
       "js": ["send-prompt-content-script.js"]
