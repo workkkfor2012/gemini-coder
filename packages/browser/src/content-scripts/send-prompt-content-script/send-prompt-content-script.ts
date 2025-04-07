@@ -15,30 +15,30 @@ const batch_id = is_gemini_coder_hash
 
 const ai_studio_url =
   'https://aistudio.google.com/prompts/new_chat#gemini-coder'
-const is_ai_studio = current_url.includes(
-  'aistudio.google.com/prompts/new_chat'
+const is_ai_studio = current_url.startsWith(
+  'https://aistudio.google.com/prompts/new_chat'
 )
 
 const gemini_url = 'https://gemini.google.com/app#gemini-coder'
-const is_gemini = current_url.includes('gemini.google.com/app')
+const is_gemini = current_url.startsWith('https://gemini.google.com/app')
 
 const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
-const is_chatgpt = current_url.includes('chatgpt.com/')
+const is_chatgpt = current_url.startsWith('https://chatgpt.com/')
 
 const claude_url = 'https://claude.ai/new#gemini-coder'
-const is_claude = current_url.includes('claude.ai/new')
+const is_claude = current_url.startsWith('https://claude.ai/new')
 
 const github_copilot_url = 'https://github.com/copilot#gemini-coder'
-const is_github_copilot = current_url.includes('github.com/copilot')
+const is_github_copilot = current_url.startsWith('https://github.com/copilot')
 
 const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
-const is_deepseek = current_url.includes('chat.deepseek.com/')
+const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
 
 const mistral_url = 'https://chat.mistral.ai/chat#gemini-coder'
-const is_mistral = current_url.includes('chat.mistral.ai/chat')
+const is_mistral = current_url.startsWith('https://chat.mistral.ai/chat')
 
-const grok_url = 'https://grok.com/#gemini-coder'
-const is_grok = current_url.includes('grok.com/')
+// const grok_url = 'https://grok.com/#gemini-coder'
+const is_grok = current_url.startsWith('https://grok.com/')
 
 // No need for special handling
 // const huggingchat_url = 'https://huggingface.co/chat/'
@@ -328,15 +328,15 @@ const main = async () => {
 
   // Quirks mitigation
   if (is_ai_studio) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('.title-container')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('.title-container')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
     await new Promise((resolve) => {
       setTimeout(() => {
@@ -344,26 +344,26 @@ const main = async () => {
       }, 500)
     })
   } else if (is_gemini) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('toolbox-drawer')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('toolbox-drawer')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
   } else if (is_chatgpt) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('span[data-radix-focus-guard]')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('span[data-radix-focus-guard]')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
     const reason_button = document.querySelector('button[aria-label="Reason"]')
     ;(reason_button as HTMLButtonElement)?.click()
@@ -373,15 +373,15 @@ const main = async () => {
       }, 100)
     })
   } else if (is_claude) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('fieldset')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('fieldset')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
   } else if (is_github_copilot) {
     await new Promise((resolve) => {
@@ -408,15 +408,15 @@ const main = async () => {
       }, 500)
     })
   } else if (is_open_webui) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('img[src="/static/favicon.png"]')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('img[src="/static/favicon.png"]')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
   } else if (is_deepseek) {
     await new Promise((resolve) => {
@@ -425,15 +425,15 @@ const main = async () => {
       }, 500)
     })
   } else if (is_grok) {
-    await new Promise(async (resolve) => {
-      while (!document.querySelector('textarea')) {
-        await new Promise((resolve) => {
-          setTimeout(() => {
-            resolve(true)
-          }, 100)
-        })
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('textarea')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
       }
-      resolve(null)
+      check_for_element()
     })
   }
 

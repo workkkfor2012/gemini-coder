@@ -36,8 +36,9 @@ const generate_alphanumeric_id = async (
 ): Promise<string> => {
   const characters =
     'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+  let attempts = 0
 
-  while (true) {
+  while (attempts < 1000) {
     let result = ''
     for (let i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * characters.length))
@@ -47,7 +48,10 @@ const generate_alphanumeric_id = async (
     if (!existing[storage_key]) {
       return result
     }
+    attempts++
   }
+
+  throw new Error('Unable to generate a unique ID after maximum attempts')
 }
 
 const process_next_chat = async () => {
@@ -190,24 +194,26 @@ const handle_get_tab_data = async (
 }
 
 export const setup_message_listeners = () => {
-  browser.runtime.onMessage.addListener((message, _, sendResponse): any => {
-    if (is_message(message)) {
-      if (message.action == 'update-saved-websites' && message.websites) {
-        send_saved_websites(message.websites)
-      } else if (message.action == 'chat-initialized') {
-        handle_chat_initialized()
-      } else if (message.action == 'invoke-fast-replace') {
-        send_message_to_server({
-          action: 'invoke-fast-replace',
-          client_id: message.client_id
-        } as InvokeFastReplaceMessage)
-      } else if (message.action == 'get-tab-data') {
-        handle_get_tab_data((tab_data) => {
-          sendResponse(tab_data)
-        })
-        return true
+  browser.runtime.onMessage.addListener(
+    (message: any, _: any, sendResponse: any): any => {
+      if (is_message(message)) {
+        if (message.action == 'update-saved-websites' && message.websites) {
+          send_saved_websites(message.websites)
+        } else if (message.action == 'chat-initialized') {
+          handle_chat_initialized()
+        } else if (message.action == 'invoke-fast-replace') {
+          send_message_to_server({
+            action: 'invoke-fast-replace',
+            client_id: message.client_id
+          } as InvokeFastReplaceMessage)
+        } else if (message.action == 'get-tab-data') {
+          handle_get_tab_data((tab_data) => {
+            sendResponse(tab_data)
+          })
+          return true
+        }
       }
+      return false // For messages that don't need a response
     }
-    return false // For messages that don't need a response
-  })
+  )
 }

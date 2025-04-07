@@ -34,7 +34,7 @@ export const use_websites_store = () => {
         url: site.url,
         title: site.title,
         content: site.content,
-        favicon: site.favicon,
+        favicon: site.favicon
       }))
 
       const message: UpdateSavedWebsitesMessage = {
@@ -96,15 +96,11 @@ export const use_websites_store = () => {
   const get_all_websites = async (): Promise<StoredWebsite[]> => {
     const websites: StoredWebsite[] = []
     try {
-      await websites_store.iterate<StoredWebsite, void>((value) => {
-        // Handle legacy websites that might have is_enabled property
-        const { is_enabled, ...rest } = value as any
-
-        // Handle legacy websites that don't have order property
-        if (rest.order === undefined) {
-          rest.order = 0
+      await websites_store.iterate<StoredWebsite, void>((value: any) => {
+        if (value.order === undefined) {
+          value.order = 0
         }
-        websites.push(rest)
+        websites.push(value)
       })
 
       // Sort websites by order value to ensure consistent display order
