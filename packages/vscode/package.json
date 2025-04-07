@@ -666,7 +666,9 @@
               "chatbot": "Open WebUI",
               "port": 3000,
               "promptPrefix": "",
-              "promptSuffix": ""
+              "promptSuffix": "",
+              "temperature": 0.5,
+              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             }
           ],
           "description": "Preset is a general or task specific web chat configuration.",
@@ -745,7 +747,7 @@
               },
               "port": {
                 "type": "number",
-                "description": "Applies to locally run Open WebUI chatbot only."
+                "description": "Open WebUI only. Port for 'localhost', if your instance is networked, remove this param and proxy it to `http://openwebui/` with nginx."
               }
             },
             "required": [
