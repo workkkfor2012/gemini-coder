@@ -1,12 +1,4 @@
 {
   "name": "gemini-coder",
-  "description": "Monorepo containing VS Code and browser extensions.",
-  "scripts": {
-    "prepare": "husky install",
-    "lint": "pnpm --filter './packages/*' lint"
-  },
-  "devDependencies": {
-    "husky": "^9.1.7",
-    "lint-staged": "^15.5.0"
-  }
+  "description": "Monorepo containing VS Code and browser extensions."
 }
