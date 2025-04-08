@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
 import { inject_apply_changes_buttons } from './inject-apply-changes-buttons'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -363,19 +364,85 @@ const set_model = async (model: string) => {
       model_button.click()
     }
     model_selector_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
-const enable_canvas_mode = async () => {
+const set_options = async (options: string[]) => {
   if (is_gemini) {
-    const canvas_button = document.querySelector(
-      'toolbox-drawer mat-icon[data-mat-icon-name="edit_note"]'
-    ) as HTMLElement
-    if (canvas_button) {
-      canvas_button.click()
-    } else {
-      console.warn('Canvas button not found')
+    const supported_options = CHATBOTS['Gemini'].supported_options || {}
+    for (const option of options) {
+      if (option == 'canvas' && supported_options['canvas']) {
+        const canvas_button = document.querySelector(
+          'button[aria-describedby="cdk-describedby-message-ng-1-8"]'
+        ) as HTMLElement
+        if (canvas_button) {
+          canvas_button.click()
+        }
+      }
     }
+  } else if (is_deepseek) {
+    const supported_options = CHATBOTS['DeepSeek'].supported_options || {}
+    let should_ensure_deep_think_is_unchecked = true
+    let should_ensure_search_is_unchecked = true
+    for (const option of options) {
+      if (option == 'deep-think' && supported_options['deep-think']) {
+        should_ensure_deep_think_is_unchecked = false
+        const deep_think_button = Array.from(
+          document.querySelectorAll('div[role="button"]')
+        ).find(
+          (button) =>
+            button.textContent == 'DeepThink (R1)' ||
+            button.textContent == '深度思考 (R1)'
+        ) as HTMLElement
+        const button_style = window.getComputedStyle(deep_think_button)
+        if (
+          button_style.getPropertyValue('--ds-button-color') == 'transparent'
+        ) {
+          deep_think_button.click()
+        }
+      } else if (option == 'search' && supported_options['search']) {
+        should_ensure_search_is_unchecked = false
+        const search_button = Array.from(
+          document.querySelectorAll('div[role="button"]')
+        ).find(
+          (button) =>
+            button.textContent == 'Search' || button.textContent == '联网搜索'
+        ) as HTMLElement
+        const button_style = window.getComputedStyle(search_button)
+        if (
+          button_style.getPropertyValue('--ds-button-color') == 'transparent'
+        ) {
+          search_button.click()
+        }
+      }
+    }
+    if (should_ensure_deep_think_is_unchecked) {
+      const deep_think_button = Array.from(
+        document.querySelectorAll('div[role="button"]')
+      ).find(
+        (button) =>
+          button.textContent == 'DeepThink (R1)' ||
+          button.textContent == '深度思考 (R1)'
+      ) as HTMLElement
+      const button_style = window.getComputedStyle(deep_think_button)
+      if (button_style.getPropertyValue('--ds-button-color') != 'transparent') {
+        deep_think_button.click()
+      }
+    }
+    if (should_ensure_search_is_unchecked) {
+      const search_button = Array.from(
+        document.querySelectorAll('div[role="button"]')
+      ).find(
+        (button) =>
+          button.textContent == 'Search' || button.textContent == '联网搜索'
+      ) as HTMLElement
+      const button_style = window.getComputedStyle(search_button)
+      if (button_style.getPropertyValue('--ds-button-color') != 'transparent') {
+        search_button.click()
+      }
+    }
+    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -390,9 +457,9 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
     await set_temperature(params.chat.temperature)
   }
 
-  // Check for canvas option and enable it if necessary
-  if (params.chat.options && params.chat.options.includes('canvas')) {
-    await enable_canvas_mode()
+  // Handle all supported options
+  if (params.chat.options && params.chat.options.length > 0) {
+    await set_options(params.chat.options)
   }
 
   enter_message_and_send({

@@ -147,7 +147,10 @@ Range: `0-1`
 
 #### ❌ `temperature`
 
-#### ❌ `options`
+#### ✅ `options`
+
+- `deep-think`: Enable DeepThink (R1) mode
+- `search`: Enable search mode
 
 </details>
 
@@ -191,6 +194,38 @@ Range: `0-1`
 #### ✅ `systemInstructions`
 
 #### ✅ `temperature`
+
+Range: `0-1`
+
+#### ✅ `port`
+
+Number, e.g. `3000`. If not given, `http://openwebui/` will be used, which you can forward your networked instance to.
+
+Example configuration:
+
+```
+server {
+    listen 80;
+    server_name openwebui;
+
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        # WebSocket specific headers
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+
+        # Timeout settings for WebSocket
+        proxy_read_timeout 86400s;
+        proxy_send_timeout 86400s;
+    }
+}
+
+```
 
 #### ❌ `options`
 
