@@ -373,9 +373,11 @@ const set_options = async (options: string[]) => {
     const supported_options = CHATBOTS['Gemini'].supported_options || {}
     for (const option of options) {
       if (option == 'canvas' && supported_options['canvas']) {
-        const canvas_button = document.querySelector(
-          'button[aria-describedby="cdk-describedby-message-ng-1-8"]'
-        ) as HTMLElement
+        const canvas_button = Array.from(
+          document.querySelectorAll('button')
+        ).find(
+          (button) => button.textContent?.trim() == 'Canvas'
+        ) as HTMLButtonElement
         if (canvas_button) {
           canvas_button.click()
         }
