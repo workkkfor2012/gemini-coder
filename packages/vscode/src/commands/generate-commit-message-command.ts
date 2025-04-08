@@ -272,13 +272,20 @@ async function collect_affected_files(
   }
 }
 
-// Short commit messages should not end with dot
+// Short commit messages should not end with dot, unless there are other dots followed by space in the message
 function process_single_trailing_dot(message: string): string {
-  // Count the number of dots in the message
-  const dot_count = (message.match(/\./g) || []).length
+  // Count the number of dots that are followed by whitespace in the message
+  const dot_count = (message.match(/\.\s/g) || []).length
 
-  // If there's exactly one dot and it's at the end, remove it
-  if (dot_count == 1 && message.endsWith('.')) {
+  // If there's exactly one dot followed by space in the entire message,
+  // keep the ending dot
+  if (dot_count == 1) {
+    return message
+  }
+
+  // If there's no dots followed by space or multiple dots followed by space,
+  // remove trailing dot
+  if (message.endsWith('.')) {
     return message.slice(0, -1)
   }
 
