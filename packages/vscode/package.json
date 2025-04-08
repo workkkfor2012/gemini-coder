@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the free 2M context AI coding assistant",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for FIM completions, file refactoring and applying AI-suggested changes.",
-  "version": "1.0.335",
+  "version": "1.0.336",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -579,7 +579,7 @@
               "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
-              "name": "AI Studio with 2.0 Flash Thinking Exp",
+              "name": "AI Studio - 2.0 Flash Thinking Exp",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
@@ -588,7 +588,7 @@
               "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
-              "name": "AI Studio with 2.5 Pro Preview",
+              "name": "AI Studio - 2.5 Pro Preview",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
@@ -597,16 +597,42 @@
               "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
-              "name": "Gemini",
-              "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": ""
-            },
-            {
-              "name": "Gemini with canvas",
+              "name": "Gemini - 2.0 Flash",
               "chatbot": "Gemini",
               "promptPrefix": "",
               "promptSuffix": "",
+              "model": "2.0-flash"
+            },
+            {
+              "name": "Gemini - 2.0 Flash (canvas)",
+              "chatbot": "Gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "2.0-flash",
+              "options": [
+                "canvas"
+              ]
+            },
+            {
+              "name": "Gemini - 2.0 Flash Thinking",
+              "chatbot": "Gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "2.0-flash-thinking"
+            },
+            {
+              "name": "Gemini - 2.5 Pro",
+              "chatbot": "Gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "2.5-pro"
+            },
+            {
+              "name": "Gemini - 2.5 Pro (canvas)",
+              "chatbot": "Gemini",
+              "promptPrefix": "",
+              "promptSuffix": "",
+              "model": "2.5-pro",
               "options": [
                 "canvas"
               ]
