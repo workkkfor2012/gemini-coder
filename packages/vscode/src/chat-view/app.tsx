@@ -123,7 +123,7 @@ function App() {
     return () => window.removeEventListener('message', handle_message)
   }, [is_fim_mode])
 
-  const x = 'x'
+  const x1 = 'x'
 
   const handle_initialize_chats = (params: {
     instruction: string
