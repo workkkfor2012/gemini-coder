@@ -660,7 +660,7 @@
               "promptPrefix": "",
               "promptSuffix": "",
               "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
+              "systemInstructions": "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the first line.\nExample of a code block with a file name in the first line:\n```typescript\n// filename.ts\ncontents of file\n```"
             }
           ],
           "description": "Preset is a general or task specific web chat configuration.",
