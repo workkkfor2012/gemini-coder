@@ -62,7 +62,8 @@ export const CHATBOTS: Chatbot = {
     url: 'https://chat.mistral.ai/chat'
   },
   Grok: {
-    url: 'https://grok.com/'
+    url: 'https://grok.com/',
+    supported_options: { think: 'Think' }
   },
   HuggingChat: {
     url: 'https://huggingface.co/chat/'

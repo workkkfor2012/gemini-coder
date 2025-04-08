@@ -132,7 +132,9 @@ Range: `0-1`
 
 #### ❌ `temperature`
 
-#### ❌ `options`
+#### ✅ `options`
+
+- `think`: Enable Think mode
 
 </details>
 

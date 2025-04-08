@@ -428,6 +428,7 @@ const set_options = async (options: string[]) => {
           button.textContent == '深度思考 (R1)'
       ) as HTMLElement
       const button_style = window.getComputedStyle(deep_think_button)
+      console.log(button_style.getPropertyValue('--ds-button-color'))
       if (button_style.getPropertyValue('--ds-button-color') != 'transparent') {
         deep_think_button.click()
       }
@@ -445,6 +446,19 @@ const set_options = async (options: string[]) => {
       }
     }
     await new Promise((r) => requestAnimationFrame(r))
+  } else if (is_grok) {
+    const supported_options = CHATBOTS['Grok'].supported_options || {}
+    for (const option of options) {
+      if (option == 'think' && supported_options['think']) {
+        const think_button = document.querySelector(
+          'button[aria-label="Think"]'
+        ) as HTMLButtonElement
+        if (think_button) {
+          think_button.click()
+        }
+      }
+    }
+    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -459,10 +473,7 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
     await set_temperature(params.chat.temperature)
   }
 
-  // Handle all supported options
-  if (params.chat.options && params.chat.options.length > 0) {
-    await set_options(params.chat.options)
-  }
+  await set_options(params.chat.options || [])
 
   enter_message_and_send({
     input_element: get_textarea_element(),
@@ -609,7 +620,7 @@ const main = async () => {
   } else if (is_grok) {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('textarea')) {
+        if (document.querySelector('button[aria-label="Think"]')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
