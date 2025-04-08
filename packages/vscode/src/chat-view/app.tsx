@@ -56,8 +56,6 @@ function App() {
 
     initialMessages.forEach((message) => vscode.postMessage(message))
 
-    const x= ''
-
     const handle_message = (event: MessageEvent) => {
       const message = event.data as ExtensionMessage
       switch (message.command) {
