@@ -53,7 +53,8 @@ export const parse_clipboard_multiple_files = (
   clipboard_text: string,
   has_single_root = false
 ): ClipboardFile[] => {
-  const files: ClipboardFile[] = []
+  // Use Map to keep track of files by their unique identifier (workspace+path)
+  const files_map = new Map<string, ClipboardFile>()
 
   // Use a state machine approach to track code blocks
   let state = 'TEXT' // States: TEXT, BLOCK_START, FILENAME, CONTENT, BLOCK_END
@@ -131,11 +132,24 @@ export const parse_clipboard_multiple_files = (
 
         // Add the collected file if we have a valid filename
         if (current_file_name) {
-          files.push({
-            file_path: current_file_name,
-            content: current_content,
-            workspace_name: current_workspace_name // Store workspace name if available
-          })
+          // Create a unique key for this file based on workspace and path
+          const file_key = `${
+            current_workspace_name || ''
+          }:${current_file_name}`
+
+          // Check if we've already seen this file
+          if (files_map.has(file_key)) {
+            // Append the content to the existing file
+            const existing_file = files_map.get(file_key)!
+            existing_file.content += '\n\n' + current_content
+          } else {
+            // Add as a new file
+            files_map.set(file_key, {
+              file_path: current_file_name,
+              content: current_content,
+              workspace_name: current_workspace_name // Store workspace name if available
+            })
+          }
         }
 
         // Reset state variables
@@ -182,15 +196,26 @@ export const parse_clipboard_multiple_files = (
 
   // Handle edge case: last file in clipboard doesn't have closing ```
   if (state == 'CONTENT' && current_file_name) {
-    // Add what we've collected so far
-    files.push({
-      file_path: current_file_name,
-      content: current_content,
-      workspace_name: current_workspace_name
-    })
+    // Create a unique key for this file
+    const file_key = `${current_workspace_name || ''}:${current_file_name}`
+
+    // Check if we've already seen this file
+    if (files_map.has(file_key)) {
+      // Append the content to the existing file
+      const existing_file = files_map.get(file_key)!
+      existing_file.content += '\n\n' + current_content
+    } else {
+      // Add as a new file
+      files_map.set(file_key, {
+        file_path: current_file_name,
+        content: current_content,
+        workspace_name: current_workspace_name
+      })
+    }
   }
 
-  return files
+  // Convert map values to array
+  return Array.from(files_map.values())
 }
 
 export const is_multiple_files_clipboard = (clipboardText: string): boolean => {
