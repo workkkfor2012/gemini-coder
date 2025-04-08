@@ -181,29 +181,27 @@ const enter_system_instructions = async (system_instructions: string) => {
   } else if (is_open_webui) {
     const controls_button = document.querySelector(
       'button[aria-label="Controls"]'
-    ) as HTMLElement
-    if (controls_button) {
-      controls_button.click()
-      await new Promise((r) => requestAnimationFrame(r))
-      const last_pane = document.querySelector(
-        '[data-pane]:last-child'
-      ) as HTMLElement
-      if (last_pane) {
-        const systemInstructionsTextarea = last_pane.querySelector(
-          'textarea'
-        ) as HTMLTextAreaElement
-        if (systemInstructionsTextarea) {
-          systemInstructionsTextarea.value = system_instructions
-          systemInstructionsTextarea.dispatchEvent(
-            new Event('input', { bubbles: true })
-          )
-          systemInstructionsTextarea.dispatchEvent(
-            new Event('change', { bubbles: true })
-          )
-        }
-      }
-      controls_button.click()
-    }
+    ) as HTMLButtonElement
+    controls_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const controls_pane =
+      window.innerWidth >= 1024
+        ? (document.querySelector('[data-pane]:last-child') as HTMLElement)
+        : (document.querySelector('div.modal') as HTMLElement)
+    const system_instructions_textarea = controls_pane.querySelector(
+      'textarea'
+    ) as HTMLTextAreaElement
+    system_instructions_textarea.value = system_instructions
+    system_instructions_textarea.dispatchEvent(
+      new Event('input', { bubbles: true })
+    )
+    system_instructions_textarea.dispatchEvent(
+      new Event('change', { bubbles: true })
+    )
+    const close_button = controls_pane.querySelector(
+      'button'
+    ) as HTMLButtonElement
+    close_button.click()
   }
 }
 
@@ -219,34 +217,34 @@ const set_temperature = async (temperature: number) => {
   } else if (is_open_webui) {
     const controls_button = document.querySelector(
       'button[aria-label="Controls"]'
+    ) as HTMLButtonElement
+    controls_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const controls_pane =
+      window.innerWidth >= 1024
+        ? (document.querySelector('[data-pane]:last-child') as HTMLElement)
+        : (document.querySelector('div.modal') as HTMLElement)
+    const pb_safe_bottom = controls_pane.querySelector(
+      '.pb-safe-bottom'
     ) as HTMLElement
-    if (controls_button) {
-      controls_button.click()
-      await new Promise((r) => requestAnimationFrame(r))
-      const last_pane = document.querySelector(
-        '[data-pane]:last-child'
-      ) as HTMLElement
-      const pb_safe_bottom = last_pane.querySelector(
-        '.pb-safe-bottom'
-      ) as HTMLElement
-      const fifth_div = pb_safe_bottom.querySelector(
-        'div:nth-child(5)'
-      ) as HTMLElement
-      const temperature_button = fifth_div.querySelector(
-        'button'
-      ) as HTMLElement
-      temperature_button.click()
-      await new Promise((r) => requestAnimationFrame(r))
-      const temperature_input = fifth_div.querySelector(
-        'input'
-      ) as HTMLInputElement
-      if (temperature_input) {
-        temperature_input.value = temperature.toString()
-        temperature_input.dispatchEvent(new Event('input', { bubbles: true }))
-        temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
-      }
-      controls_button.click()
+    const fifth_div = pb_safe_bottom.querySelector(
+      'div:nth-child(5)'
+    ) as HTMLElement
+    const temperature_button = fifth_div.querySelector('button') as HTMLElement
+    temperature_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const temperature_input = fifth_div.querySelector(
+      'input'
+    ) as HTMLInputElement
+    if (temperature_input) {
+      temperature_input.value = temperature.toString()
+      temperature_input.dispatchEvent(new Event('input', { bubbles: true }))
+      temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
     }
+    const close_button = controls_pane.querySelector(
+      'button'
+    ) as HTMLButtonElement
+    close_button.click()
   }
 }
 
