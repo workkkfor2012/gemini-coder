@@ -201,7 +201,7 @@ Range: `0-1`
 
 Number, e.g. `3000`. If not given, `http://openwebui/` will be used, which you can forward your networked instance to.
 
-Example configuration:
+Example nginx configuration:
 
 ```
 server {
