@@ -41,6 +41,7 @@ import {
   fim_completion_to_clipboard_command,
   fim_completion_with_suggestions_to_clipboard_command
 } from './commands/fim-completion-to-clipboard-commands'
+import { migrate_provider_settings } from './utils/migrate-provider-settings'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -51,9 +52,17 @@ export async function activate(context: vscode.ExtensionContext) {
   const { workspace_provider, open_editors_provider, websites_provider } =
     context_initialization(context)
 
-  // Migrate saved contexts from file-based to workspace state storage
-  // Delete a few weeks after 3 Apr 2025
-  migrate_saved_contexts(context)
+  const migrations = async () => {
+    // Migrate saved contexts from file-based to workspace state storage
+    // Delete a few weeks after 3 Apr 2025
+    await migrate_saved_contexts(context)
+
+    // Migrate provider settings from bearerToken to apiKey
+    // Delete a few weeks after 8 Apr 2025
+    await migrate_provider_settings()
+  }
+
+  await migrations()
 
   // Connect WebSocketManager with WebsitesProvider
   if (websocket_server_instance && websites_provider) {

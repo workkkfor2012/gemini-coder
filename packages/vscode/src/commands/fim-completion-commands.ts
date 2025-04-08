@@ -181,7 +181,7 @@ async function perform_fim_completion(
   const config = vscode.workspace.getConfiguration()
   const verbose = config.get<boolean>('geminiCoder.verbose')
 
-  if (!provider.bearerToken) {
+  if (!provider.apiKey) {
     vscode.window.showErrorMessage(
       'API key is missing. Please add it in the settings.'
     )
@@ -253,7 +253,7 @@ async function perform_fim_completion(
           const all_providers = [
             ...BUILT_IN_PROVIDERS.map((provider) => ({
               ...provider,
-              bearerToken: gemini_api_key || '',
+              apiKey: gemini_api_key || '',
               temperature: gemini_temperature
             })),
             ...user_providers
@@ -319,7 +319,7 @@ export function fim_completion_command(
       const all_providers = [
         ...BUILT_IN_PROVIDERS.map((provider) => ({
           ...provider,
-          bearerToken: gemini_api_key || '',
+          apiKey: gemini_api_key || '',
           temperature: gemini_temperature
         })),
         ...user_providers
@@ -368,7 +368,7 @@ export function fim_completion_with_command(
       const all_providers = [
         ...BUILT_IN_PROVIDERS.map((provider) => ({
           ...provider,
-          bearerToken: gemini_api_key || '',
+          apiKey: gemini_api_key || '',
           temperature: gemini_temperature
         })),
         ...user_providers
@@ -420,7 +420,7 @@ export function fim_completion_with_suggestions_command(
       const all_providers = [
         ...BUILT_IN_PROVIDERS.map((provider) => ({
           ...provider,
-          bearerToken: gemini_api_key || '',
+          apiKey: gemini_api_key || '',
           temperature: gemini_temperature
         })),
         ...user_providers
@@ -469,7 +469,7 @@ export function fim_completion_with_suggestions_with_command(
       const all_providers = [
         ...BUILT_IN_PROVIDERS.map((provider) => ({
           ...provider,
-          bearerToken: gemini_api_key || '',
+          apiKey: gemini_api_key || '',
           temperature: gemini_temperature
         })),
         ...user_providers

@@ -121,7 +121,7 @@ The extension supports OpenAI-API compatible model providers for API features.
     {
       "name": "DeepSeek",
       "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
-      "bearerToken": "[API KEY]",
+      "apiKey": "[API KEY]",
       "model": "deepseek-chat",
       "temperature": 0,
       "instruction": ""
@@ -129,7 +129,7 @@ The extension supports OpenAI-API compatible model providers for API features.
     {
       "name": "Mistral Large Latest",
       "endpointUrl": "https://api.mistral.ai/v1/chat/completions",
-      "bearerToken": "[API KEY]",
+      "apiKey": "[API KEY]",
       "model": "mistral-large-latest",
       "temperature": 0,
       "instruction": ""

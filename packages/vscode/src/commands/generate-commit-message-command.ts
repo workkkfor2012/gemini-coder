@@ -84,7 +84,7 @@ export function generate_commit_message_command(
         const all_providers = [
           ...BUILT_IN_PROVIDERS.map((provider) => ({
             ...provider,
-            bearerToken: gemini_api_key || '',
+            apiKey: gemini_api_key || '',
             temperature
           })),
           ...user_providers
@@ -98,7 +98,7 @@ export function generate_commit_message_command(
           return
         }
 
-        if (!provider.bearerToken) {
+        if (!provider.apiKey) {
           vscode.window.showErrorMessage(
             'API key is missing. Please add it in the settings.'
           )

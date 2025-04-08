@@ -187,7 +187,7 @@ export function refactor_command(params: {
     const all_providers = [
       ...BUILT_IN_PROVIDERS.map((provider) => ({
         ...provider,
-        bearerToken: gemini_api_key || '',
+        apiKey: gemini_api_key || '',
         temperature: gemini_temperature
       })),
       ...user_providers
@@ -214,7 +214,7 @@ export function refactor_command(params: {
       return // Provider selection failed or was cancelled
     }
 
-    if (!provider.bearerToken) {
+    if (!provider.apiKey) {
       vscode.window.showErrorMessage(
         'API key is missing. Please add it in the settings.'
       )

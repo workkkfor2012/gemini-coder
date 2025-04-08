@@ -606,7 +606,7 @@ export function apply_changes_command(params: {
     const all_providers = [
       ...BUILT_IN_PROVIDERS.map((provider) => ({
         ...provider,
-        bearerToken: gemini_api_key || '',
+        apiKey: gemini_api_key || '',
         temperature: gemini_temperature
       })),
       ...user_providers
@@ -750,7 +750,7 @@ export function apply_changes_command(params: {
     }
 
     // At this point we need the bearer token for AI processing (Intelligent update or single file)
-    if (!provider.bearerToken) {
+    if (!provider.apiKey) {
       vscode.window.showErrorMessage(
         'API key is missing. Please add it in the settings.'
       )

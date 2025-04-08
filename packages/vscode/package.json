@@ -524,31 +524,23 @@
             "properties": {
               "name": {
                 "type": "string",
-                "description": "A friendly name for the provider."
+                "description": "A unique name for the provider."
               },
               "endpointUrl": {
                 "type": "string",
-                "description": "Endpoint URL."
+                "description": "OpenAI API commpatible provider's completions url, e.g. https://example.com/v1/chat/completions"
               },
-              "bearerToken": {
-                "type": "string",
-                "description": "API key."
+              "apiKey": {
+                "type": "string"
               },
               "model": {
-                "type": "string",
-                "description": "Model name."
+                "type": "string"
               },
               "temperature": {
-                "type": "number",
-                "description": "Temperature."
+                "type": "number"
               },
               "systemInstructions": {
-                "type": "string",
-                "description": "The system instructions."
-              },
-              "instruction": {
-                "type": "string",
-                "description": "Custom Autocomplete instruction."
+                "type": "string"
               }
             }
           }

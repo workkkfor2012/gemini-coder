@@ -97,7 +97,7 @@ export async function make_api_request(
       request_body,
       {
         headers: {
-          [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${provider.bearerToken}`,
+          [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${provider.apiKey}`,
           [CONTENT_TYPE_HEADER]: APPLICATION_JSON
         },
         cancelToken: cancellation_token,
