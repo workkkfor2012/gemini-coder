@@ -21,7 +21,9 @@ Here is an example of a preset:
 }
 ```
 
-We make every effort to let you control initialization of your favorite chatbot to the fullest. Check below what configuration options are available across supported chatbots.
+We make every effort to let you control initialization of your favorite chatbot to the fullest.
+
+You will find available configuration options below.
 
 <details>
 <summary><strong>AI Studio</strong></summary>
