@@ -13,7 +13,7 @@ let is_reconnecting = false
 /**
  * Check if the server is healthy before attempting connection
  */
-export async function checkServerHealth(): Promise<boolean> {
+export async function check_server_health(): Promise<boolean> {
   try {
     const response = await fetch(`http://localhost:${DEFAULT_PORT}/health`)
     return response.ok
@@ -35,8 +35,8 @@ export async function connect_websocket() {
 
   try {
     // Check server health before attempting WebSocket connection
-    const isHealthy = await checkServerHealth()
-    if (!isHealthy) {
+    const is_healthy = await check_server_health()
+    if (!is_healthy) {
       console.debug('Server health check failed, retrying in 5 seconds...')
       setTimeout(() => {
         is_reconnecting = false
