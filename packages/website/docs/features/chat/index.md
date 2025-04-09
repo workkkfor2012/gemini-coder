@@ -34,6 +34,7 @@ As longer conversations notably decrease model's performance, instead of submitt
 
 - **AI Studio**
 - **Gemini**
+- Open WebUI (self-hosted)
 - ChatGPT
 - Claude
 - GitHub Copilot
@@ -41,7 +42,6 @@ As longer conversations notably decrease model's performance, instead of submitt
 - DeepSeek
 - Mistral
 - HuggingChat
-- Open WebUI (localhost)
 
 ## Presets
 
