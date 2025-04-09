@@ -36,6 +36,19 @@ export const CHATBOTS: Chatbot = {
       '2.5-pro': '2.5 Pro'
     }
   },
+  'Open WebUI': {
+    url: 'http://openwebui/',
+    supports_custom_temperature: true,
+    supports_system_instructions: true,
+    supports_user_provided_model: true,
+    supports_user_provided_port: true
+  },
+  OpenRouter: {
+    url: 'https://openrouter.ai/chat',
+    supports_custom_temperature: true,
+    supports_system_instructions: true,
+    supports_user_provided_model: true
+  },
   ChatGPT: {
     url: 'https://chatgpt.com/'
   },
@@ -68,11 +81,4 @@ export const CHATBOTS: Chatbot = {
   HuggingChat: {
     url: 'https://huggingface.co/chat/'
   },
-  'Open WebUI': {
-    url: 'http://openwebui/',
-    supports_custom_temperature: true,
-    supports_system_instructions: true,
-    supports_user_provided_model: true,
-    supports_user_provided_port: true
-  }
 }

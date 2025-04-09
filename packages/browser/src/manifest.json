@@ -26,6 +26,7 @@
       "matches": [
         "https://aistudio.google.com/prompts/new_chat",
         "https://gemini.google.com/app",
+        "https://openrouter.ai/chat*",
         "https://chatgpt.com/",
         "https://claude.ai/new",
         "https://github.com/copilot",

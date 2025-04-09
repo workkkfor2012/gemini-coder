@@ -108,6 +108,17 @@ server {
 </details>
 
 <details>
+<summary><strong>OpenRouter</strong></summary>
+
+#### ✅ Hands-free initialization
+
+#### ✅ `systemInstructions`
+
+#### ✅ `model`
+
+</details>
+
+<details>
 <summary><strong>ChatGPT</strong></summary>
 
 #### ✅ Hands-free initialization

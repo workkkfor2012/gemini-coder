@@ -720,14 +720,15 @@
                 "enum": [
                   "AI Studio",
                   "Gemini",
+                  "Open WebUI",
+                  "OpenRouter",
                   "ChatGPT",
                   "Claude",
                   "GitHub Copilot",
                   "Grok",
                   "DeepSeek",
                   "Mistral",
-                  "HuggingChat",
-                  "Open WebUI"
+                  "HuggingChat"
                 ],
                 "description": "Choose among supported chatbots."
               },

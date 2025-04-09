@@ -27,7 +27,6 @@ export const handle_messages = (message: WebSocketMessage) => {
   if (message.action == 'initialize-chats') {
     handle_initialize_chats_message(message as InitializeChatsMessage)
   }
-  // Add handlers for other message types as needed
 }
 
 const generate_alphanumeric_id = async (
@@ -99,11 +98,27 @@ const process_next_chat = async () => {
     }
   })
 
-  // Open the tab with the current chat URL
-  browser.tabs.create({
-    url: `${current_chat.url}#gemini-coder-${batch_id}`,
-    active: true
-  })
+  // OpenRouter is a special case, in model handling via search params
+  if (current_chat.url == 'https://openrouter.ai/chat') {
+    // https://openrouter.ai/chat?models=openrouter/quasar-alpha
+    const search_params = new URLSearchParams()
+    if (current_chat.model) {
+      search_params.set('models', current_chat.model)
+    }
+    const open_router_url = `${
+      current_chat.url
+    }?${search_params.toString()}#gemini-coder-${batch_id}`
+    browser.tabs.create({
+      url: open_router_url,
+      active: true
+    })
+  } else {
+    // Open the tab with the current chat URL
+    browser.tabs.create({
+      url: `${current_chat.url}#gemini-coder-${batch_id}`,
+      active: true
+    })
+  }
 
   // Increment the current index for the next chat
   current_queue_item.current_index++

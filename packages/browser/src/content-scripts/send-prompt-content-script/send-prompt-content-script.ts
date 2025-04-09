@@ -14,31 +14,33 @@ const batch_id = is_gemini_coder_hash
   ? hash.substring(hash_prefix.length + 1) || 'default'
   : ''
 
-const ai_studio_url =
-  'https://aistudio.google.com/prompts/new_chat#gemini-coder'
+const ai_studio_url = 'https://aistudio.google.com/prompts/new_chat'
 const is_ai_studio = current_url.startsWith(
   'https://aistudio.google.com/prompts/new_chat'
 )
 
-const gemini_url = 'https://gemini.google.com/app#gemini-coder'
+const gemini_url = 'https://gemini.google.com/app'
 const is_gemini = current_url.startsWith('https://gemini.google.com/app')
 
-const chatgpt_url = 'https://chatgpt.com/#gemini-coder'
+const openrouter_url = 'https://openrouter.ai/chat'
+const is_openrouter = current_url.startsWith('https://openrouter.ai/chat')
+
+const chatgpt_url = 'https://chatgpt.com/'
 const is_chatgpt = current_url.startsWith('https://chatgpt.com/')
 
-const claude_url = 'https://claude.ai/new#gemini-coder'
+const claude_url = 'https://claude.ai/new'
 const is_claude = current_url.startsWith('https://claude.ai/new')
 
-const github_copilot_url = 'https://github.com/copilot#gemini-coder'
+const github_copilot_url = 'https://github.com/copilot'
 const is_github_copilot = current_url.startsWith('https://github.com/copilot')
 
-const deepseek_url = 'https://chat.deepseek.com/#gemini-coder'
+const deepseek_url = 'https://chat.deepseek.com/'
 const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
 
-const mistral_url = 'https://chat.mistral.ai/chat#gemini-coder'
+const mistral_url = 'https://chat.mistral.ai/chat'
 const is_mistral = current_url.startsWith('https://chat.mistral.ai/chat')
 
-// const grok_url = 'https://grok.com/#gemini-coder'
+// const grok_url = 'https://grok.com/'
 const is_grok = current_url.startsWith('https://grok.com/')
 
 // No need for special handling
@@ -51,6 +53,7 @@ export const get_textarea_element = () => {
   const chatbot_selectors = {
     [ai_studio_url]: 'footer textarea',
     [gemini_url]: 'div[contenteditable="true"]',
+    [openrouter_url]: 'textarea',
     [chatgpt_url]: 'div#prompt-textarea',
     [claude_url]: 'div[contenteditable=true]',
     [github_copilot_url]: 'textarea#copilot-chat-textarea',
@@ -61,7 +64,7 @@ export const get_textarea_element = () => {
   // Find the appropriate selector based on the URL without the hash
   let selector = null
   for (const [url, sel] of Object.entries(chatbot_selectors)) {
-    if (current_url.includes(url.split('#')[0])) {
+    if (current_url.split('#')[0].split('?')[0].startsWith(url)) {
       selector = sel
       break
     }
@@ -113,9 +116,7 @@ const enter_message_and_send = async (params: {
     params.input_element &&
     params.input_element.tagName == 'TEXTAREA'
   ) {
-    // Handle input or textarea element
     ;(params.input_element as HTMLTextAreaElement).value = params.message
-    // Dispatch input and change events
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
     const form = params.input_element.closest('form')
@@ -127,6 +128,18 @@ const enter_message_and_send = async (params: {
       requestAnimationFrame(() => {
         ;(document.querySelector('run-button > button') as HTMLElement)?.click()
       })
+    } else if (is_openrouter) {
+      await new Promise((r) => setTimeout(r, 500))
+      const send_button = Array.from(document.querySelectorAll('button')).find(
+        (button) => {
+          const path = button.querySelector('path')
+          return (
+            path?.getAttribute('d') ==
+            'M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z'
+          )
+        }
+      ) as HTMLElement
+      send_button.click()
     } else {
       const enter_event = new KeyboardEvent('keydown', {
         key: 'Enter',
@@ -203,6 +216,35 @@ const enter_system_instructions = async (system_instructions: string) => {
       'button'
     ) as HTMLButtonElement
     close_button.click()
+  } else if (is_openrouter) {
+    const options_button = Array.from(
+      document.querySelectorAll('main > div> div > div:nth-child(2) button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z'
+      )
+    }) as HTMLButtonElement
+    options_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const textarea = document.querySelector(
+      'div[data-headlessui-portal] textarea'
+    ) as HTMLTextAreaElement
+    textarea.value = system_instructions
+    textarea.dispatchEvent(new Event('input', { bubbles: true }))
+    textarea.dispatchEvent(new Event('change', { bubbles: true }))
+    const close_button = Array.from(
+      document.querySelectorAll('div[data-headlessui-portal] button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z'
+      )
+    }) as HTMLButtonElement
+    close_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -246,6 +288,47 @@ const set_temperature = async (temperature: number) => {
       'button'
     ) as HTMLButtonElement
     close_button.click()
+  } else if (is_openrouter) {
+    const options_button = Array.from(
+      document.querySelectorAll('main > div> div > div:nth-child(2) button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z'
+      )
+    }) as HTMLButtonElement
+    options_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const sampling_parameters_button = Array.from(
+      document.querySelectorAll('div[data-headlessui-portal] button')
+    ).find(
+      (button) => button.textContent?.trim() == 'Sampling Parameters'
+    ) as HTMLButtonElement
+    sampling_parameters_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const temperature_div = Array.from(
+      document.querySelectorAll(
+        'div[data-headlessui-portal] div.flex.justify-between.text-sm'
+      )
+    ).find((div) => div.textContent?.trim() == 'Temperature') as HTMLElement
+    const temperature_input = temperature_div.querySelector(
+      'input'
+    ) as HTMLInputElement
+    temperature_input.value = temperature.toString()
+    temperature_input.dispatchEvent(new Event('input', { bubbles: true }))
+    temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
+    const close_button = Array.from(
+      document.querySelectorAll('div[data-headlessui-portal] button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z'
+      )
+    }) as HTMLButtonElement
+    close_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -621,6 +704,17 @@ const main = async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
         if (document.querySelector('button[aria-label="Think"]')) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
+      }
+      check_for_element()
+    })
+  } else if (is_openrouter) {
+    await new Promise((resolve) => {
+      const check_for_element = () => {
+        if (document.querySelector('textarea')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
