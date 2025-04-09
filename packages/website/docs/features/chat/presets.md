@@ -45,8 +45,6 @@ Supported configuration options:
 
 Range: `0-1`
 
-#### ❌ `options`
-
 </details>
 
 <details>
@@ -59,10 +57,6 @@ Range: `0-1`
 - 2.0 Flash: `2.0-flash`
 - 2.0 Flash Thinking: `2.0-flash-thinking`
 - 2.5 Pro: `2.5-pro`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
 
 #### ✅ `options`
 
@@ -80,8 +74,6 @@ Range: `0-1`
 #### ✅ `systemInstructions`
 
 #### ✅ `temperature`
-
-Range: `0-1`
 
 #### ✅ `port`
 
@@ -113,8 +105,6 @@ server {
 
 ```
 
-#### ❌ `options`
-
 </details>
 
 <details>
@@ -122,28 +112,12 @@ server {
 
 #### ✅ Hands-free initialization
 
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
-
-#### ❌ `options`
-
 </details>
 
 <details>
 <summary><strong>Claude</strong></summary>
 
 #### ✅ Hands-free initialization
-
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
-
-#### ❌ `options`
 
 </details>
 
@@ -162,24 +136,12 @@ server {
 - Claude 3.7 Sonnet Thinking: `sonnet-3.7-thinking`
 - Gemini 2.0 Flash: `gemini-2.0-flash`
 
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
-
-#### ❌ `options`
-
 </details>
 
 <details>
 <summary><strong>Grok</strong></summary>
 
 #### ✅ Hands-free initialization
-
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
 
 #### ✅ `options`
 
@@ -191,12 +153,6 @@ server {
 <summary><strong>DeepSeek</strong></summary>
 
 #### ✅ Hands-free initialization
-
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
 
 #### ✅ `options`
 
@@ -210,27 +166,11 @@ server {
 
 #### ✅ Hands-free initialization
 
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
-
-#### ❌ `options`
-
 </details>
 
 <details>
 <summary><strong>HuggingChat</strong></summary>
 
 #### ✅ Hands-free initialization
-
-#### ❌ `model`
-
-#### ❌ `systemInstructions`
-
-#### ❌ `temperature`
-
-#### ❌ `options`
 
 </details>
