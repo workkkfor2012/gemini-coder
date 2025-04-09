@@ -85,7 +85,7 @@ Range: `0-1`
 
 #### ✅ `port`
 
-Number, e.g. `3000`. If not given, `http://openwebui/` will be used, which you can forward your networked instance to.
+Check port on which your instance is exposed in localhost, by default it's `3000`. If not given, `http://openwebui/` will be used, which you can forward your networked instance to.
 
 Example nginx configuration:
 
@@ -95,7 +95,7 @@ server {
     server_name openwebui;
 
     location / {
-        proxy_pass http://localhost:3000;
+        proxy_pass http://localhost:3000; <-- URL of the instance
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
