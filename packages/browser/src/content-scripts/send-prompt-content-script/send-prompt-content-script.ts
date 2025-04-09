@@ -51,7 +51,7 @@ const is_open_webui = document.title.includes('Open WebUI')
 
 export const get_textarea_element = () => {
   const chatbot_selectors = {
-    [ai_studio_url]: 'footer textarea',
+    [ai_studio_url]: 'textarea',
     [gemini_url]: 'div[contenteditable="true"]',
     [openrouter_url]: 'textarea',
     [chatgpt_url]: 'div#prompt-textarea',
@@ -155,43 +155,26 @@ const enter_message_and_send = async (params: {
 
 const enter_system_instructions = async (system_instructions: string) => {
   if (is_ai_studio) {
+    const assignment_button = Array.from(
+      document.querySelectorAll('ms-toolbar button')
+    ).find(
+      (button) => button.textContent?.trim() == 'assignment'
+    ) as HTMLButtonElement
+    assignment_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
     const system_instructions_selector =
       'textarea[aria-label="System instructions"]'
     const system_instructions_element = document.querySelector(
       system_instructions_selector
     ) as HTMLTextAreaElement
-    if (system_instructions_element) {
-      system_instructions_element.value = system_instructions
-      system_instructions_element.dispatchEvent(
-        new Event('input', { bubbles: true })
-      )
-      system_instructions_element.dispatchEvent(
-        new Event('change', { bubbles: true })
-      )
-    } else {
-      // click on button aria-label="Collapse all System Instructions" then proceed as above
-      const collapse_button = document.querySelector(
-        'button[aria-label="Collapse all System Instructions"]'
-      ) as HTMLElement
-      if (collapse_button) {
-        collapse_button.click()
-        // wait for animation frame, inline with resolve
-        await new Promise((r) => requestAnimationFrame(r))
-
-        const system_instructions_element = document.querySelector(
-          system_instructions_selector
-        ) as HTMLTextAreaElement
-        if (system_instructions_element) {
-          system_instructions_element.value = system_instructions
-          system_instructions_element.dispatchEvent(
-            new Event('input', { bubbles: true })
-          )
-          system_instructions_element.dispatchEvent(
-            new Event('change', { bubbles: true })
-          )
-        }
-      }
-    }
+    system_instructions_element.value = system_instructions
+    system_instructions_element.dispatchEvent(
+      new Event('input', { bubbles: true })
+    )
+    system_instructions_element.dispatchEvent(
+      new Event('change', { bubbles: true })
+    )
+    assignment_button.click()
   } else if (is_open_webui) {
     const controls_button = document.querySelector(
       'button[aria-label="Controls"]'
@@ -250,13 +233,29 @@ const enter_system_instructions = async (system_instructions: string) => {
 
 const set_temperature = async (temperature: number) => {
   if (is_ai_studio) {
-    const temperature_selector = 'ms-prompt-run-settings input[type=number]'
+    if (window.innerWidth <= 768) {
+      const tune_button = Array.from(
+        document.querySelectorAll('prompt-header button')
+      ).find(
+        (button) => button.textContent?.trim() == 'tune'
+      ) as HTMLButtonElement
+      tune_button.click()
+      await new Promise((r) => requestAnimationFrame(r))
+    }
     const temperature_element = document.querySelector(
-      temperature_selector
+      'ms-prompt-run-settings input[type=number]'
     ) as HTMLInputElement
     temperature_element.value = temperature.toString()
     temperature_element.dispatchEvent(new Event('input', { bubbles: true }))
     temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
+    if (window.innerWidth <= 768) {
+      const close_button = Array.from(
+        document.querySelectorAll('ms-run-settings button')
+      ).find(
+        (button) => button.textContent?.trim() == 'close'
+      ) as HTMLButtonElement
+      close_button.click()
+    }
   } else if (is_open_webui) {
     const controls_button = document.querySelector(
       'button[aria-label="Controls"]'
