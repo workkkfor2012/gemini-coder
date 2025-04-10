@@ -4,7 +4,7 @@ import { WebSocketManager } from '../services/websocket-manager'
 import { code_completion_instruction_external } from '../constants/instructions'
 
 // Shared logic for handling FIM in chat
-async function handle_fim_in_chat_command(
+async function handle_code_completion_in_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   open_editors_provider: any,
@@ -110,7 +110,7 @@ function filter_presets_with_affixes(presets: any[]) {
 }
 
 // For single preset selection
-export function fim_in_chat_with_command(
+export function code_completion_in_chat_with_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   open_editors_provider: any,
@@ -153,7 +153,7 @@ export function fim_in_chat_with_command(
       }
 
       // Use the shared logic with the selected preset
-      await handle_fim_in_chat_command(
+      await handle_code_completion_in_chat_command(
         context,
         file_tree_provider,
         open_editors_provider,
@@ -165,7 +165,7 @@ export function fim_in_chat_with_command(
 }
 
 // For using previously selected presets
-export function fim_in_chat_command(
+export function code_completion_in_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   open_editors_provider: any,
@@ -237,7 +237,7 @@ export function fim_in_chat_command(
     }
 
     // Use the shared logic with the selected presets
-    await handle_fim_in_chat_command(
+    await handle_code_completion_in_chat_command(
       context,
       file_tree_provider,
       open_editors_provider,

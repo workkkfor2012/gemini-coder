@@ -2,10 +2,10 @@ import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { apply_changes_command } from './commands/apply-changes-command/apply-changes-command'
 import {
-  fim_completion_command,
-  fim_completion_with_command,
-  fim_completion_with_suggestions_command,
-  fim_completion_with_suggestions_with_command
+  code_completion_command,
+  code_completion_with_command,
+  code_completion_with_suggestions_command,
+  code_completion_with_suggestions_with_command
 } from './commands/code-completion-commands'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
@@ -18,7 +18,6 @@ import { create_refactor_status_bar_item } from './status-bar/create-refactor-st
 import { refactor_command } from './commands/refactor-command'
 import { refactor_to_clipboard_command } from './commands/refactor-to-clipboard-command'
 import { WebSocketManager } from './services/websocket-manager'
-import { create_fim_status_bar_item } from './status-bar/create-fim-status-bar-item'
 import { ApiViewProvider } from './api-view/api-view-provider'
 import { change_default_model_command } from './commands/change-default-model-command'
 import { close_editor_command } from './commands/close-editor-command'
@@ -30,16 +29,16 @@ import { new_folder_command } from './commands/new-folder-command'
 import { rename_command } from './commands/rename-command'
 import { delete_command } from './commands/delete-command'
 import {
-  fim_in_chat_command,
-  fim_in_chat_with_command
+  code_completion_in_chat_command,
+  code_completion_in_chat_with_command
 } from './commands/code-in-chat-commands'
 import { save_context_command } from './commands/save-context-command'
 import { revert_command } from './commands/revert-command'
 import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
 import { generate_commit_message_command } from './commands/generate-commit-message-command'
 import {
-  fim_completion_to_clipboard_command,
-  fim_completion_with_suggestions_to_clipboard_command
+  code_completion_to_clipboard_command,
+  code_completion_with_suggestions_to_clipboard_command
 } from './commands/code-completion-to-clipboard-commands'
 import { migrate_provider_settings } from './migrations/migrate-provider-settings'
 import { migrate_keybindings } from './migrations/migrate-keybindings'
@@ -77,7 +76,6 @@ export async function activate(context: vscode.ExtensionContext) {
   // Status bar
   create_refactor_status_bar_item(context)
   create_apply_changes_status_bar_item(context)
-  create_fim_status_bar_item(context)
 
   // Chat View
   if (workspace_provider && open_editors_provider && websites_provider) {
@@ -169,37 +167,37 @@ export async function activate(context: vscode.ExtensionContext) {
       workspace_provider,
       open_editors_provider
     ),
-    fim_completion_with_command(
+    code_completion_with_command(
       workspace_provider,
       open_editors_provider,
       context
     ),
-    fim_completion_command(workspace_provider, open_editors_provider, context),
-    fim_completion_with_suggestions_command(
+    code_completion_command(workspace_provider, open_editors_provider, context),
+    code_completion_with_suggestions_command(
       workspace_provider,
       open_editors_provider,
       context
     ),
-    fim_completion_with_suggestions_with_command(
+    code_completion_with_suggestions_with_command(
       workspace_provider,
       open_editors_provider,
       context
     ),
-    fim_completion_to_clipboard_command(
+    code_completion_to_clipboard_command(
       workspace_provider,
       open_editors_provider
     ),
-    fim_completion_with_suggestions_to_clipboard_command(
+    code_completion_with_suggestions_to_clipboard_command(
       workspace_provider,
       open_editors_provider
     ),
-    fim_in_chat_command(
+    code_completion_in_chat_command(
       context,
       workspace_provider,
       open_editors_provider,
       websocket_server_instance
     ),
-    fim_in_chat_with_command(
+    code_completion_in_chat_with_command(
       context,
       workspace_provider,
       open_editors_provider,

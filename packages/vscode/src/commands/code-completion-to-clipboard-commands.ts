@@ -21,7 +21,7 @@ async function perform_fim_completion_to_clipboard(
       placeHolder: 'Enter suggestions for code completion (optional)',
       prompt: 'Provide guidance for the AI to follow when completing your code'
     })
-    
+
     // If user cancels the input box (not the same as empty input), return
     if (suggestions === undefined) {
       return
@@ -36,10 +36,7 @@ async function perform_fim_completion_to_clipboard(
     new vscode.Range(new vscode.Position(0, 0), position)
   )
   const text_after_cursor = document.getText(
-    new vscode.Range(
-      position,
-      document.positionAt(document.getText().length)
-    )
+    new vscode.Range(position, document.positionAt(document.getText().length))
   )
 
   // Create files collector instance
@@ -61,7 +58,9 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const content = `${payload.before}<fill missing code>${payload.after}\n${code_completion_instruction_external}${
+    const content = `${payload.before}<fill missing code>${
+      payload.after
+    }\n${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 
@@ -70,16 +69,11 @@ async function perform_fim_completion_to_clipboard(
       'Autocomplete prompt copied to clipboard!'
     )
   } catch (error: any) {
-    vscode.window.showErrorMessage(
-      `Failed to collect files: ${error.message}`
-    )
+    vscode.window.showErrorMessage(`Failed to collect files: ${error.message}`)
   }
 }
 
-/**
- * Register FIM completion to clipboard command
- */
-export function fim_completion_to_clipboard_command(
+export function code_completion_to_clipboard_command(
   file_tree_provider: any,
   open_editors_provider?: any
 ) {
@@ -87,7 +81,7 @@ export function fim_completion_to_clipboard_command(
     'geminiCoder.codeCompletionToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
-        file_tree_provider, 
+        file_tree_provider,
         open_editors_provider,
         false // without suggestions
       )
@@ -95,10 +89,7 @@ export function fim_completion_to_clipboard_command(
   )
 }
 
-/**
- * Register FIM completion with suggestions to clipboard command
- */
-export function fim_completion_with_suggestions_to_clipboard_command(
+export function code_completion_with_suggestions_to_clipboard_command(
   file_tree_provider: any,
   open_editors_provider?: any
 ) {
@@ -106,7 +97,7 @@ export function fim_completion_with_suggestions_to_clipboard_command(
     'geminiCoder.codeCompletionWithSuggestionsToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
-        file_tree_provider, 
+        file_tree_provider,
         open_editors_provider,
         true // with suggestions
       )
