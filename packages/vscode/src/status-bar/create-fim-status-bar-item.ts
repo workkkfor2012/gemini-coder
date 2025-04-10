@@ -5,7 +5,7 @@ export function create_fim_status_bar_item(context: vscode.ExtensionContext) {
     vscode.StatusBarAlignment.Right,
     100
   )
-  fim_status_bar_item.command = 'geminiCoder.fimCompletion'
+  fim_status_bar_item.command = 'geminiCoder.codeCompletion'
   fim_status_bar_item.text = 'FIM'
   fim_status_bar_item.tooltip =
     'Gemini Coder: Request FIM (Fill In Middle) completion'

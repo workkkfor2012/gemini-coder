@@ -84,7 +84,7 @@ export function fim_completion_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletionToClipboard',
+    'geminiCoder.codeCompletionToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
         file_tree_provider, 
@@ -103,7 +103,7 @@ export function fim_completion_with_suggestions_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletionWithSuggestionsToClipboard',
+    'geminiCoder.codeCompletionWithSuggestionsToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
         file_tree_provider, 

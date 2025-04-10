@@ -78,16 +78,16 @@ Gemini Coder works with many popular chatbots:
 1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
 2. Open VS Code and navigate to settings.
 3. Search for "Gemini Coder" and paste your API key.
-4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "FIM Completion".
-5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: FIM Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
+4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Code Completion".
+5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
 
 ## Commands
 
-#### FIM Completions
+#### Code Completions
 
-- `Gemini Coder: FIM Completion` - Get fill-in-the-middle completion using default model.
-- `Gemini Coder: FIM Completion with...` - Get fill-in-the-middle completion with model selection.
-- `Gemini Coder: FIM Completion to Clipboard` - Copy FIM completion content to clipboard.
+- `Gemini Coder: Code Completion` - Get fill-in-the-middle completion using default model.
+- `Gemini Coder: Code Completion with...` - Get fill-in-the-middle completion with model selection.
+- `Gemini Coder: Code Completion to Clipboard` - Copy FIM completion content to clipboard.
 - `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions.
 
 #### Refactoring

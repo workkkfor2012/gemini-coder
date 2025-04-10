@@ -35,13 +35,14 @@ import {
 } from './commands/fim-in-chat-commands'
 import { save_context_command } from './commands/save-context-command'
 import { revert_command } from './commands/revert-command'
-import { migrate_saved_contexts } from './utils/migrate-saved-contexts'
+import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
 import { generate_commit_message_command } from './commands/generate-commit-message-command'
 import {
   fim_completion_to_clipboard_command,
   fim_completion_with_suggestions_to_clipboard_command
 } from './commands/fim-completion-to-clipboard-commands'
-import { migrate_provider_settings } from './utils/migrate-provider-settings'
+import { migrate_provider_settings } from './migrations/migrate-provider-settings'
+import { migrate_keybindings } from './migrations/migrate-keybindings'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -60,6 +61,10 @@ export async function activate(context: vscode.ExtensionContext) {
     // Migrate provider settings from bearerToken to apiKey
     // Delete a few weeks after 8 Apr 2025
     await migrate_provider_settings()
+
+    // Migrate keybindings from old commands to new ones
+    // Delete a few weeks after 10 Apr 2025
+    await migrate_keybindings()
   }
 
   await migrations()

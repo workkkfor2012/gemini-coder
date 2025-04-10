@@ -173,33 +173,33 @@
         "icon": "$(save-all)"
       },
       {
-        "command": "geminiCoder.fimCompletionWith",
-        "title": "FIM Completion with...",
+        "command": "geminiCoder.codeCompletionWith",
+        "title": "Code Completion with...",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimCompletion",
-        "title": "FIM Completion",
+        "command": "geminiCoder.codeCompletion",
+        "title": "Code Completion",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimCompletionWithSuggestions",
-        "title": "FIM Completion with Suggestions",
+        "command": "geminiCoder.codeCompletionWithSuggestions",
+        "title": "Code Completion with Suggestions",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimCompletionWithSuggestionsWith",
-        "title": "FIM Completion with Suggestions with...",
+        "command": "geminiCoder.codeCompletionWithSuggestionsWith",
+        "title": "Code Completion with Suggestions with...",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimCompletionToClipboard",
-        "title": "FIM Completion to Clipboard",
+        "command": "geminiCoder.codeCompletionToClipboard",
+        "title": "Code Completion to Clipboard",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimCompletionWithSuggestionsToClipboard",
-        "title": "FIM Completion with Suggestions to Clipboard",
+        "command": "geminiCoder.codeCompletionWithSuggestionsToClipboard",
+        "title": "Code Completion with Suggestions to Clipboard",
         "category": "Gemini Coder"
       },
       {

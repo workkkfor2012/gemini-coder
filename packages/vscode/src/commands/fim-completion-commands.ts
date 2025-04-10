@@ -294,7 +294,7 @@ export function fim_completion_command(
   const model_manager = new ModelManager(context)
 
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletion',
+    'geminiCoder.codeCompletion',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers =
@@ -342,7 +342,7 @@ export function fim_completion_with_command(
   const model_manager = new ModelManager(context)
 
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletionWith',
+    'geminiCoder.codeCompletionWith',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers =
@@ -393,7 +393,7 @@ export function fim_completion_with_suggestions_command(
   const model_manager = new ModelManager(context)
 
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletionWithSuggestions',
+    'geminiCoder.codeCompletionWithSuggestions',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers =
@@ -441,7 +441,7 @@ export function fim_completion_with_suggestions_with_command(
   const model_manager = new ModelManager(context)
 
   return vscode.commands.registerCommand(
-    'geminiCoder.fimCompletionWithSuggestionsWith',
+    'geminiCoder.codeCompletionWithSuggestionsWith',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const user_providers =
