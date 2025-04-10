@@ -81,18 +81,12 @@ const enter_message_and_send = async (params: {
   message: string
 }) => {
   if (params.input_element && params.input_element.isContentEditable) {
-    // Handle contenteditable element
     params.input_element.innerText = params.message
-    // Dispatch input and change events
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
     const form = params.input_element.closest('form')
     if (is_claude) {
-      await new Promise((resolve) => {
-        setTimeout(() => {
-          resolve(true)
-        }, 500)
-      })
+      await new Promise((r) => setTimeout(r, 500))
       ;(
         document.querySelector(
           'fieldset button.bg-accent-main-000'
@@ -116,30 +110,18 @@ const enter_message_and_send = async (params: {
     params.input_element &&
     params.input_element.tagName == 'TEXTAREA'
   ) {
+    const form = params.input_element.closest('form')
     ;(params.input_element as HTMLTextAreaElement).value = params.message
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
-    const form = params.input_element.closest('form')
-    if (form && !is_github_copilot) {
-      requestAnimationFrame(() => {
-        form.requestSubmit()
-      })
-    } else if (is_ai_studio) {
-      requestAnimationFrame(() => {
-        ;(document.querySelector('run-button > button') as HTMLElement)?.click()
-      })
-    } else if (is_openrouter) {
+    await new Promise((r) => requestAnimationFrame(r))
+    if (is_openrouter) {
       await new Promise((r) => setTimeout(r, 500))
-      const send_button = Array.from(document.querySelectorAll('button')).find(
-        (button) => {
-          const path = button.querySelector('path')
-          return (
-            path?.getAttribute('d') ==
-            'M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z'
-          )
-        }
-      ) as HTMLElement
-      send_button.click()
+    }
+    if (form && !is_github_copilot) {
+      form.requestSubmit()
+    } else if (is_ai_studio) {
+      ;(document.querySelector('run-button > button') as HTMLElement)?.click()
     } else {
       const enter_event = new KeyboardEvent('keydown', {
         key: 'Enter',
@@ -314,9 +296,10 @@ const set_temperature = async (temperature: number) => {
     const temperature_input = temperature_div.querySelector(
       'input'
     ) as HTMLInputElement
+    temperature_input.focus()
     temperature_input.value = temperature.toString()
-    temperature_input.dispatchEvent(new Event('input', { bubbles: true }))
     temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
+    temperature_input.blur()
     const close_button = Array.from(
       document.querySelectorAll('div[data-headlessui-portal] button')
     ).find((button) => {
@@ -327,7 +310,6 @@ const set_temperature = async (temperature: number) => {
       )
     }) as HTMLButtonElement
     close_button.click()
-    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -554,7 +536,6 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
   if (params.chat.temperature) {
     await set_temperature(params.chat.temperature)
   }
-
   await set_options(params.chat.options || [])
 
   enter_message_and_send({
