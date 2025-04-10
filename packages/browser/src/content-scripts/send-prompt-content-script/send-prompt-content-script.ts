@@ -87,11 +87,14 @@ const enter_message_and_send = async (params: {
     const form = params.input_element.closest('form')
     if (is_claude) {
       await new Promise((r) => setTimeout(r, 500))
-      ;(
-        document.querySelector(
-          'fieldset button.bg-accent-main-000'
-        ) as HTMLElement
-      ).click()
+      const submit_button = Array.from(
+        document.querySelectorAll('fieldset button')
+      ).find((button) =>
+        button.querySelector(
+          'path[d="M208.49,120.49a12,12,0,0,1-17,0L140,69V216a12,12,0,0,1-24,0V69L64.49,120.49a12,12,0,0,1-17-17l72-72a12,12,0,0,1,17,0l72,72A12,12,0,0,1,208.49,120.49Z"]'
+        )
+      ) as HTMLButtonElement
+      submit_button.click()
     } else if (form) {
       requestAnimationFrame(() => {
         form.requestSubmit()
@@ -631,7 +634,7 @@ const main = async () => {
   } else if (is_claude) {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('fieldset')) {
+        if (document.querySelector('body[style="pointer-events: auto;"]')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
