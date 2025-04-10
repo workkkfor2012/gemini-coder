@@ -8,6 +8,7 @@ import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
+import { Logger } from '../helpers/logger'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -170,9 +171,6 @@ async function perform_fim_completion(
     }
   }
 
-  const config = vscode.workspace.getConfiguration()
-  const verbose = config.get<boolean>('geminiCoder.verbose')
-
   if (!provider.apiKey) {
     vscode.window.showErrorMessage(
       'API key is missing. Please add it in the settings.'
@@ -214,9 +212,11 @@ async function perform_fim_completion(
       temperature
     }
 
-    if (verbose) {
-      console.log('[Gemini Coder] Prompt:', content)
-    }
+    Logger.log({
+      function_name: 'perform_fim_completion',
+      message: 'Prompt:',
+      data: content
+    })
 
     const cursor_listener = vscode.workspace.onDidChangeTextDocument(() => {
       cancel_token_source.cancel('User moved the cursor, cancelling request.')
@@ -269,10 +269,14 @@ async function perform_fim_completion(
             completion = cleanup_api_response({ content: completion })
             await show_inline_completion(editor, position, completion)
           }
-        } catch (error: any) {
-          console.error('Completion error:', error)
+        } catch (err: any) {
+          Logger.error({
+            function_name: 'perform_fim_completion',
+            message: 'Completion error',
+            data: err
+          })
           vscode.window.showErrorMessage(
-            `An error occurred during completion: ${error.message}. See console for details.`
+            `An error occurred during completion: ${err.message}. See console for details.`
           )
         } finally {
           cursor_listener.dispose()

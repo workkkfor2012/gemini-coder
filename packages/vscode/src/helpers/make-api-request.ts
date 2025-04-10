@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import axios, { AxiosResponse } from 'axios'
 import { Provider } from '../types/provider'
+import { Logger } from './logger'
 
 type StreamCallback = (chunk: string) => void
 
@@ -17,7 +18,6 @@ async function process_stream_chunk(
   accumulated_content: string,
   last_log_time: number,
   provider_name: string,
-  verbose: boolean,
   on_chunk?: StreamCallback
 ): Promise<{
   updated_buffer: string
@@ -52,21 +52,30 @@ async function process_stream_chunk(
             }
 
             const current_time = Date.now()
-            if (verbose && current_time - updated_last_log_time >= 1000) {
-              console.log(
-                `[Gemini Coder] ${provider_name} Streaming tokens:`,
-                updated_accumulated_content
-              )
+            if (current_time - updated_last_log_time >= 1000) {
+              Logger.log({
+                function_name: 'process_stream_chunk',
+                message: `${provider_name} Streaming tokens:`,
+                data: updated_accumulated_content
+              })
               updated_last_log_time = current_time
             }
           }
         } catch (parse_error) {
-          console.warn('Failed to parse JSON chunk:', trimmed_line, parse_error)
+          Logger.warn({
+            function_name: 'process_stream_chunk',
+            message: 'Failed to parse JSON chunk',
+            data: { trimmed_line, parse_error }
+          })
         }
       }
     }
   } catch (error) {
-    console.error('Error processing stream chunk:', error)
+    Logger.error({
+      function_name: 'process_stream_chunk',
+      message: 'Error processing stream chunk',
+      data: error
+    })
   }
 
   return {
@@ -89,9 +98,6 @@ export async function make_api_request(
     let last_log_time = Date.now()
     let buffer = ''
 
-    const config = vscode.workspace.getConfiguration()
-    const verbose = config.get<boolean>('geminiCoder.verbose', false)
-
     const response: AxiosResponse<NodeJS.ReadableStream> = await axios.post(
       provider.endpointUrl,
       request_body,
@@ -113,7 +119,6 @@ export async function make_api_request(
           accumulated_content,
           last_log_time,
           provider.name,
-          verbose,
           on_chunk
         )
         buffer = processing_result.updated_buffer
@@ -135,7 +140,11 @@ export async function make_api_request(
               }
             }
           } catch (error) {
-            console.warn('Failed to parse final buffer:', error)
+            Logger.warn({
+              function_name: 'make_api_request',
+              message: 'Failed to parse final buffer',
+              data: error
+            })
           }
         }
 
@@ -147,26 +156,40 @@ export async function make_api_request(
           content = match[2]
         }
 
-        if (verbose) {
-          console.log('[Gemini Coder] Combined code received:', content)
-        }
+        Logger.log({
+          function_name: 'make_api_request',
+          message: 'Combined code received:',
+          data: content
+        })
 
         resolve(content)
       })
 
       response.data.on('error', (error: Error) => {
-        console.error('Stream error:', error)
+        Logger.error({
+          function_name: 'make_api_request',
+          message: 'Stream error',
+          data: error
+        })
         reject(error)
       })
     })
   } catch (error) {
     if (axios.isCancel(error)) {
-      console.log('Request canceled:', error.message)
+      Logger.log({
+        function_name: 'make_api_request',
+        message: 'Request canceled',
+        data: error.message
+      })
       return null
     } else if (axios.isAxiosError(error) && error.response?.status == 429) {
       return 'rate_limit'
     } else {
-      console.error('API request failed:', error)
+      Logger.error({
+        function_name: 'make_api_request',
+        message: 'API request failed',
+        data: error
+      })
       vscode.window.showErrorMessage(
         `Failed to send request to ${provider.name}. Check console for details.`
       )

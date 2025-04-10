@@ -8,7 +8,7 @@ import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 import { Provider } from '@/types/provider'
 import { execSync } from 'child_process'
-import { log } from '@/helpers/logger'
+import { Logger } from '@/helpers/logger'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -113,7 +113,7 @@ export function generate_commit_message_command(
 
         const message = `${affected_files}\n${commit_message_prompt}\n${diff}`
 
-        log({
+        Logger.log({
           function_name: 'generate_commit_message_command',
           message: 'Getting commit message...',
           data: message
@@ -207,12 +207,21 @@ export function generate_commit_message_command(
                 )
                 return
               }
+              Logger.error({
+                function_name: 'generate_commit_message_command',
+                message: 'Error during API request',
+                data: error
+              })
               throw error // Re-throw other errors to be caught by the outer try-catch
             }
           }
         )
       } catch (error) {
-        console.error('Error generating commit message:', error)
+        Logger.error({
+          function_name: 'generate_commit_message_command',
+          message: 'Error generating commit message',
+          data: error
+        })
         vscode.window.showErrorMessage(
           'Error generating commit message. See console for details.'
         )
@@ -256,20 +265,32 @@ async function collect_affected_files(
               content = `[Large file not included]\n`
             }
           } catch (err) {
-            console.error(`Error reading file ${file_path}:`, err)
+            Logger.error({
+              function_name: 'collect_affected_files',
+              message: `Error reading file ${file_path}`,
+              data: err
+            })
           }
         }
 
         files_content += `<file name="${relative_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
       } catch (err) {
-        console.error(`Error processing file ${file_path}:`, err)
+        Logger.error({
+          function_name: 'collect_affected_files',
+          message: `Error processing file ${file_path}`,
+          data: err
+        })
       }
     }
 
     files_content += '</files>'
     return files_content
   } catch (error) {
-    console.error('Error collecting changed files:', error)
+    Logger.error({
+      function_name: 'collect_affected_files',
+      message: 'Error collecting changed files',
+      data: error
+    })
     return ''
   }
 }

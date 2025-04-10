@@ -9,6 +9,7 @@ import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
+import { Logger } from '../helpers/logger'
 
 async function format_document(document: vscode.TextDocument): Promise<void> {
   try {
@@ -17,7 +18,11 @@ async function format_document(document: vscode.TextDocument): Promise<void> {
       document.uri
     )
   } catch (error) {
-    console.error(`Error formatting document: ${error}`)
+    Logger.error({
+      function_name: 'format_document',
+      message: `Error formatting document`,
+      data: error
+    })
     // Continue even if formatting fails
   }
 }
@@ -224,7 +229,6 @@ export function refactor_command(params: {
     const model = provider.model
     const temperature = provider.temperature
     const system_instructions = provider.systemInstructions
-    const verbose = config.get<boolean>('geminiCoder.verbose')
 
     // Create files collector with both providers
     const files_collector = new FilesCollector(
@@ -266,9 +270,11 @@ export function refactor_command(params: {
       temperature
     }
 
-    if (verbose) {
-      console.log('[Gemini Coder] Refactor Prompt:', content)
-    }
+    Logger.log({
+      function_name: 'refactor_command',
+      message: 'Refactor Prompt:',
+      data: content
+    })
 
     const cancel_token_source = axios.CancelToken.source()
 
@@ -336,7 +342,11 @@ export function refactor_command(params: {
             return true
           } catch (error) {
             if (axios.isCancel(error)) return false
-            console.error('Refactoring error:', error)
+            Logger.error({
+              function_name: 'refactor_command',
+              message: 'Refactoring error',
+              data: error
+            })
             vscode.window.showErrorMessage(
               'An error occurred during refactoring. See console for details.'
             )

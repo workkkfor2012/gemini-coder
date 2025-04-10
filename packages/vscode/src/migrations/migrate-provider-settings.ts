@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import * as logger from '../helpers/logger'
+import { Logger } from '../helpers/logger'
 
 interface ProviderConfig {
   name: string
@@ -54,12 +54,12 @@ export async function migrate_provider_settings(): Promise<void> {
       vscode.ConfigurationTarget.Global
     )
 
-    logger.log({
+    Logger.log({
       function_name: 'migrate_provider_settings',
       message: 'Successfully migrated provider settings'
     })
   } catch (error) {
-    logger.error({
+    Logger.error({
       function_name: 'migrate_provider_settings',
       message: 'Error migrating provider settings',
       data: error

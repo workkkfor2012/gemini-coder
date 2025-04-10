@@ -10,6 +10,7 @@ import {
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { WebsitesProvider } from '../context/providers/websites-provider'
+import { Logger } from '../helpers/logger'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext
@@ -68,20 +69,24 @@ export class WebSocketManager {
 
       if (!port_in_use) {
         // Start server process
-        this.start_server_process()
+        await this.start_server_process()
       }
 
       // Connect as a client
       this.connect_to_server()
     } catch (error) {
-      console.error('Error initializing WebSocket server:', error)
+      Logger.error({
+        function_name: 'initialize_server',
+        message: 'Error initializing WebSocket server',
+        data: error
+      })
       vscode.window.showErrorMessage(
         `Failed to initialize WebSocket server: ${error}`
       )
     }
   }
 
-  private start_server_process() {
+  private async start_server_process() {
     // Get path to server script
     const server_script_path = path.join(
       this.context.extensionPath,
@@ -101,13 +106,19 @@ export class WebSocketManager {
         process.unref()
       }
 
-      // Log process start
-      console.log(`Started WebSocket server process with PID: ${process.pid}`)
+      Logger.log({
+        function_name: 'start_server_process',
+        message: `Started WebSocket server process with PID: ${process.pid}`
+      })
 
       // Allow some time for the server to start up
       return new Promise<void>((resolve) => setTimeout(resolve, 1000))
     } catch (error) {
-      console.error('Failed to start WebSocket server process:', error)
+      Logger.error({
+        function_name: 'start_server_process',
+        message: 'Failed to start WebSocket server process',
+        data: error
+      })
       throw error
     }
   }
@@ -128,14 +139,21 @@ export class WebSocketManager {
     )
 
     this.client.on('open', () => {
-      console.log('Connected to WebSocket server')
+      Logger.log({
+        function_name: 'connect_to_server',
+        message: 'Connected to WebSocket server'
+      })
       // Start ping interval to keep connection alive
     })
 
     this.client.on('message', (data) => {
       try {
         const message = JSON.parse(data.toString())
-        console.log('Incoming WS message:', message)
+        Logger.log({
+          function_name: 'connect_to_server',
+          message: 'Incoming WS message',
+          data: message
+        })
 
         if (message.action == 'client-id-assignment') {
           this.client_id = message.client_id
@@ -150,12 +168,20 @@ export class WebSocketManager {
           vscode.commands.executeCommand('geminiCoder.applyChangesFastReplace')
         }
       } catch (error) {
-        console.error('Error processing message:', error)
+        Logger.error({
+          function_name: 'connect_to_server',
+          message: 'Error processing message',
+          data: error
+        })
       }
     })
 
     this.client.on('error', (error) => {
-      console.error('WebSocket client error:', error)
+      Logger.error({
+        function_name: 'connect_to_server',
+        message: 'WebSocket client error',
+        data: error
+      })
       this.has_connected_browsers = false
       this._on_connection_status_change.fire(false)
 
@@ -164,7 +190,10 @@ export class WebSocketManager {
     })
 
     this.client.on('close', () => {
-      console.log('Disconnected from WebSocket server')
+      Logger.warn({
+        function_name: 'connect_to_server',
+        message: 'Disconnected from WebSocket server'
+      })
       this.has_connected_browsers = false
       this._on_connection_status_change.fire(false)
 
@@ -233,10 +262,11 @@ export class WebSocketManager {
       client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
     }
 
-    const verbose = config.get<boolean>('geminiCoder.verbose')
-    if (verbose) {
-      console.debug('Initialize chats message:', message)
-    }
+    Logger.log({
+      function_name: 'initialize_chats',
+      message: 'Sending initialize chats message',
+      data: message
+    })
 
     this.client?.send(JSON.stringify(message))
   }

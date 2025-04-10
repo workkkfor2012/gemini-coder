@@ -1,6 +1,6 @@
 import * as fs from 'fs'
 import * as path from 'path'
-import * as logger from '../helpers/logger'
+import { Logger } from '../helpers/logger'
 
 const command_renames: Record<string, string> = {
   'geminiCoder.fimCompletion': 'geminiCoder.codeCompletion',
@@ -45,7 +45,7 @@ export async function migrate_keybindings(): Promise<void> {
 
     for (const kb of keybindings) {
       if (typeof kb.command === 'string' && command_renames[kb.command]) {
-        logger.log({
+        Logger.log({
           function_name: 'migrate_keybindings',
           message: `Updating keybinding command "${kb.command}" to "${
             command_renames[kb.command]
@@ -60,13 +60,13 @@ export async function migrate_keybindings(): Promise<void> {
       const updated_content = JSON.stringify(keybindings, null, 2)
       fs.writeFileSync(user_settings_path, updated_content, 'utf8')
 
-      logger.log({
+      Logger.log({
         function_name: 'migrate_keybindings',
         message: 'Keybindings migration complete'
       })
     }
   } catch (error) {
-    logger.error({
+    Logger.error({
       function_name: 'migrate_keybindings',
       message: 'Error migrating keybindings',
       data: error

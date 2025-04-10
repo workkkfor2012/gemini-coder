@@ -19,6 +19,7 @@ import {
   sanitize_file_name,
   create_safe_path
 } from '../../utils/path-sanitizer'
+import { Logger } from '../../helpers/logger'
 
 type OriginalFileState = {
   file_path: string
@@ -32,11 +33,16 @@ async function get_selected_provider(
   all_providers: Provider[],
   default_model_name: string | undefined
 ): Promise<Provider | undefined> {
+  Logger.log({ function_name: 'get_selected_provider', message: 'start' })
   if (
     !default_model_name ||
     !all_providers.some((p) => p.name == default_model_name)
   ) {
     vscode.window.showErrorMessage('Default model is not set or valid.')
+    Logger.warn({
+      function_name: 'get_selected_provider',
+      message: 'Default model is not set or valid.'
+    })
     return undefined
   }
 
@@ -88,6 +94,10 @@ async function get_selected_provider(
   })
 
   if (!selected_item) {
+    Logger.log({
+      function_name: 'get_selected_provider',
+      message: 'User cancelled provider selection.'
+    })
     return undefined // User cancelled
   }
 
@@ -99,6 +109,10 @@ async function get_selected_provider(
   )
   if (!selected_provider) {
     vscode.window.showErrorMessage(`Model "${selected_model_name}" not found.`)
+    Logger.error({
+      function_name: 'get_selected_provider',
+      message: `Model "${selected_model_name}" not found.`
+    })
     return undefined
   }
 
@@ -109,6 +123,11 @@ async function get_selected_provider(
   ]
   context.globalState.update('lastUsedApplyChangesModels', last_used_models)
 
+  Logger.log({
+    function_name: 'get_selected_provider',
+    message: 'Selected provider',
+    data: selected_provider.name
+  })
   return selected_provider
 }
 
@@ -116,12 +135,27 @@ async function get_selected_provider(
  * Format document using VS Code's formatDocument command
  */
 async function format_document(document: vscode.TextDocument): Promise<void> {
+  Logger.log({
+    function_name: 'format_document',
+    message: 'start',
+    data: document.uri.fsPath
+  })
   try {
     await vscode.commands.executeCommand(
       'editor.action.formatDocument',
       document.uri
     )
+    Logger.log({
+      function_name: 'format_document',
+      message: 'Document formatted',
+      data: document.uri.fsPath
+    })
   } catch (error) {
+    Logger.error({
+      function_name: 'format_document',
+      message: 'Error formatting document',
+      data: { error, file: document.uri.fsPath }
+    })
     console.error(`Error formatting document: ${error}`)
     // Continue even if formatting fails
   }
@@ -136,10 +170,14 @@ async function process_file(params: {
   file_content: string
   instruction: string
   system_instructions?: string
-  verbose: boolean
   cancel_token?: CancelToken // Add cancelToken parameter
   on_progress?: (chunkLength: number, totalLength: number) => void
 }): Promise<string | null> {
+  Logger.log({
+    function_name: 'process_file',
+    message: 'start',
+    data: { file_path: params.file_path, provider: params.provider.name }
+  })
   const apply_changes_prompt = `${apply_changes_instruction} ${params.instruction}`
   const file_content = `<file name="${params.file_path}">\n<![CDATA[\n${params.file_content}\n]]>\n</file>\n`
   const content = `${file_content}\n${apply_changes_prompt}`
@@ -160,12 +198,11 @@ async function process_file(params: {
     temperature: params.provider.temperature
   }
 
-  if (params.verbose) {
-    console.log(
-      `[Gemini Coder] Apply Changes Prompt for ${params.file_path}:`,
-      content
-    )
-  }
+  Logger.log({
+    function_name: 'process_file',
+    message: 'API Request Body',
+    data: body
+  })
 
   try {
     const total_length = params.file_content.length
@@ -185,26 +222,60 @@ async function process_file(params: {
 
     if (!refactored_content) {
       if (axios.isCancel(params.cancel_token?.reason)) {
+        Logger.log({
+          function_name: 'process_file',
+          message: 'Request cancelled',
+          data: params.file_path
+        })
         return null // Silent cancellation
       }
       vscode.window.showErrorMessage(
         `Applying changes to ${params.file_path} failed. Please try again later.`
       )
+      Logger.error({
+        function_name: 'process_file',
+        message: 'API request failed',
+        data: params.file_path
+      })
       return null
     } else if (refactored_content == 'rate_limit') {
+      Logger.warn({
+        function_name: 'process_file',
+        message: 'Rate limit reached',
+        data: params.file_path
+      })
       return 'rate_limit'
     }
 
-    return cleanup_api_response({
+    const cleaned_content = cleanup_api_response({
       content: refactored_content
     })
+    Logger.log({
+      function_name: 'process_file',
+      message: 'API response received and cleaned',
+      data: {
+        file_path: params.file_path,
+        response_length: cleaned_content?.length
+      }
+    })
+    return cleaned_content
   } catch (error: any) {
     // First check for cancellation
     if (axios.isCancel(error)) {
+      Logger.log({
+        function_name: 'process_file',
+        message: 'Request cancelled',
+        data: params.file_path
+      })
       return null // Silent cancellation
     }
 
     // For other errors, show the error message as before
+    Logger.error({
+      function_name: 'process_file',
+      message: 'Refactoring error',
+      data: { error, file_path: params.file_path }
+    })
     console.error(`Refactoring error for ${params.file_path}:`, error)
     vscode.window.showErrorMessage(
       `An error occurred during refactoring ${params.file_path}. See console for details.`
@@ -220,9 +291,18 @@ async function create_file_if_needed(
   filePath: string,
   content: string
 ): Promise<boolean> {
+  Logger.log({
+    function_name: 'create_file_if_needed',
+    message: 'start',
+    data: filePath
+  })
   // Check if we have a workspace folder
   if (vscode.workspace.workspaceFolders?.length == 0) {
     vscode.window.showErrorMessage('No workspace folder open.')
+    Logger.warn({
+      function_name: 'create_file_if_needed',
+      message: 'No workspace folder open.'
+    })
     return false
   }
 
@@ -234,6 +314,11 @@ async function create_file_if_needed(
     vscode.window.showErrorMessage(
       `Invalid file path: ${filePath}. Path may contain traversal attempts.`
     )
+    Logger.error({
+      function_name: 'create_file_if_needed',
+      message: 'Invalid file path',
+      data: filePath
+    })
     return false
   }
 
@@ -241,10 +326,20 @@ async function create_file_if_needed(
   const directory = path.dirname(safe_path)
   if (!fs.existsSync(directory)) {
     fs.mkdirSync(directory, { recursive: true })
+    Logger.log({
+      function_name: 'create_file_if_needed',
+      message: 'Directory created',
+      data: directory
+    })
   }
 
   // Create the file
   fs.writeFileSync(safe_path, content)
+  Logger.log({
+    function_name: 'create_file_if_needed',
+    message: 'File created',
+    data: safe_path
+  })
 
   // Open the file in editor
   const document = await vscode.workspace.openTextDocument(safe_path)
@@ -252,6 +347,11 @@ async function create_file_if_needed(
 
   await format_document(document)
   await document.save()
+  Logger.log({
+    function_name: 'create_file_if_needed',
+    message: 'File created, formatted and saved',
+    data: safe_path
+  })
 
   return true
 }
@@ -262,6 +362,11 @@ async function create_file_if_needed(
 async function replace_files_directly(
   files: ClipboardFile[]
 ): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
+  Logger.log({
+    function_name: 'replace_files_directly',
+    message: 'start',
+    data: { file_count: files.length }
+  })
   try {
     const new_files: ClipboardFile[] = []
     const existing_files: ClipboardFile[] = []
@@ -270,6 +375,10 @@ async function replace_files_directly(
 
     if (vscode.workspace.workspaceFolders?.length == 0) {
       vscode.window.showErrorMessage('No workspace folder open.')
+      Logger.warn({
+        function_name: 'replace_files_directly',
+        message: 'No workspace folder open.'
+      })
       return { success: false }
     }
 
@@ -301,6 +410,11 @@ async function replace_files_directly(
         })
       } else {
         unsafe_files.push(file.file_path)
+        Logger.warn({
+          function_name: 'replace_files_directly',
+          message: 'Unsafe file path detected',
+          data: file.file_path
+        })
       }
     }
 
@@ -310,6 +424,11 @@ async function replace_files_directly(
       vscode.window.showErrorMessage(
         `Detected ${unsafe_files.length} unsafe file path(s) that may attempt directory traversal:\n${unsafe_list}\n\nThese files will be skipped.`
       )
+      Logger.warn({
+        function_name: 'replace_files_directly',
+        message: 'Unsafe file paths detected and skipped',
+        data: unsafe_files
+      })
 
       if (safe_files.length == 0) {
         return { success: false }
@@ -350,8 +469,16 @@ async function replace_files_directly(
         vscode.window.showInformationMessage(
           'Operation cancelled. No files were modified.'
         )
+        Logger.log({
+          function_name: 'replace_files_directly',
+          message: 'User cancelled new file creation.'
+        })
         return { success: false }
       }
+      Logger.log({
+        function_name: 'replace_files_directly',
+        message: 'User confirmed new file creation.'
+      })
     }
 
     // Store original file states for reversion
@@ -371,6 +498,10 @@ async function replace_files_directly(
         for (const file of safe_files) {
           if (token.isCancellationRequested) {
             vscode.window.showInformationMessage('Operation cancelled by user.')
+            Logger.log({
+              function_name: 'replace_files_directly',
+              message: 'Operation cancelled by user during file processing.'
+            })
             return false
           }
 
@@ -385,6 +516,11 @@ async function replace_files_directly(
           const safe_path = create_safe_path(workspace_root, file.file_path)
 
           if (!safe_path) {
+            Logger.error({
+              function_name: 'replace_files_directly',
+              message: 'Path validation failed',
+              data: file.file_path
+            })
             console.error(`Path validation failed for: ${file.file_path}`)
             continue
           }
@@ -416,6 +552,11 @@ async function replace_files_directly(
 
             await format_document(document)
             await document.save()
+            Logger.log({
+              function_name: 'replace_files_directly',
+              message: 'Existing file replaced and saved',
+              data: safe_path
+            })
           } else {
             // Mark as new file for reversion
             original_states.push({
@@ -430,16 +571,31 @@ async function replace_files_directly(
             const directory = path.dirname(safe_path)
             if (!fs.existsSync(directory)) {
               fs.mkdirSync(directory, { recursive: true })
+              Logger.log({
+                function_name: 'replace_files_directly',
+                message: 'Directory created',
+                data: directory
+              })
             }
 
             // Create the file
             fs.writeFileSync(safe_path, file.content)
+            Logger.log({
+              function_name: 'replace_files_directly',
+              message: 'New file created',
+              data: safe_path
+            })
 
             // Open and format the file
             const document = await vscode.workspace.openTextDocument(safe_path)
             await vscode.window.showTextDocument(document)
             await format_document(document)
             await document.save()
+            Logger.log({
+              function_name: 'replace_files_directly',
+              message: 'New file created, formatted and saved',
+              data: safe_path
+            })
           }
 
           processed_count++
@@ -454,11 +610,25 @@ async function replace_files_directly(
     )
 
     if (result) {
+      Logger.log({
+        function_name: 'replace_files_directly',
+        message: 'Files replaced successfully',
+        data: { file_count: safe_files.length }
+      })
       return { success: true, original_states }
     } else {
+      Logger.log({
+        function_name: 'replace_files_directly',
+        message: 'File replacement failed or cancelled'
+      })
       return { success: false }
     }
   } catch (error: any) {
+    Logger.error({
+      function_name: 'replace_files_directly',
+      message: 'Error during direct file replacement',
+      data: error
+    })
     console.error('Error during direct file replacement:', error)
     vscode.window.showErrorMessage(
       `An error occurred while replacing files: ${
@@ -472,10 +642,18 @@ async function replace_files_directly(
 async function revert_files(
   original_states: OriginalFileState[]
 ): Promise<boolean> {
-  console.log(original_states)
+  Logger.log({
+    function_name: 'revert_files',
+    message: 'start',
+    data: { original_states_count: original_states.length }
+  })
   try {
     if (vscode.workspace.workspaceFolders?.length == 0) {
       vscode.window.showErrorMessage('No workspace folder open.')
+      Logger.warn({
+        function_name: 'revert_files',
+        message: 'No workspace folder open.'
+      })
       return false
     }
 
@@ -500,6 +678,11 @@ async function revert_files(
       const safe_path = create_safe_path(workspace_root, state.file_path)
 
       if (!safe_path) {
+        Logger.error({
+          function_name: 'revert_files',
+          message: 'Cannot revert file with unsafe path',
+          data: state.file_path
+        })
         console.error(`Cannot revert file with unsafe path: ${state.file_path}`)
         continue
       }
@@ -525,6 +708,11 @@ async function revert_files(
 
           // Delete the file
           fs.unlinkSync(safe_path)
+          Logger.log({
+            function_name: 'revert_files',
+            message: 'New file deleted',
+            data: safe_path
+          })
         }
       } else {
         // For existing files that were modified, restore original content
@@ -543,7 +731,17 @@ async function revert_files(
             )
           })
           await document.save()
+          Logger.log({
+            function_name: 'revert_files',
+            message: 'Existing file reverted to original content',
+            data: safe_path
+          })
         } catch (err) {
+          Logger.warn({
+            function_name: 'revert_files',
+            message: 'Error reverting file',
+            data: { error: err, file_path: state.file_path }
+          })
           console.error(`Error reverting file ${state.file_path}:`, err)
           vscode.window.showWarningMessage(
             `Could not revert file: ${state.file_path}. It might have been closed or deleted.`
@@ -553,8 +751,17 @@ async function revert_files(
     }
 
     vscode.window.showInformationMessage('Changes successfully reverted.')
+    Logger.log({
+      function_name: 'revert_files',
+      message: 'Changes successfully reverted.'
+    })
     return true
   } catch (error: any) {
+    Logger.error({
+      function_name: 'revert_files',
+      message: 'Error during reversion',
+      data: error
+    })
     console.error('Error during reversion:', error)
     vscode.window.showErrorMessage(
       `Failed to revert changes: ${error.message || 'Unknown error'}`
@@ -574,11 +781,20 @@ export function apply_changes_command(params: {
   const model_manager = new ModelManager(params.context)
 
   return vscode.commands.registerCommand(params.command, async () => {
+    Logger.log({
+      function_name: 'apply_changes_command',
+      message: 'start',
+      data: { command: params.command, mode: params.mode }
+    })
     const config = vscode.workspace.getConfiguration()
     const clipboard_text = await vscode.env.clipboard.readText()
 
     if (!clipboard_text) {
       vscode.window.showErrorMessage('Clipboard is empty.')
+      Logger.warn({
+        function_name: 'apply_changes_command',
+        message: 'Clipboard is empty.'
+      })
       return
     }
 
@@ -592,7 +808,6 @@ export function apply_changes_command(params: {
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
-    const verbose = config.get<boolean>('geminiCoder.verbose')
     const max_concurrency = 10
 
     // Modify the default mode selection to respect forced mode
@@ -620,14 +835,30 @@ export function apply_changes_command(params: {
         vscode.window.showErrorMessage(
           `Default apply changes model is not set or invalid. Please set it in the settings.`
         )
+        Logger.warn({
+          function_name: 'apply_changes_command',
+          message: 'Default apply changes model is not set or invalid.'
+        })
         return
       }
+      Logger.log({
+        function_name: 'apply_changes_command',
+        message: 'Using default model',
+        data: default_model_name
+      })
     } else {
       provider = await get_selected_provider(
         params.context,
         all_providers,
         default_model_name
       )
+      if (provider) {
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message: 'Selected provider',
+          data: provider.name
+        })
+      }
     }
 
     if (!provider) {
@@ -640,6 +871,11 @@ export function apply_changes_command(params: {
     if (is_multiple_files) {
       if (params.mode) {
         selected_mode_label = params.mode
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message: 'Mode forced by params',
+          data: selected_mode_label
+        })
       } else {
         // Determine if we need to ask the user for the mode
         const should_ask_for_mode =
@@ -697,6 +933,10 @@ export function apply_changes_command(params: {
           )
 
           if (!selected_mode) {
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message: 'User cancelled mode selection.'
+            })
             return // User cancelled
           }
           selected_mode_label = selected_mode.label
@@ -708,10 +948,20 @@ export function apply_changes_command(params: {
               'lastUsedApplyChangesMode',
               selected_mode.label
             )
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message: 'Mode selected by user',
+              data: selected_mode_label
+            })
           }
         } else {
           // Use the default mode if not asking
           selected_mode_label = default_apply_changes_mode
+          Logger.log({
+            function_name: 'apply_changes_command',
+            message: 'Using default mode',
+            data: selected_mode_label
+          })
         }
       }
 
@@ -745,6 +995,11 @@ export function apply_changes_command(params: {
             )
           }
         }
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message: 'Fast replace mode completed',
+          data: { success: result.success, file_count: files.length }
+        })
         return // Exit after fast replace
       }
       // If not 'Fast replace', it must be 'Intelligent update', continue below
@@ -755,12 +1010,21 @@ export function apply_changes_command(params: {
       vscode.window.showErrorMessage(
         'API key is missing. Please add it in the settings.'
       )
+      Logger.warn({
+        function_name: 'apply_changes_command',
+        message: 'API key is missing for provider',
+        data: provider.name
+      })
       return
     }
 
     const system_instructions = provider.systemInstructions
 
     if (is_multiple_files) {
+      Logger.log({
+        function_name: 'apply_changes_command',
+        message: 'Processing multiple files in Intelligent update mode'
+      })
       // Handle multiple files with AI processing ('Intelligent update' mode)
       const raw_files = parse_clipboard_multiple_files({
         clipboard_text,
@@ -784,6 +1048,11 @@ export function apply_changes_command(params: {
           })
         } else {
           skipped_files.push(file.file_path)
+          Logger.warn({
+            function_name: 'apply_changes_command',
+            message: 'Unsafe file path detected in multi-file mode',
+            data: file.file_path
+          })
         }
       }
 
@@ -793,6 +1062,11 @@ export function apply_changes_command(params: {
         vscode.window.showErrorMessage(
           `Detected ${skipped_files.length} unsafe file path(s) that may attempt directory traversal:\n${skipped_list}\n\nThese files will be skipped.`
         )
+        Logger.warn({
+          function_name: 'apply_changes_command',
+          message: 'Unsafe file paths skipped in multi-file mode',
+          data: skipped_files
+        })
 
         if (files.length === 0) {
           return
@@ -803,6 +1077,11 @@ export function apply_changes_command(params: {
         vscode.window.showErrorMessage(
           'No valid file content found in clipboard.'
         )
+        Logger.warn({
+          function_name: 'apply_changes_command',
+          message:
+            'No valid file content found in clipboard for multi-file mode.'
+        })
         return
       }
 
@@ -859,8 +1138,16 @@ export function apply_changes_command(params: {
           vscode.window.showInformationMessage(
             'Operation cancelled. No files were modified.'
           )
+          Logger.log({
+            function_name: 'apply_changes_command',
+            message: 'User cancelled new file creation in multi-file mode.'
+          })
           return
         }
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message: 'User confirmed new file creation in multi-file mode.'
+        })
       }
 
       // Update the message to accurately reflect what's happening
@@ -930,6 +1217,12 @@ export function apply_changes_command(params: {
                   )
 
                   if (!safe_path) {
+                    Logger.error({
+                      function_name: 'apply_changes_command',
+                      message:
+                        'Path validation failed in multi-file processing',
+                      data: file.file_path
+                    })
                     console.error(
                       `Path validation failed for: ${file.file_path}`
                     )
@@ -958,6 +1251,12 @@ export function apply_changes_command(params: {
                     }
                   }
                 } catch (error) {
+                  Logger.warn({
+                    function_name: 'apply_changes_command',
+                    message:
+                      'Error checking file size in multi-file processing',
+                    data: { error, file_path: file.file_path }
+                  })
                   console.log(
                     `Error checking file size for ${file.file_path}`,
                     error
@@ -978,6 +1277,12 @@ export function apply_changes_command(params: {
               // Process all files in parallel batches
               for (let i = 0; i < files.length; i += max_concurrency) {
                 if (token.isCancellationRequested) {
+                  Logger.log({
+                    function_name: 'apply_changes_command',
+                    message:
+                      'Operation cancelled during multi-file processing batch.',
+                    data: { batch_start_index: i }
+                  })
                   return
                 }
 
@@ -1025,6 +1330,12 @@ export function apply_changes_command(params: {
                     )
 
                     if (!safe_path) {
+                      Logger.error({
+                        function_name: 'apply_changes_command',
+                        message:
+                          'Path validation failed during batch processing',
+                        data: file.file_path
+                      })
                       console.error(
                         `Path validation failed for: ${file.file_path}`
                       )
@@ -1045,7 +1356,6 @@ export function apply_changes_command(params: {
                       file_content: document_text,
                       instruction: file.content,
                       system_instructions,
-                      verbose: verbose || false,
                       cancel_token: cancel_token_source.token,
                       on_progress: (receivedLength, totalLength) => {
                         // Only update progress if this is the largest file
@@ -1155,6 +1465,11 @@ export function apply_changes_command(params: {
                     ) {
                       throw new Error('Operation cancelled')
                     } else {
+                      Logger.error({
+                        function_name: 'apply_changes_command',
+                        message: 'Error processing file in batch',
+                        data: { error, file_path: file.file_path }
+                      })
                       console.error(
                         `Error processing file ${file.file_path}:`,
                         error
@@ -1210,6 +1525,11 @@ export function apply_changes_command(params: {
             } catch (error: any) {
               // If any file processing fails, cancel the entire operation
               cancel_token_source.cancel('Operation failed')
+              Logger.error({
+                function_name: 'apply_changes_command',
+                message: 'Multi-file processing failed',
+                data: error
+              })
 
               // Check for cancellation or cancellation-related errors
               if (
@@ -1255,14 +1575,32 @@ export function apply_changes_command(params: {
                   )
                 }
               })
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message: 'Multi-file processing completed successfully',
+              data: { file_count: total_files }
+            })
+          } else {
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message: 'Multi-file processing was not successful.'
+            })
           }
         })
     } else {
+      Logger.log({
+        function_name: 'apply_changes_command',
+        message: 'Processing single file in Intelligent update mode'
+      })
       // Single file
       const editor = vscode.window.activeTextEditor
 
       if (!editor) {
         vscode.window.showErrorMessage('No active editor found.')
+        Logger.warn({
+          function_name: 'apply_changes_command',
+          message: 'No active editor found for single file mode.'
+        })
         return
       }
 
@@ -1302,7 +1640,6 @@ export function apply_changes_command(params: {
                 file_content: document_text,
                 instruction,
                 system_instructions,
-                verbose: verbose || false,
                 cancel_token: cancel_token_source.token, // Pass the cancelToken
                 on_progress: (receivedLength, totalLength) => {
                   // Calculate actual increment since last progress report
@@ -1320,6 +1657,10 @@ export function apply_changes_command(params: {
               })
 
               if (token.isCancellationRequested) {
+                Logger.log({
+                  function_name: 'apply_changes_command',
+                  message: 'Single file processing cancelled by user.'
+                })
                 return
               }
 
@@ -1330,6 +1671,11 @@ export function apply_changes_command(params: {
                   vscode.window.showErrorMessage(
                     'Applying changes failed. Please try again later.'
                   )
+                  Logger.error({
+                    function_name: 'apply_changes_command',
+                    message:
+                      'Single file processing failed (process_file returned null).'
+                  })
                 }
                 return
               } else if (refactored_content == 'rate_limit') {
@@ -1355,6 +1701,11 @@ export function apply_changes_command(params: {
                 )
 
                 if (!fallback_content) {
+                  Logger.error({
+                    function_name: 'apply_changes_command',
+                    message:
+                      'Single file processing failed - rate limit fallback failed.'
+                  })
                   return
                 }
 
@@ -1363,17 +1714,35 @@ export function apply_changes_command(params: {
                   content: fallback_content
                 })
                 success = true
+                Logger.log({
+                  function_name: 'apply_changes_command',
+                  message:
+                    'Single file processing recovered from rate limit using fallback.'
+                })
               } else {
                 // Store the cleaned content for use after progress completes
                 result_content = cleanup_api_response({
                   content: refactored_content
                 })
                 success = true
+                Logger.log({
+                  function_name: 'apply_changes_command',
+                  message: 'Single file processing successful.'
+                })
               }
             } catch (error) {
               if (axios.isCancel(error)) {
+                Logger.log({
+                  function_name: 'apply_changes_command',
+                  message: 'Single file processing cancelled by axios.'
+                })
                 return // Silently return on cancellation
               }
+              Logger.error({
+                function_name: 'apply_changes_command',
+                message: 'Single file refactoring error',
+                data: error
+              })
               console.error('Refactoring error:', error)
               vscode.window.showErrorMessage(
                 'An error occurred during refactoring. See console for details.'
@@ -1432,9 +1801,29 @@ export function apply_changes_command(params: {
                 LAST_APPLIED_CHANGES_STATE_KEY,
                 null
               )
+              Logger.log({
+                function_name: 'apply_changes_command',
+                message: 'Single file changes reverted successfully.'
+              })
+            } else {
+              Logger.log({
+                function_name: 'apply_changes_command',
+                message: 'Single file changes applied and saved.'
+              })
             }
+          } else {
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message:
+                'Single file processing was not successful or no content to apply.'
+            })
           }
         })
     }
+    Logger.log({
+      function_name: 'apply_changes_command',
+      message: 'end',
+      data: { command: params.command, mode: params.mode }
+    })
   })
 }
