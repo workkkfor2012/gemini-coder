@@ -40,6 +40,7 @@ Gemini Coder works with many popular chatbots:
 
 - **AI Studio** - fully supported (model, temperature, system instructions)
 - **Gemini**
+- OpenRouter
 - Open WebUI (self-hosted)
 - ChatGPT
 - Claude
