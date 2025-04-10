@@ -182,10 +182,10 @@ export function generate_commit_message_command(
                   return
                 }
 
-                const processed_response = strip_wrapping_quotes(
+                let commit_message =
                   process_single_trailing_dot(fallback_response)
-                )
-                repository.inputBox.value = processed_response
+                commit_message = strip_wrapping_quotes(fallback_response)
+                repository.inputBox.value = commit_message
 
                 vscode.window.showInformationMessage(
                   'Commit message generated successfully!'
@@ -193,10 +193,9 @@ export function generate_commit_message_command(
                 return
               }
 
-              const processed_response = strip_wrapping_quotes(
-                process_single_trailing_dot(response)
-              )
-              repository.inputBox.value = processed_response
+              let commit_message = process_single_trailing_dot(response)
+              commit_message = strip_wrapping_quotes(commit_message)
+              repository.inputBox.value = commit_message
 
               vscode.window.showInformationMessage(
                 'Commit message generated successfully!'
