@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
-import { autocomplete_instruction_external } from '../constants/instructions'
+import { code_completion_instruction_external } from '../constants/instructions'
 
 // Shared logic for handling FIM in chat
 async function handle_fim_in_chat_command(
@@ -73,7 +73,7 @@ async function handle_fim_in_chat_command(
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
     // Construct FIM prompt
-    const fim_text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+    const fim_text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 

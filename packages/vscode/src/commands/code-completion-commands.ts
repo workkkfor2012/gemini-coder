@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
-import { autocomplete_instruction } from '../constants/instructions'
+import { code_completion_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
@@ -117,7 +117,7 @@ async function build_completion_payload(
 
   return `${payload.before}<fill missing code>${
     payload.after
-  }\n${autocomplete_instruction}${
+  }\n${code_completion_instruction}${
     suggestions ? ` Follow suggestions: ${suggestions}` : ''
   }`
 }

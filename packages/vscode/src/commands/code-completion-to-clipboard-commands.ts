@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { autocomplete_instruction_external } from '../constants/instructions'
+import { code_completion_instruction_external } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 
 // Core function that contains the shared logic
@@ -61,7 +61,7 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const content = `${payload.before}<fill missing code>${payload.after}\n${autocomplete_instruction_external}${
+    const content = `${payload.before}<fill missing code>${payload.after}\n${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 

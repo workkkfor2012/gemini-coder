@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '@/services/websocket-manager'
 import { Presets } from '../../../ui/src/components/Presets'
-import { autocomplete_instruction_external } from '@/constants/instructions'
+import { code_completion_instruction_external } from '@/constants/instructions'
 import {
   WebviewMessage,
   ExtensionMessage,
@@ -437,7 +437,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+              const text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${code_completion_instruction_external}${
                 message.instruction
                   ? ` Follow suggestions: ${message.instruction}`
                   : ''
@@ -513,7 +513,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const text = `<files>\n${context_text}<file name="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${autocomplete_instruction_external}${
+              const text = `<files>\n${context_text}<file name="${relative_path}"><![CDATA[${text_before_cursor}<fill missing code>${text_after_cursor}]]>\n</file>\n</files>\n${code_completion_instruction_external}${
                 message.instruction
                   ? ` Follow suggestions: ${message.instruction}`
                   : ''
