@@ -288,7 +288,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
     return valid_presets
   }
 
-  private async handleFimMode(message: WebviewMessage) {
+  private async handle_fim_mode(message: WebviewMessage) {
     if (message.command == 'GET_FIM_MODE') {
       const has_active_editor = !!vscode.window.activeTextEditor
 
@@ -600,7 +600,7 @@ export class ChatViewProvider implements vscode.WebviewViewProvider {
             message.command === 'GET_FIM_MODE' ||
             message.command === 'SAVE_FIM_MODE'
           ) {
-            await this.handleFimMode(message)
+            await this.handle_fim_mode(message)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             this._send_message<ExtensionMessage>({
               command: 'EDITOR_STATE_CHANGED',

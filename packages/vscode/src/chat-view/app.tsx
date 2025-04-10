@@ -41,7 +41,7 @@ function App() {
   const [active_file_length, set_active_file_length] = useState<number>(0)
 
   useEffect(() => {
-    const initialMessages = [
+    const initial_messages = [
       { command: 'GET_CONNECTION_STATUS' },
       { command: 'GET_PRESETS' },
       { command: 'GET_SELECTED_PRESETS' },
@@ -54,7 +54,7 @@ function App() {
       { command: 'GET_CURRENT_TOKEN_COUNT' }
     ] as WebviewMessage[]
 
-    initialMessages.forEach((message) => vscode.postMessage(message))
+    initial_messages.forEach((message) => vscode.postMessage(message))
 
     const handle_message = (event: MessageEvent) => {
       const message = event.data as ExtensionMessage
