@@ -22,15 +22,11 @@ async function get_selected_provider(
     return undefined
   }
 
-  // Get the last used models from global state
   let last_used_models = context.globalState.get<string[]>('lastUsedModels', [])
-
-  // Filter out the default model from last used models
   last_used_models = last_used_models.filter(
     (model) => model != default_model_name
   )
 
-  // Construct the QuickPick items
   const quick_pick_items: any[] = [
     ...(default_model_name
       ? [
@@ -61,16 +57,14 @@ async function get_selected_provider(
       }))
   ]
 
-  // Show the QuickPick selector
   const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
     placeHolder: 'Select a model for code completion'
   })
 
   if (!selected_item) {
-    return undefined // User cancelled
+    return undefined
   }
 
-  // Determine selected model name
   const selected_model_name = selected_item.label
 
   const selected_provider = all_providers.find(
@@ -81,7 +75,6 @@ async function get_selected_provider(
     return undefined
   }
 
-  // Update the last used models in global state
   last_used_models = [
     selected_model_name,
     ...last_used_models.filter((model) => model != selected_model_name)
@@ -89,31 +82,6 @@ async function get_selected_provider(
   context.globalState.update('lastUsedModels', last_used_models)
 
   return selected_provider
-}
-
-async function insert_completion_text(
-  editor: vscode.TextEditor,
-  position: vscode.Position,
-  completion: string
-): Promise<void> {
-  await editor.edit((edit_builder) => {
-    edit_builder.insert(position, completion)
-  })
-
-  // Adjust cursor position after inserting completion
-  setTimeout(() => {
-    if (editor) {
-      // Check if editor is still valid
-      const lines = completion.split('\n')
-      const new_line = position.line + lines.length - 1
-      const new_char =
-        lines.length == 1
-          ? position.character + lines[0].length
-          : lines[lines.length - 1].length
-      const new_position = new vscode.Position(new_line, new_char)
-      editor.selection = new vscode.Selection(new_position, new_position)
-    }
-  }, 50)
 }
 
 async function build_completion_payload(
@@ -131,13 +99,11 @@ async function build_completion_payload(
     new vscode.Range(position, document.positionAt(document.getText().length))
   )
 
-  // Create files collector instance
   const files_collector = new FilesCollector(
     file_tree_provider,
     open_editors_provider
   )
 
-  // Collect files excluding the current document
   const context_text = await files_collector.collect_files({
     exclude_path: document_path
   })
@@ -156,6 +122,34 @@ async function build_completion_payload(
   }`
 }
 
+/**
+ * Show inline completion using Inline Completions API
+ */
+async function show_inline_completion(
+  editor: vscode.TextEditor,
+  position: vscode.Position,
+  completionText: string
+) {
+  const controller = vscode.languages.registerInlineCompletionItemProvider(
+    { pattern: '**' },
+    {
+      provideInlineCompletionItems: () => {
+        const item = {
+          insertText: completionText,
+          range: new vscode.Range(position, position)
+        }
+        return [item]
+      }
+    }
+  )
+
+  // Trigger the inline completion UI
+  await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger')
+
+  // Dispose after a timeout or some event (optional cleanup)
+  setTimeout(() => controller.dispose(), 10000)
+}
+
 // Core function that contains the shared logic
 async function perform_fim_completion(
   file_tree_provider: any,
@@ -164,7 +158,6 @@ async function perform_fim_completion(
   provider: Provider,
   with_suggestions: boolean = false
 ) {
-  // Handle suggestions if needed
   let suggestions: string | undefined
   if (with_suggestions) {
     suggestions = await vscode.window.showInputBox({
@@ -172,7 +165,6 @@ async function perform_fim_completion(
       prompt: 'E.g. include explanatory comments'
     })
 
-    // If user cancels the input box (not the same as empty input), return
     if (suggestions === undefined) {
       return
     }
@@ -238,7 +230,6 @@ async function perform_fim_completion(
       async (progress) => {
         progress.report({ increment: 0 })
         try {
-          // Get default model for potential fallback
           const model_manager = new ModelManager(context)
           const default_model_name = model_manager.get_default_fim_model()
 
@@ -275,9 +266,8 @@ async function perform_fim_completion(
           }
 
           if (completion) {
-            // Use the shared cleanup helper before inserting completion text.
             completion = cleanup_api_response({ content: completion })
-            await insert_completion_text(editor, position, completion)
+            await show_inline_completion(editor, position, completion)
           }
         } catch (error: any) {
           console.error('Completion error:', error)
@@ -303,7 +293,6 @@ export function fim_completion_command(
 ) {
   const model_manager = new ModelManager(context)
 
-  // Default FIM completion (no suggestions)
   return vscode.commands.registerCommand(
     'geminiCoder.fimCompletion',
     async () => {
@@ -313,7 +302,6 @@ export function fim_completion_command(
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
-      // Get default model from global state
       const default_model_name = model_manager.get_default_fim_model()
 
       const all_providers = [
@@ -337,7 +325,7 @@ export function fim_completion_command(
         open_editors_provider,
         context,
         provider,
-        false // without suggestions
+        false
       )
     }
   )
@@ -362,7 +350,6 @@ export function fim_completion_with_command(
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
-      // Get default model from global state
       const default_model_name = model_manager.get_default_fim_model()
 
       const all_providers = [
@@ -381,7 +368,7 @@ export function fim_completion_with_command(
       )
 
       if (!provider) {
-        return // Provider selection failed or was cancelled
+        return
       }
 
       await perform_fim_completion(
@@ -389,7 +376,7 @@ export function fim_completion_with_command(
         open_editors_provider,
         context,
         provider,
-        false // without suggestions
+        false
       )
     }
   )
@@ -414,7 +401,6 @@ export function fim_completion_with_suggestions_command(
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
-      // Get default model from global state
       const default_model_name = model_manager.get_default_fim_model()
 
       const all_providers = [
@@ -438,7 +424,7 @@ export function fim_completion_with_suggestions_command(
         open_editors_provider,
         context,
         provider,
-        true // with suggestions
+        true
       )
     }
   )
@@ -463,7 +449,6 @@ export function fim_completion_with_suggestions_with_command(
       const gemini_api_key = config.get<string>('geminiCoder.apiKey')
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
-      // Get default model from global state
       const default_model_name = model_manager.get_default_fim_model()
 
       const all_providers = [
@@ -482,7 +467,7 @@ export function fim_completion_with_suggestions_with_command(
       )
 
       if (!provider) {
-        return // Provider selection failed or was cancelled
+        return
       }
 
       await perform_fim_completion(
@@ -490,7 +475,7 @@ export function fim_completion_with_suggestions_with_command(
         open_editors_provider,
         context,
         provider,
-        true // with suggestions
+        true
       )
     }
   )
