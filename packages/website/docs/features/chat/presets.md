@@ -112,9 +112,11 @@ server {
 
 #### ✅ Hands-free initialization
 
+#### ✅ `model`
+
 #### ✅ `systemInstructions`
 
-#### ✅ `model`
+#### ✅ `temperature`
 
 </details>
 
