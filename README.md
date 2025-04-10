@@ -26,7 +26,7 @@ Gemini Coder lets you conveniently copy folders and files for chatbots. With the
 The extension uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with just a single click.
 
 - **100% free & open source:** MIT License
-- **Versitale:** Initializes all popular chatbots
+- **Versitale:** Initializes Gemini, AI Studio and many other popular chatbots
 - **Private:** Does not collect any usage data
 - **Local:** Talks with the web browser via WebSockets
 - **One of a kind**: Lets you use any website for context
@@ -54,7 +54,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 Gemini Coder works with many popular chatbots:
 
-- **AI Studio** - fully supported (model, temperature, system instructions)
+- **AI Studio**
 - **Gemini**
 - OpenRouter
 - Open WebUI (self-hosted)
