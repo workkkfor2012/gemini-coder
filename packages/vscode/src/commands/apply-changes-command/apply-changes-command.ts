@@ -583,7 +583,8 @@ export function apply_changes_command(params: {
     }
 
     // Check if workspace has only one root folder
-    const has_single_root = vscode.workspace.workspaceFolders?.length == 1
+    const is_single_root_folder_workspace =
+      vscode.workspace.workspaceFolders?.length == 1
 
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
@@ -716,10 +717,10 @@ export function apply_changes_command(params: {
 
       // Handle Fast replace mode - we don't need the bearer token for this
       if (selected_mode_label == 'Fast replace') {
-        const files = parse_clipboard_multiple_files(
+        const files = parse_clipboard_multiple_files({
           clipboard_text,
-          has_single_root
-        )
+          is_single_root_folder_workspace
+        })
         const result = await replace_files_directly(files)
 
         if (result.success && result.original_states) {
@@ -761,10 +762,10 @@ export function apply_changes_command(params: {
 
     if (is_multiple_files) {
       // Handle multiple files with AI processing ('Intelligent update' mode)
-      const raw_files = parse_clipboard_multiple_files(
+      const raw_files = parse_clipboard_multiple_files({
         clipboard_text,
-        has_single_root
-      )
+        is_single_root_folder_workspace
+      })
 
       // Sanitize file paths in the parsed files
       const workspace_folder = vscode.workspace.workspaceFolders![0].uri.fsPath
@@ -1128,10 +1129,7 @@ export function apply_changes_command(params: {
                       }
                     } else {
                       // Update progress if this is the largest file
-                      if (
-                        largest_file &&
-                        file.file_path == largest_file.path
-                      ) {
+                      if (largest_file && file.file_path == largest_file.path) {
                         // Calculate increment for final progress update
                         const increment = 100 - largest_file_progress
                         largest_file_progress = 100

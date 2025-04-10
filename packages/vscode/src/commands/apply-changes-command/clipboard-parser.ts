@@ -21,10 +21,10 @@ const extract_filename_from_comment = (line: string): string | null => {
 // Helper function to check if path starts with a workspace name and extract it
 const extract_workspace_and_path = (
   file_path: string,
-  has_single_root = false
+  is_single_root_folder_workspace = false
 ): { workspace_name?: string; relative_path: string } => {
   // If workspace has only one root folder, don't try to extract workspace name
-  if (has_single_root) {
+  if (is_single_root_folder_workspace) {
     return { relative_path: file_path }
   }
 
@@ -49,22 +49,22 @@ const extract_workspace_and_path = (
   return { relative_path: file_path }
 }
 
-export const parse_clipboard_multiple_files = (
-  clipboard_text: string,
-  has_single_root = false
-): ClipboardFile[] => {
+export const parse_clipboard_multiple_files = (params: {
+  clipboard_text: string
+  is_single_root_folder_workspace: boolean
+}): ClipboardFile[] => {
   // Use Map to keep track of files by their unique identifier (workspace+path)
   const files_map = new Map<string, ClipboardFile>()
 
   // Use a state machine approach to track code blocks
-  let state = 'TEXT' // States: TEXT, BLOCK_START, FILENAME, CONTENT, BLOCK_END
+  let state = 'TEXT' // States: TEXT, BLOCK_START, CONTENT
   let current_file_name = ''
   let current_content = ''
   let is_first_content_line = false
   let current_workspace_name: string | undefined = undefined
 
   // Split text into lines for easier processing
-  const lines = clipboard_text.split('\n')
+  const lines = params.clipboard_text.split('\n')
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -73,54 +73,32 @@ export const parse_clipboard_multiple_files = (
     if (state == 'TEXT' && line.trim().startsWith('```')) {
       state = 'BLOCK_START'
       current_workspace_name = undefined // Reset workspace name for new block
+      current_file_name = '' // Reset filename for new block
 
       // Check if this line also contains the filename
       const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
       if (name_match) {
-        // If quoted version was matched, use the first capture group
-        // Otherwise use the second capture group
         current_file_name = (name_match[1] || name_match[2]).trim()
 
-        // Check if file path starts with a workspace name - pass hasSingleRoot
         const { workspace_name, relative_path } = extract_workspace_and_path(
           current_file_name,
-          has_single_root
+          params.is_single_root_folder_workspace
         )
         if (workspace_name) {
           current_workspace_name = workspace_name
-          current_file_name = relative_path // Store just the relative path
-        }
-
-        state = 'CONTENT' // Skip filename state
-        current_content = '' // Start with empty content
-        is_first_content_line = true
-        continue
-      }
-    }
-    // Look for filename in next line after block start
-    else if (state == 'BLOCK_START') {
-      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
-      if (name_match) {
-        // If quoted version was matched, use the first capture group
-        // Otherwise use the second capture group
-        current_file_name = (name_match[1] || name_match[2]).trim()
-
-        // Check if file path starts with a workspace name - pass hasSingleRoot
-        const { workspace_name, relative_path } = extract_workspace_and_path(
-          current_file_name,
-          has_single_root
-        )
-        if (workspace_name) {
-          current_workspace_name = workspace_name
-          current_file_name = relative_path // Store just the relative path
+          current_file_name = relative_path
         }
 
         state = 'CONTENT'
-        current_content = '' // Start with empty content
+        current_content = ''
         is_first_content_line = true
+        continue
       } else {
-        // If no filename found, this is not a file block, go back to TEXT state
-        state = 'TEXT'
+        // No name= attribute, prepare to try to extract filename from content
+        state = 'CONTENT'
+        current_content = ''
+        is_first_content_line = true
+        continue
       }
     }
     // Collect content lines
@@ -132,22 +110,18 @@ export const parse_clipboard_multiple_files = (
 
         // Add the collected file if we have a valid filename
         if (current_file_name) {
-          // Create a unique key for this file based on workspace and path
           const file_key = `${
             current_workspace_name || ''
           }:${current_file_name}`
 
-          // Check if we've already seen this file
           if (files_map.has(file_key)) {
-            // Append the content to the existing file
             const existing_file = files_map.get(file_key)!
             existing_file.content += '\n\n' + current_content
           } else {
-            // Add as a new file
             files_map.set(file_key, {
               file_path: current_file_name,
               content: current_content,
-              workspace_name: current_workspace_name // Store workspace name if available
+              workspace_name: current_workspace_name
             })
           }
         }
@@ -160,19 +134,26 @@ export const parse_clipboard_multiple_files = (
       } else {
         // Check if we're on the first content line and it might contain a filename in a comment
         if (is_first_content_line && !current_file_name) {
-          // Try to extract filename from comments
-          if (line.trim().startsWith('//') || line.trim().startsWith('#')) {
+          if (
+            line.trim().startsWith('//') ||
+            line.trim().startsWith('#') ||
+            line.trim().startsWith('--') ||
+            line.trim().startsWith('/*') ||
+            line.trim().startsWith('*')
+          ) {
             const extracted_filename = extract_filename_from_comment(line)
             if (extracted_filename) {
-              // Check if extracted filename contains workspace prefix - pass hasSingleRoot
               const { workspace_name, relative_path } =
-                extract_workspace_and_path(extracted_filename, has_single_root)
+                extract_workspace_and_path(
+                  extracted_filename,
+                  params.is_single_root_folder_workspace
+                )
               current_file_name = relative_path
               if (workspace_name) {
                 current_workspace_name = workspace_name
               }
 
-              // Don't include the comment line in the content
+              // Don't include the comment line in content
               is_first_content_line = false
               continue
             }
@@ -184,10 +165,8 @@ export const parse_clipboard_multiple_files = (
 
         // Add to content
         if (current_content) {
-          // Add newline before appending next line
           current_content += '\n' + line
         } else {
-          // First line doesn't need a preceding newline
           current_content = line
         }
       }
@@ -196,16 +175,12 @@ export const parse_clipboard_multiple_files = (
 
   // Handle edge case: last file in clipboard doesn't have closing ```
   if (state == 'CONTENT' && current_file_name) {
-    // Create a unique key for this file
     const file_key = `${current_workspace_name || ''}:${current_file_name}`
 
-    // Check if we've already seen this file
     if (files_map.has(file_key)) {
-      // Append the content to the existing file
       const existing_file = files_map.get(file_key)!
       existing_file.content += '\n\n' + current_content
     } else {
-      // Add as a new file
       files_map.set(file_key, {
         file_path: current_file_name,
         content: current_content,
@@ -214,7 +189,6 @@ export const parse_clipboard_multiple_files = (
     }
   }
 
-  // Convert map values to array
   return Array.from(files_map.values())
 }
 

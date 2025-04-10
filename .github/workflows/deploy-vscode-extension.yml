@@ -36,6 +36,11 @@ jobs:
           cd packages/vscode
           pnpm lint
 
+      - name: Run Tests
+        run: |
+          cd packages/vscode
+          pnpm test
+
       - name: Build VS Code extension
         run: |
           cd packages/vscode
