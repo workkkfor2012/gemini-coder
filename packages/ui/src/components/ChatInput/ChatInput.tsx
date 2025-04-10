@@ -201,7 +201,7 @@ export const ChatInput: React.FC<Props> = (props) => {
     } else {
       return true
     }
-  }, [props.has_active_selection, props.value])
+  }, [props.has_active_selection, props.value, props.is_fim_mode])
 
   const placeholder = useMemo(() => {
     const active_history = props.is_fim_mode
@@ -249,28 +249,30 @@ export const ChatInput: React.FC<Props> = (props) => {
       />
       <div className={styles.footer}>
         <div className={styles.footer__left}>
-          <button
-            onClick={props.on_fim_mode_click}
-            className={cn(
-              styles.footer__left__button,
-              styles['footer__left__button--fim'],
-              {
-                [styles['footer__left__button--active']]:
-                  props.is_fim_mode && props.has_active_editor,
-                [styles['footer__left__button--disabled']]:
-                  !props.has_active_editor
+          {!props.has_active_selection && (
+            <button
+              onClick={props.on_fim_mode_click}
+              className={cn(
+                styles.footer__left__button,
+                styles['footer__left__button--fim'],
+                {
+                  [styles['footer__left__button--active']]:
+                    props.is_fim_mode && props.has_active_editor,
+                  [styles['footer__left__button--disabled']]:
+                    !props.has_active_editor
+                }
+              )}
+              title={
+                props.has_active_editor
+                  ? 'Generate code at cursor position'
+                  : 'Open any file to generate code at cursor position'
               }
-            )}
-            title={
-              props.has_active_editor
-                ? 'Generate code at cursor position'
-                : 'Open any file to generate code at cursor position'
-            }
-            disabled={!props.has_active_editor}
-          >
-            <div className={cn('codicon', 'codicon-insert')} />
-            AT CURSOR
-          </button>
+              disabled={!props.has_active_editor}
+            >
+              <div className={cn('codicon', 'codicon-insert')} />
+              Completion
+            </button>
+          )}
           {can_insert_selection_placeholder && (
             <button
               onClick={insert_selection_placeholder}
