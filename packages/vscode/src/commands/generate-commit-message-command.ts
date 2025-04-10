@@ -182,8 +182,9 @@ export function generate_commit_message_command(
                   return
                 }
 
-                const processed_response =
+                const processed_response = strip_wrapping_quotes(
                   process_single_trailing_dot(fallback_response)
+                )
                 repository.inputBox.value = processed_response
 
                 vscode.window.showInformationMessage(
@@ -192,7 +193,9 @@ export function generate_commit_message_command(
                 return
               }
 
-              const processed_response = process_single_trailing_dot(response)
+              const processed_response = strip_wrapping_quotes(
+                process_single_trailing_dot(response)
+              )
               repository.inputBox.value = processed_response
 
               vscode.window.showInformationMessage(
@@ -272,22 +275,26 @@ async function collect_affected_files(
   }
 }
 
-// Short commit messages should not end with dot, unless there are other dots followed by space in the message
+// Short commit messages should not end with dot, unless there are other dots followed by a space in the message
 function process_single_trailing_dot(message: string): string {
-  // Count the number of dots that are followed by whitespace in the message
+  // Count the number of dots that are followed by whitespace
   const dot_count = (message.match(/\.\s/g) || []).length
 
-  // If there's exactly one dot followed by space in the entire message,
-  // keep the ending dot
   if (dot_count == 1) {
     return message
   }
 
-  // If there's no dots followed by space or multiple dots followed by space,
-  // remove trailing dot
   if (message.endsWith('.')) {
     return message.slice(0, -1)
   }
 
   return message
+}
+
+function strip_wrapping_quotes(text: string): string {
+  const trimmed = text.trim()
+  if (trimmed.startsWith('"') && trimmed.endsWith('"') && trimmed.length >= 2) {
+    return trimmed.slice(1, -1).trim()
+  }
+  return text
 }
