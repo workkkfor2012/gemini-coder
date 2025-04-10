@@ -269,7 +269,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             disabled={!props.has_active_editor}
           >
             <div className={cn('codicon', 'codicon-insert')} />
-            FIM
+            AT CURSOR
           </button>
           {can_insert_selection_placeholder && (
             <button

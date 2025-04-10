@@ -11,13 +11,13 @@ Gemini Coder offers a suite of AI-driven features designed to aid your software 
 
 Utilize AI Studio, Gemini and other popular chatbots directly, with hands-free initialization.
 
-### [Fill-In-the-Middle](./fim)
+### [Code completions](./code-completions)
 
 Use the biggest models for top-quality inline code completions.
 
-### [Refactor](./refactor)
+### [File refactoring](./file-refactoring)
 
-Modify a file based on natural language instructions.
+Modify a file based on your instructions.
 
 ### [Apply changes](./apply-changes)
 

@@ -7,7 +7,7 @@ hide_table_of_contents: true
 
 Gemini Coder lets you conveniently copy folders and files for chatbots. With the Connector browser extension you can initalize them hands-free!
 
-The extension uses the same context for built-in API features: **Fill-In-the-Middle (FIM) completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with just a single click.
+The extension uses the same context for built-in API features: **code completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with just a single click.
 
 - **100% free & open source:** MIT License
 - **Versitale:** Initializes Gemini, AI Studio and many other popular chatbots
@@ -28,7 +28,7 @@ Other AI coding tools try to "guess" what context matters, often getting it wron
 
 - **You select** which folders and files provide relevant context
 - **You control** what examples of coding conventions to include
-- **You know** how much tokens is used in web chats and FIM/refactoring requests
+- **You know** how much tokens are used in web chats and code completion/file refactoring requests
 
 The result? Unmatched in accuracy, speed and cost AI assistance.
 
