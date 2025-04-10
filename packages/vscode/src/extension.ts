@@ -6,7 +6,7 @@ import {
   fim_completion_with_command,
   fim_completion_with_suggestions_command,
   fim_completion_with_suggestions_with_command
-} from './commands/fim-completion-commands'
+} from './commands/code-completion-commands'
 import { ChatViewProvider } from './chat-view/chat-view-provider'
 import {
   web_chat_command,
@@ -32,7 +32,7 @@ import { delete_command } from './commands/delete-command'
 import {
   fim_in_chat_command,
   fim_in_chat_with_command
-} from './commands/fim-in-chat-commands'
+} from './commands/code-in-chat-commands'
 import { save_context_command } from './commands/save-context-command'
 import { revert_command } from './commands/revert-command'
 import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
@@ -40,7 +40,7 @@ import { generate_commit_message_command } from './commands/generate-commit-mess
 import {
   fim_completion_to_clipboard_command,
   fim_completion_with_suggestions_to_clipboard_command
-} from './commands/fim-completion-to-clipboard-commands'
+} from './commands/code-completion-to-clipboard-commands'
 import { migrate_provider_settings } from './migrations/migrate-provider-settings'
 import { migrate_keybindings } from './migrations/migrate-keybindings'
 
