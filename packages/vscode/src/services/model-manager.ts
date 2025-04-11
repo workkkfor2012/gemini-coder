@@ -5,7 +5,7 @@ import {
   DEFAULT_APPLY_CHANGES_MODEL_KEY,
   DEFAULT_COMMIT_MESSAGE_MODEL_KEY
 } from '../constants/state-keys'
-import { log } from '@/helpers/logger'
+import { Logger } from '@/helpers/logger'
 
 const default_model = 'Gemini 2.0 Flash'
 
@@ -43,7 +43,7 @@ export class ModelManager {
 
   // Set the default models
   async set_default_fim_model(model_name: string): Promise<void> {
-    log({
+    Logger.log({
       function_name: 'set_default_fim_model',
       message: `Setting default FIM model to: ${model_name}`
     })
@@ -51,7 +51,7 @@ export class ModelManager {
   }
 
   async set_default_refactoring_model(model_name: string): Promise<void> {
-    log({
+    Logger.log({
       function_name: 'set_default_refactoring_model',
       message: `Setting default refactoring model to: ${model_name}`
     })
@@ -62,7 +62,7 @@ export class ModelManager {
   }
 
   async set_default_apply_changes_model(model_name: string): Promise<void> {
-    log({
+    Logger.log({
       function_name: 'set_default_apply_changes_model',
       message: `Setting default apply changes model to: ${model_name}`
     })
@@ -73,7 +73,7 @@ export class ModelManager {
   }
 
   async set_default_commit_message_model(model_name: string): Promise<void> {
-    log({
+    Logger.log({
       function_name: 'set_default_commit_message_model',
       message: `Setting default commit message model to: ${model_name}`
     })
