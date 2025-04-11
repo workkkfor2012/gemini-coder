@@ -254,8 +254,6 @@ export async function handle_intelligent_update(params: {
       return null
     }
 
-    const total_files = files.length
-
     // First, identify which files are new (don't exist in workspace)
     const new_files: ClipboardFile[] = []
     const existing_files: ClipboardFile[] = []
