@@ -1,18 +1,15 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { Logger } from '../../helpers/logger'
+import { Logger } from '../../../helpers/logger'
 import {
   create_safe_path,
   sanitize_file_name
-} from '../../utils/path-sanitizer'
-import { format_document } from './utils/format-document'
-import { ClipboardFile } from './utils/clipboard-parser'
-import { OriginalFileState } from '../../types/common'
+} from '../../../utils/path-sanitizer'
+import { format_document } from '../utils/format-document'
+import { ClipboardFile } from '../utils/clipboard-parser'
+import { OriginalFileState } from '../../../types/common'
 
-/**
- * Replace files directly without AI processing
- */
 export async function handle_fast_replace(
   files: ClipboardFile[],
 ): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {

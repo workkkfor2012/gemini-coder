@@ -2,29 +2,26 @@ import * as vscode from 'vscode'
 import axios, { CancelToken } from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
-import { Provider } from '../../types/provider'
-import { make_api_request } from '../../helpers/make-api-request'
-import { cleanup_api_response } from '../../helpers/cleanup-api-response'
-import { handle_rate_limit_fallback } from '../../helpers/handle-rate-limit-fallback'
-import { apply_changes_instruction } from '../../constants/instructions'
+import { Provider } from '../../../types/provider'
+import { make_api_request } from '../../../helpers/make-api-request'
+import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
+import { handle_rate_limit_fallback } from '../../../helpers/handle-rate-limit-fallback'
+import { apply_changes_instruction } from '../../../constants/instructions'
 import {
   ClipboardFile,
   parse_clipboard_multiple_files
-} from './utils/clipboard-parser'
+} from '../utils/clipboard-parser'
 import {
   sanitize_file_name,
   create_safe_path
-} from '../../utils/path-sanitizer'
-import { Logger } from '../../helpers/logger'
-import { format_document } from './utils/format-document'
-import { OriginalFileState } from '../../types/common'
-import { create_file_if_needed } from '../../utils/file-operations'
+} from '../../../utils/path-sanitizer'
+import { Logger } from '../../../helpers/logger'
+import { format_document } from '../utils/format-document'
+import { OriginalFileState } from '../../../types/common'
+import { create_file_if_needed } from '../utils/file-operations'
 
 const MAX_CONCURRENCY = 10 // Define concurrency limit
 
-/**
- * Process a single file with AI and apply changes
- */
 async function process_file(params: {
   provider: Provider
   file_path: string
@@ -34,7 +31,6 @@ async function process_file(params: {
   cancel_token?: CancelToken // Add cancelToken parameter
   on_progress?: (chunkLength: number, totalLength: number) => void
 }): Promise<string | null | 'rate_limit'> {
-  // Added 'rate_limit' to return type
   Logger.log({
     function_name: 'process_file',
     message: 'start',
@@ -106,7 +102,7 @@ async function process_file(params: {
         data: params.file_path
       })
       return null
-    } else if (refactored_content === 'rate_limit') {
+    } else if (refactored_content == 'rate_limit') {
       Logger.warn({
         function_name: 'process_file',
         message: 'Rate limit reached',
@@ -152,9 +148,6 @@ async function process_file(params: {
   }
 }
 
-/**
- * Handles applying changes using AI processing (Intelligent Update mode).
- */
 export async function handle_intelligent_update(params: {
   provider: Provider
   clipboard_text: string
@@ -242,7 +235,7 @@ export async function handle_intelligent_update(params: {
         data: skipped_files
       })
 
-      if (files.length === 0) {
+      if (files.length == 0) {
         vscode.window.showInformationMessage(
           'No safe file paths remaining. Operation cancelled.'
         )
@@ -250,7 +243,7 @@ export async function handle_intelligent_update(params: {
       }
     }
 
-    if (files.length === 0) {
+    if (files.length == 0) {
       vscode.window.showErrorMessage(
         'No valid file content found in clipboard.'
       )
@@ -299,13 +292,13 @@ export async function handle_intelligent_update(params: {
         .join('\n')
       const confirmation = await vscode.window.showWarningMessage(
         `This will create ${new_files.length} new ${
-          new_files.length === 1 ? 'file' : 'files'
+          new_files.length == 1 ? 'file' : 'files'
         }:\n${new_file_list}\n\nDo you want to continue?`,
         { modal: true },
         'Yes'
       )
 
-      if (confirmation !== 'Yes') {
+      if (confirmation != 'Yes') {
         vscode.window.showInformationMessage(
           'Operation cancelled. No files were modified.'
         )
@@ -486,8 +479,8 @@ export async function handle_intelligent_update(params: {
                 // Find original state for this file (should exist)
                 const original_state = original_states.find(
                   (s) =>
-                    s.file_path === file.file_path &&
-                    s.workspace_name === file.workspace_name &&
+                    s.file_path == file.file_path &&
+                    s.workspace_name == file.workspace_name &&
                     !s.is_new
                 )
                 const original_content_for_api = original_state
@@ -504,8 +497,8 @@ export async function handle_intelligent_update(params: {
                   on_progress: (receivedLength, totalLength) => {
                     if (
                       largest_file &&
-                      file.file_path === largest_file.path &&
-                      file.workspace_name === largest_file.workspaceName
+                      file.file_path == largest_file.path &&
+                      file.workspace_name == largest_file.workspaceName
                     ) {
                       previous_largest_file_progress = largest_file_progress
                       largest_file_progress = Math.min(
@@ -524,14 +517,14 @@ export async function handle_intelligent_update(params: {
                 if (token.isCancellationRequested)
                   throw new Error('Operation cancelled')
 
-                if (updated_content_result === null) {
+                if (!updated_content_result) {
                   throw new Error(
                     `Failed to apply changes to ${file.file_path}`
                   )
                 }
 
                 let final_content: string
-                if (updated_content_result === 'rate_limit') {
+                if (updated_content_result == 'rate_limit') {
                   const fallback_body = {
                     messages: [
                       ...(params.system_instructions
@@ -572,8 +565,8 @@ export async function handle_intelligent_update(params: {
                 // Update progress for the largest file if processing finished
                 if (
                   largest_file &&
-                  file.file_path === largest_file.path &&
-                  file.workspace_name === largest_file.workspaceName &&
+                  file.file_path == largest_file.path &&
+                  file.workspace_name == largest_file.workspaceName &&
                   largest_file_progress < 100
                 ) {
                   const increment = 100 - largest_file_progress
@@ -591,7 +584,7 @@ export async function handle_intelligent_update(params: {
               } catch (error: any) {
                 if (
                   axios.isCancel(error) ||
-                  error.message === 'Operation cancelled'
+                  error.message == 'Operation cancelled'
                 ) {
                   throw new Error('Operation cancelled')
                 }
@@ -785,7 +778,7 @@ export async function handle_intelligent_update(params: {
             }
           })
 
-          if (token.isCancellationRequested || process_result === null) {
+          if (token.isCancellationRequested || !process_result) {
             if (!token.isCancellationRequested) {
               // process_file returned null, likely an error or non-cancellation API issue
               vscode.window.showErrorMessage(
@@ -805,7 +798,7 @@ export async function handle_intelligent_update(params: {
             return // Stop progress
           }
 
-          if (process_result === 'rate_limit') {
+          if (process_result == 'rate_limit') {
             const body = {
               messages: [
                 ...(params.system_instructions

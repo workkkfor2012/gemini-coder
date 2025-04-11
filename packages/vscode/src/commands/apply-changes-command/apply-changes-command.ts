@@ -9,9 +9,9 @@ import {
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
 import { Logger } from '../../helpers/logger'
 import { OriginalFileState } from '../../types/common'
-import { revert_files } from '../../utils/file-operations'
-import { handle_fast_replace } from './fast-replace-handler'
-import { handle_intelligent_update } from './intelligent-update-handler'
+import { revert_files } from './utils/file-operations'
+import { handle_fast_replace } from './handlers/fast-replace-handler'
+import { handle_intelligent_update } from './handlers/intelligent-update-handler'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -22,7 +22,7 @@ async function get_selected_provider(
   // Ensure default model exists if provided
   if (
     default_model_name &&
-    !all_providers.some((p) => p.name === default_model_name)
+    !all_providers.some((p) => p.name == default_model_name)
   ) {
     vscode.window.showWarningMessage(
       `Default model "${default_model_name}" not found. Please check settings.`
@@ -42,7 +42,7 @@ async function get_selected_provider(
 
   // Filter out invalid or non-existent models from last used
   last_used_models = last_used_models.filter((model_name) =>
-    all_providers.some((p) => p.name === model_name)
+    all_providers.some((p) => p.name == model_name)
   )
 
   // Filter out the default model from last used models if it exists
@@ -91,7 +91,7 @@ async function get_selected_provider(
   const selected_model_name = selected_item.label
 
   const selected_provider = all_providers.find(
-    (p) => p.name === selected_model_name
+    (p) => p.name == selected_model_name
   )
   // This check should ideally not fail due to how items are constructed, but good for safety
   if (!selected_provider) {
@@ -150,7 +150,7 @@ export function apply_changes_command(params: {
 
     // Check if workspace has only one root folder
     const is_single_root_folder_workspace =
-      vscode.workspace.workspaceFolders?.length === 1
+      vscode.workspace.workspaceFolders?.length == 1
 
     // Check if clipboard contains multiple files
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
@@ -179,7 +179,7 @@ export function apply_changes_command(params: {
 
     let provider: Provider | undefined
     if (params.use_default_model) {
-      provider = all_providers.find((p) => p.name === default_model_name)
+      provider = all_providers.find((p) => p.name == default_model_name)
       if (!provider) {
         vscode.window.showErrorMessage(
           `Default apply changes model "${
@@ -231,9 +231,9 @@ export function apply_changes_command(params: {
         })
       } else {
         const should_ask_for_mode =
-          params.command === 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
-          (params.command === 'geminiCoder.applyChanges' &&
-            default_apply_changes_mode === 'Always ask')
+          params.command == 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
+          (params.command == 'geminiCoder.applyChanges' &&
+            default_apply_changes_mode == 'Always ask')
 
         if (should_ask_for_mode) {
           const last_used_mode = params.context.globalState.get<string>(
@@ -253,7 +253,7 @@ export function apply_changes_command(params: {
 
           // Add last used mode first if valid
           const last_used_option = all_modes.find(
-            (mode) => mode.label === last_used_mode
+            (mode) => mode.label == last_used_mode
           )
           if (last_used_option) {
             mode_options.push({
@@ -292,8 +292,8 @@ export function apply_changes_command(params: {
             data: selected_mode_label
           })
         } else if (
-          default_apply_changes_mode === 'Fast replace' ||
-          default_apply_changes_mode === 'Intelligent update'
+          default_apply_changes_mode == 'Fast replace' ||
+          default_apply_changes_mode == 'Intelligent update'
         ) {
           selected_mode_label = default_apply_changes_mode
           Logger.log({
@@ -326,7 +326,7 @@ export function apply_changes_command(params: {
     let operation_success = false
     let file_count = 0
 
-    if (selected_mode_label === 'Fast replace') {
+    if (selected_mode_label == 'Fast replace') {
       // We already know it's multiple files if we reach here with Fast replace selected
       const files = parse_clipboard_multiple_files({
         clipboard_text,
@@ -343,7 +343,7 @@ export function apply_changes_command(params: {
         message: 'Fast replace handler finished.',
         data: { success: result.success }
       })
-    } else if (selected_mode_label === 'Intelligent update') {
+    } else if (selected_mode_label == 'Intelligent update') {
       // Check for API key *before* calling the handler
       if (!provider.apiKey) {
         vscode.window.showErrorMessage(
@@ -396,7 +396,7 @@ export function apply_changes_command(params: {
       )
 
       const message =
-        selected_mode_label === 'Fast replace'
+        selected_mode_label == 'Fast replace'
           ? `Successfully replaced ${file_count} ${
               file_count > 1 ? 'files' : 'file'
             }.`
@@ -404,12 +404,13 @@ export function apply_changes_command(params: {
               file_count > 1 ? 'files' : 'file'
             }.`
 
+      const button_text = 'Revert'
       const response = await vscode.window.showInformationMessage(
         message,
-        'Revert'
+        button_text
       )
 
-      if (response === 'Revert') {
+      if (response == button_text) {
         await revert_files(final_original_states)
         params.context.workspaceState.update(
           LAST_APPLIED_CHANGES_STATE_KEY,

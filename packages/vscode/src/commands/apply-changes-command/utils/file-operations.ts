@@ -1,14 +1,11 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { create_safe_path } from './path-sanitizer'
-import { Logger } from '../helpers/logger'
-import { format_document } from '../commands/apply-changes-command/utils/format-document'
-import { OriginalFileState } from '../types/common'
+import { create_safe_path } from '../../../utils/path-sanitizer'
+import { Logger } from '../../../helpers/logger'
+import { format_document } from './format-document'
+import { OriginalFileState } from '../../../types/common'
 
-/**
- * Create a new file if it doesn't exist
- */
 export async function create_file_if_needed(
   filePath: string,
   content: string,
@@ -22,7 +19,7 @@ export async function create_file_if_needed(
   // Check if we have workspace folder(s)
   if (
     !vscode.workspace.workspaceFolders ||
-    vscode.workspace.workspaceFolders.length === 0
+    vscode.workspace.workspaceFolders.length == 0
   ) {
     vscode.window.showErrorMessage('No workspace folder open.')
     Logger.warn({
@@ -36,7 +33,7 @@ export async function create_file_if_needed(
 
   if (workspace_name) {
     const target_workspace = vscode.workspace.workspaceFolders.find(
-      (folder) => folder.name === workspace_name
+      (folder) => folder.name == workspace_name
     )
     if (target_workspace) {
       workspace_folder_path = target_workspace.uri.fsPath
@@ -134,7 +131,7 @@ export async function create_file_if_needed(
 }
 
 /**
- * Reverts changes made to files based on their original states.
+ * Reverts applied changes to files based on their original states.
  */
 export async function revert_files(
   original_states: OriginalFileState[]
