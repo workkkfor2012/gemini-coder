@@ -894,7 +894,7 @@ export function apply_changes_command(params: {
           const all_modes = [
             {
               label: 'Intelligent update',
-              description: 'Use AI to apply shortened files'
+              description: 'Use AI to apply shortened files or diffs'
             },
             {
               label: 'Fast replace',
