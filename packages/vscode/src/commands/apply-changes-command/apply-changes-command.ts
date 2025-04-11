@@ -13,13 +13,14 @@ import {
   ClipboardFile,
   parse_clipboard_multiple_files,
   is_multiple_files_clipboard
-} from './clipboard-parser'
+} from './utils/clipboard-parser'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
 import {
   sanitize_file_name,
   create_safe_path
 } from '../../utils/path-sanitizer'
 import { Logger } from '../../helpers/logger'
+import { format_document } from './utils/format-document'
 
 type OriginalFileState = {
   file_path: string
@@ -131,35 +132,7 @@ async function get_selected_provider(
   return selected_provider
 }
 
-/**
- * Format document using VS Code's formatDocument command
- */
-async function format_document(document: vscode.TextDocument): Promise<void> {
-  Logger.log({
-    function_name: 'format_document',
-    message: 'start',
-    data: document.uri.fsPath
-  })
-  try {
-    await vscode.commands.executeCommand(
-      'editor.action.formatDocument',
-      document.uri
-    )
-    Logger.log({
-      function_name: 'format_document',
-      message: 'Document formatted',
-      data: document.uri.fsPath
-    })
-  } catch (error) {
-    Logger.error({
-      function_name: 'format_document',
-      message: 'Error formatting document',
-      data: { error, file: document.uri.fsPath }
-    })
-    console.error(`Error formatting document: ${error}`)
-    // Continue even if formatting fails
-  }
-}
+// Removed format_document function from here
 
 /**
  * Process a single file with AI and apply changes
@@ -445,7 +418,9 @@ async function replace_files_directly(
       }
 
       // Create full path using the correct workspace root
-      const full_path = path.join(workspace_root, file.file_path)
+      const full_path = path.normalize(
+        path.join(workspace_root, file.file_path)
+      )
 
       if (fs.existsSync(full_path)) {
         existing_files.push(file)
@@ -1103,9 +1078,8 @@ export function apply_changes_command(params: {
 
           if (matching_workspace) {
             // Create a full path with the proper workspace root
-            const full_path = path.join(
-              matching_workspace.uri.fsPath,
-              file.file_path
+            const full_path = path.normalize(
+              path.join(matching_workspace.uri.fsPath, file.file_path)
             )
             file_exists = fs.existsSync(full_path)
           }
@@ -1301,9 +1275,11 @@ export function apply_changes_command(params: {
                         )
 
                       if (matching_workspace) {
-                        const full_path = path.join(
-                          matching_workspace.uri.fsPath,
-                          file.file_path
+                        const full_path = path.normalize(
+                          path.join(
+                            matching_workspace.uri.fsPath,
+                            file.file_path
+                          )
                         )
                         file_exists = fs.existsSync(full_path)
                       }
