@@ -50,7 +50,9 @@ async function handle_chat_command(
   )
 
   const final_text = `${
-    context_text ? `<files>\n${context_text}</files>\n` : ''
+    context_text
+      ? `${modified_instruction}\n<files>\n${context_text}</files>\n`
+      : ''
   }${modified_instruction}`
 
   // Add to chat history
