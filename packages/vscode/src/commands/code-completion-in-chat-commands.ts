@@ -3,7 +3,6 @@ import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 import { code_completion_instruction_external } from '../constants/instructions'
 
-// Shared logic for handling FIM in chat
 async function handle_code_completion_in_chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
@@ -14,7 +13,7 @@ async function handle_code_completion_in_chat_command(
   const active_editor = vscode.window.activeTextEditor
   if (!active_editor) {
     vscode.window.showErrorMessage(
-      'FIM in Chat requires an open file with the cursor positioned where you want the completion.'
+      'No active text editor found. Please open a file to use this command.'
     )
     return
   }
@@ -73,7 +72,7 @@ async function handle_code_completion_in_chat_command(
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
     // Construct FIM prompt
-    const fim_text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<fill missing code>${text_after_cursor}\n]]>\n</file>\n</files>\n${code_completion_instruction_external}${
+    const fim_text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 

@@ -58,7 +58,7 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const content = `${payload.before}<fill missing code>${
+    const content = `${payload.before}<missing text>${
       payload.after
     }\n${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
@@ -66,7 +66,7 @@ async function perform_fim_completion_to_clipboard(
 
     await vscode.env.clipboard.writeText(content)
     vscode.window.showInformationMessage(
-      'Autocomplete prompt copied to clipboard!'
+      'Code completion prompt has been copied to clipboard.'
     )
   } catch (error: any) {
     vscode.window.showErrorMessage(`Failed to collect files: ${error.message}`)

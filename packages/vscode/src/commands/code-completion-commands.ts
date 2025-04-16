@@ -4,7 +4,6 @@ import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { code_completion_instruction } from '../constants/instructions'
 import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
-import { cleanup_api_response } from '../helpers/cleanup-api-response'
 import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
@@ -116,11 +115,11 @@ async function build_completion_payload(
     after: `${text_after_cursor}]]></file>\n</files>`
   }
 
-  return `${payload.before}<fill missing code>${
-    payload.after
-  }\n${code_completion_instruction}${
+  const instructions = `${code_completion_instruction}${
     suggestions ? ` Follow suggestions: ${suggestions}` : ''
   }`
+
+  return `${instructions}\n${payload.before}<missing text>${payload.after}\n${instructions}`
 }
 
 /**
@@ -266,8 +265,12 @@ async function perform_fim_completion(
           }
 
           if (completion) {
-            completion = cleanup_api_response({ content: completion })
-            await show_inline_completion(editor, position, completion)
+            const match = completion.match(
+              /<replacement>([\s\S]*?)<\/replacement>/i
+            )
+            if (match && match[1]) {
+              await show_inline_completion(editor, position, match[1].trim())
+            }
           }
         } catch (err: any) {
           Logger.error({
