@@ -8,6 +8,7 @@ import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallbac
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
 import { Logger } from '../helpers/logger'
+import he from 'he'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -269,7 +270,8 @@ async function perform_fim_completion(
               /<replacement>([\s\S]*?)<\/replacement>/i
             )
             if (match && match[1]) {
-              await show_inline_completion(editor, position, match[1].trim())
+              const decodedCompletion = he.decode(match[1].trim())
+              await show_inline_completion(editor, position, decodedCompletion)
             }
           }
         } catch (err: any) {

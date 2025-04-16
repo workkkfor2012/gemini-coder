@@ -458,6 +458,7 @@ const set_options = async (options: string[]) => {
           button_style.getPropertyValue('--ds-button-color') == 'transparent'
         ) {
           deep_think_button.click()
+          await new Promise((r) => requestAnimationFrame(r))
         }
       } else if (option == 'search' && supported_options['search']) {
         should_ensure_search_is_unchecked = false
@@ -472,6 +473,7 @@ const set_options = async (options: string[]) => {
           button_style.getPropertyValue('--ds-button-color') == 'transparent'
         ) {
           search_button.click()
+          await new Promise((r) => requestAnimationFrame(r))
         }
       }
     }
@@ -485,8 +487,9 @@ const set_options = async (options: string[]) => {
       ) as HTMLElement
       const button_style = window.getComputedStyle(deep_think_button)
       console.log(button_style.getPropertyValue('--ds-button-color'))
-      if (button_style.getPropertyValue('--ds-button-color') != 'transparent') {
+      if (button_style.getPropertyValue('--ds-button-color') != 'transparent' ) {
         deep_think_button.click()
+        await new Promise((r) => requestAnimationFrame(r))
       }
     }
     if (should_ensure_search_is_unchecked) {
@@ -497,11 +500,14 @@ const set_options = async (options: string[]) => {
           button.textContent == 'Search' || button.textContent == '联网搜索'
       ) as HTMLElement
       const button_style = window.getComputedStyle(search_button)
-      if (button_style.getPropertyValue('--ds-button-color') != 'transparent') {
+      if (
+        button_style.getPropertyValue('--ds-button-color') != 'transparent' &&
+        button_style.getPropertyValue('--ds-button-color') != '#fff'
+      ) {
         search_button.click()
+        await new Promise((r) => requestAnimationFrame(r))
       }
     }
-    await new Promise((r) => requestAnimationFrame(r))
   } else if (is_grok) {
     const supported_options = CHATBOTS['Grok'].supported_options || {}
     for (const option of options) {
