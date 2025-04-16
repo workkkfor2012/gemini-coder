@@ -160,6 +160,7 @@ const enter_system_instructions = async (system_instructions: string) => {
       new Event('change', { bubbles: true })
     )
     assignment_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
   } else if (is_open_webui) {
     const controls_button = document.querySelector(
       'button[aria-label="Controls"]'
@@ -272,6 +273,7 @@ const set_temperature = async (temperature: number) => {
       'button'
     ) as HTMLButtonElement
     close_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
   } else if (is_openrouter) {
     const options_button = Array.from(
       document.querySelectorAll('main > div> div > div:nth-child(2) button')
@@ -322,9 +324,7 @@ const set_model = async (model: string) => {
       'ms-model-selector mat-form-field > div'
     ) as HTMLElement
     model_selector_trigger.click()
-
     await new Promise((r) => requestAnimationFrame(r))
-
     const model_options = Array.from(document.querySelectorAll('mat-option'))
     for (const option of model_options) {
       const model_name_element = option.querySelector(
@@ -335,20 +335,10 @@ const set_model = async (model: string) => {
         break
       }
     }
+    await new Promise((r) => requestAnimationFrame(r))
   } else if (is_github_copilot) {
-    // Map model identifiers to displayed text
-    const model_map: Record<string, string> = {
-      '4o': 'GPT-4o',
-      o1: 'o1',
-      'o3-mini': 'o3-mini',
-      'sonnet-3.5': 'Claude 3.5 Sonnet',
-      'sonnet-3.7': 'Claude 3.7 Sonnet',
-      'sonnet-3.7-thinking': 'Claude 3.7 Sonnet Thinking',
-      'gemini-2.0-flash': 'Gemini 2.0 Flash'
-    }
-
     // Only proceed if the model exists in our map
-    if (model && model in model_map) {
+    if (model && model in CHATBOTS['GitHub Copilot'].models) {
       const model_selector_trigger = document.querySelector(
         'button[aria-label="Switch model"]'
       ) as HTMLButtonElement
@@ -364,7 +354,11 @@ const set_model = async (model: string) => {
       // Find the option with the matching text
       for (const option of model_options) {
         const label_element = option.querySelector('[class*="ItemLabel"]')
-        if (label_element && label_element.textContent == model_map[model]) {
+        if (
+          label_element &&
+          label_element.textContent ==
+            (CHATBOTS['GitHub Copilot'].models as any)[model]
+        ) {
           ;(option as HTMLElement).click()
           await new Promise((r) => requestAnimationFrame(r))
           break
@@ -374,13 +368,7 @@ const set_model = async (model: string) => {
       console.warn(`Model "${model}" not found in model map for GitHub Copilot`)
     }
   } else if (is_gemini) {
-    const model_map: Record<string, string> = {
-      '2.0-flash': '2.0 Flash',
-      '2.0-flash-thinking': '2.0 Flash Thinking (experimental)',
-      '2.5-pro': '2.5 Pro (experimental)'
-    }
-
-    if (model && model in model_map) {
+    if (model && model in CHATBOTS['Gemini'].models) {
       const model_selector_trigger = document.querySelector(
         'button[data-test-id="bard-mode-menu-button"]'
       ) as HTMLButtonElement
@@ -403,7 +391,8 @@ const set_model = async (model: string) => {
 
             if (
               name_element &&
-              name_element.textContent?.trim() == model_map[model]
+              name_element.textContent?.trim() ==
+                (CHATBOTS['Gemini'].models as any)[model]
             ) {
               ;(option as HTMLElement).click()
               await new Promise((r) => requestAnimationFrame(r))
@@ -530,11 +519,11 @@ const set_options = async (options: string[]) => {
 }
 
 const initialize_chat = async (params: { message: string; chat: Chat }) => {
-  if (params.chat.system_instructions) {
-    await enter_system_instructions(params.chat.system_instructions)
-  }
   if (params.chat.model) {
     await set_model(params.chat.model)
+  }
+  if (params.chat.system_instructions) {
+    await enter_system_instructions(params.chat.system_instructions)
   }
   if (params.chat.temperature) {
     await set_temperature(params.chat.temperature)
@@ -669,7 +658,11 @@ const main = async () => {
   } else if (is_open_webui) {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('img[src="/static/favicon.png"]')) {
+        if (
+          document.querySelector(
+            '#chat-container img[src="/static/favicon.png"]'
+          )
+        ) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)

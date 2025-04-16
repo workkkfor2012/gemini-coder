@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Presets } from './Presets'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export default {
   component: Presets
@@ -8,12 +9,12 @@ export default {
 const presets: Presets.Preset[] = [
   {
     name: 'Gemini with Flash 2.0',
-    chatbot: 'Gemini',
+    chatbot: 'Gemini' as keyof typeof CHATBOTS,
     has_affixes: true
   },
   {
     name: 'Code review with AI Studio',
-    chatbot: 'AI Studio',
+    chatbot: 'AI Studio' as keyof typeof CHATBOTS,
     has_affixes: false
   }
 ]
@@ -39,6 +40,7 @@ export const Multiple = () => {
       on_presets_reorder={(reordered) =>
         console.log('on_presets_reorder', reordered)
       }
+      on_set_default={() => console.log('on_set_default')}
     />
   )
 }
