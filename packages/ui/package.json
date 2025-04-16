@@ -8,6 +8,7 @@
   },
   "devDependencies": {
     "@storybook/types": "^7.6.20",
+    "@types/node": "20.x",
     "@types/react": "^18.2.60",
     "@types/react-dom": "^18.2.19",
     "@types/vscode": "^1.98.0",
@@ -26,6 +27,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-sortablejs": "^6.1.4",
-    "react-textarea-autosize": "^8.5.9"
+    "react-textarea-autosize": "^8.5.9",
+    "vite-plugin-svgr": "^3.2.0"
   }
 }

@@ -1,0 +1,128 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-10px);
+}
+
+.my-presets {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--padding-12px);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: var(--padding-10px);
+
+    > span {
+      color: var(--vscode-foreground);
+    }
+  }
+
+  &__set-default {
+    font-size: var(--font-size-12px);
+    color: var(--vscode-textLink-foreground);
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
+
+.presets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-12px);
+
+  &--disabled {
+    opacity: 0.5;
+    pointer-events: none;
+  }
+
+  &__item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--padding-4px);
+    height: 22px;
+    padding-left: var(--padding-12px);
+    cursor: pointer;
+
+    &:hover {
+      background-color: var(--vscode-list-hoverBackground);
+
+      .presets__item__right {
+        display: flex;
+      }
+    }
+
+    &--highlighted {
+      background-color: var(--vscode-list-inactiveSelectionBackground);
+
+      &:hover {
+        background-color: var(--vscode-list-inactiveSelectionBackground);
+      }
+    }
+
+    &__left {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+
+      &__icon {
+        display: flex;
+
+        > svg {
+          fill: var(--vscode-icon-foreground);
+          width: 16px;
+          height: 16px;
+        }
+
+        &--selected > svg {
+          fill: var(--vscode-textLink-foreground);
+        }
+      }
+
+      &__title {
+        overflow: hidden;
+        text-overflow: ellipsis;
+
+        &--selected {
+          color: var(--vscode-textLink-foreground);
+        }
+
+        &--disabled {
+          opacity: 0.5;
+        }
+      }
+    }
+
+    &__right {
+      display: none;
+      align-items: center;
+      gap: var(--padding-4px);
+      cursor: default;
+      padding-right: var(--padding-8px);
+
+      &__drag_handle {
+        display: flex;
+        align-items: center;
+        cursor: grab;
+        opacity: 0.5;
+
+        &:active {
+          cursor: grabbing;
+        }
+      }
+    }
+  }
+
+  &__create {
+    margin: 0 var(--padding-12px);
+  }
+}
