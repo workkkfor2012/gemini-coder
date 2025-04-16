@@ -1,7 +1,7 @@
 .form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--padding-12px);
 }
 
 .chatbot-icon {
@@ -75,5 +75,22 @@ select.input {
 
   &__input {
     width: 60px;
+  }
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-4px);
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    cursor: pointer;
+
+    input {
+      margin: 0;
+    }
   }
 }

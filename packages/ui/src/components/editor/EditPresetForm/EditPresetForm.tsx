@@ -53,6 +53,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   const [prompt_suffix, set_prompt_suffix] = useState(
     props.preset.prompt_suffix || ''
   )
+  const [options, set_options] = useState<string[]>(props.preset.options || [])
 
   const supports_temperature = CHATBOTS[chatbot].supports_custom_temperature
   const supports_system_instructions =
@@ -60,6 +61,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   const supports_port = CHATBOTS[chatbot].supports_user_provided_port
   const supports_custom_model = CHATBOTS[chatbot].supports_user_provided_model
   const models = CHATBOTS[chatbot].models
+  const supported_options = CHATBOTS[chatbot].supported_options
 
   useEffect(() => {
     props.on_update({
@@ -71,7 +73,8 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       ...(supports_temperature ? { temperature } : {}),
       ...(model ? { model } : {}),
       ...(supports_system_instructions ? { system_instructions } : {}),
-      ...(supports_port ? { port } : {})
+      ...(supports_port ? { port } : {}),
+      ...(options.length > 0 ? { options } : {})
     })
   }, [
     name,
@@ -81,7 +84,8 @@ export const EditPresetForm: React.FC<Props> = (props) => {
     system_instructions,
     port,
     prompt_prefix,
-    prompt_suffix
+    prompt_suffix,
+    options
   ])
 
   const handle_chatbot_change = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -97,6 +101,15 @@ export const EditPresetForm: React.FC<Props> = (props) => {
     } else {
       set_system_instructions(undefined)
     }
+    set_options([])
+  }
+
+  const handle_option_toggle = (option: string) => {
+    set_options((prev) =>
+      prev.includes(option)
+        ? prev.filter((o) => o !== option)
+        : [...prev, option]
+    )
   }
 
   return (
@@ -190,6 +203,23 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         </Field>
       )}
 
+      {Object.keys(supported_options).length > 0 && (
+        <Field label="Options">
+          <div className={styles.options}>
+            {Object.entries(supported_options).map(([key, label]) => (
+              <label key={key} className={styles.options__item}>
+                <input
+                  type="checkbox"
+                  checked={options.includes(key)}
+                  onChange={() => handle_option_toggle(key)}
+                />
+                {label}
+              </label>
+            ))}
+          </div>
+        </Field>
+      )}
+
       {supports_temperature && (
         <Field label="Temperature" htmlFor="preset-temperature">
           <div className={styles.temperature}>
@@ -237,7 +267,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       <Field
         label="Prompt Prefix"
         htmlFor="preset-prefix"
-        info="Text prepended to your prompts"
+        info="Text prepended to prompts used with this preset"
       >
         <input
           id="preset-prefix"
@@ -251,7 +281,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       <Field
         label="Prompt Suffix"
         htmlFor="preset-suffix"
-        info="Text appended to your prompts"
+        info="Text appended to prompts used with this preset"
       >
         <input
           id="preset-suffix"
