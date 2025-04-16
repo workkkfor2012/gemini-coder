@@ -1,0 +1,15 @@
+.separator {
+  flex-shrink: 0;
+
+  &--small {
+    height: 4px;
+  }
+
+  &--medium {
+    height: 8px;
+  }
+
+  &--large {
+    height: 16px;
+  }
+}

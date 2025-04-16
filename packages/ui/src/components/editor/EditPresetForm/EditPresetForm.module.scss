@@ -1,0 +1,79 @@
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.chatbot-icon {
+  display: flex;
+  justify-content: center;
+  padding-top: var(--padding-12px);
+  margin-bottom: -8px;
+
+  > svg {
+    fill: var(--vscode-icon-foreground);
+    width: 50px;
+    height: 50px;
+  }
+}
+
+.input {
+  background-color: var(--vscode-input-background);
+  color: var(--vscode-input-foreground);
+  border: 1px solid var(--vscode-input-border);
+  border-radius: var(--border-radius-3px);
+  padding: var(--padding-4px) var(--padding-6px);
+  font-size: var(--font-size-13px);
+
+  &:focus {
+    outline: 1px solid var(--vscode-focusBorder);
+    outline-offset: -1px;
+  }
+}
+
+textarea.input {
+  resize: none;
+  min-height: 80px;
+  overflow: hidden;
+  font-family: inherit;
+  padding: var(--padding-5px) var(--padding-6px);
+}
+
+select.input {
+  padding: var(--padding-4px) var(--padding-2px);
+}
+
+.temperature {
+  display: flex;
+  align-items: center;
+  gap: var(--padding-12px);
+
+  &__slider {
+    flex: 1;
+    margin: 0;
+    appearance: none;
+    background: transparent;
+
+    &:focus {
+      outline: none;
+    }
+
+    &::-webkit-slider-runnable-track {
+      background: var(--vscode-descriptionForeground);
+      height: 2px;
+    }
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      margin-top: -5px;
+      background-color: var(--vscode-button-background);
+      height: 12px;
+      width: 12px;
+      border-radius: 50%;
+    }
+  }
+
+  &__input {
+    width: 60px;
+  }
+}

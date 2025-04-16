@@ -92,14 +92,8 @@
           "icon": "resources/activity-bar-icon.svg"
         },
         {
-          "id": "geminiCoderViewChat",
-          "name": "Chat",
-          "type": "webview",
-          "icon": "resources/activity-bar-icon.svg"
-        },
-        {
-          "id": "geminiCoderViewApi",
-          "name": "Settings: API",
+          "id": "geminiCoderView",
+          "name": "Gemini Coder",
           "type": "webview",
           "icon": "resources/activity-bar-icon.svg"
         }
@@ -536,12 +530,6 @@
               },
               "model": {
                 "type": "string"
-              },
-              "temperature": {
-                "type": "number"
-              },
-              "systemInstructions": {
-                "type": "string"
               }
             }
           }
@@ -825,6 +813,7 @@
     "webpack-cli": "^6.0.1"
   },
   "dependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@vscode/codicons": "^0.0.36",
     "axios": "^1.8.4",
     "bufferutil": "^4.0.9",

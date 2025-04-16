@@ -1,0 +1,20 @@
+.icon-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 5px;
+  width: 20px;
+  height: 20px;
+  color: var(--vscode-icon-foreground);
+  cursor: pointer;
+  text-decoration: none;
+
+  &:focus {
+    outline: none;
+  }
+
+  &:hover {
+    color: inherit;
+    background-color: var(--vscode-toolbar-hoverBackground);
+  }
+}
