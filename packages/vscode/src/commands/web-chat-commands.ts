@@ -15,8 +15,8 @@ async function handle_chat_command(
   const last_chat_prompt =
     context.workspaceState.get<string>('lastChatPrompt') || ''
   const instruction = await vscode.window.showInputBox({
-    prompt: 'Type something',
-    placeHolder: 'e.g., "Our task is to..."',
+    prompt: 'E.g. Our task is to...',
+    placeHolder: 'Ask anything',
     value: last_chat_prompt
   })
 
