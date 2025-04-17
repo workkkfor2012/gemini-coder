@@ -251,6 +251,39 @@ export function apply_changes_command(params: {
           message: 'Mode forced by command parameters',
           data: selected_mode_label
         })
+      } else {
+        // Multiple files, no ellipsis, no forced mode -> Ask the user
+        const mode_options: vscode.QuickPickItem[] = [
+          {
+            label: 'Fast replace',
+            description:
+              'Create or replace files directly with the clipboard content.'
+          },
+          {
+            label: 'Intelligent update',
+            description:
+              'Use AI to merge clipboard changes into existing files.'
+          }
+        ]
+        const selected_item = await vscode.window.showQuickPick(mode_options, {
+          placeHolder: 'Select how to apply changes to multiple files'
+        })
+
+        if (!selected_item) {
+          Logger.log({
+            function_name: 'apply_changes_command',
+            message: 'User cancelled mode selection.'
+          })
+          return // User cancelled
+        }
+        selected_mode_label = selected_item.label as
+          | 'Fast replace'
+          | 'Intelligent update'
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message: 'User selected mode',
+          data: selected_mode_label
+        })
       }
     } else {
       // Single file always uses Intelligent Update implicitly
