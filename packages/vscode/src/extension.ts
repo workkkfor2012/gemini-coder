@@ -107,12 +107,6 @@ export async function activate(context: vscode.ExtensionContext) {
       use_default_model: true
     }),
     apply_changes_command({
-      command: 'geminiCoder.applyChangesWith',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
-      context
-    }),
-    apply_changes_command({
       command: 'geminiCoder.applyChangesFastReplace',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,

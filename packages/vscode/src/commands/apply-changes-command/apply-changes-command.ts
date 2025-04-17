@@ -4,7 +4,8 @@ import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
 import { ModelManager } from '../../services/model-manager'
 import {
   parse_clipboard_multiple_files,
-  is_multiple_files_clipboard
+  is_multiple_files_clipboard,
+  ClipboardFile
 } from './utils/clipboard-parser'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
 import { Logger } from '../../helpers/logger'
@@ -120,6 +121,16 @@ async function get_selected_provider(
   return selected_provider
 }
 
+/**
+ * Checks if any file content contains a comment indicating truncated content (e.g., // ...).
+ */
+function contains_ellipsis_comment(files: ClipboardFile[]): boolean {
+  const ellipsis_comment_regex = /^\s*(?:#|\/\/|--|\/\*|\*)\s+\.\.\.\s+/
+  return files.some((file) =>
+    file.content.split('\n').some((line) => ellipsis_comment_regex.test(line))
+  )
+}
+
 export function apply_changes_command(params: {
   command: string
   file_tree_provider: any // Keep for potential future use?
@@ -211,75 +222,35 @@ export function apply_changes_command(params: {
     // --- Mode Selection ---
     let selected_mode_label: 'Fast replace' | 'Intelligent update' | undefined =
       undefined
+    let parsed_files: ClipboardFile[] = [] // Store parsed files if needed
 
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
     if (is_multiple_files) {
-      if (params.mode) {
+      // Parse files early to check for ellipsis comment
+      parsed_files = parse_clipboard_multiple_files({
+        clipboard_text,
+        is_single_root_folder_workspace
+      })
+
+      // Check for "..." comment hint for intelligent update
+      const auto_select_intelligent = contains_ellipsis_comment(parsed_files)
+
+      if (auto_select_intelligent) {
+        selected_mode_label = 'Intelligent update'
+        Logger.log({
+          function_name: 'apply_changes_command',
+          message:
+            'Detected "..." comment, automatically selecting Intelligent update mode.'
+        })
+      } else if (params.mode) {
+        // Mode forced by command parameters (e.g., specific command bindings)
         selected_mode_label = params.mode
         Logger.log({
           function_name: 'apply_changes_command',
-          message: 'Mode forced by params',
+          message: 'Mode forced by command parameters',
           data: selected_mode_label
         })
-      } else {
-        if (params.command == 'geminiCoder.applyChangesWith') {
-          const last_used_mode = params.context.globalState.get<string>(
-            'lastUsedApplyChangesMode'
-          )
-          const mode_options: vscode.QuickPickItem[] = []
-          const all_modes = [
-            {
-              label: 'Intelligent update',
-              description: 'Use AI to apply shortened files or diffs'
-            },
-            {
-              label: 'Fast replace',
-              description: 'Suitable if files are in a "whole" format'
-            }
-          ]
-
-          // Add last used mode first if valid
-          const last_used_option = all_modes.find(
-            (mode) => mode.label == last_used_mode
-          )
-          if (last_used_option) {
-            mode_options.push({
-              ...last_used_option,
-              description: `${last_used_option.description} (Last used)`
-            })
-            mode_options.push(
-              ...all_modes.filter((mode) => mode.label !== last_used_mode)
-            )
-          } else {
-            mode_options.push(...all_modes) // Default order
-          }
-
-          const selected_mode = await vscode.window.showQuickPick(
-            mode_options,
-            { placeHolder: 'Choose how to apply changes' }
-          )
-
-          if (!selected_mode) {
-            Logger.log({
-              function_name: 'apply_changes_command',
-              message: 'User cancelled mode selection.'
-            })
-            return // User cancelled
-          }
-          selected_mode_label = selected_mode.label as
-            | 'Fast replace'
-            | 'Intelligent update'
-          params.context.globalState.update(
-            'lastUsedApplyChangesMode',
-            selected_mode_label
-          ) // Store last used
-          Logger.log({
-            function_name: 'apply_changes_command',
-            message: 'Mode selected by user',
-            data: selected_mode_label
-          })
-        }
       }
     } else {
       // Single file always uses Intelligent Update implicitly
@@ -296,13 +267,17 @@ export function apply_changes_command(params: {
     let file_count = 0
 
     if (selected_mode_label == 'Fast replace') {
-      // We already know it's multiple files if we reach here with Fast replace selected
-      const files = parse_clipboard_multiple_files({
-        clipboard_text,
-        is_single_root_folder_workspace
-      })
-      file_count = files.length
-      const result = await handle_fast_replace(files)
+      // We already know it's multiple files if we reach here with Fast replace selected.
+      // Use the already parsed files if available, otherwise parse again (should be rare)
+      const files_to_process =
+        parsed_files.length > 0
+          ? parsed_files
+          : parse_clipboard_multiple_files({
+              clipboard_text,
+              is_single_root_folder_workspace
+            })
+      file_count = files_to_process.length
+      const result = await handle_fast_replace(files_to_process)
       if (result.success && result.original_states) {
         final_original_states = result.original_states
         operation_success = true
@@ -351,9 +326,9 @@ export function apply_changes_command(params: {
     } else {
       Logger.error({
         function_name: 'apply_changes_command',
-        message: 'No valid mode selected.'
+        message: 'No valid mode selected or determined.'
       })
-      // Should not happen, but good to log
+      // Should not happen with the logic above, but good to log
       return
     }
 
