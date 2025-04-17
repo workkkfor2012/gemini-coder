@@ -187,7 +187,10 @@ wss.on('connection', (ws: any, request: any) => {
           client.ws.send(msg_string)
         }
       }
-    } else if (msg_data.action == 'invoke-fast-replace') {
+    } else if (
+      msg_data.action == 'invoke-fast-replace' ||
+      msg_data.action == 'invoke-intelligent-update'
+    ) {
       // Forward the message to the specific VS Code client based on client_id
       const target_client_id = msg_data.client_id
       const target_client = vscode_clients.get(target_client_id)

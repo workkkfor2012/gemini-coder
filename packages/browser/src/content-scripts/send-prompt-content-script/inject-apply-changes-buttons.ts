@@ -1,12 +1,41 @@
 import browser from 'webextension-polyfill'
 
-// Function to add a button to message footers
-const add_button_to_message_footer = (params: {
+// Function to check if any code block contains truncated fragments
+const has_truncated_fragments = (container: Element): boolean => {
+  const code_blocks = container.querySelectorAll('ms-code-block')
+  for (const block of Array.from(code_blocks)) {
+    const code_content = block.querySelector('code')?.textContent
+    if (code_content && /^\s*\/\/\s+\.\.\.\s*$/m.test(code_content)) {
+      return true
+    }
+  }
+  return false
+}
+
+// Function to check if any code block contains diff markers
+const has_diff_markers = (container: Element): boolean => {
+  const code_blocks = container.querySelectorAll('ms-code-block')
+  for (const block of Array.from(code_blocks)) {
+    const code_content = block.querySelector('code')?.textContent
+    if (code_content && /^[+-]/.test(code_content)) {
+      return true
+    }
+  }
+  return false
+}
+
+// Function to add buttons to message footers
+const add_buttons_to_message_footer = (params: {
   footer: Element
   client_id: number
 }) => {
-  // Check if button already exists to avoid duplicates
-  if (params.footer.querySelector('.fast-replace-button')) return
+  // Check if buttons already exist to avoid duplicates
+  if (
+    params.footer.querySelector('.fast-replace-button') ||
+    params.footer.querySelector('.intelligent-update-button')
+  ) {
+    return
+  }
 
   // Find the parent chat-turn-container
   const chat_turn_container = params.footer.closest('.chat-turn-container')
@@ -33,12 +62,60 @@ const add_button_to_message_footer = (params: {
   // Only proceed if we found at least one code block with name= attribute
   if (!has_name_attribute) return
 
-  // Create button element
-  const button = document.createElement('button')
-  button.className = 'fast-replace-button'
-  button.textContent = 'Apply changes with fast replace'
-  button.title =
-    'Replaces original files in the editor. Suitable if generated in the "whole" format. Action can be reverted from a dialog in the editor\'s notifications area.'
+  const has_truncated = has_truncated_fragments(chat_turn_container)
+  const has_diff = has_diff_markers(chat_turn_container)
+
+  const create_fast_replace_button = () => {
+    const fast_replace_button = document.createElement('button')
+    fast_replace_button.className = 'fast-replace-button'
+    fast_replace_button.textContent = 'Fast replace'
+    fast_replace_button.title =
+      'Overrides original files. Action can be reverted.'
+    apply_button_style(fast_replace_button)
+
+    // Add event listener for Fast replace button click
+    fast_replace_button.addEventListener('click', () => {
+      handle_button_click(fast_replace_button, params.client_id, 'fast-replace')
+    })
+
+    params.footer.insertBefore(fast_replace_button, params.footer.children[2])
+  }
+  const create_intelligent_update_button = () => {
+    const intelligent_update_button = document.createElement('button')
+    intelligent_update_button.className = 'intelligent-update-button'
+    intelligent_update_button.textContent = 'Intelligent update'
+    intelligent_update_button.title =
+      'Uses AI to merge partial changes into existing files.'
+    apply_button_style(intelligent_update_button)
+    intelligent_update_button.style.background =
+      'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
+
+    // Add event listener for Intelligent update button click
+    intelligent_update_button.addEventListener('click', () => {
+      handle_button_click(
+        intelligent_update_button,
+        params.client_id,
+        'intelligent-update'
+      )
+    })
+
+    params.footer.insertBefore(
+      intelligent_update_button,
+      params.footer.children[2]
+    )
+  }
+
+  if (has_truncated || has_diff) {
+    create_intelligent_update_button()
+  } else {
+    // User decides which mode to use as we're unable to determine if the response is in "whole" format
+    create_intelligent_update_button()
+    create_fast_replace_button()
+  }
+}
+
+// Apply common button styles
+const apply_button_style = (button: HTMLButtonElement) => {
   button.style.fontSize = '13px'
   button.style.marginLeft = '8px'
   button.style.padding = '4px 9px'
@@ -48,41 +125,52 @@ const add_button_to_message_footer = (params: {
     'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
   button.style.border = 'none'
   button.style.cursor = 'pointer'
+}
 
-  // Add event listener for button click
-  button.addEventListener('click', () => {
-    // Disable the button immediately to prevent multiple clicks
-    button.disabled = true
-    button.style.opacity = '0.5'
-    button.style.cursor = 'pointer'
-    button.textContent = 'Changes have been applied'
+// Handle button click
+const handle_button_click = (
+  button: HTMLButtonElement,
+  client_id: number,
+  action: 'fast-replace' | 'intelligent-update'
+) => {
+  // Find the parent chat-turn-container
+  const chat_turn_container = button.closest('.chat-turn-container')
+  if (!chat_turn_container) return
 
-    // Find the parent chat-turn-container
-    const chat_turn_container = params.footer.closest('.chat-turn-container')
-    if (chat_turn_container) {
-      // Find the ms-chat-turn-options element within the container
-      const options = chat_turn_container.querySelector(
-        'ms-chat-turn-options > div > button'
-      )
-      if (options) {
-        // Simulate a click on the ms-chat-turn-options element
-        ;(options as any).click()
-        const markdown_copy_button = Array.from(
-          document.querySelectorAll('button')
-        ).find((button) => button.textContent?.includes('markdown_copy'))
+  // Find and disable/hide both buttons
+  const buttons = chat_turn_container.querySelectorAll(
+    '.fast-replace-button, .intelligent-update-button'
+  )
 
-        if (markdown_copy_button) {
-          ;(markdown_copy_button as any).click()
-          browser.runtime.sendMessage({
-            action: 'invoke-fast-replace',
-            client_id: params.client_id
-          })
-        }
-      }
-    }
+  buttons.forEach((btn) => {
+    ;(btn as HTMLButtonElement).disabled = true
+    btn.setAttribute(
+      'style',
+      `
+      cursor: not-allowed;
+    `
+    )
   })
 
-  params.footer.insertBefore(button, params.footer.children[2])
+  // Find the ms-chat-turn-options element within the container
+  const options = chat_turn_container.querySelector(
+    'ms-chat-turn-options > div > button'
+  )
+  if (options) {
+    // Simulate a click on the ms-chat-turn-options element
+    ;(options as any).click()
+    const markdown_copy_button = Array.from(
+      document.querySelectorAll('button')
+    ).find((button) => button.textContent?.includes('markdown_copy'))
+
+    if (markdown_copy_button) {
+      ;(markdown_copy_button as any).click()
+      browser.runtime.sendMessage({
+        action: `invoke-${action}`,
+        client_id
+      })
+    }
+  }
 }
 
 // Function to observe DOM for new message footers
@@ -111,7 +199,7 @@ export const inject_apply_changes_buttons = (params: {
             const allFooters = document.querySelectorAll('div.turn-footer')
             allFooters.forEach((footer) => {
               if (footer.textContent?.includes('thumb_up')) {
-                add_button_to_message_footer({
+                add_buttons_to_message_footer({
                   footer,
                   client_id: params.client_id
                 })

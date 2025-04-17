@@ -1,7 +1,8 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage,
-  InvokeFastReplaceMessage
+  InvokeFastReplaceMessage,
+  InvokeIntelligentUpdateMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
 import { send_saved_websites, send_message_to_server } from './websocket'
@@ -221,6 +222,11 @@ export const setup_message_listeners = () => {
             action: 'invoke-fast-replace',
             client_id: message.client_id
           } as InvokeFastReplaceMessage)
+        } else if (message.action == 'invoke-intelligent-update') {
+          send_message_to_server({
+            action: 'invoke-intelligent-update',
+            client_id: message.client_id
+          } as InvokeIntelligentUpdateMessage)
         } else if (message.action == 'get-tab-data') {
           handle_get_tab_data((tab_data) => {
             sendResponse(tab_data)

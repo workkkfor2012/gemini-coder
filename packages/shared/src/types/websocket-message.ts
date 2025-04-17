@@ -35,6 +35,11 @@ export type InvokeFastReplaceMessage = {
   client_id: number
 }
 
+export type InvokeIntelligentUpdateMessage = {
+  action: 'invoke-intelligent-update'
+  client_id: number
+}
+
 export type ClientIdAssignmentMessage = {
   action: 'client-id-assignment'
   client_id: number

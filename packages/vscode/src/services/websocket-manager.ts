@@ -166,6 +166,10 @@ export class WebSocketManager {
           )
         } else if (message.action == 'invoke-fast-replace') {
           vscode.commands.executeCommand('geminiCoder.applyChangesFastReplace')
+        } else if (message.action == 'invoke-intelligent-update') {
+          vscode.commands.executeCommand(
+            'geminiCoder.applyChangesIntelligentUpdate'
+          )
         }
       } catch (error) {
         Logger.error({
@@ -239,7 +243,7 @@ export class WebSocketManager {
             return null
           }
 
-          const chatbot = CHATBOTS[preset.chatbot]
+          const chatbot = CHATBOTS[preset.chatbot as keyof typeof CHATBOTS]
           let url: string
           if (preset.chatbot == 'Open WebUI') {
             if (preset.port) {

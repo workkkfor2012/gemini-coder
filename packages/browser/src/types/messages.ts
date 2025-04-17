@@ -14,6 +14,11 @@ export type InvokeFastReplaceMessage = {
   client_id: number
 }
 
+export type InvokeIntelligentUpdateMessage = {
+  action: 'invoke-intelligent-update'
+  client_id: number
+}
+
 export type GetTabDataMessage = {
   action: 'get-tab-data'
   url: string
@@ -23,4 +28,5 @@ export type Message =
   | UpdateSavedWebsitesMessage
   | ChatInitializedMessage
   | InvokeFastReplaceMessage
+  | InvokeIntelligentUpdateMessage
   | GetTabDataMessage
