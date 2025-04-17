@@ -728,8 +728,21 @@ export async function handle_intelligent_update(params: {
     }
 
     const document = editor.document
+    let instruction = params.clipboard_text
+
+    // Remove first line if it's a comment containing a file path
+    const lines = instruction.split('\n')
+    if (lines.length > 0) {
+      const first_line = lines[0].trim()
+      if (
+        (first_line.startsWith('//') || first_line.startsWith('#')) &&
+        first_line.match(/(?:[\w\-./]+\/)*[\w\-.]+\.\w{1,10}/)
+      ) {
+        instruction = lines.slice(1).join('\n')
+      }
+    }
+
     const document_text = document.getText()
-    const instruction = params.clipboard_text
     const file_path = vscode.workspace.asRelativePath(document.uri)
 
     // Store original content for potential reversion
