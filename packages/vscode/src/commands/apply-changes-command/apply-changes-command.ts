@@ -48,7 +48,7 @@ async function get_selected_provider(
   // Filter out the default model from last used models if it exists
   if (default_model_name) {
     last_used_models = last_used_models.filter(
-      (model) => model !== default_model_name
+      (model) => model != default_model_name
     )
   }
 
@@ -152,9 +152,6 @@ export function apply_changes_command(params: {
     const is_single_root_folder_workspace =
       vscode.workspace.workspaceFolders?.length == 1
 
-    // Check if clipboard contains multiple files
-    const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
-
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
@@ -214,6 +211,8 @@ export function apply_changes_command(params: {
     // --- Mode Selection ---
     let selected_mode_label: 'Fast replace' | 'Intelligent update' | undefined =
       undefined
+
+    const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
     if (is_multiple_files) {
       if (params.mode) {
