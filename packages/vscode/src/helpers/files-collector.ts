@@ -3,6 +3,7 @@ import * as path from 'path'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
 import { OpenEditorsProvider } from '../context/providers/open-editors-provider'
 import { WebsitesProvider } from '../context/providers/websites-provider'
+import { natural_sort } from '@/utils/natural-sort'
 
 export class FilesCollector {
   private workspace_provider: WorkspaceProvider
@@ -33,10 +34,11 @@ export class FilesCollector {
     const open_editor_files =
       this.open_editors_provider?.get_checked_files() || []
 
-    // Combine and deduplicate files
+    // Combine, deduplicate and sort files using natural sort
     const context_files = Array.from(
       new Set([...workspace_files, ...open_editor_files])
-    )
+    ).sort((a, b) => natural_sort(a, b))
+
     let collected_text = ''
 
     // Add content from checked websites

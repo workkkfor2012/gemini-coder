@@ -4,6 +4,7 @@ import * as path from 'path'
 import ignore from 'ignore'
 import { ignored_extensions } from '../constants/ignored-extensions'
 import { should_ignore_file } from '../utils/extension-utils'
+import { natural_sort } from '../../utils/natural-sort'
 
 export class WorkspaceProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -783,13 +784,13 @@ export class WorkspaceProvider
         withFileTypes: true
       })
 
-      // Sort directories above files and alphabetically
+      // Sort directories above files and alphabetically with natural sort
       dir_entries.sort((a, b) => {
         const a_is_dir = a.isDirectory() || a.isSymbolicLink()
         const b_is_dir = b.isDirectory() || b.isSymbolicLink()
         if (a_is_dir && !b_is_dir) return -1
         if (!a_is_dir && b_is_dir) return 1
-        return a.name.localeCompare(b.name)
+        return natural_sort(a.name, b.name)
       })
 
       for (const entry of dir_entries) {
