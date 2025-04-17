@@ -25,7 +25,6 @@ export function chat_to_clipboard_command(
 
       await context.workspaceState.update('lastChatPrompt', instruction)
 
-      // Files Collection using FilesCollector
       const files_collector = new FilesCollector(
         file_tree_provider,
         open_editors_provider
@@ -48,7 +47,7 @@ export function chat_to_clipboard_command(
       }
 
       const final_text = `${
-        context_text ? `<files>\n${context_text}</files>\n` : ''
+        context_text ? `${instruction}\n<files>\n${context_text}</files>\n` : ''
       }${instruction}`
 
       // Add to chat history
