@@ -26,11 +26,12 @@ export const CHATBOTS = {
       "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```",
     supported_options: {},
     models: {
+      'gemini-2.5-flash-preview-04-17': 'Gemini 2.5 Flash Preview 04-17',
+      'gemini-2.5-pro-preview-03-25': 'Gemini 2.5 Pro Preview 03-25',
       'gemini-2.0-flash': 'Gemini 2.0 Flash',
       'gemini-2.0-flash-lite': 'Gemini 2.0 Flash-Lite',
-      'gemini-2.5-pro-preview-03-25': 'Gemini 2.5 Pro Preview 03-25',
       'gemini-2.0-flash-thinking-exp-01-21':
-        'Gemini 2.0 Flash Thinking Exp 01-21'
+        'Gemini 2.0 Flash Thinking Experimental 01-21'
     }
   },
   Gemini: {
@@ -43,8 +44,9 @@ export const CHATBOTS = {
     default_system_instructions: '',
     models: {
       '2.0-flash': '2.0 Flash',
-      '2.0-flash-thinking': '2.0 Flash Thinking (experimental)',
-      '2.5-pro': '2.5 Pro (experimental)'
+      '2.5-flash-experimental': '2.5 Flash (experimental)',
+      '2.0-flash-thinking-experimental': '2.0 Flash Thinking (experimental)',
+      '2.5-pro-experimental': '2.5 Pro (experimental)'
     }
   },
   'Open WebUI': {

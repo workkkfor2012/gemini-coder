@@ -16,6 +16,13 @@ export const BUILT_IN_PROVIDERS: Provider[] = [
     model: 'gemini-2.0-flash-lite'
   },
   {
+    name: 'Gemini 2.5 Flash Preview 04-17',
+    endpointUrl:
+      'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+    apiKey: '',
+    model: 'gemini-2.5-flash-preview-04-17'
+  },
+  {
     name: 'Gemini 2.5 Pro Preview 03-25',
     endpointUrl:
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',
