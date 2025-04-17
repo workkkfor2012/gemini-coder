@@ -58,11 +58,11 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const content = `${payload.before}<missing text>${
-      payload.after
-    }\n${code_completion_instruction_external}${
+    const instructions = `${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
+
+    const content = `${instructions}\n${payload.before}<missing text>${payload.after}\n${instructions}`
 
     await vscode.env.clipboard.writeText(content)
     vscode.window.showInformationMessage(

@@ -71,10 +71,11 @@ async function handle_code_completion_in_chat_command(
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
-    // Construct FIM prompt
-    const fim_text = `<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${code_completion_instruction_external}${
+    const instructions = `${code_completion_instruction_external}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
+
+    const text = `${instructions}\n<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
     // Set FIM mode in workspace state
     await context.workspaceState.update('isFimMode', true)
@@ -90,7 +91,7 @@ async function handle_code_completion_in_chat_command(
     }
 
     // Initialize chats with selected preset names in FIM mode
-    websocket_server_instance.initialize_chats(fim_text, preset_names)
+    websocket_server_instance.initialize_chats(text, preset_names)
   } catch (error: any) {
     console.error('Error in FIM in Chat:', error)
     vscode.window.showErrorMessage('Error in FIM in Chat: ' + error.message)
