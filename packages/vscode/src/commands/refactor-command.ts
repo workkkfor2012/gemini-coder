@@ -365,8 +365,8 @@ export function refactor_command(params: {
             edit_builder.replace(full_range, result_content)
           })
 
-          // Format the document after refactoring
           await format_document(document)
+          await document.save()
 
           // Store original file state for potential reversion using the revert command
           // Include workspace_name for multi-root workspace support
