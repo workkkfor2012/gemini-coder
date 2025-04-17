@@ -494,22 +494,6 @@
           "description": "Temperature to use with built-in Gemini models.",
           "default": 0.2
         },
-        "geminiCoder.defaultApplyChangesMode": {
-          "type": "string",
-          "scope": "resource",
-          "description": "Determines how to apply changes when the clipboard contains multiple files.",
-          "default": "Always ask",
-          "enum": [
-            "Always ask",
-            "Fast replace",
-            "Intelligent update"
-          ],
-          "enumDescriptions": [
-            "Let me to choose between 'Fast replace' and 'Intelligent update' each time.",
-            "Assume clipboard contains full files and overwrite/create directly.",
-            "Use AI to intelligently merge clipboard content with existing files."
-          ]
-        },
         "geminiCoder.providers": {
           "type": "array",
           "default": [],

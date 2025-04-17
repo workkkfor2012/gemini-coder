@@ -159,12 +159,6 @@ export function apply_changes_command(params: {
     const gemini_api_key = config.get<string>('geminiCoder.apiKey')
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
-    // Modify the default mode selection to respect forced mode
-    const default_apply_changes_mode =
-      params.mode ||
-      config.get<string>('geminiCoder.defaultApplyChangesMode') ||
-      'Always ask' // Default to asking if not set
-
     // Get default model from global state instead of config
     const default_model_name = model_manager.get_default_apply_changes_model()
 
@@ -230,12 +224,7 @@ export function apply_changes_command(params: {
           data: selected_mode_label
         })
       } else {
-        const should_ask_for_mode =
-          params.command == 'geminiCoder.applyChangesWith' || // Always ask for 'applyChangesWith'
-          (params.command == 'geminiCoder.applyChanges' &&
-            default_apply_changes_mode == 'Always ask')
-
-        if (should_ask_for_mode) {
+        if (params.command == 'geminiCoder.applyChangesWith') {
           const last_used_mode = params.context.globalState.get<string>(
             'lastUsedApplyChangesMode'
           )
@@ -290,25 +279,6 @@ export function apply_changes_command(params: {
             function_name: 'apply_changes_command',
             message: 'Mode selected by user',
             data: selected_mode_label
-          })
-        } else if (
-          default_apply_changes_mode == 'Fast replace' ||
-          default_apply_changes_mode == 'Intelligent update'
-        ) {
-          selected_mode_label = default_apply_changes_mode
-          Logger.log({
-            function_name: 'apply_changes_command',
-            message: 'Using default mode from settings',
-            data: selected_mode_label
-          })
-        } else {
-          // Should not happen if default is 'Always ask', but default to Intelligent if misconfigured
-          selected_mode_label = 'Intelligent update'
-          Logger.warn({
-            function_name: 'apply_changes_command',
-            message:
-              'Invalid default mode setting, defaulting to Intelligent update',
-            data: default_apply_changes_mode
           })
         }
       }
