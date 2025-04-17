@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import * as fs from 'fs'
 import { Provider } from '../../types/provider'
 import { BUILT_IN_PROVIDERS } from '../../constants/built-in-providers'
 import { ModelManager } from '../../services/model-manager'
@@ -13,6 +14,7 @@ import { OriginalFileState } from '../../types/common'
 import { revert_files } from './utils/file-operations'
 import { handle_fast_replace } from './handlers/fast-replace-handler'
 import { handle_intelligent_update } from './handlers/intelligent-update-handler'
+import { create_safe_path } from '@/utils/path-sanitizer'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -131,6 +133,43 @@ function contains_ellipsis_comment(files: ClipboardFile[]): boolean {
   )
 }
 
+async function check_if_all_files_new(
+  files: ClipboardFile[]
+): Promise<boolean> {
+  if (
+    !vscode.workspace.workspaceFolders ||
+    vscode.workspace.workspaceFolders.length == 0
+  ) {
+    return false
+  }
+
+  // Create a map of workspace names to their root paths
+  const workspace_map = new Map<string, string>()
+  vscode.workspace.workspaceFolders.forEach((folder) => {
+    workspace_map.set(folder.name, folder.uri.fsPath)
+  })
+
+  // Default workspace is the first one
+  const default_workspace = vscode.workspace.workspaceFolders[0].uri.fsPath
+
+  for (const file of files) {
+    // Determine the correct workspace root for this file
+    let workspace_root = default_workspace
+    if (file.workspace_name && workspace_map.has(file.workspace_name)) {
+      workspace_root = workspace_map.get(file.workspace_name)!
+    }
+
+    // Create safe path using the correct workspace root
+    const safe_path = create_safe_path(workspace_root, file.file_path)
+
+    if (safe_path && fs.existsSync(safe_path)) {
+      return false // At least one file exists
+    }
+  }
+
+  return true // All files are new
+}
+
 export function apply_changes_command(params: {
   command: string
   file_tree_provider: any // Keep for potential future use?
@@ -227,63 +266,79 @@ export function apply_changes_command(params: {
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
     if (is_multiple_files) {
-      // Parse files early to check for ellipsis comment
+      // Parse files early to check for ellipsis comment and existence
       parsed_files = parse_clipboard_multiple_files({
         clipboard_text,
         is_single_root_folder_workspace
       })
 
-      // Check for "..." comment hint for intelligent update
-      const auto_select_intelligent = contains_ellipsis_comment(parsed_files)
+      // Check if all files are new (don't exist in workspace)
+      const all_files_new = await check_if_all_files_new(parsed_files)
 
-      if (auto_select_intelligent) {
-        selected_mode_label = 'Intelligent update'
+      if (all_files_new) {
+        // All files are new - automatically use Fast replace mode
+        selected_mode_label = 'Fast replace'
         Logger.log({
           function_name: 'apply_changes_command',
           message:
-            'Detected "..." comment, automatically selecting Intelligent update mode.'
-        })
-      } else if (params.mode) {
-        // Mode forced by command parameters (e.g., specific command bindings)
-        selected_mode_label = params.mode
-        Logger.log({
-          function_name: 'apply_changes_command',
-          message: 'Mode forced by command parameters',
-          data: selected_mode_label
+            'All files are new - automatically selecting Fast replace mode'
         })
       } else {
-        // Multiple files, no ellipsis, no forced mode -> Ask the user
-        const mode_options: vscode.QuickPickItem[] = [
-          {
-            label: 'Fast replace',
-            description:
-              'Create or replace files directly with the clipboard content.'
-          },
-          {
-            label: 'Intelligent update',
-            description:
-              'Use AI to merge clipboard changes into existing files.'
-          }
-        ]
-        const selected_item = await vscode.window.showQuickPick(mode_options, {
-          placeHolder: 'Select how to apply changes to multiple files'
-        })
+        // Check for "..." comment hint for intelligent update
+        const auto_select_intelligent = contains_ellipsis_comment(parsed_files)
 
-        if (!selected_item) {
+        if (auto_select_intelligent) {
+          selected_mode_label = 'Intelligent update'
           Logger.log({
             function_name: 'apply_changes_command',
-            message: 'User cancelled mode selection.'
+            message:
+              'Detected "..." comment, automatically selecting Intelligent update mode.'
           })
-          return // User cancelled
+        } else if (params.mode) {
+          // Mode forced by command parameters (e.g., specific command bindings)
+          selected_mode_label = params.mode
+          Logger.log({
+            function_name: 'apply_changes_command',
+            message: 'Mode forced by command parameters',
+            data: selected_mode_label
+          })
+        } else {
+          // Multiple files, no ellipsis, no forced mode -> Ask the user
+          const mode_options: vscode.QuickPickItem[] = [
+            {
+              label: 'Fast replace',
+              description:
+                'Create or replace files directly with the clipboard content.'
+            },
+            {
+              label: 'Intelligent update',
+              description:
+                'Use AI to merge clipboard changes into existing files.'
+            }
+          ]
+          const selected_item = await vscode.window.showQuickPick(
+            mode_options,
+            {
+              placeHolder: 'Select how to apply changes to multiple files'
+            }
+          )
+
+          if (!selected_item) {
+            Logger.log({
+              function_name: 'apply_changes_command',
+              message: 'User cancelled mode selection.'
+            })
+            return // User cancelled
+          }
+          selected_mode_label = selected_item.label as
+            | 'Fast replace'
+            | 'Intelligent update'
+          Logger.log({
+            function_name: 'apply_changes_command',
+            message: 'User selected mode',
+            data: selected_mode_label
+          })
         }
-        selected_mode_label = selected_item.label as
-          | 'Fast replace'
-          | 'Intelligent update'
-        Logger.log({
-          function_name: 'apply_changes_command',
-          message: 'User selected mode',
-          data: selected_mode_label
-        })
       }
     } else {
       // Single file always uses Intelligent Update implicitly
