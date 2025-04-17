@@ -258,11 +258,13 @@
       },
       {
         "command": "geminiCoder.newFolder",
-        "title": "New Folder..."
+        "title": "New Folder...",
+        "icon": "$(new-folder)"
       },
       {
         "command": "geminiCoder.newFile",
-        "title": "New File..."
+        "title": "New File...",
+        "icon": "$(new-file)"
       },
       {
         "command": "geminiCoder.rename",
@@ -397,9 +399,19 @@
           "group": "navigation@5"
         },
         {
-          "command": "geminiCoder.collapseFolders",
+          "command": "geminiCoder.newFile",
           "when": "view == geminiCoderViewWorkspace",
           "group": "navigation@6"
+        },
+        {
+          "command": "geminiCoder.newFolder",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@7"
+        },
+        {
+          "command": "geminiCoder.collapseFolders",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "navigation@8"
         },
         {
           "command": "geminiCoder.checkAllOpenEditors",

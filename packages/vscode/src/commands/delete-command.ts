@@ -15,8 +15,7 @@ export function delete_command() {
       const result = await vscode.window.showWarningMessage(
         'Are you sure you want to delete this item?',
         { modal: true },
-        'Delete',
-        'Cancel'
+        'Delete'
       )
 
       if (result !== 'Delete') {

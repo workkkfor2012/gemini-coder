@@ -5,13 +5,37 @@ import { create_safe_path } from '../utils/path-sanitizer'
 export function new_file_command() {
   return vscode.commands.registerCommand(
     'geminiCoder.newFile',
-    async (item?: vscode.TreeItem) => {
-      // If item is not provided, we can't create a file
-      if (!item?.resourceUri) {
-        return
+    async (item?: vscode.TreeItem | vscode.Uri) => {
+      let parent_path: string | undefined
+
+      // Handle case when invoked from view/title (no item parameter)
+      if (!item) {
+        // Try to get active workspace folder
+        if (
+          vscode.workspace.workspaceFolders &&
+          vscode.workspace.workspaceFolders.length > 0
+        ) {
+          parent_path = vscode.workspace.workspaceFolders[0].uri.fsPath
+        } else {
+          vscode.window.showErrorMessage('No workspace folder is open')
+          return
+        }
+      }
+      // Handle case when invoked with URI (from view/title)
+      else if (item instanceof vscode.Uri) {
+        parent_path = item.fsPath
+      }
+      // Handle case when invoked with TreeItem (from context menu)
+      else if (item.resourceUri) {
+        parent_path = item.resourceUri.fsPath
       }
 
-      const parent_path = item.resourceUri.fsPath
+      if (!parent_path) {
+        vscode.window.showErrorMessage(
+          'Could not determine location to create file'
+        )
+        return
+      }
 
       // Prompt user for the file name
       const file_name = await vscode.window.showInputBox({
