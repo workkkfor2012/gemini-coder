@@ -239,9 +239,14 @@ async function collect_affected_files(
     const root_path = repository.rootUri.fsPath
 
     // Get changed files based on whether we're using staged or unstaged changes
+    const staged_changes = repository.state.indexChanges || []
+    const working_tree_changes = repository.state.workingTreeChanges || []
+    const untracked_changes = repository.state.untrackedChanges || [] // Add this line
+
+    // Combine the appropriate changes based on whether we're using staged changes
     const changes = use_staged
-      ? repository.state.indexChanges || []
-      : repository.state.workingTreeChanges || []
+      ? staged_changes
+      : [...working_tree_changes, ...untracked_changes] // Include untracked changes when not using staged
 
     if (!changes.length) {
       return ''
