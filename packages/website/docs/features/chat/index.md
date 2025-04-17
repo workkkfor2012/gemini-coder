@@ -42,7 +42,6 @@ As longer conversations notably decrease model's performance, instead of submitt
 - DeepSeek
 - Mistral
 - HuggingChat
-- Together
 
 ## Presets
 

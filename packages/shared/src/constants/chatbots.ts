@@ -137,24 +137,6 @@ export const CHATBOTS = {
     supported_options: { think: 'Think' },
     models: {}
   },
-  Together: {
-    url: 'https://chat.together.ai/',
-    supports_custom_temperature: false,
-    supports_system_instructions: true,
-    supports_user_provided_model: false,
-    supports_user_provided_port: false,
-    default_system_instructions:
-      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the first line.\nExample of a code block with a file name in the first line:\n```typescript\n// filename.ts\ncontents of file\n```",
-    supported_options: {},
-    models: {
-      'deepseek-r1': 'DeepSeek R1',
-      'deepseek-v3': 'DeepSeek V3 (0324)',
-      'llama-4-maverick': 'Llama 4 Maverick',
-      'llama-4-scout': 'Llama 4 Scout',
-      'qwen-2.5-72b': 'Qwen 2.5 72B',
-      'qwen-coder-32b': 'Qwen Coder 32B'
-    }
-  },
   HuggingChat: {
     url: 'https://huggingface.co/chat/',
     supports_custom_temperature: false,

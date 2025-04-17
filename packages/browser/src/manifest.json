@@ -34,7 +34,6 @@
         "https://chat.deepseek.com/",
         "https://chat.mistral.ai/chat",
         "https://huggingface.co/chat/",
-        "https://chat.together.ai/",
         "http://localhost/",
         "http://openwebui/"
       ],

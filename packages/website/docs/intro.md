@@ -49,4 +49,3 @@ Gemini Coder works with many popular chatbots:
 - DeepSeek
 - Mistral
 - HuggingChat
-- Together

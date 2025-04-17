@@ -37,9 +37,6 @@ const is_github_copilot = current_url.startsWith('https://github.com/copilot')
 const deepseek_url = 'https://chat.deepseek.com/'
 const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
 
-const together_url = 'https://chat.together.ai/'
-const is_together = current_url.startsWith('https://chat.together.ai/')
-
 const mistral_url = 'https://chat.mistral.ai/chat'
 const is_mistral = current_url.startsWith('https://chat.mistral.ai/chat')
 
@@ -61,8 +58,7 @@ export const get_textarea_element = () => {
     [claude_url]: 'div[contenteditable=true]',
     [github_copilot_url]: 'textarea#copilot-chat-textarea',
     [deepseek_url]: 'textarea',
-    [mistral_url]: 'textarea',
-    [together_url]: 'textarea'
+    [mistral_url]: 'textarea'
   } as any
 
   // Find the appropriate selector based on the URL without the hash
@@ -217,24 +213,6 @@ const enter_system_instructions = async (system_instructions: string) => {
       )
     }) as HTMLButtonElement
     close_button.click()
-    await new Promise((r) => requestAnimationFrame(r))
-  } else if (is_together) {
-    const options_button = Array.from(document.querySelectorAll('button')).find(
-      (button) =>
-        button.querySelector('path[d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"]')
-    ) as HTMLButtonElement
-    options_button.click()
-    await new Promise((r) => requestAnimationFrame(r))
-    const instructions_textarea = document.querySelector(
-      'textarea#instructions'
-    ) as HTMLTextAreaElement
-    instructions_textarea.value = system_instructions
-    instructions_textarea.dispatchEvent(new Event('input', { bubbles: true }))
-    instructions_textarea.dispatchEvent(new Event('change', { bubbles: true }))
-    const submit_button = document.querySelector(
-      'div[aria-modal="true"] button[type="submit"]'
-    ) as HTMLButtonElement
-    submit_button.click()
     await new Promise((r) => requestAnimationFrame(r))
   }
 }
@@ -442,38 +420,6 @@ const set_model = async (model: string) => {
     }
     model_selector_button.click()
     await new Promise((r) => requestAnimationFrame(r))
-  } else if (is_together) {
-    if (model && model in CHATBOTS['Together'].models) {
-      const model_selector_button = Array.from(
-        document.querySelectorAll('form button')
-      ).find((button) =>
-        button.querySelector(
-          'path[d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z"]'
-        )
-      ) as HTMLButtonElement
-      model_selector_button.click()
-      await new Promise((r) => requestAnimationFrame(r))
-      const model_options = Array.from(
-        document.querySelectorAll(
-          'div[data-floating-ui-focusable] div[role="option"]'
-        )
-      )
-      for (const option of model_options) {
-        const model_name_element = option.querySelector(
-          'p.font-medium'
-        ) as HTMLElement
-        if (
-          model_name_element?.textContent?.trim() ==
-          (CHATBOTS['Together'].models as any)[model]
-        ) {
-          ;(option as HTMLElement).click()
-          break
-        }
-      }
-      await new Promise((r) => requestAnimationFrame(r))
-    } else if (model) {
-      alert(`Model "${model}" is no longer supported.`)
-    }
   }
 }
 
@@ -750,17 +696,6 @@ const main = async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
         if (document.querySelector('textarea')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
-  } else if (is_together) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('div[data-clerk-component="UserButton"]')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
