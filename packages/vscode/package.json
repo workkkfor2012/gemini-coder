@@ -197,18 +197,18 @@
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimInChat",
-        "title": "FIM in Chat",
+        "command": "geminiCoder.codeCompletionInChat",
+        "title": "Code Completion in Chat",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.fimInChatWith",
-        "title": "FIM in Chat with...",
+        "command": "geminiCoder.codeCompletionInChatWith",
+        "title": "Code Completion in Chat with...",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.changeDefaultFimModel",
-        "title": "Change Default FIM Model",
+        "command": "geminiCoder.changeDefaultCodeCompletionModel",
+        "title": "Change Default Code Completion Model",
         "category": "Gemini Coder"
       },
       {

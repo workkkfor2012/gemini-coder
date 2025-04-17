@@ -117,7 +117,7 @@ export function code_completion_in_chat_with_command(
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.fimInChatWith',
+    'geminiCoder.codeCompletionInChatWith',
     async () => {
       const config = vscode.workspace.getConfiguration()
       const all_presets = config.get<any[]>('geminiCoder.presets', [])
@@ -171,7 +171,7 @@ export function code_completion_in_chat_command(
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
-  return vscode.commands.registerCommand('geminiCoder.fimInChat', async () => {
+  return vscode.commands.registerCommand('geminiCoder.codeCompletionInChat', async () => {
     const config = vscode.workspace.getConfiguration()
     const allPresets = config.get<any[]>('geminiCoder.presets', [])
 

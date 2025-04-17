@@ -17,7 +17,7 @@ type ModelConfig = {
 
 const MODEL_CONFIGS: Record<ModelType, ModelConfig> = {
   fim: {
-    command_id: 'geminiCoder.changeDefaultFimModel',
+    command_id: 'geminiCoder.changeDefaultCodeCompletionModel',
     display_name: 'FIM',
     placeholder: 'Select default model for FIM completions'
   },
