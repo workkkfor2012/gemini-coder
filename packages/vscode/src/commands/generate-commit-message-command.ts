@@ -9,6 +9,7 @@ import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallbac
 import { Provider } from '@/types/provider'
 import { execSync } from 'child_process'
 import { Logger } from '@/helpers/logger'
+import { should_ignore_file } from '../context/utils/extension-utils'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -77,6 +78,11 @@ export function generate_commit_message_command(
         const commit_message_prompt = config.get<string>(
           'geminiCoder.commitMessagePrompt'
         )
+        const ignored_extensions = new Set(
+          config
+            .get<string[]>('ignoredExtensions', [])
+            .map((ext) => ext.toLowerCase().replace(/^\./, ''))
+        )
 
         // Get default commit message model
         const model_manager = new ModelManager(context)
@@ -84,7 +90,6 @@ export function generate_commit_message_command(
           model_manager.get_default_commit_message_model()
 
         // Set up providers
-
         const all_providers = [
           ...BUILT_IN_PROVIDERS.map((provider) => ({
             ...provider,
@@ -112,7 +117,8 @@ export function generate_commit_message_command(
         // Collect the changed files with their original, unmodified content
         const affected_files = await collect_affected_files(
           repository,
-          use_staged
+          use_staged,
+          ignored_extensions
         )
 
         const message = `${affected_files}\n${commit_message_prompt}\n${diff}`
@@ -236,7 +242,8 @@ export function generate_commit_message_command(
 
 async function collect_affected_files(
   repository: any,
-  use_staged: boolean = false
+  use_staged: boolean = false,
+  ignored_extensions: Set<string>
 ): Promise<string> {
   try {
     // Get the repository workspace root
@@ -245,12 +252,12 @@ async function collect_affected_files(
     // Get changed files based on whether we're using staged or unstaged changes
     const staged_changes = repository.state.indexChanges || []
     const working_tree_changes = repository.state.workingTreeChanges || []
-    const untracked_changes = repository.state.untrackedChanges || [] // Add this line
+    const untracked_changes = repository.state.untrackedChanges || []
 
     // Combine the appropriate changes based on whether we're using staged changes
     const changes = use_staged
       ? staged_changes
-      : [...working_tree_changes, ...untracked_changes] // Include untracked changes when not using staged
+      : [...working_tree_changes, ...untracked_changes]
 
     if (!changes.length) {
       return ''
@@ -261,6 +268,11 @@ async function collect_affected_files(
     for (const change of changes) {
       const file_path = change.uri.fsPath
       const relative_path = path.relative(root_path, file_path)
+
+      // Skip files with ignored extensions
+      if (should_ignore_file(file_path, ignored_extensions)) {
+        continue
+      }
 
       try {
         // Read file content except for deleted files
