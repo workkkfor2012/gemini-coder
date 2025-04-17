@@ -44,9 +44,11 @@ export function generate_commit_message_command(
         // Check for staged changes first
         const staged_changes = repository.state.indexChanges || []
 
-        // If no staged changes, get diff of all changes
-        // Otherwise, we'll only use the staged changes
+        // If no staged changes, stage all changes
         const use_staged = staged_changes.length > 0
+        if (!use_staged) {
+          await repository.add([]) // Stage all changes
+        }
 
         let diff: string
         if (use_staged) {
@@ -55,8 +57,10 @@ export function generate_commit_message_command(
             cwd: repository.rootUri.fsPath
           }).toString()
         } else {
-          // Get diff of all changes
-          diff = await repository.diff()
+          // Get diff of all changes (which are now staged)
+          diff = execSync('git diff --staged', {
+            cwd: repository.rootUri.fsPath
+          }).toString()
         }
 
         if (!diff || diff.length == 0) {
