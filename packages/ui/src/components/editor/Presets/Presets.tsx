@@ -6,20 +6,7 @@ import { ReactSortable } from 'react-sortablejs'
 import { Icon } from '../Icon'
 import { useState } from 'react'
 import { CHATBOTS } from '@shared/constants/chatbots'
-
-const chatbot_to_icon = {
-  'AI Studio': 'AI_STUDIO',
-  Gemini: 'GEMINI',
-  'Open WebUI': 'OPEN_WEBUI',
-  OpenRouter: 'OPENROUTER',
-  ChatGPT: 'CHATGPT',
-  'GitHub Copilot': 'GITHUB_COPILOT',
-  Claude: 'CLAUDE',
-  DeepSeek: 'DEEPSEEK',
-  Mistral: 'MISTRAL',
-  Grok: 'GROK',
-  HuggingChat: 'HUGGING_CHAT'
-} as Record<string, Icon.Variant>
+import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
 
 export namespace Presets {
   export type Preset = {
@@ -58,8 +45,7 @@ const ChatbotIcon: React.FC<{
   chatbot: keyof typeof CHATBOTS
   is_selected: boolean
 }> = (params) => {
-  const icon_variant =
-    chatbot_to_icon[params.chatbot as keyof typeof chatbot_to_icon]
+  const icon_variant = chatbot_to_icon[params.chatbot]
 
   if (!icon_variant) return null
 

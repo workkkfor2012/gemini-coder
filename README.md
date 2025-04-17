@@ -65,6 +65,7 @@ Gemini Coder works with many popular chatbots:
 - DeepSeek
 - Mistral
 - HuggingChat
+- Together
 
 ## Quick start for chat
 

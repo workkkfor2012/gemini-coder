@@ -11,6 +11,7 @@ import DeepSeek from '../../../assets/icons/deepseek.svg'
 import Mistral from '../../../assets/icons/mistral.svg'
 import Grok from '../../../assets/icons/grok.svg'
 import HuggingChat from '../../../assets/icons/hugging-chat.svg'
+import Together from '../../../assets/icons/together.svg'
 
 export namespace Icon {
   export type Variant =
@@ -27,6 +28,7 @@ export namespace Icon {
     | 'MISTRAL'
     | 'GROK'
     | 'HUGGING_CHAT'
+    | 'TOGETHER'
 
   export type Props = {
     variant: Variant
@@ -75,6 +77,9 @@ export const Icon: React.FC<Icon.Props> = ({ variant }) => {
       break
     case 'HUGGING_CHAT':
       icon = <HuggingChat />
+      break
+    case 'TOGETHER':
+      icon = <Together />
       break
   }
 

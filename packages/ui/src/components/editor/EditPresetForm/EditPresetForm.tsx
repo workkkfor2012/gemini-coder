@@ -6,20 +6,7 @@ import TextareaAutosize from 'react-textarea-autosize'
 import cn from 'classnames'
 import { Icon } from '../Icon'
 import { Field } from '../Field'
-
-const chatbot_to_icon = {
-  'AI Studio': 'AI_STUDIO',
-  Gemini: 'GEMINI',
-  'Open WebUI': 'OPEN_WEBUI',
-  OpenRouter: 'OPENROUTER',
-  ChatGPT: 'CHATGPT',
-  'GitHub Copilot': 'GITHUB_COPILOT',
-  Claude: 'CLAUDE',
-  DeepSeek: 'DEEPSEEK',
-  Mistral: 'MISTRAL',
-  Grok: 'GROK',
-  HuggingChat: 'HUGGING_CHAT'
-} as Record<string, Icon.Variant>
+import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
 
 type Props = {
   preset: Preset
