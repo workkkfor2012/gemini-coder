@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the free 2M context AI coding toolkit",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for code completions, file refactoring and applying AI-suggested changes.",
-  "version": "1.0.360",
+  "version": "1.0.361",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -103,8 +103,7 @@
       {
         "command": "geminiCoder.copyContext",
         "title": "Copy Context",
-        "category": "Gemini Coder",
-        "icon": "$(copy)"
+        "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.selectSavedContext",
@@ -373,11 +372,6 @@
         }
       ],
       "view/title": [
-        {
-          "command": "geminiCoder.copyContext",
-          "when": "view == geminiCoderViewWorkspace",
-          "group": "navigation@1"
-        },
         {
           "command": "geminiCoder.selectSavedContext",
           "when": "view == geminiCoderViewWorkspace",
