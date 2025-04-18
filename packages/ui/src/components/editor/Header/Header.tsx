@@ -26,9 +26,9 @@ export const Header: React.FC<Props> = (props) => {
             [styles['tabs__tab--active']]: props.active_tab == 'chat'
           })}
           onClick={props.on_chat_tab_click}
-          data-text={window_width >= 320 ? 'Web Chats' : 'Chats'}
+          data-text={window_width >= 320 ? 'Web Chat' : 'Chats'}
         >
-          {window_width >= 320 ? 'Web Chats' : 'Chats'}
+          {window_width >= 320 ? 'Web Chat' : 'Chats'}
         </button>
         <button
           className={cn(styles.tabs__tab, {
