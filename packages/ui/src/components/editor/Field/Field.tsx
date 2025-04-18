@@ -5,7 +5,7 @@ type Props = {
   label: string
   htmlFor?: string
   info?: React.ReactNode
-  children: React.ReactNode
+  children?: React.ReactNode
 }
 
 export const Field: React.FC<Props> = ({ label, htmlFor, info, children }) => {

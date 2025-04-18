@@ -144,6 +144,10 @@ export interface GetCustomProvidersMessage extends BaseMessage {
   command: 'GET_CUSTOM_PROVIDERS'
 }
 
+export interface GetOpenRouterModelsMessage extends BaseMessage {
+  command: 'GET_OPENROUTER_MODELS'
+}
+
 // Messages from extension to webview:
 export interface ApiKeyUpdatedMessage extends BaseMessage {
   command: 'API_KEY_UPDATED'
@@ -256,6 +260,11 @@ export interface CustomProvidersUpdatedMessage extends BaseMessage {
   }>
 }
 
+export interface OpenRouterModelsMessage extends BaseMessage {
+  command: 'OPENROUTER_MODELS'
+  models: { [model: string]: string }
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetApiKeyMessage
@@ -287,6 +296,7 @@ export type WebviewMessage =
   | GetDefaultModelsMessage
   | UpdateDefaultModelMessage
   | GetCustomProvidersMessage
+  | GetOpenRouterModelsMessage
 
 export type ExtensionMessage =
   | ApiKeyUpdatedMessage
@@ -307,3 +317,4 @@ export type ExtensionMessage =
   | PresetUpdated
   | DefaultModelsUpdatedMessage
   | CustomProvidersUpdatedMessage
+  | OpenRouterModelsMessage

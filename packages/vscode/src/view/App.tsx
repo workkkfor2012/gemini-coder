@@ -8,6 +8,7 @@ import { EditView } from '@ui/components/editor/EditView'
 import { EditPresetForm } from '@ui/components/editor/EditPresetForm'
 import { Preset } from '@shared/types/preset'
 import { ExtensionMessage } from './types/messages'
+import { use_open_router_models } from './hooks/use-open-router-models'
 
 import '@vscode/codicons/dist/codicon.css'
 import '@ui/styles/global.scss'
@@ -18,6 +19,9 @@ const App = () => {
   const [active_tab, set_active_tab] = useState<'chat' | 'api'>('chat')
   const [updating_preset, set_updating_preset] = useState<Preset>()
   const [updated_preset, set_updated_preset] = useState<Preset>()
+
+  const { open_router_models, request_open_router_models } =
+    use_open_router_models(vscode)
 
   const handle_preset_update = (updated_preset: Preset) => {
     set_updated_preset(updated_preset)
@@ -71,6 +75,8 @@ const App = () => {
       <EditPresetForm
         preset={updating_preset}
         on_update={handle_preset_update}
+        request_open_router_models={request_open_router_models}
+        open_router_models={open_router_models}
       />
     </EditView>
   )

@@ -11,6 +11,8 @@ import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
 type Props = {
   preset: Preset
   on_update: (updated_preset: Preset) => void
+  request_open_router_models: () => void
+  open_router_models?: { [model: string]: string }
 }
 
 export const EditPresetForm: React.FC<Props> = (props) => {
@@ -41,12 +43,16 @@ export const EditPresetForm: React.FC<Props> = (props) => {
     props.preset.prompt_suffix || ''
   )
   const [options, set_options] = useState<string[]>(props.preset.options || [])
+  const [open_router_models, set_open_router_models] = useState<{
+    [model: string]: string
+  }>()
 
   const supports_temperature = CHATBOTS[chatbot].supports_custom_temperature
   const supports_system_instructions =
     CHATBOTS[chatbot].supports_system_instructions
   const supports_port = CHATBOTS[chatbot].supports_user_provided_port
-  const supports_custom_model = CHATBOTS[chatbot].supports_user_provided_model
+  const supports_user_provided_model =
+    CHATBOTS[chatbot].supports_user_provided_model
   const models = CHATBOTS[chatbot].models
   const supported_options = CHATBOTS[chatbot].supported_options
 
@@ -99,15 +105,25 @@ export const EditPresetForm: React.FC<Props> = (props) => {
     )
   }
 
+  useEffect(() => {
+    set_open_router_models(props.open_router_models)
+  }, [props.open_router_models])
+
+  useEffect(() => {
+    if (chatbot == 'OpenRouter' && !open_router_models) {
+      props.request_open_router_models()
+    }
+  }, [chatbot])
+
   return (
     <div className={styles.form}>
       <div className={styles['chatbot-icon']}>
         <Icon variant={chatbot_to_icon[chatbot]} />
       </div>
 
-      <Field label="Chatbot" htmlFor="preset-chatbot">
+      <Field label="Chatbot" htmlFor="chatbot">
         <select
-          id="preset-chatbot"
+          id="chatbot"
           value={chatbot}
           onChange={handle_chatbot_change}
           className={styles.input}
@@ -121,9 +137,9 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       </Field>
 
       {Object.keys(models).length > 0 && (
-        <Field label="Model" htmlFor="preset-model">
+        <Field label="Model" htmlFor="model">
           <select
-            id="preset-model"
+            id="model"
             value={model}
             onChange={(e) => set_model(e.target.value)}
             className={styles.input}
@@ -137,10 +153,30 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         </Field>
       )}
 
-      {supports_custom_model && (
-        <Field label="Model" htmlFor="preset-custom-model">
+      {chatbot == 'OpenRouter' &&
+        (open_router_models && Object.keys(open_router_models).length > 0 ? (
+          <Field label="Model" htmlFor="openrouter-model">
+            <select
+              id="openrouter-model"
+              value={model}
+              onChange={(e) => set_model(e.target.value)}
+              className={styles.input}
+            >
+              {Object.entries(open_router_models).map(([value, label]) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </select>
+          </Field>
+        ) : (
+          <Field label="Model" info="Fetching..." />
+        ))}
+
+      {supports_user_provided_model && (
+        <Field label="Model" htmlFor="custom-model">
           <input
-            id="preset-custom-model"
+            id="custom-model"
             type="text"
             value={model || ''}
             onChange={(e) => set_model(e.target.value)}
@@ -150,9 +186,9 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         </Field>
       )}
 
-      <Field label="Name" htmlFor="preset-name">
+      <Field label="Name" htmlFor="name">
         <input
-          id="preset-name"
+          id="name"
           type="text"
           value={name}
           onChange={(e) => set_name(e.target.value)}
@@ -163,7 +199,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       {supports_port && (
         <Field
           label="Port"
-          htmlFor="preset-port"
+          htmlFor="port"
           info={
             chatbot == 'Open WebUI' && (
               <>
@@ -174,7 +210,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
           }
         >
           <input
-            id="preset-port"
+            id="port"
             type="text"
             value={port}
             onChange={(e) => set_port(parseInt(e.target.value))}
@@ -208,10 +244,10 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       )}
 
       {supports_temperature && (
-        <Field label="Temperature" htmlFor="preset-temperature">
+        <Field label="Temperature" htmlFor="temperature">
           <div className={styles.temperature}>
             <input
-              id="preset-temperature"
+              id="temperature"
               type="number"
               min="0"
               max="1"
@@ -239,9 +275,9 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       )}
 
       {supports_system_instructions && (
-        <Field label="System Instructions" htmlFor="system-instructions">
+        <Field label="System Instructions" htmlFor="instructions">
           <TextareaAutosize
-            id="system-instructions"
+            id="instructions"
             value={system_instructions}
             onChange={(e) => set_system_instructions(e.target.value)}
             className={styles.input}
@@ -253,11 +289,11 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       <Field
         label="Prompt Prefix"
-        htmlFor="preset-prefix"
+        htmlFor="prefix"
         info="Text prepended to prompts used with this preset"
       >
         <input
-          id="preset-prefix"
+          id="prefix"
           type="text"
           value={prompt_prefix}
           onChange={(e) => set_prompt_prefix(e.target.value)}
@@ -267,11 +303,11 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       <Field
         label="Prompt Suffix"
-        htmlFor="preset-suffix"
+        htmlFor="suffix"
         info="Text appended to prompts used with this preset"
       >
         <input
-          id="preset-suffix"
+          id="suffix"
           type="text"
           value={prompt_suffix}
           onChange={(e) => set_prompt_suffix(e.target.value)}

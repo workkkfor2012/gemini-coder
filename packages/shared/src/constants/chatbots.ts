@@ -67,12 +67,14 @@ export const CHATBOTS = {
     url: 'https://openrouter.ai/chat',
     supports_custom_temperature: true,
     supports_system_instructions: true,
-    supports_user_provided_model: true,
+    supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions:
       "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the first line.\nExample of a code block with a file name in the first line:\n```typescript\n// filename.ts\ncontents of file\n```",
     supported_options: {},
-    models: {}
+    models: {
+      // Populated dynamically
+    }
   },
   ChatGPT: {
     url: 'https://chatgpt.com/',

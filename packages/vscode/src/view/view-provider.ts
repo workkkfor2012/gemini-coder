@@ -20,7 +20,8 @@ import {
   UpdateApiKeyMessage,
   DefaultModelsUpdatedMessage,
   UpdateDefaultModelMessage,
-  CustomProvidersUpdatedMessage
+  CustomProvidersUpdatedMessage,
+  OpenRouterModelsMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -30,6 +31,8 @@ import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { ModelManager } from '@/services/model-manager'
+import axios from 'axios'
+import { Logger } from '@/helpers/logger'
 
 type ConfigPresetFormat = {
   name: string
@@ -248,6 +251,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | ApiKeyUpdatedMessage
       | DefaultModelsUpdatedMessage
       | CustomProvidersUpdatedMessage
+      | OpenRouterModelsMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -387,6 +391,30 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       system_instructions: configPreset.systemInstructions || '',
       options: configPreset.options,
       port: configPreset.port
+    }
+  }
+
+  private async _fetch_open_router_models(): Promise<{
+    [model: string]: string
+  }> {
+    try {
+      // Response format: { data: [{ id: string, name: string, ... }] }
+      const response = await axios.get('https://openrouter.ai/api/v1/models')
+      const models: { [model: string]: string } = {}
+
+      for (const model of response.data.data) {
+        models[model.id] = model.name
+      }
+
+      return models
+    } catch (error) {
+      Logger.error({
+        function_name: '_fetch_open_router_models',
+        message: 'Error fetching OpenRouter models',
+        data: error
+      })
+      vscode.window.showErrorMessage('Failed to fetch OpenRouter models.')
+      return {}
     }
   }
 
@@ -999,6 +1027,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             this._send_message<CustomProvidersUpdatedMessage>({
               command: 'CUSTOM_PROVIDERS_UPDATED',
               custom_providers: providers
+            })
+          } else if (message.command == 'GET_OPENROUTER_MODELS') {
+            const models = await this._fetch_open_router_models()
+            this._send_message<OpenRouterModelsMessage>({
+              command: 'OPENROUTER_MODELS',
+              models
             })
           }
         } catch (error: any) {
