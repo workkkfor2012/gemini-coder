@@ -1,6 +1,6 @@
 {
   "name": "gemini-coder",
-  "displayName": "Gemini Coder - the free 2M context AI coding toolkit",
+  "displayName": "Gemini Coder - the free 2M context AI coding assistant",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for code completions, file refactoring and applying AI-suggested changes.",
   "version": "1.0.364",
   "scripts": {

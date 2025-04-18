@@ -80,9 +80,8 @@ export const inject_apply_changes_buttons = (params: {
   if (params.is_ai_studio) {
     const debounced_add_buttons = debounce(
       (params: { footer: Element; client_id: number }) => {
-        const fast_replace_button_text = 'Apply Changes with Fast Replace'
-        const intelligent_update_button_text =
-          'Apply Changes with Intelligent Update'
+        const fast_replace_button_text = 'Fast replace'
+        const intelligent_update_button_text = 'Intelligent update'
 
         // Check if buttons already exist by text content to avoid duplicates
         const existing_fast_replace_button = Array.from(
@@ -143,7 +142,7 @@ export const inject_apply_changes_buttons = (params: {
           const fast_replace_button = document.createElement('button')
           fast_replace_button.textContent = fast_replace_button_text
           fast_replace_button.title =
-            'Overrides original files. Action can be reverted.'
+            'Create or repalce files directly with the content of code blocks. Action can be reverted.'
           apply_button_style(fast_replace_button)
 
           // Add event listener for Fast replace button click
@@ -164,7 +163,7 @@ export const inject_apply_changes_buttons = (params: {
           const intelligent_update_button = document.createElement('button')
           intelligent_update_button.textContent = intelligent_update_button_text
           intelligent_update_button.title =
-            'Uses AI to merge partial changes into existing files. Enabled because detected truncated fragments with ellipsis comments.'
+            'Uses AI to merge partial changes into existing files. Action can be reverted.'
           apply_button_style(intelligent_update_button)
           intelligent_update_button.style.background =
             'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
@@ -187,6 +186,7 @@ export const inject_apply_changes_buttons = (params: {
         if (has_truncated || has_diff) {
           create_intelligent_update_button()
         } else {
+          create_intelligent_update_button()
           create_fast_replace_button()
         }
       },
