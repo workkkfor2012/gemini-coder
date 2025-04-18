@@ -37,19 +37,34 @@ const apply_button_style = (button: HTMLButtonElement) => {
     'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
   button.style.border = 'none'
   button.style.cursor = 'pointer'
+  button.style.transition = 'opacity 0.2s ease-in-out'
 }
 
 // Handle button click
 const handle_button_click = (
-  button: HTMLButtonElement,
+  clicked_button: HTMLButtonElement,
   client_id: number,
   action: 'fast-replace' | 'intelligent-update'
 ) => {
   // Find the parent chat-turn-container
-  const chat_turn_container = button.closest('.chat-turn-container')
+  const chat_turn_container = clicked_button.closest('.chat-turn-container')
   if (!chat_turn_container) return
 
-  button.disabled = true
+  // Disable all custom buttons within this chat turn and set opacity
+  const custom_buttons = chat_turn_container.querySelectorAll('button')
+  const fast_replace_button_text = 'Fast replace'
+  const intelligent_update_button_text = 'Intelligent update'
+
+  custom_buttons.forEach((button) => {
+    if (
+      button.textContent == fast_replace_button_text ||
+      button.textContent == intelligent_update_button_text
+    ) {
+      ;(button as HTMLButtonElement).disabled = true
+      ;(button as HTMLButtonElement).style.opacity = '50%'
+      ;(button as HTMLButtonElement).style.cursor = 'not-allowed'
+    }
+  })
 
   // Find the ms-chat-turn-options element within the container
   const options = chat_turn_container.querySelector(
@@ -116,7 +131,7 @@ export const inject_apply_changes_buttons = (params: {
           'ms-code-block footer > span.language'
         ) as HTMLSpanElement
 
-        if (language_span.textContent?.includes('name=')) {
+        if (language_span?.textContent?.includes('name=')) {
           has_eligible_block = true
         }
 
@@ -125,7 +140,7 @@ export const inject_apply_changes_buttons = (params: {
             'ms-code-block code > span.hljs-comment:first-child'
           ) as HTMLElement
           if (
-            code_block.textContent &&
+            code_block?.textContent &&
             extract_filename_from_comment(code_block.textContent)
           ) {
             has_eligible_block = true
