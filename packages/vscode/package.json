@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - the free 2M context AI coding toolkit",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for code completions, file refactoring and applying AI-suggested changes.",
-  "version": "1.0.359",
+  "version": "1.0.360",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -545,20 +545,11 @@
           "type": "array",
           "default": [
             {
-              "name": "2.0 Flash",
+              "name": "2.5 Flash",
               "chatbot": "AI Studio",
               "promptPrefix": "",
               "promptSuffix": "",
-              "model": "gemini-2.0-flash",
-              "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant. Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
-            },
-            {
-              "name": "2.0 Flash Thinking",
-              "chatbot": "AI Studio",
-              "promptPrefix": "",
-              "promptSuffix": "",
-              "model": "gemini-2.0-flash-thinking-exp-01-21",
+              "model": "gemini-2.5-flash-preview-04-17",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant. Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
@@ -572,28 +563,21 @@
               "systemInstructions": "You're a helpful coding assistant. Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the header.\nExample of a code block with a file name in the header:\n```typescript name=filename.ts\ncontents of file\n```"
             },
             {
-              "name": "2.0 Flash",
+              "name": "2.5 Flash",
               "chatbot": "Gemini",
               "promptPrefix": "",
               "promptSuffix": "",
-              "model": "2.0-flash"
+              "model": "2.5-flash-experimental"
             },
             {
-              "name": "2.0 Flash (canvas)",
+              "name": "2.5 Flash (canvas)",
               "chatbot": "Gemini",
               "promptPrefix": "",
               "promptSuffix": "",
-              "model": "2.0-flash",
+              "model": "2.5-flash-experimental",
               "options": [
                 "canvas"
               ]
-            },
-            {
-              "name": "2.0 Flash Thinking",
-              "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": "",
-              "model": "2.0-flash-thinking"
             },
             {
               "name": "2.5 Pro",
@@ -619,7 +603,7 @@
               "promptPrefix": "",
               "promptSuffix": "",
               "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant. Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the first line.\nExample of a code block with a file name in the first line:\n```typescript\n// filename.ts\ncontents of file\n```"
+              "systemInstructions": "You're a helpful coding assistant. Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever showing partially updated files, use ellipsis comments, e.g. \"// ...\". Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their `name` in the first line.\nExample of a code block with a file name in the first line:\n```typescript\n// filename.ts\ncontents of file\n```"
             },
             {
               "name": "ChatGPT",
