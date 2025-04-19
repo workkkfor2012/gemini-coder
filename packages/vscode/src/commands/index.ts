@@ -1,4 +1,4 @@
-export * from './apply-changes-command/apply-changes-command'
+export * from './apply-chat-response-command/apply-chat-response-command'
 export * from './change-default-model-command'
 export * from './chat-to-clipboard-command'
 export * from './close-all-editors-command'

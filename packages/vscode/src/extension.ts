@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { ViewProvider } from './view/view-provider'
-import { create_apply_chat_response_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
+import { create_apply_chat_response_status_bar_item } from './status-bar/create-apply-chat-response-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { WebSocketManager } from './services/websocket-manager'
 import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'

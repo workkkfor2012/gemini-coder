@@ -75,7 +75,7 @@ async function get_selected_provider(
 
   // Add remaining providers, excluding default and last used
   const remaining_providers = all_providers.filter(
-    (p) => p.name !== default_model_name && !last_used_models.includes(p.name)
+    (p) => p.name != default_model_name && !last_used_models.includes(p.name)
   )
   quick_pick_items.push(...remaining_providers.map((p) => ({ label: p.name })))
 
