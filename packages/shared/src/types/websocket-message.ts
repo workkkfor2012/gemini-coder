@@ -30,12 +30,6 @@ export type BrowserConnectionStatusMessage = {
   has_connected_browsers: boolean
 }
 
-// TODO remove few weeks after 19 Apr 2025
-export type InvokeFastReplaceMessage = {
-  action: 'invoke-fast-replace'
-  client_id: number
-}
-
 export type ApplyChatResponseMessage = {
   action: 'apply-chat-response'
   client_id: number
@@ -51,5 +45,4 @@ export type WebSocketMessage =
   | UpdateSavedWebsitesMessage
   | BrowserConnectionStatusMessage
   | ClientIdAssignmentMessage
-  | InvokeFastReplaceMessage
   | ApplyChatResponseMessage

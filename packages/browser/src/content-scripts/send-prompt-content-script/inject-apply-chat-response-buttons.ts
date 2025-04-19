@@ -118,7 +118,7 @@ export const inject_apply_response_button = (params: {
           const apply_response_button = document.createElement('button')
           apply_response_button.textContent = apply_response_button_text
           apply_response_button.title =
-            'Merge response with the codebase in one of two modes - fast replace or intelligent update. Action can be reverted.'
+            'Send response to the editor. The operation can be completely rolled back.'
           apply_button_style(apply_response_button)
 
           // Add event listener for Fast replace button click

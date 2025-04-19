@@ -1,8 +1,7 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage,
-  ApplyChatResponseMessage,
-  InvokeFastReplaceMessage
+  ApplyChatResponseMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
 import { send_saved_websites, send_message_to_server } from './websocket'
@@ -222,11 +221,6 @@ export const setup_message_listeners = () => {
             action: 'apply-chat-response',
             client_id: message.client_id
           } as ApplyChatResponseMessage)
-          // TODO Remove a few weeks after 19 Apr 2025:
-          send_message_to_server({
-            action: 'invoke-fast-replace',
-            client_id: message.client_id
-          } as InvokeFastReplaceMessage)
         } else if (message.action == 'get-tab-data') {
           handle_get_tab_data((tab_data) => {
             sendResponse(tab_data)

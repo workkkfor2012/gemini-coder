@@ -303,7 +303,12 @@ export function apply_chat_response_command(params: {
         } else {
           // Multiple files, no ellipsis, no forced mode -> Ask the user
           const response = await vscode.window.showInformationMessage(
-            'How would you like to apply changes to multiple files?\n- "Fast replace" is suitable for files returned in "whole" format.\n- "Intelligent update" uses special merging AI messages to files one by one.',
+            'How would you like to apply this chat response?',
+            {
+              modal: true,
+              detail:
+                '- Use FAST REPLACE for files in the "whole" format.\n- Use INTELLIGENT UPDATE for partial files and diffs.\n\nThe operation can be completely rolled back.'
+            },
             'Fast replace',
             'Intelligent update'
           )
