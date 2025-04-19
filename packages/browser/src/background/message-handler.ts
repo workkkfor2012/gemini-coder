@@ -1,8 +1,8 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage,
-  InvokeFastReplaceMessage,
-  InvokeIntelligentUpdateMessage
+  ApplyResponseMessage,
+  InvokeFastReplaceMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
 import { send_saved_websites, send_message_to_server } from './websocket'
@@ -217,16 +217,16 @@ export const setup_message_listeners = () => {
           send_saved_websites(message.websites)
         } else if (message.action == 'chat-initialized') {
           handle_chat_initialized()
-        } else if (message.action == 'invoke-fast-replace') {
+        } else if (message.action == 'apply-response') {
+          send_message_to_server({
+            action: 'apply-response',
+            client_id: message.client_id
+          } as ApplyResponseMessage)
+          // TODO Remove a few weeks after 19 Apr 2025:
           send_message_to_server({
             action: 'invoke-fast-replace',
             client_id: message.client_id
           } as InvokeFastReplaceMessage)
-        } else if (message.action == 'invoke-intelligent-update') {
-          send_message_to_server({
-            action: 'invoke-intelligent-update',
-            client_id: message.client_id
-          } as InvokeIntelligentUpdateMessage)
         } else if (message.action == 'get-tab-data') {
           handle_get_tab_data((tab_data) => {
             sendResponse(tab_data)

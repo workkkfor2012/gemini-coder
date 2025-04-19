@@ -1,30 +1,7 @@
+import { ApplyResponseMessage } from '@/types/messages'
 import { debounce } from '@/utils/debounce'
 import { extract_filename_from_comment } from '@shared/utils/extract-filename-from-comment'
 import browser from 'webextension-polyfill'
-
-// Function to check if any code block contains truncated fragments
-const has_truncated_fragments = (container: Element): boolean => {
-  const code_blocks = container.querySelectorAll('ms-code-block')
-  for (const block of Array.from(code_blocks)) {
-    const code_content = block.querySelector('code')?.textContent
-    if (code_content && /^\s*\/\/\s+\.\.\.\s*$/m.test(code_content)) {
-      return true
-    }
-  }
-  return false
-}
-
-// Function to check if any code block contains diff markers
-const has_diff_markers = (container: Element): boolean => {
-  const code_blocks = container.querySelectorAll('ms-code-block')
-  for (const block of Array.from(code_blocks)) {
-    const code_content = block.querySelector('code')?.textContent
-    if (code_content && /^[+-]/.test(code_content)) {
-      return true
-    }
-  }
-  return false
-}
 
 // Apply common button styles
 const apply_button_style = (button: HTMLButtonElement) => {
@@ -43,8 +20,7 @@ const apply_button_style = (button: HTMLButtonElement) => {
 // Handle button click
 const handle_button_click = (
   clicked_button: HTMLButtonElement,
-  client_id: number,
-  action: 'fast-replace' | 'intelligent-update'
+  client_id: number
 ) => {
   // Find the parent chat-turn-container
   const chat_turn_container = clicked_button.closest('.chat-turn-container')
@@ -52,14 +28,9 @@ const handle_button_click = (
 
   // Disable all custom buttons within this chat turn and set opacity
   const custom_buttons = chat_turn_container.querySelectorAll('button')
-  const fast_replace_button_text = 'Fast replace'
-  const intelligent_update_button_text = 'Intelligent update'
 
   custom_buttons.forEach((button) => {
-    if (
-      button.textContent == fast_replace_button_text ||
-      button.textContent == intelligent_update_button_text
-    ) {
+    if (button.textContent == 'Apply response') {
       ;(button as HTMLButtonElement).disabled = true
       ;(button as HTMLButtonElement).style.opacity = '50%'
       ;(button as HTMLButtonElement).style.cursor = 'not-allowed'
@@ -80,36 +51,29 @@ const handle_button_click = (
     if (markdown_copy_button) {
       ;(markdown_copy_button as any).click()
       browser.runtime.sendMessage({
-        action: `invoke-${action}`,
+        action: 'apply-response',
         client_id
-      })
+      } as ApplyResponseMessage)
     }
   }
 }
 
 // Function to observe DOM for new message footers
-export const inject_apply_changes_buttons = (params: {
+export const inject_apply_response_button = (params: {
   client_id: number
   is_ai_studio: boolean
 }) => {
   if (params.is_ai_studio) {
     const debounced_add_buttons = debounce(
       (params: { footer: Element; client_id: number }) => {
-        const fast_replace_button_text = 'Fast replace'
-        const intelligent_update_button_text = 'Intelligent update'
+        const apply_response_button_text = 'Apply response'
 
         // Check if buttons already exist by text content to avoid duplicates
-        const existing_fast_replace_button = Array.from(
+        const existing_apply_response_button = Array.from(
           params.footer.querySelectorAll('button')
-        ).find((btn) => btn.textContent == fast_replace_button_text)
-        const existing_intelligent_update_button = Array.from(
-          params.footer.querySelectorAll('button')
-        ).find((btn) => btn.textContent == intelligent_update_button_text)
+        ).find((btn) => btn.textContent == apply_response_button_text)
 
-        if (
-          existing_fast_replace_button ||
-          existing_intelligent_update_button
-        ) {
+        if (existing_apply_response_button) {
           return
         }
 
@@ -150,60 +114,25 @@ export const inject_apply_changes_buttons = (params: {
         // Only proceed if we found at least one code block with a name attribute or filename comment
         if (!has_eligible_block) return
 
-        const has_truncated = has_truncated_fragments(chat_turn)
-        const has_diff = has_diff_markers(chat_turn)
-
-        const create_fast_replace_button = () => {
-          const fast_replace_button = document.createElement('button')
-          fast_replace_button.textContent = fast_replace_button_text
-          fast_replace_button.title =
-            'Create or repalce files directly with the content of code blocks. Action can be reverted.'
-          apply_button_style(fast_replace_button)
+        const create_apply_response_button = () => {
+          const apply_response_button = document.createElement('button')
+          apply_response_button.textContent = apply_response_button_text
+          apply_response_button.title =
+            'Merge response with the codebase in one of two modes - fast replace or intelligent update. Action can be reverted.'
+          apply_button_style(apply_response_button)
 
           // Add event listener for Fast replace button click
-          fast_replace_button.addEventListener('click', () => {
-            handle_button_click(
-              fast_replace_button,
-              params.client_id,
-              'fast-replace'
-            )
+          apply_response_button.addEventListener('click', () => {
+            handle_button_click(apply_response_button, params.client_id)
           })
 
           params.footer.insertBefore(
-            fast_replace_button,
-            params.footer.children[2]
-          )
-        }
-        const create_intelligent_update_button = () => {
-          const intelligent_update_button = document.createElement('button')
-          intelligent_update_button.textContent = intelligent_update_button_text
-          intelligent_update_button.title =
-            'Uses AI to merge partial changes into existing files. Action can be reverted.'
-          apply_button_style(intelligent_update_button)
-          intelligent_update_button.style.background =
-            'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
-
-          // Add event listener for Intelligent update button click
-          intelligent_update_button.addEventListener('click', () => {
-            handle_button_click(
-              intelligent_update_button,
-              params.client_id,
-              'intelligent-update'
-            )
-          })
-
-          params.footer.insertBefore(
-            intelligent_update_button,
+            apply_response_button,
             params.footer.children[2]
           )
         }
 
-        if (has_truncated || has_diff) {
-          create_intelligent_update_button()
-        } else {
-          create_intelligent_update_button()
-          create_fast_replace_button()
-        }
+        create_apply_response_button()
       },
       100
     )

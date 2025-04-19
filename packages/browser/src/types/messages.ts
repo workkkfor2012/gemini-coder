@@ -9,13 +9,8 @@ export type ChatInitializedMessage = {
   action: 'chat-initialized'
 }
 
-export type InvokeFastReplaceMessage = {
-  action: 'invoke-fast-replace'
-  client_id: number
-}
-
-export type InvokeIntelligentUpdateMessage = {
-  action: 'invoke-intelligent-update'
+export type ApplyResponseMessage = {
+  action: 'apply-response'
   client_id: number
 }
 
@@ -27,6 +22,5 @@ export type GetTabDataMessage = {
 export type Message =
   | UpdateSavedWebsitesMessage
   | ChatInitializedMessage
-  | InvokeFastReplaceMessage
-  | InvokeIntelligentUpdateMessage
+  | ApplyResponseMessage
   | GetTabDataMessage

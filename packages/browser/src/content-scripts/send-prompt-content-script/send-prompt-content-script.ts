@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
-import { inject_apply_changes_buttons } from './inject-apply-changes-buttons'
+import { inject_apply_response_button } from './inject-apply-response-buttons'
 import { CHATBOTS } from '@shared/constants/chatbots'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
@@ -713,7 +713,7 @@ const main = async () => {
   // Clean up the storage entry after using it
   await browser.storage.local.remove(storage_key)
 
-  inject_apply_changes_buttons({
+  inject_apply_response_button({
     client_id: stored_data.client_id,
     is_ai_studio
   })

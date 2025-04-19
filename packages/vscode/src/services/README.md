@@ -1,0 +1,1 @@
+"Websocker Manager" bridges the current workspace window and websocket server that runs in a separate process.

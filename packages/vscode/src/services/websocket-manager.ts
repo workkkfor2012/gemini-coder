@@ -11,6 +11,8 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { Logger } from '../helpers/logger'
+import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
+import { check_for_diff_markers } from '@/utils/check-for-diff-markers'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext
@@ -146,7 +148,7 @@ export class WebSocketManager {
       // Start ping interval to keep connection alive
     })
 
-    this.client.on('message', (data) => {
+    this.client.on('message', async (data) => {
       try {
         const message = JSON.parse(data.toString())
         Logger.log({
@@ -164,12 +166,8 @@ export class WebSocketManager {
           this.websites_provider?.update_websites(
             (message as UpdateSavedWebsitesMessage).websites
           )
-        } else if (message.action == 'invoke-fast-replace') {
-          vscode.commands.executeCommand('geminiCoder.applyChangesFastReplace')
-        } else if (message.action == 'invoke-intelligent-update') {
-          vscode.commands.executeCommand(
-            'geminiCoder.applyChangesIntelligentUpdate'
-          )
+        } else if (message.action == 'apply-response') {
+          vscode.commands.executeCommand('geminiCoder.applyChanges')
         }
       } catch (error) {
         Logger.error({

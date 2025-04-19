@@ -15,6 +15,8 @@ import { revert_files } from './utils/file-operations'
 import { handle_fast_replace } from './handlers/fast-replace-handler'
 import { handle_intelligent_update } from './handlers/intelligent-update-handler'
 import { create_safe_path } from '@/utils/path-sanitizer'
+import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
+import { check_for_diff_markers } from '@/utils/check-for-diff-markers'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -121,16 +123,6 @@ async function get_selected_provider(
     data: selected_provider.name
   })
   return selected_provider
-}
-
-/**
- * Checks if any file content contains a comment indicating truncated content (e.g., // ...).
- */
-function contains_ellipsis_comment(files: ClipboardFile[]): boolean {
-  const ellipsis_comment_regex = /^\s*(?:#|\/\/|--|\/\*|\*)\s+\.\.\.\s+/
-  return files.some((file) =>
-    file.content.split('\n').some((line) => ellipsis_comment_regex.test(line))
-  )
 }
 
 async function check_if_all_files_new(
@@ -284,15 +276,18 @@ export function apply_changes_command(params: {
             'All files are new - automatically selecting Fast replace mode'
         })
       } else {
-        // Check for "..." comment hint for intelligent update
-        const auto_select_intelligent = contains_ellipsis_comment(parsed_files)
+        const has_truncated_fragments =
+          check_for_truncated_fragments(clipboard_text)
+        const has_diff_markers = check_for_diff_markers(clipboard_text)
+        const auto_select_intelligent =
+          has_truncated_fragments || has_diff_markers
 
         if (auto_select_intelligent) {
           selected_mode_label = 'Intelligent update'
           Logger.log({
             function_name: 'apply_changes_command',
             message:
-              'Detected "..." comment, automatically selecting Intelligent update mode.'
+              'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
           })
         } else if (params.mode) {
           // Mode forced by command parameters (e.g., specific command bindings)

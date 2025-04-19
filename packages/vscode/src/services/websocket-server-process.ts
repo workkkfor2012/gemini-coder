@@ -188,14 +188,20 @@ wss.on('connection', (ws: any, request: any) => {
         }
       }
     } else if (
-      msg_data.action == 'invoke-fast-replace' ||
-      msg_data.action == 'invoke-intelligent-update'
+      msg_data.action == 'invoke-fast-replace' || // <-- remove few weeks after 19 Apr 2025
+      msg_data.action == 'apply-response'
     ) {
       // Forward the message to the specific VS Code client based on client_id
       const target_client_id = msg_data.client_id
       const target_client = vscode_clients.get(target_client_id)
       if (target_client && target_client.ws.readyState == WebSocket.OPEN) {
-        target_client.ws.send(msg_string)
+        // target_client.ws.send(msg_string) <-- bring back after removing "invoke-fast-replace"
+        target_client.ws.send(
+          JSON.stringify({
+            ...msg_data,
+            action: 'apply-response'
+          })
+        )
       }
     }
   })
