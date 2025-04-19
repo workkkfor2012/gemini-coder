@@ -9,7 +9,7 @@ import { migrate_provider_settings } from './migrations/migrate-provider-setting
 import { migrate_keybindings } from './migrations/migrate-keybindings'
 import { migrate_system_instructions } from './migrations/migrate-system-instructions'
 import {
-  apply_changes_command,
+  apply_chat_response_command,
   refactor_command,
   refactor_to_clipboard_command,
   code_completion_command,
@@ -99,14 +99,14 @@ export async function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    apply_changes_command({
+    apply_chat_response_command({
       command: 'geminiCoder.applyChatResponse',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
       use_default_model: true
     }),
-    apply_changes_command({
+    apply_chat_response_command({
       command: 'geminiCoder.applyChatResponseFastReplace',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
@@ -114,7 +114,7 @@ export async function activate(context: vscode.ExtensionContext) {
       use_default_model: true,
       mode: 'Fast replace'
     }),
-    apply_changes_command({
+    apply_chat_response_command({
       command: 'geminiCoder.applyChatResponseIntelligentUpdate',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,

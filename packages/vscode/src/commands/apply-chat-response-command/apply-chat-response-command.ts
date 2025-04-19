@@ -113,9 +113,12 @@ async function get_selected_provider(
   // Update the last used models in global state (put selected on top)
   const updated_last_used = [
     selected_model_name,
-    ...last_used_models.filter((model) => model !== selected_model_name)
+    ...last_used_models.filter((model) => model != selected_model_name)
   ].slice(0, 5) // Keep only the top 5 most recent
-  context.globalState.update('lastUsedApplyChatResponseModels', updated_last_used)
+  context.globalState.update(
+    'lastUsedApplyChatResponseModels',
+    updated_last_used
+  )
 
   Logger.log({
     function_name: 'get_selected_provider',
@@ -162,7 +165,7 @@ async function check_if_all_files_new(
   return true // All files are new
 }
 
-export function apply_changes_command(params: {
+export function apply_chat_response_command(params: {
   command: string
   file_tree_provider: any // Keep for potential future use?
   open_editors_provider?: any // Keep for potential future use?
@@ -174,7 +177,7 @@ export function apply_changes_command(params: {
 
   return vscode.commands.registerCommand(params.command, async () => {
     Logger.log({
-      function_name: 'apply_changes_command',
+      function_name: 'apply_chat_response_command',
       message: 'start',
       data: { command: params.command, mode: params.mode }
     })
@@ -184,7 +187,7 @@ export function apply_changes_command(params: {
     if (!clipboard_text) {
       vscode.window.showErrorMessage('Clipboard is empty.')
       Logger.warn({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Clipboard is empty.'
       })
       return
@@ -220,13 +223,13 @@ export function apply_changes_command(params: {
           }" is not configured or invalid. Please set it in the settings.`
         )
         Logger.warn({
-          function_name: 'apply_changes_command',
+          function_name: 'apply_chat_response_command',
           message: 'Default apply changes model is not set or invalid.'
         })
         return
       }
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Using default model',
         data: default_model_name
       })
@@ -238,13 +241,13 @@ export function apply_changes_command(params: {
       )
       if (!provider) {
         Logger.log({
-          function_name: 'apply_changes_command',
+          function_name: 'apply_chat_response_command',
           message: 'Provider selection cancelled or failed.'
         })
         return // Provider selection failed or was cancelled
       }
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Selected provider',
         data: provider.name
       })
@@ -271,7 +274,7 @@ export function apply_changes_command(params: {
         // All files are new - automatically use Fast replace mode
         selected_mode_label = 'Fast replace'
         Logger.log({
-          function_name: 'apply_changes_command',
+          function_name: 'apply_chat_response_command',
           message:
             'All files are new - automatically selecting Fast replace mode'
         })
@@ -285,7 +288,7 @@ export function apply_changes_command(params: {
         if (auto_select_intelligent) {
           selected_mode_label = 'Intelligent update'
           Logger.log({
-            function_name: 'apply_changes_command',
+            function_name: 'apply_chat_response_command',
             message:
               'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
           })
@@ -293,43 +296,30 @@ export function apply_changes_command(params: {
           // Mode forced by command parameters (e.g., specific command bindings)
           selected_mode_label = params.mode
           Logger.log({
-            function_name: 'apply_changes_command',
+            function_name: 'apply_chat_response_command',
             message: 'Mode forced by command parameters',
             data: selected_mode_label
           })
         } else {
           // Multiple files, no ellipsis, no forced mode -> Ask the user
-          const mode_options: vscode.QuickPickItem[] = [
-            {
-              label: 'Fast replace',
-              description:
-                'Create or replace files directly with the clipboard content.'
-            },
-            {
-              label: 'Intelligent update',
-              description:
-                'Use AI to merge clipboard changes into existing files.'
-            }
-          ]
-          const selected_item = await vscode.window.showQuickPick(
-            mode_options,
-            {
-              placeHolder: 'Select how to apply changes to multiple files'
-            }
+          const response = await vscode.window.showInformationMessage(
+            'How would you like to apply changes to multiple files?\n- "Fast replace" is suitable for files returned in "whole" format.\n- "Intelligent update" uses special merging AI messages to files one by one.',
+            'Fast replace',
+            'Intelligent update'
           )
 
-          if (!selected_item) {
+          if (!response) {
             Logger.log({
-              function_name: 'apply_changes_command',
+              function_name: 'apply_chat_response_command',
               message: 'User cancelled mode selection.'
             })
             return // User cancelled
           }
-          selected_mode_label = selected_item.label as
+          selected_mode_label = response as
             | 'Fast replace'
             | 'Intelligent update'
           Logger.log({
-            function_name: 'apply_changes_command',
+            function_name: 'apply_chat_response_command',
             message: 'User selected mode',
             data: selected_mode_label
           })
@@ -339,7 +329,7 @@ export function apply_changes_command(params: {
       // Single file always uses Intelligent Update implicitly
       selected_mode_label = 'Intelligent update'
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Single file detected, using Intelligent update mode.'
       })
     }
@@ -366,7 +356,7 @@ export function apply_changes_command(params: {
         operation_success = true
       }
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Fast replace handler finished.',
         data: { success: result.success }
       })
@@ -377,7 +367,7 @@ export function apply_changes_command(params: {
           `API key is missing for provider "${provider.name}". Please add it in the settings.`
         )
         Logger.warn({
-          function_name: 'apply_changes_command',
+          function_name: 'apply_chat_response_command',
           message: 'API key is missing for Intelligent update',
           data: provider.name
         })
@@ -402,13 +392,13 @@ export function apply_changes_command(params: {
         file_count = final_original_states.length // Count based on states returned
       }
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Intelligent update handler finished.',
         data: { success: operation_success }
       })
     } else {
       Logger.error({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'No valid mode selected or determined.'
       })
       // Should not happen with the logic above, but good to log
@@ -449,13 +439,13 @@ export function apply_changes_command(params: {
       // Clear any potentially partially stored state from a failed operation.
       params.context.workspaceState.update(LAST_APPLIED_CHANGES_STATE_KEY, null)
       Logger.log({
-        function_name: 'apply_changes_command',
+        function_name: 'apply_chat_response_command',
         message: 'Operation concluded without success.'
       })
     }
 
     Logger.log({
-      function_name: 'apply_changes_command',
+      function_name: 'apply_chat_response_command',
       message: 'end',
       data: {
         command: params.command,
