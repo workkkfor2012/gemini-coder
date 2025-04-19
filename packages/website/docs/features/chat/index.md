@@ -28,7 +28,7 @@ As longer conversations notably decrease model's performance, instead of submitt
    Enter follow-up prompts in the web browser or refine context and instructions in the editor.
 
 5. **Apply changes:**
-   Just copy the response and use the [Apply Changes](/docs/features/apply-changes) feature to integrate the suggested changes automatically.
+   Just copy the response and use the [Apply Chat Response](/docs/features/apply-changes) feature to integrate the suggested changes automatically.
 
 ## Compatibility
 

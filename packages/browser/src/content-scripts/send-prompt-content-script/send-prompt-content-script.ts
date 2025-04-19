@@ -1,6 +1,6 @@
 import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
-import { inject_apply_response_button } from './inject-apply-response-buttons'
+import { inject_apply_response_button } from './inject-apply-chat-response-buttons'
 import { CHATBOTS } from '@shared/constants/chatbots'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)

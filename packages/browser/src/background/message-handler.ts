@@ -1,7 +1,7 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage,
-  ApplyResponseMessage,
+  ApplyChatResponseMessage,
   InvokeFastReplaceMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
@@ -217,11 +217,11 @@ export const setup_message_listeners = () => {
           send_saved_websites(message.websites)
         } else if (message.action == 'chat-initialized') {
           handle_chat_initialized()
-        } else if (message.action == 'apply-response') {
+        } else if (message.action == 'apply-chat-response') {
           send_message_to_server({
-            action: 'apply-response',
+            action: 'apply-chat-response',
             client_id: message.client_id
-          } as ApplyResponseMessage)
+          } as ApplyChatResponseMessage)
           // TODO Remove a few weeks after 19 Apr 2025:
           send_message_to_server({
             action: 'invoke-fast-replace',

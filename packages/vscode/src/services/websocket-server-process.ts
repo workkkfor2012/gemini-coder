@@ -189,7 +189,7 @@ wss.on('connection', (ws: any, request: any) => {
       }
     } else if (
       msg_data.action == 'invoke-fast-replace' || // <-- remove few weeks after 19 Apr 2025
-      msg_data.action == 'apply-response'
+      msg_data.action == 'apply-chat-response'
     ) {
       // Forward the message to the specific VS Code client based on client_id
       const target_client_id = msg_data.client_id
@@ -199,7 +199,7 @@ wss.on('connection', (ws: any, request: any) => {
         target_client.ws.send(
           JSON.stringify({
             ...msg_data,
-            action: 'apply-response'
+            action: 'apply-chat-response'
           })
         )
       }

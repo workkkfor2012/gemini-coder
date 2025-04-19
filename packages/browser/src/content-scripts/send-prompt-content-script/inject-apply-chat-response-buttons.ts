@@ -1,4 +1,4 @@
-import { ApplyResponseMessage } from '@/types/messages'
+import { ApplyChatResponseMessage } from '@/types/messages'
 import { debounce } from '@/utils/debounce'
 import { extract_filename_from_comment } from '@shared/utils/extract-filename-from-comment'
 import browser from 'webextension-polyfill'
@@ -51,9 +51,9 @@ const handle_button_click = (
     if (markdown_copy_button) {
       ;(markdown_copy_button as any).click()
       browser.runtime.sendMessage({
-        action: 'apply-response',
+        action: 'apply-chat-response',
         client_id
-      } as ApplyResponseMessage)
+      } as ApplyChatResponseMessage)
     }
   }
 }

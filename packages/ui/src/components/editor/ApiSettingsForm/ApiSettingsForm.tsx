@@ -86,7 +86,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
         </select>
       </Field>
 
-      <Field label="Apply Changes Model" htmlFor="apply-changes-model">
+      <Field label="Apply Chat Response Model" htmlFor="apply-changes-model">
         <select
           id="apply-changes-model"
           value={props.default_apply_changes_model}

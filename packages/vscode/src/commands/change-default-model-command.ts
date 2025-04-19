@@ -27,7 +27,7 @@ const MODEL_CONFIGS: Record<ModelType, ModelConfig> = {
     placeholder: 'Select default model for file refactoring'
   },
   apply_changes: {
-    command_id: 'geminiCoder.changeDefaultApplyChangesModel',
+    command_id: 'geminiCoder.changeDefaultApplyChatResponseModel',
     display_name: 'Applying Changes',
     placeholder: 'Select default model for applying changes'
   },

@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { ViewProvider } from './view/view-provider'
-import { create_apply_changes_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
+import { create_apply_chat_response_status_bar_item } from './status-bar/create-apply-changes-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { WebSocketManager } from './services/websocket-manager'
 import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
@@ -68,7 +68,7 @@ export async function activate(context: vscode.ExtensionContext) {
 
   // Status bar
   create_refactor_status_bar_item(context)
-  create_apply_changes_status_bar_item(context)
+  create_apply_chat_response_status_bar_item(context)
 
   // View
   if (workspace_provider && open_editors_provider && websites_provider) {
@@ -100,14 +100,14 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     apply_changes_command({
-      command: 'geminiCoder.applyChanges',
+      command: 'geminiCoder.applyChatResponse',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
       use_default_model: true
     }),
     apply_changes_command({
-      command: 'geminiCoder.applyChangesFastReplace',
+      command: 'geminiCoder.applyChatResponseFastReplace',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
@@ -115,7 +115,7 @@ export async function activate(context: vscode.ExtensionContext) {
       mode: 'Fast replace'
     }),
     apply_changes_command({
-      command: 'geminiCoder.applyChangesIntelligentUpdate',
+      command: 'geminiCoder.applyChatResponseIntelligentUpdate',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,

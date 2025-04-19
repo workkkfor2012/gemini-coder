@@ -99,10 +99,10 @@ Gemini Coder works with many popular chatbots:
 
 #### Applying Changes
 
-- `Gemini Coder: Apply Changes` - Apply changes suggested by AI using clipboard content.
-- `Gemini Coder: Apply Changes with...` - Apply changes with model selection.
-- `Gemini Coder: Apply Changes to Clipboard` - Copy apply changes content to clipboard.
-- `Gemini Coder: Change Default Apply Changes Model` - Change default AI model for applying changes.
+- `Gemini Coder: Apply Chat Response` - Apply changes suggested by AI using clipboard content.
+- `Gemini Coder: Apply Chat Response with...` - Apply changes with model selection.
+- `Gemini Coder: Apply Chat Response to Clipboard` - Copy apply changes content to clipboard.
+- `Gemini Coder: Change Default Apply Chat Response Model` - Change default AI model for applying changes.
 
 #### Chat
 

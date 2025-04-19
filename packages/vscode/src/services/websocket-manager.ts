@@ -11,8 +11,6 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { Logger } from '../helpers/logger'
-import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
-import { check_for_diff_markers } from '@/utils/check-for-diff-markers'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext
@@ -166,8 +164,8 @@ export class WebSocketManager {
           this.websites_provider?.update_websites(
             (message as UpdateSavedWebsitesMessage).websites
           )
-        } else if (message.action == 'apply-response') {
-          vscode.commands.executeCommand('geminiCoder.applyChanges')
+        } else if (message.action == 'apply-chat-response') {
+          vscode.commands.executeCommand('geminiCoder.applyChatResponse')
         }
       } catch (error) {
         Logger.error({

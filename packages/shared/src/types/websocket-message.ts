@@ -36,8 +36,8 @@ export type InvokeFastReplaceMessage = {
   client_id: number
 }
 
-export type ApplyResponseMessage = {
-  action: 'apply-response'
+export type ApplyChatResponseMessage = {
+  action: 'apply-chat-response'
   client_id: number
 }
 
@@ -52,4 +52,4 @@ export type WebSocketMessage =
   | BrowserConnectionStatusMessage
   | ClientIdAssignmentMessage
   | InvokeFastReplaceMessage
-  | ApplyResponseMessage
+  | ApplyChatResponseMessage

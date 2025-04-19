@@ -9,8 +9,8 @@ export type ChatInitializedMessage = {
   action: 'chat-initialized'
 }
 
-export type ApplyResponseMessage = {
-  action: 'apply-response'
+export type ApplyChatResponseMessage = {
+  action: 'apply-chat-response'
   client_id: number
 }
 
@@ -22,5 +22,5 @@ export type GetTabDataMessage = {
 export type Message =
   | UpdateSavedWebsitesMessage
   | ChatInitializedMessage
-  | ApplyResponseMessage
+  | ApplyChatResponseMessage
   | GetTabDataMessage

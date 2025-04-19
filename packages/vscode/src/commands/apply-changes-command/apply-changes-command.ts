@@ -41,7 +41,7 @@ async function get_selected_provider(
 
   // Get the last used models from global state
   let last_used_models = context.globalState.get<string[]>(
-    'lastUsedApplyChangesModels',
+    'lastUsedApplyChatResponseModels',
     []
   )
 
@@ -115,7 +115,7 @@ async function get_selected_provider(
     selected_model_name,
     ...last_used_models.filter((model) => model !== selected_model_name)
   ].slice(0, 5) // Keep only the top 5 most recent
-  context.globalState.update('lastUsedApplyChangesModels', updated_last_used)
+  context.globalState.update('lastUsedApplyChatResponseModels', updated_last_used)
 
   Logger.log({
     function_name: 'get_selected_provider',
