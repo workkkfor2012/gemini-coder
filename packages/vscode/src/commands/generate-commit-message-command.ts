@@ -51,6 +51,7 @@ export function generate_commit_message_command(
         const use_staged = staged_changes.length > 0
         if (!use_staged) {
           await repository.add([]) // Stage all changes
+          await new Promise((resolve) => setTimeout(resolve, 1000))
         }
 
         let diff: string
