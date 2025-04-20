@@ -10,6 +10,7 @@ import { Provider } from '@/types/provider'
 import { execSync } from 'child_process'
 import { Logger } from '@/helpers/logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
+import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -314,22 +315,6 @@ async function collect_affected_files(
     })
     return ''
   }
-}
-
-// Short commit messages should not end with dot, unless there are other dots followed by a space in the message
-function process_single_trailing_dot(message: string): string {
-  // Count the number of dots that are followed by whitespace
-  const dot_count = (message.match(/\.\s/g) || []).length
-
-  if (dot_count == 1) {
-    return message
-  }
-
-  if (message.endsWith('.')) {
-    return message.slice(0, -1)
-  }
-
-  return message
 }
 
 function strip_wrapping_quotes(text: string): string {
