@@ -170,7 +170,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
             </select>
           </Field>
         ) : (
-          <Field label="Model" info="Fetching..." />
+          <Field label="Model" info="Fetching available models..." />
         ))}
 
       {supports_user_provided_model && (
