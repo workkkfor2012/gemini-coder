@@ -1,3 +1,4 @@
+export const GEMINI_API_KEY_STATE_KEY = 'geminiApiKey'
 export const DEFAULT_FIM_MODEL_KEY = 'defaultFimModel'
 export const DEFAULT_REFACTORING_MODEL_KEY = 'defaultRefactoringModel'
 export const DEFAULT_APPLY_CHANGES_MODEL_KEY = 'defaultApplyChatResponseModel'

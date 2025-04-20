@@ -8,6 +8,7 @@ import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
 import { migrate_provider_settings } from './migrations/migrate-provider-settings'
 import { migrate_keybindings } from './migrations/migrate-keybindings'
 import { migrate_system_instructions } from './migrations/migrate-system-instructions'
+import { migrate_gemini_api_key } from './migrations/migrate-api-key'
 import {
   apply_chat_response_command,
   refactor_command,
@@ -62,6 +63,10 @@ export async function activate(context: vscode.ExtensionContext) {
     // Migrate system instructions to new format
     // Delete a few weeks after 18 Apr 2025
     await migrate_system_instructions()
+
+    // Migrate Gemini API key from settings to global state
+    // Delete a few weeks after 21 Apr 2025
+    await migrate_gemini_api_key(context)
   }
 
   await migrations()

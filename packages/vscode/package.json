@@ -483,12 +483,6 @@
       "type": "object",
       "title": "Gemini Coder Settings",
       "properties": {
-        "geminiCoder.apiKey": {
-          "type": "string",
-          "scope": "resource",
-          "markdownDescription": "Get in [AI Studio](https://aistudio.google.com/app/apikey).",
-          "default": ""
-        },
         "geminiCoder.commitMessagePrompt": {
           "type": "string",
           "scope": "resource",
