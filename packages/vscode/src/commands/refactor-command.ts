@@ -11,22 +11,6 @@ import { ModelManager } from '../services/model-manager'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
 import { Logger } from '../helpers/logger'
 
-async function format_document(document: vscode.TextDocument): Promise<void> {
-  try {
-    await vscode.commands.executeCommand(
-      'editor.action.formatDocument',
-      document.uri
-    )
-  } catch (error) {
-    Logger.error({
-      function_name: 'format_document',
-      message: `Error formatting document`,
-      data: error
-    })
-    // Continue even if formatting fails
-  }
-}
-
 async function get_selected_provider(
   context: vscode.ExtensionContext,
   all_providers: Provider[],
@@ -365,7 +349,10 @@ export function refactor_command(params: {
             edit_builder.replace(full_range, result_content)
           })
 
-          await format_document(document)
+          await vscode.commands.executeCommand(
+            'editor.action.formatDocument',
+            document.uri
+          )
           await document.save()
 
           // Store original file state for potential reversion using the revert command
