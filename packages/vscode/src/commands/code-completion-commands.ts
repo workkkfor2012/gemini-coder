@@ -131,6 +131,7 @@ async function show_inline_completion(
   position: vscode.Position,
   completionText: string
 ) {
+  const document = editor.document
   const controller = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     {
@@ -144,11 +145,25 @@ async function show_inline_completion(
     }
   )
 
+  // Listen for text document changes that would indicate completion acceptance
+  const change_listener = vscode.workspace.onDidChangeTextDocument(async (e) => {
+    if (e.document === document) {
+      await vscode.commands.executeCommand(
+        'editor.action.formatDocument',
+        document.uri
+      )
+      change_listener.dispose()
+    }
+  })
+
   // Trigger the inline completion UI
   await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger')
 
   // Dispose after a timeout or some event (optional cleanup)
-  setTimeout(() => controller.dispose(), 10000)
+  setTimeout(() => {
+    controller.dispose()
+    change_listener.dispose() // Make sure to clean up the listener if not used
+  }, 10000)
 }
 
 // Core function that contains the shared logic
