@@ -33,6 +33,10 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 import { ModelManager } from '@/services/model-manager'
 import axios from 'axios'
 import { Logger } from '@/helpers/logger'
+import {
+  OpenRouterModel,
+  OpenRouterModelsResponse
+} from '@/types/open-router-models-response'
 
 type ConfigPresetFormat = {
   name: string
@@ -398,11 +402,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     [model: string]: string
   }> {
     try {
-      // Response format: { data: [{ id: string, name: string, ... }] }
-      const response = await axios.get('https://openrouter.ai/api/v1/models')
+      const response = await axios.get<OpenRouterModelsResponse>(
+        'https://openrouter.ai/api/v1/models'
+      )
       const models: { [model: string]: string } = {}
 
-      for (const model of response.data.data) {
+      for (const model of response.data.data
+        .filter((m: OpenRouterModel) => m.created >= 1726131993) // cutoff older models around Sep 2024
+        .sort((a: OpenRouterModel, b: OpenRouterModel) =>
+          a.id.localeCompare(b.id)
+        )) {
         models[model.id] = model.name
       }
 
