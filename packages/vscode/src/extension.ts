@@ -8,7 +8,7 @@ import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
 import { migrate_provider_settings } from './migrations/migrate-provider-settings'
 import { migrate_keybindings } from './migrations/migrate-keybindings'
 import { migrate_system_instructions } from './migrations/migrate-system-instructions'
-import { migrate_gemini_api_key } from './migrations/migrate-api-key'
+import { migrate_gemini_api_key } from './migrations/migrate-gemini-api-key'
 import {
   apply_chat_response_command,
   refactor_command,

@@ -9,6 +9,7 @@ import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
 import { Logger } from '../helpers/logger'
 import he from 'he'
+import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
 
 async function get_selected_provider(
   context: vscode.ExtensionContext,
@@ -146,15 +147,17 @@ async function show_inline_completion(
   )
 
   // Listen for text document changes that would indicate completion acceptance
-  const change_listener = vscode.workspace.onDidChangeTextDocument(async (e) => {
-    if (e.document === document) {
-      await vscode.commands.executeCommand(
-        'editor.action.formatDocument',
-        document.uri
-      )
-      change_listener.dispose()
+  const change_listener = vscode.workspace.onDidChangeTextDocument(
+    async (e) => {
+      if (e.document === document) {
+        await vscode.commands.executeCommand(
+          'editor.action.formatDocument',
+          document.uri
+        )
+        change_listener.dispose()
+      }
     }
-  })
+  )
 
   // Trigger the inline completion UI
   await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger')
@@ -251,7 +254,10 @@ async function perform_fim_completion(
           const config = vscode.workspace.getConfiguration()
           const user_providers =
             config.get<Provider[]>('geminiCoder.providers') || []
-          const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+          const gemini_api_key = context.globalState.get<string>(
+            GEMINI_API_KEY_STATE_KEY,
+            ''
+          )
           const gemini_temperature = config.get<number>(
             'geminiCoder.temperature'
           )
@@ -320,7 +326,10 @@ export function code_completion_command(
       const config = vscode.workspace.getConfiguration()
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_api_key = context.globalState.get<string>(
+        GEMINI_API_KEY_STATE_KEY,
+        ''
+      )
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const default_model_name = model_manager.get_default_fim_model()
@@ -365,7 +374,10 @@ export function code_completion_with_command(
       const config = vscode.workspace.getConfiguration()
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_api_key = context.globalState.get<string>(
+        GEMINI_API_KEY_STATE_KEY,
+        ''
+      )
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const default_model_name = model_manager.get_default_fim_model()
@@ -413,7 +425,10 @@ export function code_completion_with_suggestions_command(
       const config = vscode.workspace.getConfiguration()
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_api_key = context.globalState.get<string>(
+        GEMINI_API_KEY_STATE_KEY,
+        ''
+      )
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const default_model_name = model_manager.get_default_fim_model()
@@ -458,7 +473,10 @@ export function code_completion_with_suggestions_with_command(
       const config = vscode.workspace.getConfiguration()
       const user_providers =
         config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+      const gemini_api_key = context.globalState.get<string>(
+        GEMINI_API_KEY_STATE_KEY,
+        ''
+      )
       const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
       const default_model_name = model_manager.get_default_fim_model()

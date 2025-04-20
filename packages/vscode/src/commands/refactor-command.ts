@@ -8,7 +8,10 @@ import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallbac
 import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 import { FilesCollector } from '../helpers/files-collector'
 import { ModelManager } from '../services/model-manager'
-import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
+import {
+  GEMINI_API_KEY_STATE_KEY,
+  LAST_APPLIED_CHANGES_STATE_KEY
+} from '../constants/state-keys'
 import { Logger } from '../helpers/logger'
 
 async function get_selected_provider(
@@ -167,7 +170,10 @@ export function refactor_command(params: {
     }
 
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+    const gemini_api_key = params.context.globalState.get<string>(
+      GEMINI_API_KEY_STATE_KEY,
+      ''
+    )
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
     // Get default model from global state instead of config

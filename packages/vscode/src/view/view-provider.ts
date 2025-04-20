@@ -34,6 +34,7 @@ import { ModelManager } from '@/services/model-manager'
 import axios from 'axios'
 import { Logger } from '@/helpers/logger'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
+import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
 
 type ConfigPresetFormat = {
   name: string
@@ -985,16 +986,20 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
             }
           } else if (message.command == 'GET_API_KEY') {
-            const config = vscode.workspace.getConfiguration()
-            const api_key = config.get<string>('geminiCoder.apiKey', '')
+            const api_key = this._context.globalState.get<string>(
+              GEMINI_API_KEY_STATE_KEY,
+              ''
+            )
             this._send_message<ApiKeyUpdatedMessage>({
               command: 'API_KEY_UPDATED',
               api_key
             })
           } else if (message.command == 'UPDATE_API_KEY') {
             const update_msg = message as UpdateApiKeyMessage
-            const config = vscode.workspace.getConfiguration()
-            await config.update('geminiCoder.apiKey', update_msg.api_key, true)
+            await this._context.globalState.update(
+              GEMINI_API_KEY_STATE_KEY,
+              update_msg.api_key
+            )
             this._send_message<ApiKeyUpdatedMessage>({
               command: 'API_KEY_UPDATED',
               api_key: update_msg.api_key

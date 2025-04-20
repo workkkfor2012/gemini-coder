@@ -11,6 +11,7 @@ import { execSync } from 'child_process'
 import { Logger } from '@/helpers/logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
+import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -74,7 +75,10 @@ export function generate_commit_message_command(
         const config = vscode.workspace.getConfiguration()
         const user_providers =
           config.get<Provider[]>('geminiCoder.providers') || []
-        const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+        const gemini_api_key = context.globalState.get<string>(
+          GEMINI_API_KEY_STATE_KEY,
+          ''
+        )
         const temperature = config.get<number>('geminiCoder.temperature')
         const commit_message_prompt = config.get<string>(
           'geminiCoder.commitMessagePrompt'

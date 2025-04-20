@@ -8,7 +8,10 @@ import {
   is_multiple_files_clipboard,
   ClipboardFile
 } from './utils/clipboard-parser'
-import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
+import {
+  GEMINI_API_KEY_STATE_KEY,
+  LAST_APPLIED_CHANGES_STATE_KEY
+} from '../../constants/state-keys'
 import { Logger } from '../../helpers/logger'
 import { OriginalFileState } from '../../types/common'
 import { revert_files } from './utils/file-operations'
@@ -198,7 +201,10 @@ export function apply_chat_response_command(params: {
       vscode.workspace.workspaceFolders?.length == 1
 
     const user_providers = config.get<Provider[]>('geminiCoder.providers') || []
-    const gemini_api_key = config.get<string>('geminiCoder.apiKey')
+    const gemini_api_key = params.context.globalState.get<string>(
+      GEMINI_API_KEY_STATE_KEY,
+      ''
+    )
     const gemini_temperature = config.get<number>('geminiCoder.temperature')
 
     // Get default model from global state instead of config
