@@ -19,9 +19,11 @@ const App = () => {
   const [active_tab, set_active_tab] = useState<'chat' | 'api'>('chat')
   const [updating_preset, set_updating_preset] = useState<Preset>()
   const [updated_preset, set_updated_preset] = useState<Preset>()
-
-  const { open_router_models, request_open_router_models } =
-    use_open_router_models(vscode)
+  const {
+    open_router_models,
+    request_open_router_models,
+    get_newly_picked_open_router_model
+  } = use_open_router_models(vscode)
 
   const handle_preset_update = (updated_preset: Preset) => {
     set_updated_preset(updated_preset)
@@ -77,6 +79,7 @@ const App = () => {
         on_update={handle_preset_update}
         request_open_router_models={request_open_router_models}
         open_router_models={open_router_models}
+        get_newly_picked_open_router_model={get_newly_picked_open_router_model}
       />
     </EditView>
   )

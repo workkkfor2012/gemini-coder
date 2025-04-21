@@ -38,7 +38,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
           )
         }
       >
-        <div style={{ display: 'flex', gap: '8px' }}>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <input
             id="api-key"
             type={show_api_key ? 'text' : 'password'}

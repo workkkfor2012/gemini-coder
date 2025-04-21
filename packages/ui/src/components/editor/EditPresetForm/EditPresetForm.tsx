@@ -3,7 +3,6 @@ import styles from './EditPresetForm.module.scss'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import TextareaAutosize from 'react-textarea-autosize'
-import cn from 'classnames'
 import { Icon } from '../Icon'
 import { Field } from '../Field'
 import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
@@ -12,7 +11,8 @@ type Props = {
   preset: Preset
   on_update: (updated_preset: Preset) => void
   request_open_router_models: () => void
-  open_router_models?: { [model: string]: string }
+  open_router_models: { [model: string]: string }
+  get_newly_picked_open_router_model: () => Promise<string | undefined>
 }
 
 export const EditPresetForm: React.FC<Props> = (props) => {
@@ -45,7 +45,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   const [options, set_options] = useState<string[]>(props.preset.options || [])
   const [open_router_models, set_open_router_models] = useState<{
     [model: string]: string
-  }>()
+  }>({})
 
   const supports_temperature = CHATBOTS[chatbot].supports_custom_temperature
   const supports_system_instructions =
@@ -106,14 +106,15 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   }
 
   useEffect(() => {
-    set_open_router_models(props.open_router_models)
-  }, [props.open_router_models])
-
-  useEffect(() => {
-    if (chatbot == 'OpenRouter' && !open_router_models) {
+    if (chatbot == 'OpenRouter') {
+      // Use stale-while-revalidate technique
       props.request_open_router_models()
     }
   }, [chatbot])
+
+  useEffect(() => {
+    set_open_router_models(props.open_router_models)
+  }, [props.open_router_models])
 
   return (
     <div className={styles.form}>
@@ -122,12 +123,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       </div>
 
       <Field label="Chatbot" htmlFor="chatbot">
-        <select
-          id="chatbot"
-          value={chatbot}
-          onChange={handle_chatbot_change}
-          className={styles.input}
-        >
+        <select id="chatbot" value={chatbot} onChange={handle_chatbot_change}>
           {Object.keys(CHATBOTS).map((key) => (
             <option key={key} value={key}>
               {key}
@@ -142,7 +138,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
             id="model"
             value={model}
             onChange={(e) => set_model(e.target.value)}
-            className={styles.input}
           >
             {Object.entries(models).map(([value, label]) => (
               <option key={value} value={value}>
@@ -154,23 +149,43 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       )}
 
       {chatbot == 'OpenRouter' &&
-        (open_router_models && Object.keys(open_router_models).length > 0 ? (
-          <Field label="Model" htmlFor="openrouter-model">
-            <select
-              id="openrouter-model"
-              value={model}
-              onChange={(e) => set_model(e.target.value)}
-              className={styles.input}
-            >
-              {Object.entries(open_router_models).map(([value, label]) => (
-                <option key={value} value={value}>
-                  {label}
-                </option>
-              ))}
+        (Object.keys(open_router_models).length > 0 ? (
+          <div style={{ cursor: 'pointer' }}>
+            <Field label="Model" htmlFor="open-router-model">
+              <div
+                onClick={async () => {
+                  const new_pick =
+                    await props.get_newly_picked_open_router_model()
+                  set_model(new_pick)
+                }}
+              >
+                <div style={{ pointerEvents: 'none' }}>
+                  <select
+                    id="open-router-model"
+                    value={model}
+                    onChange={(e) => set_model(e.target.value)}
+                    onClick={(e) => {
+                      e.preventDefault()
+                    }}
+                  >
+                    {Object.entries(open_router_models).map(
+                      ([value, label]) => (
+                        <option key={value} value={value}>
+                          {label}
+                        </option>
+                      )
+                    )}
+                  </select>
+                </div>
+              </div>
+            </Field>
+          </div>
+        ) : (
+          <Field label="Model">
+            <select value="fetching" disabled>
+              <option value="fetching">Fetching models...</option>
             </select>
           </Field>
-        ) : (
-          <Field label="Model" info="Fetching available models..." />
         ))}
 
       {supports_user_provided_model && (
@@ -180,7 +195,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
             type="text"
             value={model || ''}
             onChange={(e) => set_model(e.target.value)}
-            className={styles.input}
             placeholder="Enter model name"
           />
         </Field>
@@ -192,7 +206,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
           type="text"
           value={name}
           onChange={(e) => set_name(e.target.value)}
-          className={styles.input}
         />
       </Field>
 
@@ -214,7 +227,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
             type="text"
             value={port}
             onChange={(e) => set_port(parseInt(e.target.value))}
-            className={styles.input}
             placeholder="e.g. 3000"
             onKeyDown={
               (e) =>
@@ -259,7 +271,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
                   set_temperature(value)
                 }
               }}
-              className={cn(styles.input, styles.temperature__input)}
+              className={styles.temperature__input}
             />
             <input
               type="range"
@@ -280,7 +292,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
             id="instructions"
             value={system_instructions}
             onChange={(e) => set_system_instructions(e.target.value)}
-            className={styles.input}
             minRows={4}
             placeholder="Optional tone and style instructions for the model"
           />
@@ -297,7 +308,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
           type="text"
           value={prompt_prefix}
           onChange={(e) => set_prompt_prefix(e.target.value)}
-          className={styles.input}
         />
       </Field>
 
@@ -311,7 +321,6 @@ export const EditPresetForm: React.FC<Props> = (props) => {
           type="text"
           value={prompt_suffix}
           onChange={(e) => set_prompt_suffix(e.target.value)}
-          className={styles.input}
         />
       </Field>
     </div>
