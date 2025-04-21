@@ -21,7 +21,9 @@ import {
   DefaultModelsUpdatedMessage,
   UpdateDefaultModelMessage,
   CustomProvidersUpdatedMessage,
-  OpenRouterModelsMessage
+  OpenRouterModelsMessage,
+  ShowOpenRouterModelPickerMessage,
+  OpenRouterModelSelectedMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -254,6 +256,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | DefaultModelsUpdatedMessage
       | CustomProvidersUpdatedMessage
       | OpenRouterModelsMessage
+      | OpenRouterModelSelectedMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -397,19 +400,30 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async _fetch_open_router_models(): Promise<{
-    [model: string]: string
+    [model_id: string]: {
+      name: string
+      description: string
+    }
   }> {
     try {
       const response = await axios.get<OpenRouterModelsResponse>(
         'https://openrouter.ai/api/v1/models'
       )
 
-      const models: { [model: string]: string } = {}
+      const models: {
+        [model_id: string]: {
+          name: string
+          description: string
+        }
+      } = {}
 
       for (const model of response.data.data
         .filter((m) => m.created >= 1725148800) // skip older models created before Sep 2024
         .sort((a, b) => a.id.localeCompare(b.id))) {
-        models[model.id] = model.name
+        models[model.id] = {
+          name: model.name,
+          description: model.description
+        }
       }
 
       return models
@@ -1038,12 +1052,39 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               command: 'CUSTOM_PROVIDERS_UPDATED',
               custom_providers: providers
             })
-          } else if (message.command == 'GET_OPENROUTER_MODELS') {
+          } else if (message.command == 'GET_OPEN_ROUTER_MODELS') {
             const models = await this._fetch_open_router_models()
             this._send_message<OpenRouterModelsMessage>({
-              command: 'OPENROUTER_MODELS',
+              command: 'OPEN_ROUTER_MODELS',
               models
             })
+          } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
+            const model_items = (
+              message as ShowOpenRouterModelPickerMessage
+            ).models.map((model) => ({
+              label: model.name,
+              description: model.id,
+              detail: model.description
+            }))
+
+            const selected_model = await vscode.window.showQuickPick(
+              model_items,
+              {
+                placeHolder: 'Select an OpenRouter model'
+              }
+            )
+
+            if (selected_model) {
+              this._send_message<OpenRouterModelSelectedMessage>({
+                command: 'OPEN_ROUTER_MODEL_SELECTED',
+                model_id: selected_model.description
+              })
+            } else {
+              this._send_message<OpenRouterModelSelectedMessage>({
+                command: 'OPEN_ROUTER_MODEL_SELECTED',
+                model_id: undefined
+              })
+            }
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

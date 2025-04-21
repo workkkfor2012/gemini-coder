@@ -11,7 +11,12 @@ type Props = {
   preset: Preset
   on_update: (updated_preset: Preset) => void
   request_open_router_models: () => void
-  open_router_models: { [model: string]: string }
+  open_router_models: {
+    [model_id: string]: {
+      name: string
+      description: string
+    }
+  }
   get_newly_picked_open_router_model: () => Promise<string | undefined>
 }
 
@@ -44,7 +49,10 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   )
   const [options, set_options] = useState<string[]>(props.preset.options || [])
   const [open_router_models, set_open_router_models] = useState<{
-    [model: string]: string
+    [model_id: string]: {
+      name: string
+      description: string
+    }
   }>({})
 
   const supports_temperature = CHATBOTS[chatbot].supports_custom_temperature
@@ -150,15 +158,15 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       {chatbot == 'OpenRouter' &&
         (Object.keys(open_router_models).length > 0 ? (
-          <div style={{ cursor: 'pointer' }}>
-            <Field label="Model" htmlFor="open-router-model">
-              <div
-                onClick={async () => {
-                  const new_pick =
-                    await props.get_newly_picked_open_router_model()
-                  set_model(new_pick)
-                }}
-              >
+          <Field label="Model" htmlFor="open-router-model">
+            <div
+              onClick={async () => {
+                const new_pick =
+                  await props.get_newly_picked_open_router_model()
+                set_model(new_pick)
+              }}
+            >
+              <div style={{ cursor: 'pointer' }}>
                 <div style={{ pointerEvents: 'none' }}>
                   <select
                     id="open-router-model"
@@ -169,17 +177,17 @@ export const EditPresetForm: React.FC<Props> = (props) => {
                     }}
                   >
                     {Object.entries(open_router_models).map(
-                      ([value, label]) => (
+                      ([value, model]) => (
                         <option key={value} value={value}>
-                          {label}
+                          {model.name}
                         </option>
                       )
                     )}
                   </select>
                 </div>
               </div>
-            </Field>
-          </div>
+            </div>
+          </Field>
         ) : (
           <Field label="Model">
             <select value="fetching" disabled>

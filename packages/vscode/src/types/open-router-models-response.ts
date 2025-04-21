@@ -1,7 +1,9 @@
+type OpenRouterModel = {
+  id: string
+  name: string
+  description: string
+  created: number
+}
 export type OpenRouterModelsResponse = {
-  data: {
-    id: string
-    name: string
-    created: number
-  }[]
+  data: OpenRouterModel[]
 }

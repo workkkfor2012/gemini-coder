@@ -145,7 +145,16 @@ export interface GetCustomProvidersMessage extends BaseMessage {
 }
 
 export interface GetOpenRouterModelsMessage extends BaseMessage {
-  command: 'GET_OPENROUTER_MODELS'
+  command: 'GET_OPEN_ROUTER_MODELS'
+}
+
+export interface ShowOpenRouterModelPickerMessage extends BaseMessage {
+  command: 'SHOW_OPEN_ROUTER_MODEL_PICKER'
+  models: {
+    id: string
+    name: string
+    description: string
+  }[]
 }
 
 // Messages from extension to webview:
@@ -261,8 +270,18 @@ export interface CustomProvidersUpdatedMessage extends BaseMessage {
 }
 
 export interface OpenRouterModelsMessage extends BaseMessage {
-  command: 'OPENROUTER_MODELS'
-  models: { [model: string]: string }
+  command: 'OPEN_ROUTER_MODELS'
+  models: {
+    [model_id: string]: {
+      name: string
+      description: string
+    }
+  }
+}
+
+export interface OpenRouterModelSelectedMessage extends BaseMessage {
+  command: 'OPEN_ROUTER_MODEL_SELECTED'
+  model_id: string | undefined
 }
 
 // Union type of all possible incoming messages from webview
@@ -297,6 +316,7 @@ export type WebviewMessage =
   | UpdateDefaultModelMessage
   | GetCustomProvidersMessage
   | GetOpenRouterModelsMessage
+  | ShowOpenRouterModelPickerMessage
 
 export type ExtensionMessage =
   | ApiKeyUpdatedMessage
@@ -318,3 +338,4 @@ export type ExtensionMessage =
   | DefaultModelsUpdatedMessage
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
+  | OpenRouterModelSelectedMessage
