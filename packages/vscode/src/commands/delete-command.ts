@@ -10,6 +10,7 @@ export function delete_command() {
       }
 
       const path = item.resourceUri.fsPath
+      const uri = vscode.Uri.file(path)
 
       // Ask for confirmation before deleting
       const result = await vscode.window.showWarningMessage(
@@ -18,13 +19,29 @@ export function delete_command() {
         'Delete'
       )
 
-      if (result !== 'Delete') {
+      if (result != 'Delete') {
         return
       }
 
       try {
+        // Check if the file is currently open in any editor
+        const open_documents = vscode.workspace.textDocuments
+        const document_to_close = open_documents.find(
+          (doc) => doc.uri.fsPath == path
+        )
+
+        if (document_to_close) {
+          // Close the document if it's open
+          await vscode.window.showTextDocument(document_to_close.uri, {
+            preview: false
+          })
+          await vscode.commands.executeCommand(
+            'workbench.action.closeActiveEditor'
+          )
+        }
+
         // Delete the file or folder
-        await vscode.workspace.fs.delete(vscode.Uri.file(path), {
+        await vscode.workspace.fs.delete(uri, {
           recursive: true
         })
 
