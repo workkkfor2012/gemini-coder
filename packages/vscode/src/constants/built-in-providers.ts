@@ -23,7 +23,14 @@ export const BUILT_IN_PROVIDERS: Provider[] = [
     model: 'gemini-2.5-flash-preview-04-17'
   },
   {
-    name: 'Gemini 2.5 Pro Preview 03-25',
+    name: 'Gemini 2.5 Pro Experimental 03-25',
+    endpointUrl:
+      'https://generativelanguage.googleapis.com/v1beta/chat/completions',
+    apiKey: '',
+    model: 'gemini-2.5-pro-exp-03-25'
+  },
+  {
+    name: 'Gemini 2.5 Pro Preview 03-25 (billing required)',
     endpointUrl:
       'https://generativelanguage.googleapis.com/v1beta/chat/completions',
     apiKey: '',
