@@ -540,7 +540,7 @@ export class WorkspaceProvider
     if (checked_open_files.length > 0) {
       vscode.window
         .showInformationMessage(
-          `${checked_open_files.length} open file${
+          `${checked_open_files.length} file${
             checked_open_files.length == 1 ? '' : 's'
           } remain${checked_open_files.length == 1 ? 's' : ''} checked.`,
           'Clear open editors'
