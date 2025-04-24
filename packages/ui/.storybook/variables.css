@@ -1,3 +1,24 @@
 :root {
   --vscode-foreground: #616161;
+  --vscode-input-background: #fff;
+  --vscode-input-foreground: #000;
+  --vscode-input-border: #ccc;
+  --vscode-focusBorder: #007fd4;
+  --vscode-button-background: #0e639c;
+  --vscode-button-foreground: #fff;
+  --vscode-button-hoverBackground: #1177bb;
+  --vscode-commandCenter-inactiveBorder: #ccc;
+  --vscode-commandCenter-activeBorder: #007fd4;
+  --vscode-editor-selectionBackground: #add6ff;
+  --vscode-diffEditor-removedLineBackground: #ffa0a0;
+  --vscode-icon-foreground: #424242;
+  --vscode-toolbar-hoverBackground: rgba(90, 93, 94, 0.31);
+  --vscode-descriptionForeground: #717171;
+  --vscode-sideBar-background: #f3f3f3;
+  --vscode-sideBarSectionHeader-border: rgba(128, 128, 128, 0.35);
+  --vscode-editor-foreground: #333333;
+  --vscode-textLink-foreground: #0066cc;
+  --vscode-list-hoverBackground: #e8e8e8;
+  --vscode-list-inactiveSelectionBackground: #e4e6f1;
+  --vscode-button-separator: #808080;
 }

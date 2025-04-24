@@ -1,3 +1,31 @@
+.with-quick-pick-trigger {
+  display: flex;
+  > button:first-child {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+  > button:last-child {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    width: 25px;
+  }
+
+  &__separator {
+    width: 1px;
+    background-color: var(--vscode-button-background);
+    position: relative;
+    &::after {
+      content: '';
+      position: absolute;
+      width: 1px;
+      top: 50%;
+      transform: translateY(-50%);
+      height: calc(100% - 8px);
+      background-color: var(--vscode-button-separator);
+    }
+  }
+}
+
 .button {
   width: 100%;
   display: flex;
