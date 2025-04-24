@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
+import { get_refactoring_instruction } from '@/constants/instructions'
 
 export function refactor_to_clipboard_command(
   context: vscode.ExtensionContext,
@@ -42,7 +43,7 @@ export function refactor_to_clipboard_command(
 
       const selection = editor.selection
       const selected_text = editor.document.getText(selection)
-      let refactor_instruction = `User requested refactor of a file "${current_file_path}". In your response send fully updated file only, without explanations or any other text.`
+      let refactor_instruction = get_refactoring_instruction(current_file_path)
       if (selected_text) {
         refactor_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
       } else {

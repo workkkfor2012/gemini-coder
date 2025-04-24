@@ -9,6 +9,7 @@ import {
 } from '../constants/state-keys'
 import { Logger } from '../helpers/logger'
 import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
+import { get_refactoring_instruction } from '@/constants/instructions'
 
 export function refactor_command(params: {
   context: vscode.ExtensionContext
@@ -130,7 +131,7 @@ export function refactor_command(params: {
 
     const selection = editor.selection
     const selected_text = editor.document.getText(selection)
-    let refactoring_instruction = `User requested refactor of file ${current_file_path}. In your response send fully updated <file> only, without explanations or any other text.`
+    let refactoring_instruction = get_refactoring_instruction(file_path)
     if (selected_text) {
       refactoring_instruction += ` Regarding the following snippet \`\`\`${selected_text}\`\`\` ${instruction}`
     } else {

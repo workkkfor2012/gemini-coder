@@ -4,7 +4,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { make_api_request } from '../../../helpers/make-api-request'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
-import { apply_changes_instruction } from '../../../constants/instructions'
+import { get_refactoring_instruction } from '../../../constants/instructions'
 import {
   ClipboardFile,
   parse_clipboard_multiple_files
@@ -36,7 +36,7 @@ async function process_file(params: {
     message: 'start',
     data: { file_path: params.file_path }
   })
-  const apply_changes_prompt = `${apply_changes_instruction} ${params.instruction}`
+  const apply_changes_prompt = `${get_refactoring_instruction} ${params.instruction}`
   const file_content_block = `<file name="${params.file_path}">\n<![CDATA[\n${params.file_content}\n]]>\n</file>\n`
   const content = `${file_content_block}\n${apply_changes_prompt}`
 

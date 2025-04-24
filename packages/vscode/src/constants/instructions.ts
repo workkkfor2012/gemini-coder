@@ -1,6 +1,8 @@
 export const code_completion_instruction =
   'Find correct replacement for <missing text> symbol. Send replacement text in "replacement" XML tags.'
 export const code_completion_instruction_external =
-  'Find correct replacement for <missing text> symbol. Think step by step before sending the replacement text.'
-export const apply_changes_instruction =
-  'User requested refactor of a file. In your response send fully updated <file> only, without explanations or any other text.'
+  'Find correct replacement for <missing text> symbol. Briefly explain your reasoning.'
+export const get_refactoring_instruction = (file_path: string) =>
+  `User requested refactor of a file${
+    file_path ? ` ${file_path}` : ''
+  }. In your response send fully updated <file> only, without explanations or any other text.`
