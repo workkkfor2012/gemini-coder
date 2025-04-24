@@ -73,11 +73,11 @@ export interface ShowPresetPickerMessage extends BaseMessage {
 }
 
 export interface GetFimModeMessage extends BaseMessage {
-  command: 'GET_FIM_MODE'
+  command: 'GET_CODE_COMPLETIONS_MODE'
 }
 
 export interface SaveFimModeMessage extends BaseMessage {
-  command: 'SAVE_FIM_MODE'
+  command: 'SAVE_CODE_COMPLETIONS_MODE'
   enabled: boolean
 }
 
@@ -249,7 +249,7 @@ export interface ExpandedPresetsMessage extends BaseMessage {
 }
 
 export interface FimModeMessage extends BaseMessage {
-  command: 'FIM_MODE'
+  command: 'CODE_COMPLETIONS_MODE'
   enabled: boolean
 }
 

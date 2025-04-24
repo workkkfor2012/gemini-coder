@@ -416,22 +416,22 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private async handle_fim_mode(message: WebviewMessage) {
-    if (message.command == 'GET_FIM_MODE') {
+    if (message.command == 'GET_CODE_COMPLETIONS_MODE') {
       const has_active_editor = !!vscode.window.activeTextEditor
 
       if (this._is_code_completion_mode && !has_active_editor) {
         this._is_code_completion_mode = false
         this._send_message<ExtensionMessage>({
-          command: 'FIM_MODE',
+          command: 'CODE_COMPLETIONS_MODE',
           enabled: false
         })
       } else {
         this._send_message<ExtensionMessage>({
-          command: 'FIM_MODE',
+          command: 'CODE_COMPLETIONS_MODE',
           enabled: this._is_code_completion_mode
         })
       }
-    } else if (message.command == 'SAVE_FIM_MODE') {
+    } else if (message.command == 'SAVE_CODE_COMPLETIONS_MODE') {
       this._is_code_completion_mode = (message as SaveFimModeMessage).enabled
       this._calculate_token_count()
     }
@@ -781,8 +781,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               })
             }
           } else if (
-            message.command == 'GET_FIM_MODE' ||
-            message.command == 'SAVE_FIM_MODE'
+            message.command == 'GET_CODE_COMPLETIONS_MODE' ||
+            message.command == 'SAVE_CODE_COMPLETIONS_MODE'
           ) {
             await this.handle_fim_mode(message)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
@@ -1214,7 +1214,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       hasSelection: this._has_active_selection
     })
     this._send_message<ExtensionMessage>({
-      command: 'FIM_MODE',
+      command: 'CODE_COMPLETIONS_MODE',
       enabled: this._is_code_completion_mode
     })
 

@@ -120,7 +120,11 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                   set_highlighted_preset_name(preset.name)
                 }}
                 role="button"
-                title={preset.name}
+                title={
+                  preset.name + props.disabled
+                    ? ' (Unavailable for code completion due to affixes)'
+                    : ''
+                }
               >
                 <div className={styles.presets__item__left}>
                   <ChatbotIcon
@@ -145,7 +149,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                     e.stopPropagation()
                   }}
                 >
-                  {preset.has_affixes && (
+                  {preset.has_affixes && !props.disabled && (
                     <IconButton
                       codicon_icon="copy"
                       title="Copy to clipboard"

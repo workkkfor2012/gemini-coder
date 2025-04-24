@@ -45,7 +45,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       { command: 'GET_PRESETS' },
       { command: 'GET_SELECTED_PRESETS' },
       { command: 'GET_EXPANDED_PRESETS' },
-      { command: 'GET_FIM_MODE' },
+      { command: 'GET_CODE_COMPLETIONS_MODE' },
       { command: 'REQUEST_EDITOR_STATE' },
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
       { command: 'GET_CHAT_HISTORY' },
@@ -72,7 +72,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
             (message as PresetsSelectedFromPickerMessage).names
           )
           break
-        case 'FIM_MODE':
+        case 'CODE_COMPLETIONS_MODE':
           set_is_code_completions_mode((message as FimModeMessage).enabled)
           break
         case 'EDITOR_STATE_CHANGED':
@@ -85,7 +85,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           ) {
             set_is_code_completions_mode(false)
             props.vscode.postMessage({
-              command: 'SAVE_FIM_MODE',
+              command: 'SAVE_CODE_COMPLETIONS_MODE',
               enabled: false
             } as WebviewMessage)
           }
@@ -207,9 +207,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_fim_mode_click = () => {
+  const handle_code_completions_mode_click = () => {
     props.vscode.postMessage({
-      command: 'SAVE_FIM_MODE',
+      command: 'SAVE_CODE_COMPLETIONS_MODE',
       enabled: !is_code_completions_mode
     } as WebviewMessage)
     set_is_code_completions_mode(!is_code_completions_mode)
@@ -289,8 +289,8 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       on_create_preset={handle_create_preset}
       has_active_editor={has_active_editor}
-      is_fim_mode={is_code_completions_mode && has_active_editor}
-      on_fim_mode_click={handle_fim_mode_click}
+      is_code_completions_mode={is_code_completions_mode && has_active_editor}
+      on_code_completions_mode_click={handle_code_completions_mode_click}
       has_active_selection={has_active_selection}
       chat_history={chat_history}
       chat_history_fim_mode={chat_history_fim_mode}
