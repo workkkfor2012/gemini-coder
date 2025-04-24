@@ -299,7 +299,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Apply Chat Response',
         description:
-          'Integrate chat responses with the codebase using separate, concurrently executed API requests for each modified file.',
+          'Automatically integrate chat responses from clipboard with the codebase. INTELLIGENT MODE suitable for truncated files and diffs use separate, concurrent API requests for each modified file.',
         settings: props.apply_chat_response_settings,
         on_update: props.on_apply_chat_response_settings_update
       })}
