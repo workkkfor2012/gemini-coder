@@ -183,7 +183,7 @@
       },
       {
         "command": "geminiCoder.codeCompletionToClipboard",
-        "title": "Code Completion to Clipboard",
+        "title": "Code Completion Prompt to Clipboard",
         "category": "Gemini Coder"
       },
       {
@@ -223,12 +223,7 @@
       },
       {
         "command": "geminiCoder.refactor",
-        "title": "Refactor this File",
-        "category": "Gemini Coder"
-      },
-      {
-        "command": "geminiCoder.refactorWith",
-        "title": "Refactor this File with...",
+        "title": "Refactor",
         "category": "Gemini Coder"
       },
       {

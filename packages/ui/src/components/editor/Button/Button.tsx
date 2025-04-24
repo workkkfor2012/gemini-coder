@@ -25,9 +25,15 @@ export const Button: FC<Props> = (props) => {
         )}
         {props.children}
       </button>
-      <div className={styles['with-quick-pick-trigger__separator']}></div>
+      <div
+        className={cn(styles['with-quick-pick-trigger__separator'], {
+          [styles['with-quick-pick-trigger__separator--disabled']]:
+            props.disabled
+        })}
+      ></div>
       <button
         className={styles.button}
+        disabled={props.disabled}
         onClick={props.on_quick_pick_trigger_click}
       >
         <span className="codicon codicon-ellipsis" />

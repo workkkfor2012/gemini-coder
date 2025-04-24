@@ -185,6 +185,16 @@ export interface ExecuteCommandMessage extends BaseMessage {
   command_id: string
 }
 
+export interface ShowQuickPickMessage extends BaseMessage {
+  command: 'SHOW_QUICK_PICK'
+  title: string
+  items: {
+    label: string
+    description: string
+    command: string
+  }[]
+}
+
 // Messages from extension to webview:
 export interface GeminiApiKeyMessage extends BaseMessage {
   command: 'GEMINI_API_KEY'
@@ -369,6 +379,7 @@ export type WebviewMessage =
   | GetCommitMessagesSettingsMessage
   | UpdateCommitMessagesSettingsMessage
   | ExecuteCommandMessage
+  | ShowQuickPickMessage
 
 export type ExtensionMessage =
   | GeminiApiKeyMessage

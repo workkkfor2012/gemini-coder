@@ -28,7 +28,8 @@ import {
   CommitMessagesSettingsMessage,
   OpenRouterApiKeyMessage,
   UpdateOpenRouterApiKeyMessage,
-  ExecuteCommandMessage
+  ExecuteCommandMessage,
+  ShowQuickPickMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -325,6 +326,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | ApplyChatResponseSettingsMessage
       | CommitMessagesSettingsMessage
       | ExecuteCommandMessage
+      | ShowQuickPickMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -1168,6 +1170,25 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             )
           } else if (message.command == 'EXECUTE_COMMAND') {
             vscode.commands.executeCommand(message.command_id)
+          } else if (message.command == 'SHOW_QUICK_PICK') {
+            const items = message.items.map((item) => ({
+              label: item.label,
+              description: item.description
+            }))
+
+            const selected_item = await vscode.window.showQuickPick(items, {
+              placeHolder: message.title
+            })
+
+            if (selected_item) {
+              const selected_command = message.items.find(
+                (item) => item.label == selected_item.label
+              )?.command
+
+              if (selected_command) {
+                vscode.commands.executeCommand(selected_command)
+              }
+            }
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

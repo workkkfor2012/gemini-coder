@@ -13,6 +13,44 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
     props.vscode.postMessage({ command: 'EXECUTE_COMMAND', command_id })
   }
 
+  const handle_code_completions_more_actions = () => {
+    const items = [
+      {
+        label: 'Get code completion with suggestions',
+        command: 'geminiCoder.codeCompletionWithSuggestions'
+      },
+      {
+        label: 'Copy code completion prompt to clipboard',
+        command: 'geminiCoder.codeCompletionToClipboard'
+      },
+      {
+        label: 'Copy code completion with suggestions prompt to clipboard',
+        command: 'geminiCoder.codeCompletionWithSuggestionsToClipboard'
+      }
+    ]
+
+    props.vscode.postMessage({
+      command: 'SHOW_QUICK_PICK',
+      items,
+      title: 'Other code completion commands'
+    })
+  }
+
+  const handle_file_refactoring_more_actions = () => {
+    const items = [
+      {
+        label: 'Copy refactoring prompt to clipboard',
+        command: 'geminiCoder.refactorToClipboard'
+      }
+    ]
+
+    props.vscode.postMessage({
+      command: 'SHOW_QUICK_PICK',
+      items,
+      title: 'Other file refactoring commands'
+    })
+  }
+
   const code_completion_title = props.has_active_editor
     ? 'Get code completion at the caret position'
     : 'Requires an active editor'
@@ -35,6 +73,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
           on_click={() => {
             handle_execute_command('geminiCoder.codeCompletionAutoAccept')
           }}
+          on_quick_pick_trigger_click={handle_code_completions_more_actions}
           disabled={!props.has_active_editor}
           title={code_completion_title}
         >
@@ -42,6 +81,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
         </Button>
         <Button
           on_click={() => handle_execute_command('geminiCoder.refactor')}
+          on_quick_pick_trigger_click={handle_file_refactoring_more_actions}
           disabled={!props.has_active_editor}
           title={refactor_title}
         >

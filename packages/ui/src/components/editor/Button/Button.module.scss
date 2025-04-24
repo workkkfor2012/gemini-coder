@@ -23,6 +23,10 @@
       height: calc(100% - 8px);
       background-color: var(--vscode-button-separator);
     }
+
+    &--disabled {
+      opacity: 0.5;
+    }
   }
 }
 
@@ -49,7 +53,6 @@
   &:disabled {
     opacity: 0.5;
     cursor: not-allowed;
-    background-color: var(--vscode-button-background);
 
     &:hover {
       background-color: var(--vscode-button-background);
