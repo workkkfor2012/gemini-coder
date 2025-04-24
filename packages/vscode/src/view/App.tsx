@@ -45,12 +45,8 @@ const App = () => {
     handle_commit_message_settings_change
   } = use_api_tools_configuration(vscode)
 
-  const handle_preset_update = (updated_preset: Preset) => {
-    set_updated_preset(updated_preset)
-  }
-
   // --- START back click handling in edit preset form ---
-  const handle_edit_preset_back_click = () => {
+  const edit_preset_back_click_handler = () => {
     vscode.postMessage({
       command: 'UPDATE_PRESET',
       original_name: updating_preset!.name,
@@ -112,10 +108,10 @@ const App = () => {
 
   if (updating_preset) {
     edit_view = (
-      <EditView on_back_click={handle_edit_preset_back_click}>
+      <EditView on_back_click={edit_preset_back_click_handler}>
         <EditPresetForm
           preset={updating_preset}
-          on_update={handle_preset_update}
+          on_update={set_updated_preset}
           request_open_router_models={request_open_router_models}
           open_router_models={open_router_models}
           get_newly_picked_open_router_model={

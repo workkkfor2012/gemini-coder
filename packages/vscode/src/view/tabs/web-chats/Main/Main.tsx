@@ -34,12 +34,13 @@ type Props = {
 
 export const Main: React.FC<Props> = (props) => {
   const [normal_instruction, set_normal_instruction] = useState('')
-  const [fim_instruction, set_fim_instruction] = useState('')
+  const [code_completion_instruction, set_code_completion_instruction] =
+    useState('')
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   // Current instruction is determined by mode
   const current_instruction = props.is_fim_mode
-    ? fim_instruction
+    ? code_completion_instruction
     : normal_instruction
 
   // Calculate input token estimation
@@ -80,7 +81,7 @@ export const Main: React.FC<Props> = (props) => {
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
     if (props.is_fim_mode) {
-      set_fim_instruction(value)
+      set_code_completion_instruction(value)
     } else {
       set_normal_instruction(value)
     }

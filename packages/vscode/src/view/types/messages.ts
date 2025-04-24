@@ -195,6 +195,11 @@ export interface ShowQuickPickMessage extends BaseMessage {
   }[]
 }
 
+export interface PreviewPresetMessage extends BaseMessage {
+  command: 'PREVIEW_PRESET'
+  preset: Preset
+}
+
 // Messages from extension to webview:
 export interface GeminiApiKeyMessage extends BaseMessage {
   command: 'GEMINI_API_KEY'
@@ -380,6 +385,7 @@ export type WebviewMessage =
   | UpdateCommitMessagesSettingsMessage
   | ExecuteCommandMessage
   | ShowQuickPickMessage
+  | PreviewPresetMessage
 
 export type ExtensionMessage =
   | GeminiApiKeyMessage

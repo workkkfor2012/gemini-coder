@@ -1,13 +1,17 @@
 .with-quick-pick-trigger {
   display: flex;
+  --button-width: 25px;
+
   > button:first-child {
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
+    padding-left: calc(var(--padding-16px) + var(--button-width));
   }
+
   > button:last-child {
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
-    width: 25px;
+    width: var(--button-width);
   }
 
   &__separator {

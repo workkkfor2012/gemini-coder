@@ -270,7 +270,7 @@
       },
       {
         "command": "geminiCoder.revert",
-        "title": "Revert Last Applied Changes",
+        "title": "Revert Last Applied Chat Response",
         "category": "Gemini Coder"
       },
       {
