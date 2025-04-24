@@ -26,7 +26,7 @@ Gemini Coder lets you conveniently copy folders and files for chatbots. With the
 The extension uses the same context for built-in API features: **code completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with just a single click.
 
 - **100% free & open source:** MIT License
-- **Versitale:** Initializes Gemini, AI Studio and many other popular chatbots
+- **Versitale:** Not limited to Gemini API or AI Studio
 - **Private:** Does not collect any usage data
 - **Local:** Talks with the web browser via WebSockets
 - **One of a kind**: Lets you use any website for context
@@ -52,10 +52,10 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Supported chatbots
 
-Gemini Coder works with many popular chatbots:
+Gemini Coder initializes hands-free many popular chatbots:
 
-- **AI Studio**
-- **Gemini**
+- AI Studio
+- Gemini
 - OpenRouter
 - Open WebUI (self-hosted)
 - ChatGPT
@@ -69,74 +69,50 @@ Gemini Coder works with many popular chatbots:
 ## Quick start for chat
 
 1. Open the new Gemini Coder view from the activity bar (sparkles icon).
-2. Select files/folders for the context.
-3. Click copy icon from the toolbar.
-4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
+2. Select folders and files to include in the context.
+3. Enter instructions and copy generated prompt.
+4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free web chats initializations.
 
-## Quick start for FIM completions
+## Quick start for code completions
 
-1. Get your API key from [Google AI Studio](https://aistudio.google.com/app/apikey).
-2. Open VS Code and navigate to settings.
-3. Search for "Gemini Coder" and paste your API key.
+1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+2. Select folders and files to include in the context.
+3. Place caret where you want code completion to appear.
 4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Code Completion".
 5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
 
 ## Commands
 
-#### Code Completions
+#### Code completions
 
-- `Gemini Coder: Code Completion` - Get fill-in-the-middle completion using default model.
-- `Gemini Coder: Code Completion with...` - Get fill-in-the-middle completion with model selection.
-- `Gemini Coder: Code Completion to Clipboard` - Copy FIM completion content to clipboard.
-- `Gemini Coder: Change Default FIM Model` - Change default AI model for FIM completions.
+- `Gemini Coder: Code Completion` - Get code completion.
+- `Gemini Coder: Code Completion with Suggestions` - Get code completion that follows given suggestions.
+- `Gemini Coder: Code Completion to Clipboard` - Copy code completion prompt to clipboard.
+- `Gemini Coder: Code Completion with Suggestions to Clipboard` - Copy code completion with suggestions prompt to clipboard.
+- `Gemini Coder: Code Completion in Chat` - Send code completion prompt to web chat using default preset.
+- `Gemini Coder: Code Completion in Chat with...` - Send code completion prompt to web chat with preset selection.
 
 #### Refactoring
 
-- `Gemini Coder: Refactor this File` - Apply changes based on refactoring instruction.
-- `Gemini Coder: Refactor this File with...` - Refactor with model selection.
-- `Gemini Coder: Refactor to Clipboard` - Copy refactoring content to clipboard.
-- `Gemini Coder: Change Default Refactoring Model` - Change default AI model for refactoring.
+- `Gemini Coder: Refactor` - Refactor active editor.
+- `Gemini Coder: Refactor to Clipboard` - Copy refactoring prompt to clipboard.
 
-#### Applying Changes
+#### Applying chat responses
 
 - `Gemini Coder: Apply Chat Response` - Apply changes suggested by AI using clipboard content.
-- `Gemini Coder: Apply Chat Response with...` - Apply changes with model selection.
-- `Gemini Coder: Apply Chat Response to Clipboard` - Copy apply changes content to clipboard.
-- `Gemini Coder: Change Default Apply Chat Response Model` - Change default AI model for applying changes.
+- `Gemini Coder: Apply Chat Response (Fast replace)` - Apply changes suggested by AI using clipboard content (Fast replace).
+- `Gemini Coder: Apply Chat Response (Intelligent update)` - Apply changes suggested by AI using clipboard content (Intelligent update).
+- `Gemini Coder: Revert Last Applied Changes` - Revert the last applied changes.
 
 #### Chat
 
-- `Gemini Coder: Web Chat` - Enter instructions and open web chat hands-free.
+- `Gemini Coder: Web Chat` - Open web chat with default preset.
+- `Gemini Coder: Web Chat with...` - Open web chat with preset selection.
 - `Gemini Coder: Chat to Clipboard` - Enter instructions and copy to clipboard.
 
 #### Context
 
-- `Gemini Coder: Copy Context` - Copy selected files as XML context.
-
-## Set up custom model providers
-
-The extension supports OpenAI-API compatible model providers for API features.
-
-```json
-  "geminiCoder.providers": [
-    {
-      "name": "DeepSeek",
-      "endpointUrl": "https://api.deepseek.com/v1/chat/completions",
-      "apiKey": "[API KEY]",
-      "model": "deepseek-chat",
-      "temperature": 0,
-      "instruction": ""
-    },
-    {
-      "name": "Mistral Large Latest",
-      "endpointUrl": "https://api.mistral.ai/v1/chat/completions",
-      "apiKey": "[API KEY]",
-      "model": "mistral-large-latest",
-      "temperature": 0,
-      "instruction": ""
-    },
-  ],
-```
+- `Gemini Coder: Copy Context` - Copy selected folders/files and websites to clipboard.
 
 ## Contributing
 

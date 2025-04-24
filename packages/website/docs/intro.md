@@ -10,7 +10,7 @@ Gemini Coder lets you conveniently copy folders and files for chatbots. With the
 The extension uses the same context for built-in API features: **code completions** and **file refactoring**. Hit **apply changes** to integrate AI responses with just a single click.
 
 - **100% free & open source:** MIT License
-- **Versitale:** Not limited to AI Studio or Gemini API
+- **Versitale:** Not limited to Gemini API or AI Studio
 - **Private:** Does not collect any usage data
 - **Local:** Talks with the web browser via WebSockets
 - **One of a kind**: Lets you use any website for context
@@ -36,10 +36,10 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Supported chatbots
 
-Gemini Coder works with many popular chatbots:
+Gemini Coder initializes hands-free many popular chatbots:
 
-- **AI Studio**
-- **Gemini**
+- AI Studio
+- Gemini
 - OpenRouter
 - Open WebUI (self-hosted)
 - ChatGPT
@@ -49,3 +49,18 @@ Gemini Coder works with many popular chatbots:
 - DeepSeek
 - Mistral
 - HuggingChat
+
+## Quick start for chat
+
+1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+2. Select folders and files to include in the context.
+3. Enter instructions and copy generated prompt.
+4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free web chats initializations.
+
+## Quick start for code completions
+
+1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+2. Select folders and files to include in the context.
+3. Place caret where you want code completion to appear.
+4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Code Completion".
+5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
