@@ -182,6 +182,11 @@
         "category": "Gemini Coder"
       },
       {
+        "command": "geminiCoder.codeCompletionWithSuggestionsAutoAccept",
+        "title": "Code Completion with Suggestions",
+        "category": "Gemini Coder"
+      },
+      {
         "command": "geminiCoder.codeCompletionToClipboard",
         "title": "Code Completion Prompt to Clipboard",
         "category": "Gemini Coder"

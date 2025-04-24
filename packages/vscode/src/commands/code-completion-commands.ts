@@ -7,24 +7,27 @@ import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
 import { Logger } from '../helpers/logger'
 import he from 'he'
 
-async function build_completion_payload(
-  document: vscode.TextDocument,
-  position: vscode.Position,
-  file_tree_provider: any,
-  open_editors_provider?: any,
+async function build_completion_payload(params: {
+  document: vscode.TextDocument
+  position: vscode.Position
+  file_tree_provider: any
+  open_editors_provider?: any
   suggestions?: string
-): Promise<string> {
-  const document_path = document.uri.fsPath
-  const text_before_cursor = document.getText(
-    new vscode.Range(new vscode.Position(0, 0), position)
+}): Promise<string> {
+  const document_path = params.document.uri.fsPath
+  const text_before_cursor = params.document.getText(
+    new vscode.Range(new vscode.Position(0, 0), params.position)
   )
-  const text_after_cursor = document.getText(
-    new vscode.Range(position, document.positionAt(document.getText().length))
+  const text_after_cursor = params.document.getText(
+    new vscode.Range(
+      params.position,
+      params.document.positionAt(params.document.getText().length)
+    )
   )
 
   const files_collector = new FilesCollector(
-    file_tree_provider,
-    open_editors_provider
+    params.file_tree_provider,
+    params.open_editors_provider
   )
 
   const context_text = await files_collector.collect_files({
@@ -32,14 +35,14 @@ async function build_completion_payload(
   })
 
   const payload = {
-    before: `<files>${context_text}<file name="${vscode.workspace.asRelativePath(
-      document.uri
-    )}"><![CDATA[${text_before_cursor}`,
-    after: `${text_after_cursor}]]></file>\n</files>`
+    before: `<files>\n${context_text}<file name="${vscode.workspace.asRelativePath(
+      params.document.uri
+    )}">\n<![CDATA[\n${text_before_cursor}`,
+    after: `${text_after_cursor}\n]]>\n</file>\n</files>`
   }
 
   const instructions = `${code_completion_instruction}${
-    suggestions ? ` Follow suggestions: ${suggestions}` : ''
+    params.suggestions ? ` Follow suggestions: ${params.suggestions}` : ''
   }`
 
   return `${instructions}\n${payload.before}<missing text>${payload.after}\n${instructions}`
@@ -48,19 +51,19 @@ async function build_completion_payload(
 /**
  * Show inline completion using Inline Completions API
  */
-async function show_inline_completion(
-  editor: vscode.TextEditor,
-  position: vscode.Position,
+async function show_inline_completion(params: {
+  editor: vscode.TextEditor
+  position: vscode.Position
   completion_text: string
-) {
-  const document = editor.document
+}) {
+  const document = params.editor.document
   const controller = vscode.languages.registerInlineCompletionItemProvider(
     { pattern: '**' },
     {
       provideInlineCompletionItems: () => {
         const item = {
-          insertText: completion_text,
-          range: new vscode.Range(position, position)
+          insertText: params.completion_text,
+          range: new vscode.Range(params.position, params.position)
         }
         return [item]
       }
@@ -91,14 +94,14 @@ async function show_inline_completion(
 }
 
 // Core function that contains the shared logic
-async function perform_code_completion(
-  file_tree_provider: any,
-  open_editors_provider: any,
-  context: vscode.ExtensionContext,
-  with_suggestions: boolean,
+async function perform_code_completion(params: {
+  file_tree_provider: any
+  open_editors_provider: any
+  context: vscode.ExtensionContext
+  with_suggestions: boolean
   auto_accept: boolean
-) {
-  const api_tool_settings_manager = new ApiToolsSettingsManager(context)
+}) {
+  const api_tool_settings_manager = new ApiToolsSettingsManager(params.context)
 
   const code_completions_settings =
     api_tool_settings_manager.get_code_completions_settings()
@@ -129,7 +132,7 @@ async function perform_code_completion(
     )
 
   let suggestions: string | undefined
-  if (with_suggestions) {
+  if (params.with_suggestions) {
     suggestions = await vscode.window.showInputBox({
       placeHolder: 'Enter suggestions',
       prompt: 'E.g. include explanatory comments'
@@ -153,13 +156,13 @@ async function perform_code_completion(
     const document = editor.document
     const position = editor.selection.active
 
-    const content = await build_completion_payload(
+    const content = await build_completion_payload({
       document,
       position,
-      file_tree_provider,
-      open_editors_provider,
+      file_tree_provider: params.file_tree_provider,
+      open_editors_provider: params.open_editors_provider,
       suggestions
-    )
+    })
 
     const messages = [
       {
@@ -205,7 +208,7 @@ async function perform_code_completion(
             )
             if (match && match[1]) {
               const decoded_completion = he.decode(match[1].trim())
-              if (auto_accept) {
+              if (params.auto_accept) {
                 await editor.edit((editBuilder) => {
                   editBuilder.insert(position, decoded_completion)
                 })
@@ -214,11 +217,11 @@ async function perform_code_completion(
                   document.uri
                 )
               } else {
-                await show_inline_completion(
+                await show_inline_completion({
                   editor,
                   position,
-                  decoded_completion
-                )
+                  completion_text: decoded_completion
+                })
               }
             }
           }
@@ -245,35 +248,46 @@ export function code_completion_commands(
 ) {
   return [
     vscode.commands.registerCommand('geminiCoder.codeCompletion', async () =>
-      perform_code_completion(
+      perform_code_completion({
         file_tree_provider,
         open_editors_provider,
         context,
-        false,
-        false
-      )
+        with_suggestions: false,
+        auto_accept: false
+      })
     ),
     vscode.commands.registerCommand(
       'geminiCoder.codeCompletionAutoAccept',
       async () =>
-        perform_code_completion(
+        perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
-          false,
-          true
-        )
+          with_suggestions: false,
+          auto_accept: true
+        })
     ),
     vscode.commands.registerCommand(
       'geminiCoder.codeCompletionWithSuggestions',
       async () =>
-        perform_code_completion(
+        perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
-          true,
-          false
-        )
+          with_suggestions: true,
+          auto_accept: false
+        })
+    ),
+    vscode.commands.registerCommand(
+      'geminiCoder.codeCompletionWithSuggestionsAutoAccept',
+      async () =>
+        perform_code_completion({
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          with_suggestions: true,
+          auto_accept: true
+        })
     )
   ]
 }

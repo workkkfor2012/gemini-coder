@@ -16,15 +16,15 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
   const handle_code_completions_more_actions = () => {
     const items = [
       {
-        label: 'Get code completion with suggestions',
-        command: 'geminiCoder.codeCompletionWithSuggestions'
+        label: 'Enter suggestions',
+        command: 'geminiCoder.codeCompletionWithSuggestionsAutoAccept'
       },
       {
-        label: 'Copy code completion prompt to clipboard',
+        label: 'Copy prompt to clipboard',
         command: 'geminiCoder.codeCompletionToClipboard'
       },
       {
-        label: 'Copy code completion with suggestions prompt to clipboard',
+        label: 'Enter suggestions & copy',
         command: 'geminiCoder.codeCompletionWithSuggestionsToClipboard'
       }
     ]
@@ -32,14 +32,14 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
     props.vscode.postMessage({
       command: 'SHOW_QUICK_PICK',
       items,
-      title: 'Other code completion commands'
+      title: 'More actions...'
     })
   }
 
   const handle_file_refactoring_more_actions = () => {
     const items = [
       {
-        label: 'Copy refactoring prompt to clipboard',
+        label: 'Copy prompt to clipboard',
         command: 'geminiCoder.refactorToClipboard'
       }
     ]
@@ -47,7 +47,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
     props.vscode.postMessage({
       command: 'SHOW_QUICK_PICK',
       items,
-      title: 'Other file refactoring commands'
+      title: 'More actions...'
     })
   }
 
@@ -104,7 +104,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
         codicon="settings-gear"
         title={configuration_title}
       >
-        Configuration
+        Configure API Tools
       </Button>
     </div>
   )

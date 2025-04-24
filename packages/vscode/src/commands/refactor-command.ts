@@ -2,9 +2,11 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import { make_api_request } from '../helpers/make-api-request'
 import { cleanup_api_response } from '../helpers/cleanup-api-response'
-import { TEMP_REFACTORING_INSTRUCTION_KEY } from '../status-bar/create-refactor-status-bar-item'
 import { FilesCollector } from '../helpers/files-collector'
-import { LAST_APPLIED_CHANGES_STATE_KEY } from '../constants/state-keys'
+import {
+  LAST_APPLIED_CHANGES_STATE_KEY,
+  TEMP_REFACTORING_INSTRUCTION_STATE_KEY
+} from '../constants/state-keys'
 import { Logger } from '../helpers/logger'
 import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
 
@@ -24,9 +26,8 @@ export function refactor_command(params: {
       return
     }
 
-    // First try to get instruction from workspace state (set by status bar)
     let instruction = params.context.workspaceState.get<string>(
-      TEMP_REFACTORING_INSTRUCTION_KEY
+      TEMP_REFACTORING_INSTRUCTION_STATE_KEY
     )
 
     // If no instruction in workspace state (direct command invocation), prompt for one
@@ -37,7 +38,7 @@ export function refactor_command(params: {
       )
 
       instruction = await vscode.window.showInputBox({
-        prompt: 'Enter your refactoring instruction',
+        prompt: 'Enter refactoring instructions',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
         value: last_instruction,
         validateInput: (value) => {
@@ -52,7 +53,7 @@ export function refactor_command(params: {
     } else {
       // Clear the temporary instruction immediately after getting it
       await params.context.workspaceState.update(
-        TEMP_REFACTORING_INSTRUCTION_KEY,
+        TEMP_REFACTORING_INSTRUCTION_STATE_KEY,
         undefined
       )
     }

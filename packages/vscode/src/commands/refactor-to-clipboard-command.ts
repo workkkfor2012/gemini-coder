@@ -25,7 +25,7 @@ export function refactor_to_clipboard_command(
       )
 
       const instruction = await vscode.window.showInputBox({
-        prompt: 'Enter your refactoring instruction',
+        prompt: 'Enter refactoring instructions',
         placeHolder: 'e.g., "Refactor this code to use async/await"',
         value: last_instruction,
         validateInput: (value) => {
