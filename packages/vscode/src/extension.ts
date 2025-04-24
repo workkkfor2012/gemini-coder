@@ -4,23 +4,15 @@ import { ViewProvider } from './view/view-provider'
 import { create_apply_chat_response_status_bar_item } from './status-bar/create-apply-chat-response-status-bar-item'
 import { create_refactor_status_bar_item } from './status-bar/create-refactor-status-bar-item'
 import { WebSocketManager } from './services/websocket-manager'
-import { migrate_saved_contexts } from './migrations/migrate-saved-contexts'
-import { migrate_provider_settings } from './migrations/migrate-provider-settings'
-import { migrate_keybindings } from './migrations/migrate-keybindings'
-import { migrate_system_instructions } from './migrations/migrate-system-instructions'
 import { migrate_gemini_api_key } from './migrations/migrate-gemini-api-key'
 import {
   apply_chat_response_command,
   refactor_command,
   refactor_to_clipboard_command,
-  code_completion_command,
-  code_completion_with_command,
-  code_completion_with_suggestions_command,
-  code_completion_with_suggestions_with_command,
+  code_completion_commands,
   web_chat_command,
   web_chat_with_command,
   chat_to_clipboard_command,
-  change_default_model_command,
   close_editor_command,
   close_all_editors_command,
   save_all_command,
@@ -48,22 +40,6 @@ export async function activate(context: vscode.ExtensionContext) {
     context_initialization(context)
 
   const migrations = async () => {
-    // Migrate saved contexts from file-based to workspace state storage
-    // Delete a few weeks after 3 Apr 2025
-    await migrate_saved_contexts(context)
-
-    // Migrate provider settings from bearerToken to apiKey
-    // Delete a few weeks after 8 Apr 2025
-    await migrate_provider_settings()
-
-    // Migrate keybindings from old commands to new ones
-    // Delete a few weeks after 10 Apr 2025
-    await migrate_keybindings()
-
-    // Migrate system instructions to new format
-    // Delete a few weeks after 18 Apr 2025
-    await migrate_system_instructions()
-
     // Migrate Gemini API key from settings to global state
     // Delete a few weeks after 21 Apr 2025
     await migrate_gemini_api_key(context)
@@ -108,15 +84,13 @@ export async function activate(context: vscode.ExtensionContext) {
       command: 'geminiCoder.applyChatResponse',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
-      context,
-      use_default_model: true
+      context
     }),
     apply_chat_response_command({
       command: 'geminiCoder.applyChatResponseFastReplace',
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
-      use_default_model: true,
       mode: 'Fast replace'
     }),
     apply_chat_response_command({
@@ -124,39 +98,20 @@ export async function activate(context: vscode.ExtensionContext) {
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       context,
-      use_default_model: true,
       mode: 'Intelligent update'
     }),
     refactor_command({
-      command: 'geminiCoder.refactor',
       context,
       file_tree_provider: workspace_provider,
       open_editors_provider: open_editors_provider,
       use_default_model: true
-    }),
-    refactor_command({
-      command: 'geminiCoder.refactorWith',
-      context,
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider
     }),
     refactor_to_clipboard_command(
       context,
       workspace_provider,
       open_editors_provider
     ),
-    code_completion_with_command(
-      workspace_provider,
-      open_editors_provider,
-      context
-    ),
-    code_completion_command(workspace_provider, open_editors_provider, context),
-    code_completion_with_suggestions_command(
-      workspace_provider,
-      open_editors_provider,
-      context
-    ),
-    code_completion_with_suggestions_with_command(
+    ...code_completion_commands(
       workspace_provider,
       open_editors_provider,
       context
@@ -181,10 +136,6 @@ export async function activate(context: vscode.ExtensionContext) {
       open_editors_provider,
       websocket_server_instance
     ),
-    change_default_model_command('fim', context),
-    change_default_model_command('refactoring', context),
-    change_default_model_command('apply_changes', context),
-    change_default_model_command('commit_message', context),
     web_chat_command(
       context,
       workspace_provider,

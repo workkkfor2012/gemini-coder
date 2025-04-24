@@ -16,14 +16,19 @@ import {
   SelectedPresetsMessage,
   DuplicatePresetMessage,
   CreatePresetMessage,
-  ApiKeyUpdatedMessage,
-  UpdateApiKeyMessage,
-  DefaultModelsUpdatedMessage,
-  UpdateDefaultModelMessage,
+  GeminiApiKeyMessage,
+  UpdateGeminiApiKeyMessage,
   CustomProvidersUpdatedMessage,
   OpenRouterModelsMessage,
   ShowOpenRouterModelPickerMessage,
-  OpenRouterModelSelectedMessage
+  OpenRouterModelSelectedMessage,
+  CodeCompletionsSettingsMessage,
+  FileRefactoringSettingsMessage,
+  ApplyChatResponseSettingsMessage,
+  CommitMessagesSettingsMessage,
+  OpenRouterApiKeyMessage,
+  UpdateOpenRouterApiKeyMessage,
+  ExecuteCommandMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -32,11 +37,11 @@ import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-aff
 import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
-import { ModelManager } from '@/services/model-manager'
+import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
 import axios from 'axios'
 import { Logger } from '@/helpers/logger'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
-import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
+import { ApiToolSettings } from '@shared/types/api-tool-settings'
 
 type ConfigPresetFormat = {
   name: string
@@ -56,7 +61,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
   private _is_code_completion_mode: boolean = false
-  private _model_manager: ModelManager
+  private _api_tools_settings_manager: ApiToolsSettingsManager
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -75,6 +80,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       }
     })
 
+    // Listen for changes to the new configuration keys
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
         if (
@@ -94,6 +100,62 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             custom_providers: providers
           })
         }
+        if (
+          event.affectsConfiguration('geminiCoder.codeCompletionsSettings') &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const settings = config.get<ApiToolSettings>(
+            'geminiCoder.codeCompletionsSettings',
+            {} as ApiToolSettings
+          )
+          this._send_message<CodeCompletionsSettingsMessage>({
+            command: 'CODE_COMPLETIONS_SETTINGS',
+            settings
+          })
+        }
+        if (
+          event.affectsConfiguration('geminiCoder.fileRefactoringSettings') &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const settings = config.get<ApiToolSettings>(
+            'geminiCoder.fileRefactoringSettings',
+            {} as ApiToolSettings
+          )
+          this._send_message<FileRefactoringSettingsMessage>({
+            command: 'FILE_REFACTORING_SETTINGS',
+            settings
+          })
+        }
+        if (
+          event.affectsConfiguration('geminiCoder.applyChatResponseSettings') &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const settings = config.get<ApiToolSettings>(
+            'geminiCoder.applyChatResponseSettings',
+            {} as ApiToolSettings
+          )
+          this._send_message<ApplyChatResponseSettingsMessage>({
+            command: 'APPLY_CHAT_RESPONSE_SETTINGS',
+            settings
+          })
+        }
+        if (
+          event.affectsConfiguration('geminiCoder.commitMessagesSettings') &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const settings = config.get<ApiToolSettings>(
+            'geminiCoder.commitMessagesSettings',
+            {} as ApiToolSettings
+          )
+          this._send_message<CommitMessagesSettingsMessage>({
+            command: 'COMMIT_MESSAGES_SETTINGS',
+            settings
+          })
+        }
       }
     )
 
@@ -104,7 +166,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
 
     this._context.subscriptions.push(this._config_listener)
-    this._model_manager = new ModelManager(this._context)
+    this._api_tools_settings_manager = new ApiToolsSettingsManager(
+      this._context
+    )
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -113,7 +177,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         if (this._webview_view) {
           this._send_message<ExtensionMessage>({
             command: 'EDITOR_STATE_CHANGED',
-            hasActiveEditor: has_active_editor
+            has_active_editor: has_active_editor
           })
         }
       }
@@ -252,11 +316,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | SelectedPresetsMessage
       | DuplicatePresetMessage
       | CreatePresetMessage
-      | ApiKeyUpdatedMessage
-      | DefaultModelsUpdatedMessage
+      | GeminiApiKeyMessage
       | CustomProvidersUpdatedMessage
       | OpenRouterModelsMessage
       | OpenRouterModelSelectedMessage
+      | CodeCompletionsSettingsMessage
+      | FileRefactoringSettingsMessage
+      | ApplyChatResponseSettingsMessage
+      | CommitMessagesSettingsMessage
+      | ExecuteCommandMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -656,8 +724,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             }
 
             vscode.window.showInformationMessage('Prompt copied to clipboard!')
-          } else if (message.command == 'SHOW_ERROR') {
-            vscode.window.showErrorMessage(message.message)
           } else if (message.command == 'SHOW_PRESET_PICKER') {
             const config = vscode.workspace.getConfiguration()
             const web_chat_presets = config.get<any[]>(
@@ -712,11 +778,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 names: selected_names
               })
             }
-          } else if (message.command == 'OPEN_SETTINGS') {
-            await vscode.commands.executeCommand(
-              'workbench.action.openSettings',
-              'geminiCoder.presets'
-            )
           } else if (
             message.command == 'GET_FIM_MODE' ||
             message.command == 'SAVE_FIM_MODE'
@@ -725,7 +786,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             this._send_message<ExtensionMessage>({
               command: 'EDITOR_STATE_CHANGED',
-              hasActiveEditor: this._has_active_editor
+              has_active_editor: this._has_active_editor
             })
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
             this._send_message<ExtensionMessage>({
@@ -744,7 +805,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await config.update(
               'geminiCoder.presets',
               config_formatted_presets,
-              true // Update globally
+              vscode.ConfigurationTarget.Global
             )
           } else if (message.command == 'UPDATE_PRESET') {
             const update_msg = message as UpdatePresetMessage
@@ -798,7 +859,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               await config.update(
                 'geminiCoder.presets',
                 updated_presets,
-                true // Update globally
+                vscode.ConfigurationTarget.Global
               )
 
               // Update selected (default) presets
@@ -864,7 +925,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               await config.update(
                 'geminiCoder.presets',
                 updated_presets,
-                true // Update globally
+                vscode.ConfigurationTarget.Global
               )
 
               // Show notification with undo option
@@ -882,7 +943,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 await config.update(
                   'geminiCoder.presets',
                   restored_presets,
-                  true
+                  vscode.ConfigurationTarget.Global
                 )
                 vscode.window.showInformationMessage(
                   `Preset "${presetName}" restored`
@@ -999,52 +1060,28 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 `Failed to create preset: ${error}`
               )
             }
-          } else if (message.command == 'GET_API_KEY') {
-            const api_key = this._context.globalState.get<string>(
-              GEMINI_API_KEY_STATE_KEY,
-              ''
-            )
-            this._send_message<ApiKeyUpdatedMessage>({
-              command: 'API_KEY_UPDATED',
+          } else if (message.command == 'GET_GEMINI_API_KEY') {
+            const api_key =
+              this._api_tools_settings_manager.get_gemini_api_key()
+            this._send_message<GeminiApiKeyMessage>({
+              command: 'GEMINI_API_KEY',
               api_key
             })
-          } else if (message.command == 'UPDATE_API_KEY') {
-            const update_msg = message as UpdateApiKeyMessage
-            await this._context.globalState.update(
-              GEMINI_API_KEY_STATE_KEY,
-              update_msg.api_key
-            )
-            this._send_message<ApiKeyUpdatedMessage>({
-              command: 'API_KEY_UPDATED',
-              api_key: update_msg.api_key
+          } else if (message.command == 'GET_OPEN_ROUTER_API_KEY') {
+            const api_key =
+              this._api_tools_settings_manager.get_open_router_api_key()
+            this._send_message<OpenRouterApiKeyMessage>({
+              command: 'OPEN_ROUTER_API_KEY',
+              api_key
             })
-          } else if (message.command == 'GET_DEFAULT_MODELS') {
-            this._send_default_models()
-          } else if (message.command == 'UPDATE_DEFAULT_MODEL') {
-            const update_msg = message as UpdateDefaultModelMessage
-            switch (update_msg.model_type) {
-              case 'code_completion':
-                this._model_manager.set_default_code_completion_model(
-                  update_msg.model
-                )
-                break
-              case 'refactoring':
-                this._model_manager.set_default_refactoring_model(
-                  update_msg.model
-                )
-                break
-              case 'apply_changes':
-                this._model_manager.set_default_apply_changes_model(
-                  update_msg.model
-                )
-                break
-              case 'commit_message':
-                this._model_manager.set_default_commit_message_model(
-                  update_msg.model
-                )
-                break
-            }
-            this._send_default_models()
+          } else if (message.command == 'UPDATE_GEMINI_API_KEY') {
+            await this._api_tools_settings_manager.set_gemini_api_key(
+              (message as UpdateGeminiApiKeyMessage).api_key
+            )
+          } else if (message.command == 'UPDATE_OPEN_ROUTER_API_KEY') {
+            await this._api_tools_settings_manager.set_open_router_api_key(
+              (message as UpdateOpenRouterApiKeyMessage).api_key
+            )
           } else if (message.command == 'GET_CUSTOM_PROVIDERS') {
             const config = vscode.workspace.getConfiguration()
             const providers = config.get<any[]>('geminiCoder.providers', [])
@@ -1085,6 +1122,52 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 model_id: undefined
               })
             }
+          } else if (message.command == 'GET_CODE_COMPLETIONS_SETTINGS') {
+            const settings =
+              this._api_tools_settings_manager.get_code_completions_settings()
+            this._send_message<CodeCompletionsSettingsMessage>({
+              command: 'CODE_COMPLETIONS_SETTINGS',
+              settings
+            })
+          } else if (message.command == 'UPDATE_CODE_COMPLETIONS_SETTINGS') {
+            this._api_tools_settings_manager.set_code_completions_settings(
+              message.settings
+            )
+          } else if (message.command == 'GET_FILE_REFACTORING_SETTINGS') {
+            const settings =
+              this._api_tools_settings_manager.get_file_refactoring_settings()
+            this._send_message<FileRefactoringSettingsMessage>({
+              command: 'FILE_REFACTORING_SETTINGS',
+              settings
+            })
+          } else if (message.command == 'UPDATE_FILE_REFACTORING_SETTINGS') {
+            this._api_tools_settings_manager.set_file_refactoring_settings(
+              message.settings
+            )
+          } else if (message.command == 'GET_APPLY_CHAT_RESPONSE_SETTINGS') {
+            const settings =
+              this._api_tools_settings_manager.get_apply_chat_response_settings()
+            this._send_message<ApplyChatResponseSettingsMessage>({
+              command: 'APPLY_CHAT_RESPONSE_SETTINGS',
+              settings
+            })
+          } else if (message.command == 'UPDATE_APPLY_CHAT_RESPONSE_SETTINGS') {
+            this._api_tools_settings_manager.set_apply_chat_response_settings(
+              message.settings
+            )
+          } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
+            const settings =
+              this._api_tools_settings_manager.get_commit_messages_settings()
+            this._send_message<CommitMessagesSettingsMessage>({
+              command: 'COMMIT_MESSAGES_SETTINGS',
+              settings
+            })
+          } else if (message.command == 'UPDATE_COMMIT_MESSAGES_SETTINGS') {
+            this._api_tools_settings_manager.set_commit_messages_settings(
+              message.settings
+            )
+          } else if (message.command == 'EXECUTE_COMMAND') {
+            vscode.commands.executeCommand(message.command_id)
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
@@ -1103,7 +1186,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this._send_message<ExtensionMessage>({
       command: 'EDITOR_STATE_CHANGED',
-      hasActiveEditor: this._has_active_editor
+      has_active_editor: this._has_active_editor
     })
     this._send_message<ExtensionMessage>({
       command: 'EDITOR_SELECTION_CHANGED',
@@ -1116,8 +1199,38 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this._update_active_file_info()
     this._send_presets_to_webview(webview_view.webview)
-    this._send_default_models()
     this._send_custom_providers()
+
+    // Send initial settings for new tools
+    const config = vscode.workspace.getConfiguration()
+    this._send_message<CodeCompletionsSettingsMessage>({
+      command: 'CODE_COMPLETIONS_SETTINGS',
+      settings: config.get<ApiToolSettings>(
+        'geminiCoder.codeCompletionsSettings',
+        {} as ApiToolSettings
+      )
+    })
+    this._send_message<FileRefactoringSettingsMessage>({
+      command: 'FILE_REFACTORING_SETTINGS',
+      settings: config.get<ApiToolSettings>(
+        'geminiCoder.fileRefactoringSettings',
+        {} as ApiToolSettings
+      )
+    })
+    this._send_message<ApplyChatResponseSettingsMessage>({
+      command: 'APPLY_CHAT_RESPONSE_SETTINGS',
+      settings: config.get<ApiToolSettings>(
+        'geminiCoder.applyChatResponseSettings',
+        {} as ApiToolSettings
+      )
+    })
+    this._send_message<CommitMessagesSettingsMessage>({
+      command: 'COMMIT_MESSAGES_SETTINGS',
+      settings: config.get<ApiToolSettings>(
+        'geminiCoder.commitMessagesSettings',
+        {} as ApiToolSettings
+      )
+    })
   }
 
   // Add this method to the ChatViewProvider class
@@ -1187,20 +1300,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       </body>
       </html>
     `
-  }
-
-  private _send_default_models() {
-    this._send_message<DefaultModelsUpdatedMessage>({
-      command: 'DEFAULT_MODELS_UPDATED',
-      default_code_completion_model:
-        this._model_manager.get_default_fim_model(),
-      default_refactoring_model:
-        this._model_manager.get_default_refactoring_model(),
-      default_apply_changes_model:
-        this._model_manager.get_default_apply_changes_model(),
-      default_commit_message_model:
-        this._model_manager.get_default_commit_message_model()
-    })
   }
 
   private _send_custom_providers() {

@@ -167,23 +167,18 @@
         "icon": "$(save-all)"
       },
       {
-        "command": "geminiCoder.codeCompletionWith",
-        "title": "Code Completion with...",
+        "command": "geminiCoder.codeCompletion",
+        "title": "Code Completion",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletion",
+        "command": "geminiCoder.codeCompletionAutoAccept",
         "title": "Code Completion",
         "category": "Gemini Coder"
       },
       {
         "command": "geminiCoder.codeCompletionWithSuggestions",
         "title": "Code Completion with Suggestions",
-        "category": "Gemini Coder"
-      },
-      {
-        "command": "geminiCoder.codeCompletionWithSuggestionsWith",
-        "title": "Code Completion with Suggestions with...",
         "category": "Gemini Coder"
       },
       {
@@ -204,21 +199,6 @@
       {
         "command": "geminiCoder.codeCompletionInChatWith",
         "title": "Code Completion in Chat with...",
-        "category": "Gemini Coder"
-      },
-      {
-        "command": "geminiCoder.changeDefaultCodeCompletionModel",
-        "title": "Change Default Code Completion Model",
-        "category": "Gemini Coder"
-      },
-      {
-        "command": "geminiCoder.changeDefaultRefactoringModel",
-        "title": "Change Default Refactoring Model",
-        "category": "Gemini Coder"
-      },
-      {
-        "command": "geminiCoder.changeDefaultApplyChatResponseModel",
-        "title": "Change Default Apply Chat Response Model",
         "category": "Gemini Coder"
       },
       {
@@ -298,11 +278,6 @@
         "title": "Generate Commit Message with Gemini Coder",
         "category": "Gemini Coder",
         "icon": "$(sparkle)"
-      },
-      {
-        "command": "geminiCoder.changeDefaultCommitMessageModel",
-        "title": "Change Default Commit Message Model",
-        "category": "Gemini Coder"
       }
     ],
     "menus": {
@@ -369,6 +344,10 @@
         },
         {
           "command": "geminiCoder.generateCommitMessage",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.codeCompletionAutoAccept",
           "when": "false"
         }
       ],
@@ -488,12 +467,6 @@
           "scope": "resource",
           "description": "The prompt text used when generating commit messages.",
           "default": "Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
-        },
-        "geminiCoder.temperature": {
-          "type": "number",
-          "scope": "resource",
-          "description": "Temperature to use with built-in Gemini models.",
-          "default": 0.2
         },
         "geminiCoder.providers": {
           "type": "array",
@@ -744,6 +717,98 @@
               "name",
               "chatbot"
             ]
+          }
+        },
+        "geminiCoder.codeCompletionsSettings": {
+          "type": "object",
+          "scope": "resource",
+          "description": "Settings for code completions API tool.",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "Gemini API",
+                "OpenRouter"
+              ],
+              "description": "Provider to use for code completions."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model to use for code completions."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Temperature setting for code completions."
+            }
+          }
+        },
+        "geminiCoder.fileRefactoringSettings": {
+          "type": "object",
+          "scope": "resource",
+          "description": "Settings for file refactoring API tool.",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "Gemini API",
+                "OpenRouter"
+              ],
+              "description": "Provider to use for file refactoring."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model to use for file refactoring."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Temperature setting for file refactoring."
+            }
+          }
+        },
+        "geminiCoder.applyChatResponseSettings": {
+          "type": "object",
+          "scope": "resource",
+          "description": "Settings for applying chat responses API tool.",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "Gemini API",
+                "OpenRouter"
+              ],
+              "description": "Provider to use for applying chat responses."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model to use for applying chat responses."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Temperature setting for applying chat responses."
+            }
+          }
+        },
+        "geminiCoder.commitMessagesSettings": {
+          "type": "object",
+          "scope": "resource",
+          "description": "Settings for commit messages API tool.",
+          "properties": {
+            "provider": {
+              "type": "string",
+              "enum": [
+                "Gemini API",
+                "OpenRouter"
+              ],
+              "description": "Provider to use for commit messages."
+            },
+            "model": {
+              "type": "string",
+              "description": "Model to use for commit messages."
+            },
+            "temperature": {
+              "type": "number",
+              "description": "Temperature setting for commit messages."
+            }
           }
         }
       }

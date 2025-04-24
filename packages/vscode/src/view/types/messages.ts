@@ -1,4 +1,5 @@
 import { CHATBOTS } from '@shared/constants/chatbots'
+import { ApiToolSettings } from '@shared/types/api-tool-settings'
 import { Preset } from '@shared/types/preset'
 
 export interface BaseMessage {
@@ -6,12 +7,21 @@ export interface BaseMessage {
 }
 
 // Messages from webview to extension
-export interface GetApiKeyMessage extends BaseMessage {
-  command: 'GET_API_KEY'
+export interface GetGeminiApiKeyMessage extends BaseMessage {
+  command: 'GET_GEMINI_API_KEY'
 }
 
-export interface UpdateApiKeyMessage extends BaseMessage {
-  command: 'UPDATE_API_KEY'
+export interface UpdateGeminiApiKeyMessage extends BaseMessage {
+  command: 'UPDATE_GEMINI_API_KEY'
+  api_key: string
+}
+
+export interface GetOpenRouterApiKeyMessage extends BaseMessage {
+  command: 'GET_OPEN_ROUTER_API_KEY'
+}
+
+export interface UpdateOpenRouterApiKeyMessage extends BaseMessage {
+  command: 'UPDATE_OPEN_ROUTER_API_KEY'
   api_key: string
 }
 
@@ -58,17 +68,8 @@ export interface CopyPromptMessage extends BaseMessage {
   instruction: string
 }
 
-export interface ShowErrorMessage extends BaseMessage {
-  command: 'SHOW_ERROR'
-  message: string
-}
-
 export interface ShowPresetPickerMessage extends BaseMessage {
   command: 'SHOW_PRESET_PICKER'
-}
-
-export interface OpenSettingsMessage extends BaseMessage {
-  command: 'OPEN_SETTINGS'
 }
 
 export interface GetFimModeMessage extends BaseMessage {
@@ -126,20 +127,6 @@ export interface CreatePresetMessage extends BaseMessage {
   command: 'CREATE_PRESET'
 }
 
-export interface GetDefaultModelsMessage extends BaseMessage {
-  command: 'GET_DEFAULT_MODELS'
-}
-
-export interface UpdateDefaultModelMessage extends BaseMessage {
-  command: 'UPDATE_DEFAULT_MODEL'
-  model_type:
-    | 'code_completion'
-    | 'refactoring'
-    | 'apply_changes'
-    | 'commit_message'
-  model: string
-}
-
 export interface GetCustomProvidersMessage extends BaseMessage {
   command: 'GET_CUSTOM_PROVIDERS'
 }
@@ -157,9 +144,55 @@ export interface ShowOpenRouterModelPickerMessage extends BaseMessage {
   }[]
 }
 
+export interface GetCodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'GET_CODE_COMPLETIONS_SETTINGS'
+}
+
+export interface UpdateCodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'UPDATE_CODE_COMPLETIONS_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface GetFileRefactoringSettingsMessage extends BaseMessage {
+  command: 'GET_FILE_REFACTORING_SETTINGS'
+}
+
+export interface UpdateFileRefactoringSettingsMessage extends BaseMessage {
+  command: 'UPDATE_FILE_REFACTORING_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface GetApplyChatResponseSettingsMessage extends BaseMessage {
+  command: 'GET_APPLY_CHAT_RESPONSE_SETTINGS'
+}
+
+export interface UpdateApplyChatResponseSettingsMessage extends BaseMessage {
+  command: 'UPDATE_APPLY_CHAT_RESPONSE_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface GetCommitMessagesSettingsMessage extends BaseMessage {
+  command: 'GET_COMMIT_MESSAGES_SETTINGS'
+}
+
+export interface UpdateCommitMessagesSettingsMessage extends BaseMessage {
+  command: 'UPDATE_COMMIT_MESSAGES_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface ExecuteCommandMessage extends BaseMessage {
+  command: 'EXECUTE_COMMAND'
+  command_id: string
+}
+
 // Messages from extension to webview:
-export interface ApiKeyUpdatedMessage extends BaseMessage {
-  command: 'API_KEY_UPDATED'
+export interface GeminiApiKeyMessage extends BaseMessage {
+  command: 'GEMINI_API_KEY'
+  api_key: string
+}
+
+export interface OpenRouterApiKeyMessage extends BaseMessage {
+  command: 'OPEN_ROUTER_API_KEY'
   api_key: string
 }
 
@@ -207,7 +240,7 @@ export interface FimModeMessage extends BaseMessage {
 
 export interface EditorStateChangedMessage extends BaseMessage {
   command: 'EDITOR_STATE_CHANGED'
-  hasActiveEditor: boolean
+  has_active_editor: boolean
 }
 
 export interface EditorSelectionChangedMessage extends BaseMessage {
@@ -249,14 +282,6 @@ export interface PresetUpdated extends BaseMessage {
   command: 'PRESET_UPDATED'
 }
 
-export interface DefaultModelsUpdatedMessage extends BaseMessage {
-  command: 'DEFAULT_MODELS_UPDATED'
-  default_code_completion_model: string
-  default_refactoring_model: string
-  default_apply_changes_model: string
-  default_commit_message_model: string
-}
-
 export interface CustomProvidersUpdatedMessage extends BaseMessage {
   command: 'CUSTOM_PROVIDERS_UPDATED'
   custom_providers: Array<{
@@ -284,10 +309,32 @@ export interface OpenRouterModelSelectedMessage extends BaseMessage {
   model_id: string | undefined
 }
 
+export interface CodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'CODE_COMPLETIONS_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface FileRefactoringSettingsMessage extends BaseMessage {
+  command: 'FILE_REFACTORING_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface ApplyChatResponseSettingsMessage extends BaseMessage {
+  command: 'APPLY_CHAT_RESPONSE_SETTINGS'
+  settings: ApiToolSettings
+}
+
+export interface CommitMessagesSettingsMessage extends BaseMessage {
+  command: 'COMMIT_MESSAGES_SETTINGS'
+  settings: ApiToolSettings
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
-  | GetApiKeyMessage
-  | UpdateApiKeyMessage
+  | GetGeminiApiKeyMessage
+  | UpdateGeminiApiKeyMessage
+  | GetOpenRouterApiKeyMessage
+  | UpdateOpenRouterApiKeyMessage
   | SaveChatInstructionMessage
   | SaveFimInstructionMessage
   | GetConnectionStatusMessage
@@ -297,9 +344,7 @@ export type WebviewMessage =
   | SavePresetsOrderMessage
   | SendPromptMessage
   | CopyPromptMessage
-  | ShowErrorMessage
   | ShowPresetPickerMessage
-  | OpenSettingsMessage
   | GetFimModeMessage
   | SaveFimModeMessage
   | RequestEditorStateMessage
@@ -312,14 +357,22 @@ export type WebviewMessage =
   | DeletePresetMessage
   | DuplicatePresetMessage
   | CreatePresetMessage
-  | GetDefaultModelsMessage
-  | UpdateDefaultModelMessage
   | GetCustomProvidersMessage
   | GetOpenRouterModelsMessage
   | ShowOpenRouterModelPickerMessage
+  | GetCodeCompletionsSettingsMessage
+  | UpdateCodeCompletionsSettingsMessage
+  | GetFileRefactoringSettingsMessage
+  | UpdateFileRefactoringSettingsMessage
+  | GetApplyChatResponseSettingsMessage
+  | UpdateApplyChatResponseSettingsMessage
+  | GetCommitMessagesSettingsMessage
+  | UpdateCommitMessagesSettingsMessage
+  | ExecuteCommandMessage
 
 export type ExtensionMessage =
-  | ApiKeyUpdatedMessage
+  | GeminiApiKeyMessage
+  | OpenRouterApiKeyMessage
   | ConnectionStatusMessage
   | PresetsMessage
   | SelectedPresetsMessage
@@ -335,7 +388,10 @@ export type ExtensionMessage =
   | ActiveFileInfoMessage
   | PresetCreated
   | PresetUpdated
-  | DefaultModelsUpdatedMessage
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
+  | CodeCompletionsSettingsMessage
+  | FileRefactoringSettingsMessage
+  | ApplyChatResponseSettingsMessage
+  | CommitMessagesSettingsMessage

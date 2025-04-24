@@ -1,90 +1,11 @@
 import * as vscode from 'vscode'
 import axios from 'axios'
-import { Provider } from '../types/provider'
 import { make_api_request } from '../helpers/make-api-request'
 import { code_completion_instruction } from '../constants/instructions'
-import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
-import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
 import { FilesCollector } from '../helpers/files-collector'
-import { ModelManager } from '../services/model-manager'
+import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
 import { Logger } from '../helpers/logger'
 import he from 'he'
-import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
-
-async function get_selected_provider(
-  context: vscode.ExtensionContext,
-  all_providers: Provider[],
-  default_model_name: string | undefined
-): Promise<Provider | undefined> {
-  if (
-    !default_model_name ||
-    !all_providers.some((p) => p.name == default_model_name)
-  ) {
-    vscode.window.showErrorMessage('Default model is not set or valid.')
-    return undefined
-  }
-
-  let last_used_models = context.globalState.get<string[]>('lastUsedModels', [])
-  last_used_models = last_used_models.filter(
-    (model) => model != default_model_name
-  )
-
-  const quick_pick_items: any[] = [
-    ...(default_model_name
-      ? [
-          {
-            label: default_model_name,
-            description: 'Currently set as default'
-          }
-        ]
-      : []),
-    ...last_used_models
-      .map((model_name) => {
-        const model_provider = all_providers.find((p) => p.name == model_name)
-        if (model_provider) {
-          return {
-            label: model_name
-          }
-        }
-        return null
-      })
-      .filter((item) => item !== null),
-    ...all_providers
-      .filter(
-        (p) =>
-          p.name != default_model_name && !last_used_models.includes(p.name)
-      )
-      .map((p) => ({
-        label: p.name
-      }))
-  ]
-
-  const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
-    placeHolder: 'Select a model for code completion'
-  })
-
-  if (!selected_item) {
-    return undefined
-  }
-
-  const selected_model_name = selected_item.label
-
-  const selected_provider = all_providers.find(
-    (p) => p.name == selected_model_name
-  )
-  if (!selected_provider) {
-    vscode.window.showErrorMessage(`Model "${selected_model_name}" not found.`)
-    return undefined
-  }
-
-  last_used_models = [
-    selected_model_name,
-    ...last_used_models.filter((model) => model != selected_model_name)
-  ]
-  context.globalState.update('lastUsedModels', last_used_models)
-
-  return selected_provider
-}
 
 async function build_completion_payload(
   document: vscode.TextDocument,
@@ -130,7 +51,7 @@ async function build_completion_payload(
 async function show_inline_completion(
   editor: vscode.TextEditor,
   position: vscode.Position,
-  completionText: string
+  completion_text: string
 ) {
   const document = editor.document
   const controller = vscode.languages.registerInlineCompletionItemProvider(
@@ -138,7 +59,7 @@ async function show_inline_completion(
     {
       provideInlineCompletionItems: () => {
         const item = {
-          insertText: completionText,
+          insertText: completion_text,
           range: new vscode.Range(position, position)
         }
         return [item]
@@ -170,13 +91,43 @@ async function show_inline_completion(
 }
 
 // Core function that contains the shared logic
-async function perform_fim_completion(
+async function perform_code_completion(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext,
-  provider: Provider,
-  with_suggestions: boolean = false
+  with_suggestions: boolean,
+  auto_accept: boolean
 ) {
+  const api_tool_settings_manager = new ApiToolsSettingsManager(context)
+
+  const code_completions_settings =
+    api_tool_settings_manager.get_code_completions_settings()
+
+  if (!code_completions_settings.provider) {
+    vscode.window.showErrorMessage(
+      'API provider is not specified for Code Completions tool. Please configure them in API Tools -> Configuration.'
+    )
+    Logger.warn({
+      function_name: 'perform_code_completion',
+      message: 'API provider is not specified for Code Completions tool.'
+    })
+    return
+  } else if (!code_completions_settings.model) {
+    vscode.window.showErrorMessage(
+      'Model is not specified for Code Completions tool. Please configure them in API Tools -> Configuration.'
+    )
+    Logger.warn({
+      function_name: 'perform_code_completion',
+      message: 'Model is not specified for Code Completions tool.'
+    })
+    return
+  }
+
+  const connection_details =
+    api_tool_settings_manager.provider_to_connection_details(
+      code_completions_settings.provider
+    )
+
   let suggestions: string | undefined
   if (with_suggestions) {
     suggestions = await vscode.window.showInputBox({
@@ -189,16 +140,12 @@ async function perform_fim_completion(
     }
   }
 
-  if (!provider.apiKey) {
+  if (!connection_details.api_key) {
     vscode.window.showErrorMessage(
       'API key is missing. Please add it in the settings.'
     )
     return
   }
-
-  const model = provider.model
-  const temperature = provider.temperature
-  const system_instructions = provider.systemInstructions
 
   const editor = vscode.window.activeTextEditor
   if (editor) {
@@ -215,9 +162,6 @@ async function perform_fim_completion(
     )
 
     const messages = [
-      ...(system_instructions
-        ? [{ role: 'system', content: system_instructions }]
-        : []),
       {
         role: 'user',
         content
@@ -226,8 +170,8 @@ async function perform_fim_completion(
 
     const body = {
       messages,
-      model,
-      temperature
+      model: code_completions_settings.model,
+      temperature: code_completions_settings.temperature || 0
     }
 
     Logger.log({
@@ -248,51 +192,34 @@ async function perform_fim_completion(
       async (progress) => {
         progress.report({ increment: 0 })
         try {
-          const model_manager = new ModelManager(context)
-          const default_model_name = model_manager.get_default_fim_model()
-
-          const config = vscode.workspace.getConfiguration()
-          const user_providers =
-            config.get<Provider[]>('geminiCoder.providers') || []
-          const gemini_api_key = context.globalState.get<string>(
-            GEMINI_API_KEY_STATE_KEY,
-            ''
-          )
-          const gemini_temperature = config.get<number>(
-            'geminiCoder.temperature'
-          )
-
-          const all_providers = [
-            ...BUILT_IN_PROVIDERS.map((provider) => ({
-              ...provider,
-              apiKey: gemini_api_key || '',
-              temperature: gemini_temperature
-            })),
-            ...user_providers
-          ]
-
-          let completion = await make_api_request(
-            provider,
+          const completion = await make_api_request(
+            connection_details.endpoint_url,
+            connection_details.api_key,
             body,
             cancel_token_source.token
           )
-
-          if (completion == 'rate_limit') {
-            completion = await handle_rate_limit_fallback(
-              all_providers,
-              default_model_name,
-              body,
-              cancel_token_source.token
-            )
-          }
 
           if (completion) {
             const match = completion.match(
               /<replacement>([\s\S]*?)<\/replacement>/i
             )
             if (match && match[1]) {
-              const decodedCompletion = he.decode(match[1].trim())
-              await show_inline_completion(editor, position, decodedCompletion)
+              const decoded_completion = he.decode(match[1].trim())
+              if (auto_accept) {
+                await editor.edit((editBuilder) => {
+                  editBuilder.insert(position, decoded_completion)
+                })
+                await vscode.commands.executeCommand(
+                  'editor.action.formatDocument',
+                  document.uri
+                )
+              } else {
+                await show_inline_completion(
+                  editor,
+                  position,
+                  decoded_completion
+                )
+              }
             }
           }
         } catch (err: any) {
@@ -301,9 +228,7 @@ async function perform_fim_completion(
             message: 'Completion error',
             data: err
           })
-          vscode.window.showErrorMessage(
-            `An error occurred during completion: ${err.message}. See console for details.`
-          )
+          vscode.window.showErrorMessage(err.message)
         } finally {
           cursor_listener.dispose()
           progress.report({ increment: 100 })
@@ -313,200 +238,42 @@ async function perform_fim_completion(
   }
 }
 
-export function code_completion_command(
+export function code_completion_commands(
   file_tree_provider: any,
   open_editors_provider: any,
   context: vscode.ExtensionContext
 ) {
-  const model_manager = new ModelManager(context)
-
-  return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletion',
-    async () => {
-      const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = context.globalState.get<string>(
-        GEMINI_API_KEY_STATE_KEY,
-        ''
-      )
-      const gemini_temperature = config.get<number>('geminiCoder.temperature')
-
-      const default_model_name = model_manager.get_default_fim_model()
-
-      const all_providers = [
-        ...BUILT_IN_PROVIDERS.map((provider) => ({
-          ...provider,
-          apiKey: gemini_api_key || '',
-          temperature: gemini_temperature
-        })),
-        ...user_providers
-      ]
-
-      const provider = all_providers.find((p) => p.name == default_model_name)
-
-      if (!provider) {
-        vscode.window.showErrorMessage('Default model is not set or valid.')
-        return
-      }
-
-      await perform_fim_completion(
+  return [
+    vscode.commands.registerCommand('geminiCoder.codeCompletion', async () =>
+      perform_code_completion(
         file_tree_provider,
         open_editors_provider,
         context,
-        provider,
+        false,
         false
       )
-    }
-  )
-}
-
-export function code_completion_with_command(
-  file_tree_provider: any,
-  open_editors_provider: any,
-  context: vscode.ExtensionContext
-) {
-  const model_manager = new ModelManager(context)
-
-  return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionWith',
-    async () => {
-      const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = context.globalState.get<string>(
-        GEMINI_API_KEY_STATE_KEY,
-        ''
-      )
-      const gemini_temperature = config.get<number>('geminiCoder.temperature')
-
-      const default_model_name = model_manager.get_default_fim_model()
-
-      const all_providers = [
-        ...BUILT_IN_PROVIDERS.map((provider) => ({
-          ...provider,
-          apiKey: gemini_api_key || '',
-          temperature: gemini_temperature
-        })),
-        ...user_providers
-      ]
-
-      const provider = await get_selected_provider(
-        context,
-        all_providers,
-        default_model_name
-      )
-
-      if (!provider) {
-        return
-      }
-
-      await perform_fim_completion(
-        file_tree_provider,
-        open_editors_provider,
-        context,
-        provider,
-        false
-      )
-    }
-  )
-}
-
-export function code_completion_with_suggestions_command(
-  file_tree_provider: any,
-  open_editors_provider: any,
-  context: vscode.ExtensionContext
-) {
-  const model_manager = new ModelManager(context)
-
-  return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionWithSuggestions',
-    async () => {
-      const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = context.globalState.get<string>(
-        GEMINI_API_KEY_STATE_KEY,
-        ''
-      )
-      const gemini_temperature = config.get<number>('geminiCoder.temperature')
-
-      const default_model_name = model_manager.get_default_fim_model()
-
-      const all_providers = [
-        ...BUILT_IN_PROVIDERS.map((provider) => ({
-          ...provider,
-          apiKey: gemini_api_key || '',
-          temperature: gemini_temperature
-        })),
-        ...user_providers
-      ]
-
-      const provider = all_providers.find((p) => p.name == default_model_name)
-
-      if (!provider) {
-        vscode.window.showErrorMessage('Default model is not set or valid.')
-        return
-      }
-
-      await perform_fim_completion(
-        file_tree_provider,
-        open_editors_provider,
-        context,
-        provider,
-        true
-      )
-    }
-  )
-}
-
-export function code_completion_with_suggestions_with_command(
-  file_tree_provider: any,
-  open_editors_provider: any,
-  context: vscode.ExtensionContext
-) {
-  const model_manager = new ModelManager(context)
-
-  return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionWithSuggestionsWith',
-    async () => {
-      const config = vscode.workspace.getConfiguration()
-      const user_providers =
-        config.get<Provider[]>('geminiCoder.providers') || []
-      const gemini_api_key = context.globalState.get<string>(
-        GEMINI_API_KEY_STATE_KEY,
-        ''
-      )
-      const gemini_temperature = config.get<number>('geminiCoder.temperature')
-
-      const default_model_name = model_manager.get_default_fim_model()
-
-      const all_providers = [
-        ...BUILT_IN_PROVIDERS.map((provider) => ({
-          ...provider,
-          apiKey: gemini_api_key || '',
-          temperature: gemini_temperature
-        })),
-        ...user_providers
-      ]
-
-      const provider = await get_selected_provider(
-        context,
-        all_providers,
-        default_model_name
-      )
-
-      if (!provider) {
-        return
-      }
-
-      await perform_fim_completion(
-        file_tree_provider,
-        open_editors_provider,
-        context,
-        provider,
-        true
-      )
-    }
-  )
+    ),
+    vscode.commands.registerCommand(
+      'geminiCoder.codeCompletionAutoAccept',
+      async () =>
+        perform_code_completion(
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          false,
+          true
+        )
+    ),
+    vscode.commands.registerCommand(
+      'geminiCoder.codeCompletionWithSuggestions',
+      async () =>
+        perform_code_completion(
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          true,
+          false
+        )
+    )
+  ]
 }

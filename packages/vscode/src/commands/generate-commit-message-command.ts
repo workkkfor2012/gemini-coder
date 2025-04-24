@@ -2,16 +2,12 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
-import { ModelManager } from '../services/model-manager'
 import { make_api_request } from '../helpers/make-api-request'
-import { BUILT_IN_PROVIDERS } from '../constants/built-in-providers'
-import { handle_rate_limit_fallback } from '../helpers/handle-rate-limit-fallback'
-import { Provider } from '@/types/provider'
 import { execSync } from 'child_process'
 import { Logger } from '@/helpers/logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
-import { GEMINI_API_KEY_STATE_KEY } from '@/constants/state-keys'
+import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -64,13 +60,6 @@ export function generate_commit_message_command(
 
         // Get configuration
         const config = vscode.workspace.getConfiguration()
-        const user_providers =
-          config.get<Provider[]>('geminiCoder.providers') || []
-        const gemini_api_key = context.globalState.get<string>(
-          GEMINI_API_KEY_STATE_KEY,
-          ''
-        )
-        const temperature = config.get<number>('geminiCoder.temperature')
         const commit_message_prompt = config.get<string>(
           'geminiCoder.commitMessagePrompt'
         )
@@ -80,30 +69,36 @@ export function generate_commit_message_command(
             .map((ext) => ext.toLowerCase().replace(/^\./, ''))
         )
 
-        // Get default commit message model
-        const model_manager = new ModelManager(context)
-        const default_model_name =
-          model_manager.get_default_commit_message_model()
+        const api_tool_settings_manager = new ApiToolsSettingsManager(context)
+        const commit_message_settings =
+          api_tool_settings_manager.get_commit_messages_settings()
 
-        // Set up providers
-        const all_providers = [
-          ...BUILT_IN_PROVIDERS.map((provider) => ({
-            ...provider,
-            apiKey: gemini_api_key || '',
-            temperature
-          })),
-          ...user_providers
-        ]
-
-        const provider = all_providers.find((p) => p.name == default_model_name)
-        if (!provider) {
+        if (!commit_message_settings.provider) {
           vscode.window.showErrorMessage(
-            `Default commit message model not found: ${default_model_name}`
+            'API provider is not specified for Commit Messages tool. Please configure them in API Tools -> Configuration.'
           )
+          Logger.warn({
+            function_name: 'generate_commit_message_command',
+            message: 'API provider is not specified for Commit Messages tool.'
+          })
+          return
+        } else if (!commit_message_settings.model) {
+          vscode.window.showErrorMessage(
+            'Model is not specified for Commit Messages tool. Please configure them in API Tools -> Configuration.'
+          )
+          Logger.warn({
+            function_name: 'generate_commit_message_command',
+            message: 'Model is not specified for Commit Messages tool.'
+          })
           return
         }
 
-        if (!provider.apiKey) {
+        const connection_details =
+          api_tool_settings_manager.provider_to_connection_details(
+            commit_message_settings.provider
+          )
+
+        if (!connection_details.api_key) {
           vscode.window.showErrorMessage(
             'API key is missing. Please add it in the settings.'
           )
@@ -136,14 +131,7 @@ export function generate_commit_message_command(
           },
           async (_, token) => {
             // Prepare request to AI model
-            const model = provider.model
-            const temperature = provider.temperature
-            const system_instructions = provider.systemInstructions
-
             const messages = [
-              ...(system_instructions
-                ? [{ role: 'system', content: system_instructions }]
-                : []),
               {
                 role: 'user',
                 content: message
@@ -152,8 +140,8 @@ export function generate_commit_message_command(
 
             const body = {
               messages,
-              model,
-              temperature
+              model: commit_message_settings.model,
+              temperature: commit_message_settings.temperature || 0
             }
 
             // Make API request
@@ -165,46 +153,21 @@ export function generate_commit_message_command(
 
             try {
               const response = await make_api_request(
-                provider,
+                connection_details.endpoint_url,
+                connection_details.api_key,
                 body,
                 cancel_token_source.token
               )
 
               if (!response) {
                 vscode.window.showErrorMessage(
-                  'Failed to generate commit message. Please try again later.'
+                  'Failed to generate commit message.'
                 )
-                return
-              } else if (response == 'rate_limit') {
-                const fallback_response = await handle_rate_limit_fallback(
-                  all_providers,
-                  default_model_name,
-                  body,
-                  cancel_token_source.token
-                )
-
-                if (!fallback_response) {
-                  return
-                }
-
-                let commit_message =
-                  process_single_trailing_dot(fallback_response)
-                commit_message = strip_wrapping_quotes(fallback_response)
+              } else {
+                let commit_message = process_single_trailing_dot(response)
+                commit_message = strip_wrapping_quotes(commit_message)
                 repository.inputBox.value = commit_message
-
-                vscode.window.showInformationMessage(
-                  'Commit message generated successfully!'
-                )
-                return
               }
-
-              let commit_message = process_single_trailing_dot(response)
-              commit_message = strip_wrapping_quotes(commit_message)
-              repository.inputBox.value = commit_message
-
-              vscode.window.showInformationMessage(
-                'Commit message generated successfully!'
-              )
             } catch (error) {
               if (axios.isCancel(error)) {
                 vscode.window.showInformationMessage(
@@ -217,7 +180,7 @@ export function generate_commit_message_command(
                 message: 'Error during API request',
                 data: error
               })
-              throw error // Re-throw other errors to be caught by the outer try-catch
+              throw error
             }
           }
         )
@@ -240,10 +203,7 @@ async function collect_affected_files(
   ignored_extensions: Set<string>
 ): Promise<string> {
   try {
-    // Get the repository workspace root
     const root_path = repository.rootUri.fsPath
-
-    // Get changed files based on whether we're using staged or unstaged changes
     const staged_changes = repository.state.indexChanges || []
 
     if (!staged_changes.length) {
@@ -256,16 +216,13 @@ async function collect_affected_files(
       const file_path = change.uri.fsPath
       const relative_path = path.relative(root_path, file_path)
 
-      // Skip files with ignored extensions
       if (should_ignore_file(file_path, ignored_extensions)) {
         continue
       }
 
       try {
-        // Read file content except for deleted files
         let content = ''
         if (change.status != 6) {
-          // Not deleted
           try {
             content = fs.readFileSync(file_path, 'utf8')
             const estimated_tokens = Math.ceil(content.length / 4)

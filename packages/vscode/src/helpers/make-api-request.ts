@@ -1,23 +1,17 @@
 import * as vscode from 'vscode'
 import axios, { AxiosResponse } from 'axios'
-import { Provider } from '../types/provider'
 import { Logger } from './logger'
 
 type StreamCallback = (chunk: string) => void
 
 const DATA_PREFIX = 'data: '
 const DONE_TOKEN = '[DONE]'
-const AUTHORIZATION_HEADER = 'Authorization'
-const BEARER_PREFIX = 'Bearer '
-const CONTENT_TYPE_HEADER = 'Content-Type'
-const APPLICATION_JSON = 'application/json'
 
 async function process_stream_chunk(
   chunk: Buffer,
   buffer: string,
   accumulated_content: string,
   last_log_time: number,
-  provider_name: string,
   on_chunk?: StreamCallback
 ): Promise<{
   updated_buffer: string
@@ -55,7 +49,7 @@ async function process_stream_chunk(
             if (current_time - updated_last_log_time >= 1000) {
               Logger.log({
                 function_name: 'process_stream_chunk',
-                message: `${provider_name} Streaming tokens:`,
+                message: `Streaming tokens:`,
                 data: updated_accumulated_content
               })
               updated_last_log_time = current_time
@@ -86,7 +80,8 @@ async function process_stream_chunk(
 }
 
 export async function make_api_request(
-  provider: Provider,
+  endpoint_url: string,
+  api_key: string,
   body: any,
   cancellation_token: any,
   on_chunk?: StreamCallback
@@ -99,12 +94,19 @@ export async function make_api_request(
     let buffer = ''
 
     const response: AxiosResponse<NodeJS.ReadableStream> = await axios.post(
-      provider.endpointUrl,
+      endpoint_url + '/chat/completions',
       request_body,
       {
         headers: {
-          [AUTHORIZATION_HEADER]: `${BEARER_PREFIX}${provider.apiKey}`,
-          [CONTENT_TYPE_HEADER]: APPLICATION_JSON
+          ['Authorization']: `Bearer ${api_key}`,
+          ['Content-Type']: 'application/json',
+          ...(endpoint_url == 'https://openrouter.ai/api/v1'
+            ? {
+                'HTTP-Referer':
+                  'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder',
+                'X-Title': 'Gemini Coder'
+              }
+            : {})
         },
         cancelToken: cancellation_token,
         responseType: 'stream'
@@ -118,7 +120,6 @@ export async function make_api_request(
           buffer,
           accumulated_content,
           last_log_time,
-          provider.name,
           on_chunk
         )
         buffer = processing_result.updated_buffer
@@ -183,17 +184,19 @@ export async function make_api_request(
       })
       return null
     } else if (axios.isAxiosError(error) && error.response?.status == 429) {
-      return 'rate_limit'
+      vscode.window.showErrorMessage(`API request failed. Rate limit exceeded.`)
+    } else if (axios.isAxiosError(error) && error.response?.status == 401) {
+      vscode.window.showErrorMessage(`API request failed. Invalid API key.`)
     } else {
-      Logger.error({
-        function_name: 'make_api_request',
-        message: 'API request failed',
-        data: error
-      })
       vscode.window.showErrorMessage(
-        `Failed to send request to ${provider.name}. Check console for details.`
+        `API request failed. Check console for details.`
       )
-      return null
     }
+    Logger.error({
+      function_name: 'make_api_request',
+      message: 'API request failed',
+      data: error
+    })
+    return null
   }
 }
