@@ -35,7 +35,7 @@ export const Multiple = () => {
       on_preset_edit={(name) => console.log('on_preset_edit', name)}
       on_preset_duplicate={(name) => console.log('on_preset_duplicate', name)}
       on_create_preset={() => console.log('on_create_preset')}
-      is_fim_mode={false}
+      is_code_completions_mode={false}
       on_preset_copy={(name) => console.log('on_preset_copy', name)}
       on_presets_reorder={(reordered) =>
         console.log('on_presets_reorder', reordered)

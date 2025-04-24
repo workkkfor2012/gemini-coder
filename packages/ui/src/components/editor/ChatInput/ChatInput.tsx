@@ -13,8 +13,8 @@ type Props = {
   token_count?: number
   is_connected: boolean
   submit_disabled_title?: string
-  is_fim_mode: boolean
-  on_fim_mode_click: () => void
+  is_code_completions_mode: boolean
+  on_code_completions_mode_click: () => void
   has_active_editor: boolean
   has_active_selection: boolean
 }
@@ -36,7 +36,7 @@ export const ChatInput: React.FC<Props> = (props) => {
   const [is_history_enabled, set_is_history_enabled] = useState(!props.value)
 
   const get_highlighted_text = (text: string) => {
-    if (props.is_fim_mode) {
+    if (props.is_code_completions_mode) {
       return <span>{text}</span>
     }
 
@@ -83,13 +83,13 @@ export const ChatInput: React.FC<Props> = (props) => {
   }
 
   const handle_submit = () => {
-    if (!props.is_connected || (!props.is_fim_mode && !props.value)) return
+    if (!props.is_connected || (!props.is_code_completions_mode && !props.value)) return
     props.on_submit()
     set_history_index(-1) // Reset history index after submitting
   }
 
   const handle_copy = () => {
-    if (!props.is_fim_mode && !props.value) return
+    if (!props.is_code_completions_mode && !props.value) return
     props.on_copy()
   }
 
@@ -121,7 +121,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       is_history_enabled
     ) {
       // Get active history based on current mode
-      const active_history = props.is_fim_mode
+      const active_history = props.is_code_completions_mode
         ? props.chat_history_fim_mode
         : props.chat_history
 
@@ -195,20 +195,20 @@ export const ChatInput: React.FC<Props> = (props) => {
     if (
       !props.has_active_selection ||
       props.value.includes('@selection') ||
-      props.is_fim_mode
+      props.is_code_completions_mode
     ) {
       return false
     } else {
       return true
     }
-  }, [props.has_active_selection, props.value, props.is_fim_mode])
+  }, [props.has_active_selection, props.value, props.is_code_completions_mode])
 
   const placeholder = useMemo(() => {
-    const active_history = props.is_fim_mode
+    const active_history = props.is_code_completions_mode
       ? props.chat_history_fim_mode
       : props.chat_history
 
-    if (props.is_fim_mode && props.has_active_editor) {
+    if (props.is_code_completions_mode && props.has_active_editor) {
       if (active_history.length > 0 && is_history_enabled) {
         return 'Enter optional suggestions (⇅ for history)'
       } else {
@@ -220,7 +220,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       ? 'Ask anything (⇅ for history)'
       : 'Ask anything'
   }, [
-    props.is_fim_mode,
+    props.is_code_completions_mode,
     props.has_active_editor,
     props.chat_history,
     props.chat_history_fim_mode,
@@ -251,13 +251,13 @@ export const ChatInput: React.FC<Props> = (props) => {
         <div className={styles.footer__left}>
           {!props.has_active_selection && (
             <button
-              onClick={props.on_fim_mode_click}
+              onClick={props.on_code_completions_mode_click}
               className={cn(
                 styles.footer__left__button,
                 styles['footer__left__button--fim'],
                 {
                   [styles['footer__left__button--active']]:
-                    props.is_fim_mode && props.has_active_editor,
+                    props.is_code_completions_mode && props.has_active_editor,
                   [styles['footer__left__button--disabled']]:
                     !props.has_active_editor
                 }
@@ -299,7 +299,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             className={styles.footer__right__button}
             onClick={handle_copy}
             title="Copy to clipboard"
-            disabled={!props.is_fim_mode && !props.value}
+            disabled={!props.is_code_completions_mode && !props.value}
           >
             <div className={cn('codicon', 'codicon-copy')} />
           </button>
@@ -307,7 +307,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             className={styles.footer__right__button}
             onClick={handle_submit}
             disabled={
-              !props.is_connected || (!props.is_fim_mode && !props.value)
+              !props.is_connected || (!props.is_code_completions_mode && !props.value)
             }
             title={props.submit_disabled_title || 'Send'}
           >

@@ -22,7 +22,7 @@ export namespace Presets {
     disabled: boolean
     selected_presets: string[]
     on_create_preset: () => void
-    is_fim_mode: boolean
+    is_code_completions_mode: boolean
     on_preset_copy: (name: string) => void
     on_presets_reorder: (reordered_presets: Preset[]) => void
     on_preset_edit: (name: string) => void
@@ -105,7 +105,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           disabled={props.disabled}
         >
           {props.presets.map((preset, i) => {
-            const is_disabled_in_fim = props.is_fim_mode && preset.has_affixes
+            const is_disabled_in_fim = props.is_code_completions_mode && preset.has_affixes
 
             return (
               <div

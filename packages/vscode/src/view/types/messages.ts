@@ -197,6 +197,7 @@ export interface ShowQuickPickMessage extends BaseMessage {
 
 export interface PreviewPresetMessage extends BaseMessage {
   command: 'PREVIEW_PRESET'
+  instruction: string
   preset: Preset
 }
 

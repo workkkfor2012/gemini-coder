@@ -4,6 +4,7 @@ import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { Preset } from '@shared/types/preset'
+import { use_chat } from '@/view/providers/chat-provider'
 
 type Props = {
   is_visible: boolean
@@ -16,7 +17,6 @@ type Props = {
   is_connected: boolean
   presets: Preset[]
   selected_presets: string[]
-  is_code_completions_mode: boolean
   on_code_completions_mode_click: () => void
   has_active_editor: boolean
   has_active_selection: boolean
@@ -33,15 +33,13 @@ type Props = {
 }
 
 export const Main: React.FC<Props> = (props) => {
-  const [normal_instruction, set_normal_instruction] = useState('')
-  const [code_completion_instruction, set_code_completion_instruction] =
-    useState('')
+  const chat_hook = use_chat()
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   // Current instruction is determined by mode
-  const current_instruction = props.is_code_completions_mode
-    ? code_completion_instruction
-    : normal_instruction
+  const current_instruction = chat_hook.is_code_completions_mode
+    ? chat_hook.code_completion_suggestions
+    : chat_hook.normal_instructions
 
   // Calculate input token estimation
   useEffect(() => {
@@ -63,7 +61,7 @@ export const Main: React.FC<Props> = (props) => {
     estimated_tokens = Math.ceil(text.length / 4)
 
     // Add active file length tokens when in FIM mode
-    if (props.is_code_completions_mode && props.active_file_length) {
+    if (chat_hook.is_code_completions_mode && props.active_file_length) {
       // Estimate tokens for the file content
       const file_tokens = Math.ceil(props.active_file_length / 4)
       estimated_tokens += file_tokens
@@ -74,16 +72,16 @@ export const Main: React.FC<Props> = (props) => {
     current_instruction,
     props.has_active_selection,
     props.selection_text,
-    props.is_code_completions_mode,
+    chat_hook.is_code_completions_mode,
     props.active_file_length
   ])
 
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
-    if (props.is_code_completions_mode) {
-      set_code_completion_instruction(value)
+    if (chat_hook.is_code_completions_mode) {
+      chat_hook.set_code_completion_suggestions(value)
     } else {
-      set_normal_instruction(value)
+      chat_hook.set_normal_instructions(value)
     }
   }
 
@@ -145,8 +143,8 @@ export const Main: React.FC<Props> = (props) => {
               ? 'WebSocket connection not established. Please install the browser extension.'
               : 'Initialize chats'
           }
-          is_fim_mode={props.is_code_completions_mode}
-          on_fim_mode_click={handle_fim_mode_click}
+          is_code_completions_mode={chat_hook.is_code_completions_mode}
+          on_code_completions_mode_click={handle_fim_mode_click}
           has_active_editor={props.has_active_editor}
           has_active_selection={props.has_active_selection}
         />
@@ -193,7 +191,7 @@ export const Main: React.FC<Props> = (props) => {
         }}
         on_preset_copy={handle_preset_copy}
         on_preset_edit={props.on_preset_edit}
-        is_fim_mode={props.is_code_completions_mode}
+        is_code_completions_mode={chat_hook.is_code_completions_mode}
         on_presets_reorder={props.on_presets_reorder}
         on_preset_duplicate={props.on_preset_duplicate}
         on_preset_delete={props.on_preset_delete}
