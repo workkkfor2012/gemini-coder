@@ -76,7 +76,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       ...(model ? { model } : {}),
       ...(supports_system_instructions ? { system_instructions } : {}),
       ...(supports_port ? { port } : {}),
-      ...(options.length > 0 ? { options } : {})
+      options
     })
   }, [
     name,
@@ -109,7 +109,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   const handle_option_toggle = (option: string) => {
     set_options((prev) =>
       prev.includes(option)
-        ? prev.filter((o) => o !== option)
+        ? prev.filter((o) => o != option)
         : [...prev, option]
     )
   }

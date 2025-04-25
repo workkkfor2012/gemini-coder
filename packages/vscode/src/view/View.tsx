@@ -85,8 +85,9 @@ export const View = () => {
     !file_refactoring_settings ||
     !apply_chat_response_settings ||
     !commit_message_settings
-  )
+  ) {
     return null
+  }
 
   const tabs = (
     <>
