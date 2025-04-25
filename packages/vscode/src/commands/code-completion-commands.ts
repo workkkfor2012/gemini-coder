@@ -231,7 +231,6 @@ async function perform_code_completion(params: {
             message: 'Completion error',
             data: err
           })
-          vscode.window.showErrorMessage(err.message)
         } finally {
           cursor_listener.dispose()
           progress.report({ increment: 100 })
