@@ -2,6 +2,16 @@ import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
 import { inject_apply_response_button } from './inject-apply-chat-response-buttons'
 import { CHATBOTS } from '@shared/constants/chatbots'
+import { openrouter } from './chatbots/openrouter'
+import { open_webui } from './chatbots/open-webui'
+import { deepseek } from './chatbots/deepseek'
+import { grok } from './chatbots/grok'
+import { mistral } from './chatbots/mistral'
+import { github_copilot } from './chatbots/github-copilot'
+import { claude } from './chatbots/claude'
+import { chatgpt } from './chatbots/chatgpt'
+import { gemini } from './chatbots/gemini'
+import { ai_studio } from './chatbots/ai-studio'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -574,130 +584,26 @@ const main = async () => {
     return
   }
 
-  // Quirks mitigation
   if (is_ai_studio) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('.title-container')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
+    await ai_studio.wait_until_ready()
   } else if (is_gemini) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('toolbox-drawer')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
+    await gemini.wait_until_ready()
   } else if (is_chatgpt) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('span[data-radix-focus-guard]')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
-    const reason_button = document.querySelector('button[aria-label="Reason"]')
-    ;(reason_button as HTMLButtonElement)?.click()
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 100)
-    })
+    await chatgpt.wait_until_ready()
   } else if (is_claude) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('body[style="pointer-events: auto;"]')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
+    await claude.wait_until_ready()
   } else if (is_github_copilot) {
-    await new Promise((resolve) => {
-      const check_for_model_selector = () => {
-        const model_button = Array.from(
-          document.querySelectorAll('button')
-        ).find((button) => {
-          const button_text = button.textContent?.trim() || ''
-          return button_text.startsWith('Model:')
-        })
-
-        if (model_button) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_model_selector, 100)
-        }
-      }
-      check_for_model_selector()
-    })
+    await github_copilot.wait_until_ready()
   } else if (is_mistral) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
+    await mistral.wait_until_ready()
   } else if (is_open_webui) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (
-          document.querySelector(
-            '#chat-container img[src="/static/favicon.png"]'
-          )
-        ) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
+    await open_webui.wait_until_ready()
   } else if (is_deepseek) {
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
-    })
+    await deepseek.wait_until_ready()
   } else if (is_grok) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('button[aria-label="Think"]')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
+    await grok.wait_until_ready()
   } else if (is_openrouter) {
-    await new Promise((resolve) => {
-      const check_for_element = () => {
-        if (document.querySelector('textarea')) {
-          resolve(null)
-        } else {
-          setTimeout(check_for_element, 100)
-        }
-      }
-      check_for_element()
-    })
+    await openrouter.wait_until_ready()
   }
 
   await initialize_chat({
