@@ -200,16 +200,17 @@ const enter_system_instructions = async (system_instructions: string) => {
     const textarea = document.querySelector(
       'div[data-headlessui-portal] textarea'
     ) as HTMLTextAreaElement
+    textarea.focus()
     textarea.value = system_instructions
-    textarea.dispatchEvent(new Event('input', { bubbles: true }))
     textarea.dispatchEvent(new Event('change', { bubbles: true }))
+    textarea.blur()
     const close_button = Array.from(
       document.querySelectorAll('div[data-headlessui-portal] button')
     ).find((button) => {
       const path = button.querySelector('path')
       return (
         path?.getAttribute('d') ==
-        'M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z'
+        'm9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
       )
     }) as HTMLButtonElement
     close_button.click()
@@ -311,7 +312,7 @@ const set_temperature = async (temperature: number) => {
       const path = button.querySelector('path')
       return (
         path?.getAttribute('d') ==
-        'M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z'
+        'm9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
       )
     }) as HTMLButtonElement
     close_button.click()
