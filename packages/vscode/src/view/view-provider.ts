@@ -29,7 +29,8 @@ import {
   OpenRouterApiKeyMessage,
   UpdateOpenRouterApiKeyMessage,
   ExecuteCommandMessage,
-  ShowQuickPickMessage
+  ShowQuickPickMessage,
+  PreviewPresetMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -327,6 +328,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | CommitMessagesSettingsMessage
       | ExecuteCommandMessage
       | ShowQuickPickMessage
+      | PreviewPresetMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -664,6 +666,93 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               valid_preset_names.length > 1
                 ? 'Chats have been initialized in the connected browser.'
                 : 'Chat has been initialized in the connected browser.'
+            )
+          } else if (message.command == 'PREVIEW_PRESET') {
+            const preview_msg = message as PreviewPresetMessage
+
+            await vscode.workspace.saveAll()
+
+            const files_collector = new FilesCollector(
+              this._workspace_provider,
+              this._open_editors_provider,
+              this._websites_provider
+            )
+
+            const active_editor = vscode.window.activeTextEditor
+            const active_path = active_editor?.document.uri.fsPath
+
+            let text_to_send: string
+
+            if (this._is_code_completion_mode && active_editor) {
+              const document = active_editor.document
+              const position = active_editor.selection.active
+
+              const text_before_cursor = document.getText(
+                new vscode.Range(new vscode.Position(0, 0), position)
+              )
+              const text_after_cursor = document.getText(
+                new vscode.Range(
+                  position,
+                  document.positionAt(document.getText().length)
+                )
+              )
+
+              const context_text = await files_collector.collect_files({
+                exclude_path: active_path
+              })
+
+              // relative path
+              const workspace_folder =
+                vscode.workspace.workspaceFolders?.[0].uri.fsPath
+              const relative_path = active_path!.replace(
+                workspace_folder + '/',
+                ''
+              )
+
+              const instructions = `${code_completion_instruction_external}${
+                preview_msg.instruction
+                  ? ` Follow suggestions: ${preview_msg.instruction}`
+                  : ''
+              }`
+
+              text_to_send = `${instructions}\n<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
+
+              this.websocket_server_instance.preview_preset(
+                text_to_send,
+                preview_msg.preset
+              )
+            } else if (!this._is_code_completion_mode) {
+              const context_text = await files_collector.collect_files({
+                active_path
+              })
+
+              // Replace @selection with selected text if present
+              let instruction = this._replace_selection_placeholder(
+                preview_msg.instruction
+              )
+
+              // Apply prefix and suffix from the single preset
+              if (preview_msg.preset.prompt_prefix) {
+                instruction =
+                  preview_msg.preset.prompt_prefix + '\n' + instruction
+              }
+              if (preview_msg.preset.prompt_suffix) {
+                instruction =
+                  instruction + '\n' + preview_msg.preset.prompt_suffix
+              }
+
+              text_to_send = instruction
+              if (context_text) {
+                text_to_send += `\n<files>\n${context_text}</files>\n`
+              }
+
+              this.websocket_server_instance.preview_preset(
+                text_to_send,
+                preview_msg.preset
+              )
+            }
+            vscode.window.showInformationMessage(
+              'Preset preview sent to the connected browser.'
             )
           } else if (message.command == 'COPY_PROMPT') {
             const files_collector = new FilesCollector(

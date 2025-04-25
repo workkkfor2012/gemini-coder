@@ -18,6 +18,7 @@ import {
   PresetCreated
 } from '../../types/messages'
 import { Preset } from '@shared/types/preset'
+import { use_chat } from '@/view/providers/chat-provider'
 
 type Props = {
   vscode: any
@@ -29,7 +30,6 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
-  const [is_code_completions_mode, set_is_code_completions_mode] = useState<boolean>(false)
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
   const [has_active_selection, set_has_active_selection] = useState<boolean>()
   const [chat_history, set_chat_history] = useState<string[]>()
@@ -38,6 +38,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
   const [active_file_length, set_active_file_length] = useState<number>(0)
+  const chat_hook = use_chat()
 
   useEffect(() => {
     const initial_messages = [
@@ -73,7 +74,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           )
           break
         case 'CODE_COMPLETIONS_MODE':
-          set_is_code_completions_mode((message as FimModeMessage).enabled)
+          chat_hook.set_is_code_completions_mode(
+            (message as FimModeMessage).enabled
+          )
           break
         case 'EDITOR_STATE_CHANGED':
           set_has_active_editor(
@@ -81,9 +84,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           )
           if (
             !(message as EditorStateChangedMessage).has_active_editor &&
-            is_code_completions_mode
+            chat_hook.is_code_completions_mode
           ) {
-            set_is_code_completions_mode(false)
+            chat_hook.set_is_code_completions_mode(false)
             props.vscode.postMessage({
               command: 'SAVE_CODE_COMPLETIONS_MODE',
               enabled: false
@@ -120,7 +123,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
 
     window.addEventListener('message', handle_message)
     return () => window.removeEventListener('message', handle_message)
-  }, [is_code_completions_mode])
+  }, [chat_hook.is_code_completions_mode])
 
   const handle_initialize_chats = async (params: {
     instruction: string
@@ -158,7 +161,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     } as WebviewMessage)
 
     // Update the appropriate chat history based on mode
-    if (is_code_completions_mode) {
+    if (chat_hook.is_code_completions_mode) {
       // Check if this instruction is already at the top of history
       const is_duplicate =
         chat_history_fim_mode &&
@@ -210,9 +213,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const handle_code_completions_mode_click = () => {
     props.vscode.postMessage({
       command: 'SAVE_CODE_COMPLETIONS_MODE',
-      enabled: !is_code_completions_mode
+      enabled: !chat_hook.is_code_completions_mode
     } as WebviewMessage)
-    set_is_code_completions_mode(!is_code_completions_mode)
+    chat_hook.set_is_code_completions_mode(!chat_hook.is_code_completions_mode)
   }
 
   const handle_presets_reorder = (reordered_presets: Preset[]) => {
@@ -270,7 +273,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   if (
     is_connected === undefined ||
     presets === undefined ||
-    is_code_completions_mode === undefined ||
+    chat_hook.is_code_completions_mode === undefined ||
     has_active_editor === undefined ||
     has_active_selection === undefined ||
     chat_history === undefined ||
@@ -289,7 +292,6 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       on_create_preset={handle_create_preset}
       has_active_editor={has_active_editor}
-      is_code_completions_mode={is_code_completions_mode && has_active_editor}
       on_code_completions_mode_click={handle_code_completions_mode_click}
       has_active_selection={has_active_selection}
       chat_history={chat_history}

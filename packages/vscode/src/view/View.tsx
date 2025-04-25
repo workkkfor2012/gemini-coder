@@ -13,7 +13,9 @@ import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
 import { use_chat } from './providers/chat-provider'
 
-export const View = (vscode: any) => {
+const vscode = acquireVsCodeApi()
+
+export const View = () => {
   const [active_tab, set_active_tab] = useState<'chat' | 'api'>('chat')
   const [updating_preset, set_updating_preset] = useState<Preset>()
   const [updated_preset, set_updated_preset] = useState<Preset>()
@@ -66,12 +68,14 @@ export const View = (vscode: any) => {
   // --- END back click handling in edit preset form ---
 
   const handle_preview_preset = () => {
+    if (!updating_preset) return // Ensure there's a preset to preview
+
     vscode.postMessage({
       command: 'PREVIEW_PRESET',
       instruction: chat_hook.is_code_completions_mode
         ? chat_hook.code_completion_suggestions
         : chat_hook.normal_instructions,
-      preset: updating_preset
+      preset: updated_preset
     })
   }
 
@@ -116,7 +120,13 @@ export const View = (vscode: any) => {
     edit_view = (
       <EditView
         on_back_click={edit_preset_back_click_handler}
-        header_slot={<a onClick={handle_preview_preset}>preview</a>}
+        header_slot={
+          // TODO disabled state and title explaining why
+          (!chat_hook.is_code_completions_mode ||
+            !(
+              updated_preset?.prompt_prefix || updated_preset?.prompt_suffix
+            )) && <a onClick={handle_preview_preset}>preview</a>
+        }
       >
         <EditPresetForm
           preset={updating_preset}

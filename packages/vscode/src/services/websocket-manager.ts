@@ -11,6 +11,7 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { Logger } from '../helpers/logger'
+import { Preset } from '@shared/types/preset'
 
 export class WebSocketManager {
   private context: vscode.ExtensionContext
@@ -223,7 +224,7 @@ export class WebSocketManager {
     preset_names: string[]
   ): Promise<void> {
     if (!this.has_connected_browsers) {
-      throw new Error('Does not have connected browsers')
+      throw new Error('Does not have connected browsers.')
     }
 
     const config = vscode.workspace.getConfiguration()
@@ -265,6 +266,50 @@ export class WebSocketManager {
     Logger.log({
       function_name: 'initialize_chats',
       message: 'Sending initialize chats message',
+      data: message
+    })
+
+    this.client?.send(JSON.stringify(message))
+  }
+
+  public async preview_preset(
+    instruction: string,
+    preset: Preset
+  ): Promise<void> {
+    if (!this.has_connected_browsers) {
+      throw new Error('Does not have connected browsers.')
+    }
+
+    const chatbot = CHATBOTS[preset.chatbot as keyof typeof CHATBOTS]
+    let url: string
+    if (preset.chatbot == 'Open WebUI') {
+      if (preset.port) {
+        url = `http://localhost:${preset.port}/`
+      } else {
+        url = 'http://openwebui/'
+      }
+    } else {
+      url = chatbot.url
+    }
+
+    const message: InitializeChatsMessage = {
+      action: 'initialize-chats',
+      text: instruction,
+      chats: [
+        {
+          url,
+          model: preset.model,
+          temperature: preset.temperature,
+          system_instructions: preset.system_instructions,
+          options: preset.options
+        }
+      ],
+      client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
+    }
+
+    Logger.log({
+      function_name: 'preview_preset',
+      message: 'Sending preview preset message',
       data: message
     })
 
