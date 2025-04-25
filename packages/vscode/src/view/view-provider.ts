@@ -1022,7 +1022,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               // Show notification with undo option
               const button_text = 'Undo'
               const undo_result = await vscode.window.showInformationMessage(
-                `Preset "${presetName}" deleted`,
+                `Preset "${presetName}" has been deleted.`,
                 button_text
               )
 
