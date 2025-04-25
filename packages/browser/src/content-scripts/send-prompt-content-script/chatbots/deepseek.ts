@@ -4,9 +4,19 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 export const deepseek: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 500)
+      const check_for_element = () => {
+        const ds_icon = document.querySelector('.ds-icon')
+        if (
+          ds_icon &&
+          ds_icon.parentElement &&
+          ds_icon.parentElement.querySelector('img')
+        ) {
+          resolve(null)
+        } else {
+          setTimeout(check_for_element, 100)
+        }
+      }
+      check_for_element()
     })
   },
   set_options: async (options: string[]) => {
