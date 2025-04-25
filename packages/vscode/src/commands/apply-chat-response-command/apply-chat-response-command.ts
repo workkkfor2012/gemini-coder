@@ -88,17 +88,14 @@ export function apply_chat_response_command(params: {
     const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
 
     if (is_multiple_files) {
-      // Parse files early to check for ellipsis comment and existence
       parsed_files = parse_clipboard_multiple_files({
         clipboard_text,
         is_single_root_folder_workspace
       })
 
-      // Check if all files are new (don't exist in workspace)
       const all_files_new = await check_if_all_files_new(parsed_files)
 
       if (all_files_new) {
-        // All files are new - automatically use Fast replace mode
         selected_mode_label = 'Fast replace'
         Logger.log({
           function_name: 'apply_chat_response_command',
@@ -120,7 +117,6 @@ export function apply_chat_response_command(params: {
               'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
           })
         } else if (params.mode) {
-          // Mode forced by command parameters (e.g., specific command bindings)
           selected_mode_label = params.mode
           Logger.log({
             function_name: 'apply_chat_response_command',
@@ -128,32 +124,11 @@ export function apply_chat_response_command(params: {
             data: selected_mode_label
           })
         } else {
-          // Multiple files, no ellipsis, no forced mode -> Ask the user
-          const response = await vscode.window.showInformationMessage(
-            'How would you like to apply this chat response?',
-            {
-              modal: true,
-              detail:
-                '- Use FAST REPLACE for files in the "whole" format.\n- Use INTELLIGENT UPDATE for partial files and diffs.\n\nThe operation can be completely rolled back.'
-            },
-            'Fast replace',
-            'Intelligent update'
-          )
-
-          if (!response) {
-            Logger.log({
-              function_name: 'apply_chat_response_command',
-              message: 'User cancelled mode selection.'
-            })
-            return // User cancelled
-          }
-          selected_mode_label = response as
-            | 'Fast replace'
-            | 'Intelligent update'
+          // Instead of showing dialog, default to fast replace
+          selected_mode_label = 'Fast replace'
           Logger.log({
             function_name: 'apply_chat_response_command',
-            message: 'User selected mode',
-            data: selected_mode_label
+            message: 'Defaulting to Fast replace mode'
           })
         }
       }
@@ -270,18 +245,98 @@ export function apply_chat_response_command(params: {
               file_count > 1 ? 'files' : 'file'
             }.`
 
-      const button_text = 'Revert'
-      const response = await vscode.window.showInformationMessage(
-        message,
-        button_text
-      )
+      // Show appropriate buttons based on whether all files are new
+      if (selected_mode_label == 'Fast replace') {
+        const all_files_new = await check_if_all_files_new(parsed_files)
+        const buttons = all_files_new
+          ? ['Revert']
+          : ['Revert', 'Looks off, use API tool']
 
-      if (response == button_text) {
-        await revert_files(final_original_states)
-        params.context.workspaceState.update(
-          LAST_APPLIED_CHANGES_STATE_KEY,
-          null
+        const response = await vscode.window.showInformationMessage(
+          message,
+          ...buttons
         )
+
+        if (response == 'Revert') {
+          await revert_files(final_original_states)
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            null
+          )
+        } else if (response == 'Looks off, use API tool') {
+          // First revert the fast replace changes
+          await revert_files(final_original_states)
+
+          // Then trigger intelligent update
+          const api_tool_settings_manager = new ApiToolsSettingsManager(
+            params.context
+          )
+          const apply_chat_response_settings =
+            api_tool_settings_manager.get_apply_chat_response_settings()
+
+          if (
+            !apply_chat_response_settings.provider ||
+            !apply_chat_response_settings.model
+          ) {
+            vscode.window.showErrorMessage(
+              'API provider or model is not configured for Intelligent update. Please configure them in API Tools -> Configuration.'
+            )
+            return
+          }
+
+          const connection_details =
+            api_tool_settings_manager.provider_to_connection_details(
+              apply_chat_response_settings.provider
+            )
+
+          final_original_states = await handle_intelligent_update({
+            endpoint_url: connection_details.endpoint_url,
+            api_key: connection_details.api_key,
+            model: apply_chat_response_settings.model,
+            temperature: apply_chat_response_settings.temperature || 0,
+            clipboard_text,
+            is_multiple_files,
+            context: params.context,
+            is_single_root_folder_workspace
+          })
+
+          if (final_original_states) {
+            params.context.workspaceState.update(
+              LAST_APPLIED_CHANGES_STATE_KEY,
+              final_original_states
+            )
+            vscode.window
+              .showInformationMessage(
+                `Successfully updated ${file_count} ${
+                  file_count > 1 ? 'files' : 'file'
+                } using API tool.`,
+                'Revert'
+              )
+              .then((response) => {
+                if (response == 'Revert') {
+                  revert_files(final_original_states!)
+                  params.context.workspaceState.update(
+                    LAST_APPLIED_CHANGES_STATE_KEY,
+                    null
+                  )
+                }
+              })
+          }
+        }
+      } else {
+        // For intelligent update, show only Revert button
+        const response = await vscode.window.showInformationMessage(
+          message,
+          'Revert'
+        )
+
+        if (response == 'Revert') {
+          await revert_files(final_original_states)
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            null
+          )
+        }
       }
     } else {
       // Handler already showed specific error messages or handled cancellation silently.
