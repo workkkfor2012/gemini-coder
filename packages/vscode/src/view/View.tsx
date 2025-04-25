@@ -12,7 +12,7 @@ import { ApiSettingsForm } from '@ui/components/editor/ApiSettingsForm'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
 import { use_chat } from './providers/chat-provider'
-import { TextButton } from '@ui/components/editor/TextButton/TextButton'
+import { TextButton } from '@ui/components/editor/TextButton'
 
 const vscode = acquireVsCodeApi()
 

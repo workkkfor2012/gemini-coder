@@ -7,7 +7,7 @@ import { Icon } from '../Icon'
 import { useState } from 'react'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
-import { TextButton } from '../TextButton/TextButton'
+import { TextButton } from '../TextButton'
 
 export namespace Presets {
   export type Preset = {
