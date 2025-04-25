@@ -12,6 +12,7 @@ import { ApiSettingsForm } from '@ui/components/editor/ApiSettingsForm'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
 import { use_chat } from './providers/chat-provider'
+import { TextButton } from '@ui/components/editor/TextButton/TextButton'
 
 const vscode = acquireVsCodeApi()
 
@@ -121,11 +122,21 @@ export const View = () => {
       <EditView
         on_back_click={edit_preset_back_click_handler}
         header_slot={
-          // TODO disabled state and title explaining why
-          (!chat_hook.is_code_completions_mode ||
-            !(
-              updated_preset?.prompt_prefix || updated_preset?.prompt_suffix
-            )) && <a onClick={handle_preview_preset}>preview</a>
+          <TextButton
+            on_click={handle_preview_preset}
+            disabled={
+              chat_hook.is_code_completions_mode &&
+              !!(updated_preset?.prompt_prefix || updated_preset?.prompt_suffix)
+            }
+            title={
+              chat_hook.is_code_completions_mode &&
+              !!(updated_preset?.prompt_prefix || updated_preset?.prompt_suffix)
+                ? 'Unavailable for code completion due to affixes'
+                : undefined
+            }
+          >
+            Preview
+          </TextButton>
         }
       >
         <EditPresetForm

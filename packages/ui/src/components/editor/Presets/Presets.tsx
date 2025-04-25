@@ -7,6 +7,7 @@ import { Icon } from '../Icon'
 import { useState } from 'react'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
+import { TextButton } from '../TextButton/TextButton'
 
 export namespace Presets {
   export type Preset = {
@@ -78,13 +79,12 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           />
         </div>
 
-        <button
-          className={styles['my-presets__set-default']}
-          onClick={props.on_set_default}
+        <TextButton
+          on_click={props.on_set_default}
           title="Set presets opening by default"
         >
           Select default
-        </button>
+        </TextButton>
       </div>
 
       <div
@@ -105,7 +105,8 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           disabled={props.disabled}
         >
           {props.presets.map((preset, i) => {
-            const is_disabled_in_fim = props.is_code_completions_mode && preset.has_affixes
+            const is_disabled_in_fim =
+              props.is_code_completions_mode && preset.has_affixes
 
             return (
               <div
