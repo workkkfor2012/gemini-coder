@@ -285,21 +285,21 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'Use state-of-the-art models for top-quality inline code completions. Selected context is attached.',
+          'Use state-of-the-art models for top-quality inline code completions. Selected context is attached in every request.',
         settings: props.code_completions_settings,
         on_update: props.on_code_completions_settings_update
       })}
       {render_api_tool_settings({
         title: 'File Refactoring',
         description:
-          'Modify the active editor based on natural language instructions. Selected context is attached.',
+          'Modify the active editor based on natural language instructions. Selected context is attached in every request.',
         settings: props.file_refactoring_settings,
         on_update: props.on_file_refactoring_settings_update
       })}
       {render_api_tool_settings({
         title: 'Apply Chat Response',
         description:
-          'Automatically integrate chat responses from clipboard with the codebase. This tool handles INTELLIGENT MODE, suitable for truncated files and diffs use separate. Sends concurrent API requests for each modified file.',
+          'Automatically integrate chat responses from clipboard with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. Default system instructions for AI Studio, OpenRouter and Open WebUI ensure this. The tool will update the active editor otherwise.',
         settings: props.apply_chat_response_settings,
         on_update: props.on_apply_chat_response_settings_update
       })}
