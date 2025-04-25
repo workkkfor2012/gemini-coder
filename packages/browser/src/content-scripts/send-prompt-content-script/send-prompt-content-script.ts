@@ -214,7 +214,6 @@ const enter_system_instructions = async (system_instructions: string) => {
       )
     }) as HTMLButtonElement
     close_button.click()
-    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
@@ -233,7 +232,6 @@ const set_temperature = async (temperature: number) => {
       'ms-prompt-run-settings input[type=number]'
     ) as HTMLInputElement
     temperature_element.value = temperature.toString()
-    temperature_element.dispatchEvent(new Event('input', { bubbles: true }))
     temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
     if (window.innerWidth <= 768) {
       const close_button = Array.from(
@@ -265,11 +263,8 @@ const set_temperature = async (temperature: number) => {
     const temperature_input = fifth_div.querySelector(
       'input'
     ) as HTMLInputElement
-    if (temperature_input) {
-      temperature_input.value = temperature.toString()
-      temperature_input.dispatchEvent(new Event('input', { bubbles: true }))
-      temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
-    }
+    temperature_input.value = temperature.toString()
+    temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
     const close_button = controls_pane.querySelector(
       'button'
     ) as HTMLButtonElement
@@ -520,7 +515,6 @@ const set_options = async (options: string[]) => {
         }
       }
     }
-    await new Promise((r) => requestAnimationFrame(r))
   }
 }
 
