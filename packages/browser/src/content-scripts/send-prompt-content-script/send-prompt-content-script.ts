@@ -187,7 +187,7 @@ const enter_system_instructions = async (system_instructions: string) => {
     close_button.click()
   } else if (is_openrouter) {
     const options_button = Array.from(
-      document.querySelectorAll('main > div> div > div:nth-child(2) button')
+      document.querySelectorAll('main > div > div > div.flex-col button')
     ).find((button) => {
       const path = button.querySelector('path')
       return (
@@ -277,7 +277,7 @@ const set_temperature = async (temperature: number) => {
     await new Promise((r) => requestAnimationFrame(r))
   } else if (is_openrouter) {
     const options_button = Array.from(
-      document.querySelectorAll('main > div> div > div:nth-child(2) button')
+      document.querySelectorAll('main > div > div > div.flex-col button')
     ).find((button) => {
       const path = button.querySelector('path')
       return (
