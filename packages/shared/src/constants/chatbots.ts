@@ -46,7 +46,6 @@ export const CHATBOTS = {
     models: {
       '2.0-flash': '2.0 Flash',
       '2.5-flash-experimental': '2.5 Flash (experimental)',
-      '2.0-flash-thinking-experimental': '2.0 Flash Thinking (experimental)',
       '2.5-pro-experimental': '2.5 Pro (experimental)'
     }
   },

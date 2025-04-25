@@ -1,4 +1,5 @@
 import { Chatbot } from '../types/chatbot'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export const grok: Chatbot = {
   wait_until_ready: async () => {
@@ -12,5 +13,18 @@ export const grok: Chatbot = {
       }
       check_for_element()
     })
+  },
+  set_options: async (options: string[]) => {
+    const supported_options = CHATBOTS['Grok'].supported_options || {}
+    for (const option of options) {
+      if (option == 'think' && supported_options['think']) {
+        const think_button = document.querySelector(
+          'button[aria-label="Think"]'
+        ) as HTMLButtonElement
+        if (think_button) {
+          think_button.click()
+        }
+      }
+    }
   }
 }
