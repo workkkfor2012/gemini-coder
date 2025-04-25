@@ -1,6 +1,6 @@
 .with-quick-pick-trigger {
   display: flex;
-  --button-width: 25px;
+  --button-width: 35px;
 
   > button:first-child {
     border-top-right-radius: 0;
@@ -12,6 +12,7 @@
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
     width: var(--button-width);
+    padding: 0;
   }
 
   &__separator {
@@ -39,7 +40,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 6px;
   min-height: 28px;
   font-size: 13px;
   padding: var(--padding-4px) var(--padding-16px);
