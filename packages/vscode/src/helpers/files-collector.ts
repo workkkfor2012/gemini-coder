@@ -75,8 +75,8 @@ export class FilesCollector {
           if (params?.disable_xml) {
             collected_text += content
           } else {
-            const is_active = params?.active_path === file_path
-            collected_text += `<file name="${file_path}"${
+            const is_active = params?.active_path == file_path
+            collected_text += `<file path="${file_path}"${
               is_active ? ' active' : ''
             }>\n<![CDATA[\n${content}\n]]>\n</file>\n`
           }
@@ -100,7 +100,7 @@ export class FilesCollector {
           collected_text += content
         } else {
           const is_active = params?.active_path == file_path
-          collected_text += `<file name="${display_path}"${
+          collected_text += `<file path="${display_path}"${
             is_active ? ' active' : ''
           }>\n<![CDATA[\n${content}\n]]>\n</file>\n`
         }

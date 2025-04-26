@@ -75,7 +75,7 @@ async function handle_code_completion_in_chat_command(
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 
-    const text = `${instructions}\n<files>\n${context_text}<file name="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
+    const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
     // Set FIM mode in workspace state
     await context.workspaceState.update('isFimMode', true)

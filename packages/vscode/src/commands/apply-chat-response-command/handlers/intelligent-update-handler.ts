@@ -37,7 +37,7 @@ async function process_file(params: {
     data: { file_path: params.file_path }
   })
   const apply_changes_prompt = `${get_refactoring_instruction} ${params.instruction}`
-  const file_content_block = `<file name="${params.file_path}">\n<![CDATA[\n${params.file_content}\n]]>\n</file>\n`
+  const file_content_block = `<file path="${params.file_path}">\n<![CDATA[\n${params.file_content}\n]]>\n</file>\n`
   const content = `${file_content_block}\n${apply_changes_prompt}`
 
   const messages = [

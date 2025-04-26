@@ -138,7 +138,7 @@ export function refactor_command(params: {
       refactoring_instruction += ` ${instruction}`
     }
 
-    const files = `<files>${collected_files}\n<file name="${current_file_path}"><![CDATA[${document_text}]]></file>\n</files>`
+    const files = `<files>${collected_files}\n<file path="${current_file_path}"><![CDATA[${document_text}]]></file>\n</files>`
     const content = `${refactoring_instruction}\n${files}\n${refactoring_instruction}`
 
     const messages = [

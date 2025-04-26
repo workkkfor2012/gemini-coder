@@ -27,7 +27,7 @@ _The structure of context:_
 ```
 <files>
   <text title="">...</text>   (checked websites, enabled for context in the web browser extension's popup)
-  <file name="...">...</file> (checked files in workspace tree/open editors)
+  <file path="...">...</file> (checked files in workspace tree/open editors)
   ...
 </files>
 ```

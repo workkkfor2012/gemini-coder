@@ -59,7 +59,7 @@ export function refactor_to_clipboard_command(
         exclude_path: document_path
       })
 
-      const text = `${refactor_instruction}\n<files>\n${context_text}\n<file name="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>\n${refactor_instruction}`
+      const text = `${refactor_instruction}\n<files>\n${context_text}\n<file path="${current_file_path}">\n<![CDATA[\n${document_text}\n]]>\n</file>\n</files>\n${refactor_instruction}`
 
       await vscode.env.clipboard.writeText(text)
       vscode.window.showInformationMessage(

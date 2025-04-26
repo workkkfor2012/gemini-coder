@@ -29,7 +29,7 @@ Websockets are used as reliable bi-directional communication channel for message
   ```json
   {
     "action": "initialize-chats",
-    "text": "<files><file name="...">...</file>...</files> Help implement according to the following specification:",
+    "text": "<files><file path="...">...</file>...</files> Help implement according to the following specification:",
     "chats": [
       {
         "url": "https://aistudio.google.com/prompts/new_chat",

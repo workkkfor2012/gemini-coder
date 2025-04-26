@@ -11,9 +11,9 @@ _Structure of the generated API request:_
 
 ```
 <files>
-  <file name="...">...</file> (Context files)
+  <file path="...">...</file> (Context files)
   ...
-  <file name="...">...</file> (Current editor)
+  <file path="...">...</file> (Current editor)
 </files>
 User requested refactor of a file "[NAME]". In your response send fully updated file only, without explanations or any other text.
 [REFACTORING INSTRUCTIONS]

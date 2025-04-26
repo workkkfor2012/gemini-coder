@@ -238,7 +238,7 @@ async function collect_affected_files(
           }
         }
 
-        files_content += `<file name="${relative_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
+        files_content += `<file path="${relative_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
       } catch (err) {
         Logger.error({
           function_name: 'collect_affected_files',

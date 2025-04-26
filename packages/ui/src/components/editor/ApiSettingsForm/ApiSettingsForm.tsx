@@ -285,28 +285,28 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'Use state-of-the-art models for top-quality inline code completions. Selected context is attached in every request.',
+          'Use state-of-the-art models for top-quality inline code completions. The tool attaches selected context in each request.',
         settings: props.code_completions_settings,
         on_update: props.on_code_completions_settings_update
       })}
       {render_api_tool_settings({
         title: 'File Refactoring',
         description:
-          'Modify the active editor based on natural language instructions. Selected context is attached in every request.',
+          'Modify the active file based on natural language instructions. The tool attaches selected context in each request.',
         settings: props.file_refactoring_settings,
         on_update: props.on_file_refactoring_settings_update
       })}
       {render_api_tool_settings({
         title: 'Apply Chat Response',
         description:
-          'Automatically integrate chat responses from clipboard with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. Default system instructions for AI Studio, OpenRouter and Open WebUI ensure this. The tool will update the active editor otherwise.',
+          'Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. Default system instructions for AI Studio, OpenRouter and Open WebUI ensure this. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ..." or diffs, otherwise files are replaced in place.',
         settings: props.apply_chat_response_settings,
         on_update: props.on_apply_chat_response_settings_update
       })}
       {render_api_tool_settings({
         title: 'Commit Messages',
         description:
-          'Create meaningful commit messages based attached affected files and diffs of changes.',
+          'Create meaningful commit messages based on fully attached affected files and diffs of changes.',
         settings: props.commit_messages_settings,
         on_update: props.on_commit_messages_settings_update
       })}
