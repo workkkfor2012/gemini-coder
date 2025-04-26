@@ -24,20 +24,20 @@ Gemini Coder lets you conveniently copy folders and files for chatbots. With the
 
 The extension uses the same context for built-in API tools: **code completions** and **file refactoring**. Hit **apply chat response** to integrate multi-file updates with just a single click.
 
-- **100% free & open source:** MIT License
-- **File tree:** Easily pick folders and files for context
-- **Versitale:** Initializes all major chatbots
-- **Bring your own keys**: Use models from Gemini API or OpenRouter for API tools
-- **Private:** Does not collect any usage data
-- **Local:** Communicates with the web browser via WebSockets
-- **One of a kind**: Include websites in context
-- **Lightweight:** Unpacked build is just ~1.3MB
-
 <br/>
 
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 
 <br/>
+
+- **100% free & open source:** MIT License
+- **Explorer view:** Intuitive context selection
+- **Versitale:** Initializes all major chatbots
+- **API Tools with your keys**: Gemini API or OpenRouter
+- **Private:** Does not collect any usage data
+- **Local:** WebSockets for local browser communication
+- **One of a kind**: Include websites in context
+- **Lightweight:** Unpacked build is just ~1.3MB
 
 ## You own the context
 
@@ -53,12 +53,17 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Supported chatbots
 
-Gemini Coder initializes hands-free many popular chatbots:
+Gemini Coder initializes many popular chatbots hands-free.
 
-- AI Studio
+Fully supported chatbots, with system instructions, temperature, model selection and automatic response applying:
+
+- **AI Studio**
+- **OpenRouter Chat**
+- **Open WebUI (self-hosted)**
+
+Other supported chatbots:
+
 - Gemini
-- OpenRouter
-- Open WebUI (self-hosted)
 - ChatGPT
 - Claude
 - GitHub Copilot
