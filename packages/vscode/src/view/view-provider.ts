@@ -1046,7 +1046,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'Please confirm',
               {
                 modal: true,
-                detail: 'Are you sure you want to delete this preset?'
+                detail: `Are you sure you want to delete preset "${preset_name}"?`
               },
               delete_button
             )
