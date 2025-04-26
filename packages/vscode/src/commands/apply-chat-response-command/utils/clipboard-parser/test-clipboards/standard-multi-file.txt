@@ -1,9 +1,0 @@
-```typescript name=src/index.ts
-console.log("hello")
-```
-
-```typescript name=src/utils.ts
-export function add(a: number, b: number) {
-  return a + b
-}
-```

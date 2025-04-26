@@ -1,7 +1,3 @@
-```typescript name="src/index.ts"
-console.log("hello from quoted attribute")
-```
-
 ```python
 # "src/utils.py"
 def add(a, b):

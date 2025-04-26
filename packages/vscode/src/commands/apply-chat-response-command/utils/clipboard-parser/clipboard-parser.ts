@@ -60,35 +60,12 @@ export const parse_clipboard_multiple_files = (params: {
 
     // Check for code block start
     if (state == 'TEXT' && line.trim().startsWith('```')) {
-      state = 'BLOCK_START'
+      state = 'CONTENT'
       current_workspace_name = undefined // Reset workspace name for new block
       current_file_name = '' // Reset filename for new block
-
-      // Check if this line also contains the filename
-      const name_match = line.match(/name=(?:"([^"]+)"|([^\s"]+))/)
-      if (name_match) {
-        current_file_name = (name_match[1] || name_match[2]).trim()
-
-        const { workspace_name, relative_path } = extract_workspace_and_path(
-          current_file_name,
-          params.is_single_root_folder_workspace
-        )
-        if (workspace_name) {
-          current_workspace_name = workspace_name
-          current_file_name = relative_path
-        }
-
-        state = 'CONTENT'
-        current_content = ''
-        is_first_content_line = true
-        continue
-      } else {
-        // No name= attribute, prepare to try to extract filename from content
-        state = 'CONTENT'
-        current_content = ''
-        is_first_content_line = true
-        continue
-      }
+      current_content = ''
+      is_first_content_line = true
+      continue
     }
     // Collect content lines
     else if (state == 'CONTENT') {
@@ -129,7 +106,7 @@ export const parse_clipboard_multiple_files = (params: {
         current_workspace_name = undefined
       } else {
         // Check if we're on the first content line and it might contain a filename in a comment
-        if (is_first_content_line && !current_file_name) {
+        if (is_first_content_line) {
           if (
             line.trim().startsWith('//') ||
             line.trim().startsWith('#') ||
@@ -193,25 +170,10 @@ export const parse_clipboard_multiple_files = (params: {
   return Array.from(files_map.values())
 }
 
-export const is_multiple_files_clipboard = (clipboardText: string): boolean => {
-  // Check for standard format with name= attribute
-  const file_block_regex = /```(\w+)?\s*name=(?:"[^"]+"|[^\s"]+)/g
-
-  // Also check for code blocks that might have filename comments
+export const is_multiple_files_clipboard = (clipboard_text: string): boolean => {
+  // Check for code blocks with potential comment filenames
   const code_block_regex = /```(\w+)?[\s\S]*?```/g
-
-  // Check for standard format first
-  let match_count = 0
-
-  while (file_block_regex.exec(clipboardText) !== null) {
-    match_count++
-    if (match_count >= 1) {
-      return true
-    }
-  }
-
-  // If standard format not found, check for code blocks with potential comment filenames
-  const code_blocks = [...clipboardText.matchAll(code_block_regex)]
+  const code_blocks = [...clipboard_text.matchAll(code_block_regex)]
 
   for (const block of code_blocks) {
     if (block[0]) {

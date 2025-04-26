@@ -18,7 +18,7 @@ import { format_document } from '../utils/format-document'
 import { OriginalFileState } from '../../../types/common'
 import { create_file_if_needed } from '../utils/file-operations'
 
-const MAX_CONCURRENCY = 10 // Define concurrency limit
+const MAX_CONCURRENCY = 10
 
 async function process_file(params: {
   endpoint_url: string
@@ -28,7 +28,7 @@ async function process_file(params: {
   file_path: string
   file_content: string
   instruction: string
-  cancel_token?: CancelToken // Add cancelToken parameter
+  cancel_token?: CancelToken
   on_progress?: (chunkLength: number, totalLength: number) => void
 }): Promise<string | null> {
   Logger.log({
@@ -145,7 +145,6 @@ export async function handle_intelligent_update(params: {
   model: string
   temperature: number
   clipboard_text: string
-  is_multiple_files: boolean
   context: vscode.ExtensionContext
   is_single_root_folder_workspace: boolean
 }): Promise<OriginalFileState[] | null> {
@@ -158,7 +157,7 @@ export async function handle_intelligent_update(params: {
   const default_workspace_path =
     vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
 
-  if (!default_workspace_path && params.is_multiple_files) {
+  if (!default_workspace_path) {
     vscode.window.showErrorMessage(
       'Cannot process multiple files without an open workspace folder.'
     )
@@ -169,195 +168,258 @@ export async function handle_intelligent_update(params: {
     return null
   }
 
-  if (params.is_multiple_files) {
-    Logger.log({
-      function_name: 'handle_intelligent_update',
-      message: 'Processing multiple files'
-    })
-    // Handle multiple files with AI processing ('Intelligent update' mode)
-    const raw_files = parse_clipboard_multiple_files({
-      clipboard_text: params.clipboard_text,
-      is_single_root_folder_workspace: params.is_single_root_folder_workspace
-    })
+  Logger.log({
+    function_name: 'handle_intelligent_update',
+    message: 'Processing multiple files'
+  })
+  // Handle multiple files with AI processing ('Intelligent update' mode)
+  const raw_files = parse_clipboard_multiple_files({
+    clipboard_text: params.clipboard_text,
+    is_single_root_folder_workspace: params.is_single_root_folder_workspace
+  })
 
-    // Sanitize file paths and check safety
-    const files: ClipboardFile[] = []
-    const skipped_files: string[] = []
+  // Sanitize file paths and check safety
+  const files: ClipboardFile[] = []
+  const skipped_files: string[] = []
 
-    for (const file of raw_files) {
-      // Determine the correct workspace root for validation
-      let workspace_root = default_workspace_path! // Should exist due to earlier check
-      if (file.workspace_name && workspace_map.has(file.workspace_name)) {
-        workspace_root = workspace_map.get(file.workspace_name)!
-      } else if (file.workspace_name) {
-        Logger.warn({
-          function_name: 'handle_intelligent_update',
-          message: `Workspace '${file.workspace_name}' not found for validation of '${file.file_path}'. Using default.`
-        })
-      }
-
-      const sanitized_path = sanitize_file_name(file.file_path)
-
-      // Check if the path would be safe within its intended workspace
-      if (create_safe_path(workspace_root, sanitized_path)) {
-        files.push({
-          ...file,
-          file_path: sanitized_path // Use sanitized path
-        })
-      } else {
-        skipped_files.push(file.file_path)
-        Logger.warn({
-          function_name: 'handle_intelligent_update',
-          message: 'Unsafe file path detected in multi-file mode',
-          data: file.file_path
-        })
-      }
-    }
-
-    // Show warning if unsafe paths were detected
-    if (skipped_files.length > 0) {
-      const skipped_list = skipped_files.join('\n')
-      vscode.window.showErrorMessage(
-        `Detected ${skipped_files.length} unsafe file path(s) that may attempt directory traversal:\n${skipped_list}\n\nThese files will be skipped.`
-      )
+  for (const file of raw_files) {
+    // Determine the correct workspace root for validation
+    let workspace_root = default_workspace_path! // Should exist due to earlier check
+    if (file.workspace_name && workspace_map.has(file.workspace_name)) {
+      workspace_root = workspace_map.get(file.workspace_name)!
+    } else if (file.workspace_name) {
       Logger.warn({
         function_name: 'handle_intelligent_update',
-        message: 'Unsafe file paths skipped in multi-file mode',
-        data: skipped_files
+        message: `Workspace '${file.workspace_name}' not found for validation of '${file.file_path}'. Using default.`
       })
-
-      if (files.length == 0) {
-        vscode.window.showInformationMessage(
-          'No safe file paths remaining. Operation cancelled.'
-        )
-        return null
-      }
     }
+
+    const sanitized_path = sanitize_file_name(file.file_path)
+
+    // Check if the path would be safe within its intended workspace
+    if (create_safe_path(workspace_root, sanitized_path)) {
+      files.push({
+        ...file,
+        file_path: sanitized_path // Use sanitized path
+      })
+    } else {
+      skipped_files.push(file.file_path)
+      Logger.warn({
+        function_name: 'handle_intelligent_update',
+        message: 'Unsafe file path detected in multi-file mode',
+        data: file.file_path
+      })
+    }
+  }
+
+  // Show warning if unsafe paths were detected
+  if (skipped_files.length > 0) {
+    const skipped_list = skipped_files.join('\n')
+    vscode.window.showErrorMessage(
+      `Detected ${skipped_files.length} unsafe file path(s) that may attempt directory traversal:\n${skipped_list}\n\nThese files will be skipped.`
+    )
+    Logger.warn({
+      function_name: 'handle_intelligent_update',
+      message: 'Unsafe file paths skipped in multi-file mode',
+      data: skipped_files
+    })
 
     if (files.length == 0) {
-      vscode.window.showErrorMessage(
-        'No valid file content found in clipboard.'
+      vscode.window.showInformationMessage(
+        'No safe file paths remaining. Operation cancelled.'
       )
-      Logger.warn({
+      return null
+    }
+  }
+
+  if (files.length == 0) {
+    vscode.window.showErrorMessage('No valid file content found in clipboard.')
+    Logger.warn({
+      function_name: 'handle_intelligent_update',
+      message: 'No valid file content found in clipboard for multi-file mode.'
+    })
+    return null
+  }
+
+  // First, identify which files are new (don't exist in workspace)
+  const new_files: ClipboardFile[] = []
+  const existing_files: ClipboardFile[] = []
+
+  for (const file of files) {
+    // Check if file exists in workspace
+    let file_exists = false
+    let workspace_root = default_workspace_path!
+    if (file.workspace_name && workspace_map.has(file.workspace_name)) {
+      workspace_root = workspace_map.get(file.workspace_name)!
+    }
+
+    const full_path = path.normalize(path.join(workspace_root, file.file_path))
+    file_exists = fs.existsSync(full_path)
+
+    if (file_exists) {
+      existing_files.push(file)
+    } else {
+      new_files.push(file)
+    }
+  }
+
+  // If there are new files, ask for confirmation before proceeding
+  if (new_files.length > 0) {
+    const new_file_list = new_files
+      .map(
+        (file) =>
+          `${file.workspace_name ? `[${file.workspace_name}] ` : ''}${
+            file.file_path
+          }`
+      )
+      .join('\n')
+    const confirmation = await vscode.window.showWarningMessage(
+      `This will create ${new_files.length} new ${
+        new_files.length == 1 ? 'file' : 'files'
+      }:\n${new_file_list}\n\nDo you want to continue?`,
+      { modal: true },
+      'Yes'
+    )
+
+    if (confirmation != 'Yes') {
+      vscode.window.showInformationMessage(
+        'Operation cancelled. No files were modified.'
+      )
+      Logger.log({
         function_name: 'handle_intelligent_update',
-        message: 'No valid file content found in clipboard for multi-file mode.'
+        message: 'User cancelled new file creation in multi-file mode.'
       })
       return null
     }
+    Logger.log({
+      function_name: 'handle_intelligent_update',
+      message: 'User confirmed new file creation in multi-file mode.'
+    })
+  }
 
-    // First, identify which files are new (don't exist in workspace)
-    const new_files: ClipboardFile[] = []
-    const existing_files: ClipboardFile[] = []
+  // Update the message to accurately reflect what's happening
+  let progress_title = ''
+  if (existing_files.length > 0 && new_files.length > 0) {
+    progress_title = `Updating ${existing_files.length} file${
+      existing_files.length > 1 ? 's' : ''
+    } and creating ${new_files.length} new file${
+      new_files.length > 1 ? 's' : ''
+    }`
+  } else if (existing_files.length > 0) {
+    progress_title = `Waiting for ${existing_files.length} updated file${
+      existing_files.length > 1 ? 's' : ''
+    }...`
+  } else {
+    progress_title = `Creating ${new_files.length} new file${
+      new_files.length > 1 ? 's' : ''
+    }`
+  }
 
-    for (const file of files) {
-      // Check if file exists in workspace
-      let file_exists = false
-      let workspace_root = default_workspace_path!
-      if (file.workspace_name && workspace_map.has(file.workspace_name)) {
-        workspace_root = workspace_map.get(file.workspace_name)!
-      }
+  // Store original file states for reversion
+  const original_states: OriginalFileState[] = []
+  let operation_successful = false
 
-      const full_path = path.normalize(
-        path.join(workspace_root, file.file_path)
-      )
-      file_exists = fs.existsSync(full_path)
-
-      if (file_exists) {
-        existing_files.push(file)
-      } else {
-        new_files.push(file)
-      }
-    }
-
-    // If there are new files, ask for confirmation before proceeding
-    if (new_files.length > 0) {
-      const new_file_list = new_files
-        .map(
-          (file) =>
-            `${file.workspace_name ? `[${file.workspace_name}] ` : ''}${
-              file.file_path
-            }`
-        )
-        .join('\n')
-      const confirmation = await vscode.window.showWarningMessage(
-        `This will create ${new_files.length} new ${
-          new_files.length == 1 ? 'file' : 'files'
-        }:\n${new_file_list}\n\nDo you want to continue?`,
-        { modal: true },
-        'Yes'
-      )
-
-      if (confirmation != 'Yes') {
-        vscode.window.showInformationMessage(
-          'Operation cancelled. No files were modified.'
-        )
-        Logger.log({
-          function_name: 'handle_intelligent_update',
-          message: 'User cancelled new file creation in multi-file mode.'
-        })
-        return null
-      }
-      Logger.log({
-        function_name: 'handle_intelligent_update',
-        message: 'User confirmed new file creation in multi-file mode.'
+  await vscode.window.withProgress(
+    {
+      location: vscode.ProgressLocation.Notification,
+      title: progress_title,
+      cancellable: true
+    },
+    async (progress, token) => {
+      const cancel_token_source = axios.CancelToken.source()
+      token.onCancellationRequested(() => {
+        cancel_token_source.cancel('Cancelled by user.')
       })
-    }
 
-    // Update the message to accurately reflect what's happening
-    let progress_title = ''
-    if (existing_files.length > 0 && new_files.length > 0) {
-      progress_title = `Updating ${existing_files.length} file${
-        existing_files.length > 1 ? 's' : ''
-      } and creating ${new_files.length} new file${
-        new_files.length > 1 ? 's' : ''
-      }`
-    } else if (existing_files.length > 0) {
-      progress_title = `Waiting for ${existing_files.length} updated file${
-        existing_files.length > 1 ? 's' : ''
-      }...`
-    } else {
-      progress_title = `Creating ${new_files.length} new file${
-        new_files.length > 1 ? 's' : ''
-      }`
-    }
+      type DocumentChange = {
+        document: vscode.TextDocument | null // Null for new files
+        content: string // New content from AI or clipboard
+        isNew: boolean
+        filePath: string
+        workspaceName?: string
+      }
+      const documentChanges: DocumentChange[] = []
 
-    // Store original file states for reversion
-    const original_states: OriginalFileState[] = []
-    let operation_successful = false
+      // Focus on the largest file for progress tracking
+      let largest_file: {
+        path: string
+        size: number
+        workspaceName?: string
+      } | null = null
+      let largest_file_progress = 0
+      let previous_largest_file_progress = 0
 
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: progress_title,
-        cancellable: true
-      },
-      async (progress, token) => {
-        const cancel_token_source = axios.CancelToken.source()
-        token.onCancellationRequested(() => {
-          cancel_token_source.cancel('Cancelled by user.')
-        })
+      try {
+        // Pre-scan existing files to find largest and store original states
+        for (const file of existing_files) {
+          let workspace_root = default_workspace_path!
+          if (file.workspace_name && workspace_map.has(file.workspace_name)) {
+            workspace_root = workspace_map.get(file.workspace_name)!
+          }
+          const safe_path = create_safe_path(workspace_root, file.file_path)
 
-        type DocumentChange = {
-          document: vscode.TextDocument | null // Null for new files
-          content: string // New content from AI or clipboard
-          isNew: boolean
-          filePath: string
-          workspaceName?: string
+          if (!safe_path) {
+            Logger.error({
+              function_name: 'handle_intelligent_update',
+              message: 'Path validation failed pre-scan',
+              data: file.file_path
+            })
+            continue // Skip this file if path is invalid
+          }
+
+          try {
+            const file_uri = vscode.Uri.file(safe_path)
+            const document = await vscode.workspace.openTextDocument(file_uri)
+            const current_content = document.getText()
+            const content_size = current_content.length
+
+            original_states.push({
+              file_path: file.file_path,
+              content: current_content,
+              is_new: false,
+              workspace_name: file.workspace_name
+            })
+
+            if (!largest_file || content_size > largest_file.size) {
+              largest_file = {
+                path: file.file_path,
+                size: content_size,
+                workspaceName: file.workspace_name
+              }
+            }
+          } catch (error) {
+            Logger.warn({
+              function_name: 'handle_intelligent_update',
+              message: 'Error opening/reading existing file pre-scan',
+              data: { error, file_path: file.file_path }
+            })
+            // Continue with other files, but this one might cause issues later
+          }
         }
-        const documentChanges: DocumentChange[] = []
 
-        // Focus on the largest file for progress tracking
-        let largest_file: {
-          path: string
-          size: number
-          workspaceName?: string
-        } | null = null
-        let largest_file_progress = 0
-        let previous_largest_file_progress = 0
+        // Mark new files for reversion tracking
+        for (const file of new_files) {
+          original_states.push({
+            file_path: file.file_path,
+            content: '', // Original content is empty
+            is_new: true,
+            workspace_name: file.workspace_name
+          })
+        }
 
-        try {
-          // Pre-scan existing files to find largest and store original states
-          for (const file of existing_files) {
+        // Process all files in parallel batches
+        for (let i = 0; i < files.length; i += MAX_CONCURRENCY) {
+          if (token.isCancellationRequested) {
+            Logger.log({
+              function_name: 'handle_intelligent_update',
+              message: 'Operation cancelled during batching.',
+              data: { batch_start_index: i }
+            })
+            throw new Error('Operation cancelled')
+          }
+
+          const batch = files.slice(i, i + MAX_CONCURRENCY)
+          const promises = batch.map(async (file) => {
             let workspace_root = default_workspace_path!
             if (file.workspace_name && workspace_map.has(file.workspace_name)) {
               workspace_root = workspace_map.get(file.workspace_name)!
@@ -367,470 +429,224 @@ export async function handle_intelligent_update(params: {
             if (!safe_path) {
               Logger.error({
                 function_name: 'handle_intelligent_update',
-                message: 'Path validation failed pre-scan',
+                message: 'Path validation failed during batch processing',
                 data: file.file_path
               })
-              continue // Skip this file if path is invalid
+              throw new Error(`Invalid file path: ${file.file_path}`)
             }
 
+            const file_exists = fs.existsSync(safe_path)
+
+            // For new files, just store the information for creation later
+            if (!file_exists) {
+              return {
+                document: null,
+                content: file.content, // Use clipboard content directly
+                isNew: true,
+                filePath: file.file_path,
+                workspaceName: file.workspace_name
+              }
+            }
+
+            // For existing files, process with AI
             try {
               const file_uri = vscode.Uri.file(safe_path)
               const document = await vscode.workspace.openTextDocument(file_uri)
-              const current_content = document.getText()
-              const content_size = current_content.length
+              const document_text = document.getText() // Get current text
 
-              original_states.push({
+              // Find original state for this file (should exist)
+              const original_state = original_states.find(
+                (s) =>
+                  s.file_path == file.file_path &&
+                  s.workspace_name == file.workspace_name &&
+                  !s.is_new
+              )
+              const original_content_for_api = original_state
+                ? original_state.content
+                : document_text // Use stored original if available
+
+              const updated_content_result = await process_file({
+                endpoint_url: params.endpoint_url,
+                api_key: params.api_key,
+                model: params.model,
+                temperature: params.temperature,
                 file_path: file.file_path,
-                content: current_content,
-                is_new: false,
-                workspace_name: file.workspace_name
-              })
-
-              if (!largest_file || content_size > largest_file.size) {
-                largest_file = {
-                  path: file.file_path,
-                  size: content_size,
-                  workspaceName: file.workspace_name
-                }
-              }
-            } catch (error) {
-              Logger.warn({
-                function_name: 'handle_intelligent_update',
-                message: 'Error opening/reading existing file pre-scan',
-                data: { error, file_path: file.file_path }
-              })
-              // Continue with other files, but this one might cause issues later
-            }
-          }
-
-          // Mark new files for reversion tracking
-          for (const file of new_files) {
-            original_states.push({
-              file_path: file.file_path,
-              content: '', // Original content is empty
-              is_new: true,
-              workspace_name: file.workspace_name
-            })
-          }
-
-          // Process all files in parallel batches
-          for (let i = 0; i < files.length; i += MAX_CONCURRENCY) {
-            if (token.isCancellationRequested) {
-              Logger.log({
-                function_name: 'handle_intelligent_update',
-                message: 'Operation cancelled during batching.',
-                data: { batch_start_index: i }
-              })
-              throw new Error('Operation cancelled')
-            }
-
-            const batch = files.slice(i, i + MAX_CONCURRENCY)
-            const promises = batch.map(async (file) => {
-              let workspace_root = default_workspace_path!
-              if (
-                file.workspace_name &&
-                workspace_map.has(file.workspace_name)
-              ) {
-                workspace_root = workspace_map.get(file.workspace_name)!
-              }
-              const safe_path = create_safe_path(workspace_root, file.file_path)
-
-              if (!safe_path) {
-                Logger.error({
-                  function_name: 'handle_intelligent_update',
-                  message: 'Path validation failed during batch processing',
-                  data: file.file_path
-                })
-                throw new Error(`Invalid file path: ${file.file_path}`)
-              }
-
-              const file_exists = fs.existsSync(safe_path)
-
-              // For new files, just store the information for creation later
-              if (!file_exists) {
-                return {
-                  document: null,
-                  content: file.content, // Use clipboard content directly
-                  isNew: true,
-                  filePath: file.file_path,
-                  workspaceName: file.workspace_name
-                }
-              }
-
-              // For existing files, process with AI
-              try {
-                const file_uri = vscode.Uri.file(safe_path)
-                const document = await vscode.workspace.openTextDocument(
-                  file_uri
-                )
-                const document_text = document.getText() // Get current text
-
-                // Find original state for this file (should exist)
-                const original_state = original_states.find(
-                  (s) =>
-                    s.file_path == file.file_path &&
-                    s.workspace_name == file.workspace_name &&
-                    !s.is_new
-                )
-                const original_content_for_api = original_state
-                  ? original_state.content
-                  : document_text // Use stored original if available
-
-                const updated_content_result = await process_file({
-                  endpoint_url: params.endpoint_url,
-                  api_key: params.api_key,
-                  model: params.model,
-                  temperature: params.temperature,
-                  file_path: file.file_path,
-                  file_content: original_content_for_api, // Send original content to AI
-                  instruction: file.content, // Clipboard content is the instruction
-                  cancel_token: cancel_token_source.token,
-                  on_progress: (receivedLength, totalLength) => {
-                    if (
-                      largest_file &&
-                      file.file_path == largest_file.path &&
-                      file.workspace_name == largest_file.workspaceName
-                    ) {
-                      previous_largest_file_progress = largest_file_progress
-                      largest_file_progress = Math.min(
-                        Math.round((receivedLength / totalLength) * 100),
-                        100
-                      )
-                      const increment =
-                        largest_file_progress - previous_largest_file_progress
-                      progress.report({
-                        increment: increment > 0 ? increment : 0
-                      })
-                    }
+                file_content: original_content_for_api, // Send original content to AI
+                instruction: file.content, // Clipboard content is the instruction
+                cancel_token: cancel_token_source.token,
+                on_progress: (receivedLength, totalLength) => {
+                  if (
+                    largest_file &&
+                    file.file_path == largest_file.path &&
+                    file.workspace_name == largest_file.workspaceName
+                  ) {
+                    previous_largest_file_progress = largest_file_progress
+                    largest_file_progress = Math.min(
+                      Math.round((receivedLength / totalLength) * 100),
+                      100
+                    )
+                    const increment =
+                      largest_file_progress - previous_largest_file_progress
+                    progress.report({
+                      increment: increment > 0 ? increment : 0
+                    })
                   }
-                })
-
-                if (token.isCancellationRequested)
-                  throw new Error('Operation cancelled')
-
-                // If process_file returned null (due to error, cancellation, or rate limit)
-                if (!updated_content_result) {
-                  throw new Error(
-                    `Failed to apply changes to ${file.file_path}`
-                  )
                 }
+              })
 
-                // No rate limit fallback needed, just use the result
-                const final_content = updated_content_result // Already cleaned in process_file
+              if (token.isCancellationRequested)
+                throw new Error('Operation cancelled')
 
-                // Update progress for the largest file if processing finished
-                if (
-                  largest_file &&
-                  file.file_path == largest_file.path &&
-                  file.workspace_name == largest_file.workspaceName &&
-                  largest_file_progress < 100
-                ) {
-                  const increment = 100 - largest_file_progress
-                  largest_file_progress = 100
-                  progress.report({ increment: increment > 0 ? increment : 0 })
-                }
-
-                return {
-                  document,
-                  content: final_content,
-                  isNew: false,
-                  filePath: file.file_path,
-                  workspaceName: file.workspace_name
-                }
-              } catch (error: any) {
-                if (
-                  axios.isCancel(error) ||
-                  error.message == 'Operation cancelled'
-                ) {
-                  throw new Error('Operation cancelled')
-                }
-                Logger.error({
-                  function_name: 'handle_intelligent_update',
-                  message: 'Error processing existing file in batch',
-                  data: { error, file_path: file.file_path }
-                })
-                throw new Error(
-                  `Error processing ${file.file_path}: ${
-                    error.message || 'Unknown error'
-                  }`
-                )
+              // If process_file returned null (due to error, cancellation, or rate limit)
+              if (!updated_content_result) {
+                throw new Error(`Failed to apply changes to ${file.file_path}`)
               }
-            })
 
-            // Wait for all promises in this batch
-            const results = await Promise.all(promises)
-            documentChanges.push(...results)
-          }
+              // No rate limit fallback needed, just use the result
+              const final_content = updated_content_result // Already cleaned in process_file
 
-          // If we reached here without errors, apply all changes
-          progress.report({ message: 'Applying changes...' }) // Update progress message
+              // Update progress for the largest file if processing finished
+              if (
+                largest_file &&
+                file.file_path == largest_file.path &&
+                file.workspace_name == largest_file.workspaceName &&
+                largest_file_progress < 100
+              ) {
+                const increment = 100 - largest_file_progress
+                largest_file_progress = 100
+                progress.report({ increment: increment > 0 ? increment : 0 })
+              }
 
-          for (const change of documentChanges) {
-            if (token.isCancellationRequested)
-              throw new Error('Operation cancelled')
-
-            let workspace_root = default_workspace_path!
-            if (
-              change.workspaceName &&
-              workspace_map.has(change.workspaceName)
-            ) {
-              workspace_root = workspace_map.get(change.workspaceName)!
-            }
-
-            const safe_path = create_safe_path(workspace_root, change.filePath)
-            if (!safe_path) {
+              return {
+                document,
+                content: final_content,
+                isNew: false,
+                filePath: file.file_path,
+                workspaceName: file.workspace_name
+              }
+            } catch (error: any) {
+              if (
+                axios.isCancel(error) ||
+                error.message == 'Operation cancelled'
+              ) {
+                throw new Error('Operation cancelled')
+              }
               Logger.error({
                 function_name: 'handle_intelligent_update',
-                message: 'Path validation failed during apply phase',
+                message: 'Error processing existing file in batch',
+                data: { error, file_path: file.file_path }
+              })
+              throw new Error(
+                `Error processing ${file.file_path}: ${
+                  error.message || 'Unknown error'
+                }`
+              )
+            }
+          })
+
+          // Wait for all promises in this batch
+          const results = await Promise.all(promises)
+          documentChanges.push(...results)
+        }
+
+        // If we reached here without errors, apply all changes
+        progress.report({ message: 'Applying changes...' }) // Update progress message
+
+        for (const change of documentChanges) {
+          if (token.isCancellationRequested)
+            throw new Error('Operation cancelled')
+
+          let workspace_root = default_workspace_path!
+          if (change.workspaceName && workspace_map.has(change.workspaceName)) {
+            workspace_root = workspace_map.get(change.workspaceName)!
+          }
+
+          const safe_path = create_safe_path(workspace_root, change.filePath)
+          if (!safe_path) {
+            Logger.error({
+              function_name: 'handle_intelligent_update',
+              message: 'Path validation failed during apply phase',
+              data: change.filePath
+            })
+            vscode.window.showWarningMessage(
+              `Skipping applying change to invalid path: ${change.filePath}`
+            )
+            continue // Skip applying this change
+          }
+
+          if (change.isNew) {
+            const created = await create_file_if_needed(
+              change.filePath,
+              change.content,
+              change.workspaceName
+            )
+            if (!created) {
+              // Log error, inform user, but continue applying other changes
+              Logger.error({
+                function_name: 'handle_intelligent_update',
+                message: 'Failed to create new file during apply phase',
                 data: change.filePath
               })
               vscode.window.showWarningMessage(
-                `Skipping applying change to invalid path: ${change.filePath}`
+                `Failed to create file: ${change.filePath}`
               )
-              continue // Skip applying this change
             }
-
-            if (change.isNew) {
-              const created = await create_file_if_needed(
-                change.filePath,
-                change.content,
-                change.workspaceName
-              )
-              if (!created) {
-                // Log error, inform user, but continue applying other changes
-                Logger.error({
-                  function_name: 'handle_intelligent_update',
-                  message: 'Failed to create new file during apply phase',
-                  data: change.filePath
-                })
-                vscode.window.showWarningMessage(
-                  `Failed to create file: ${change.filePath}`
-                )
-              }
-            } else {
-              // Apply changes to existing file
-              const document = change.document
-              if (!document) {
-                Logger.warn({
-                  function_name: 'handle_intelligent_update',
-                  message: 'Document missing for existing file change',
-                  data: change.filePath
-                })
-                continue
-              }
-              try {
-                const editor = await vscode.window.showTextDocument(document)
-                await editor.edit((edit) => {
-                  edit.replace(
-                    new vscode.Range(
-                      document.positionAt(0),
-                      document.positionAt(document.getText().length) // Use current length for replacement range
-                    ),
-                    change.content // Apply the AI-generated content
-                  )
-                })
-                await format_document(document)
-                await document.save()
-              } catch (error) {
-                Logger.error({
-                  function_name: 'handle_intelligent_update',
-                  message: 'Failed to apply changes to existing file',
-                  data: { error, file_path: change.filePath }
-                })
-                vscode.window.showWarningMessage(
-                  `Failed to apply changes to file: ${change.filePath}`
-                )
-                // Continue applying other changes
-              }
-            }
-          }
-
-          operation_successful = true // Mark as successful if all applies finished (or were skipped gracefully)
-        } catch (error: any) {
-          cancel_token_source.cancel('Operation failed due to error.') // Cancel any pending requests
-          Logger.error({
-            function_name: 'handle_intelligent_update',
-            message: 'Multi-file processing failed',
-            data: error
-          })
-
-          if (
-            error.message !== 'Operation cancelled' &&
-            !axios.isCancel(error)
-          ) {
-            vscode.window.showErrorMessage(
-              `An error occurred during processing: ${error.message}`
-            )
-          }
-          // Do not set operation_successful = true
-        }
-      }
-    )
-
-    return operation_successful ? original_states : null
-  } else {
-    Logger.log({
-      function_name: 'handle_intelligent_update',
-      message: 'Processing single file'
-    })
-    // Single file
-    const editor = vscode.window.activeTextEditor
-
-    if (!editor) {
-      vscode.window.showErrorMessage('No active editor found.')
-      Logger.warn({
-        function_name: 'handle_intelligent_update',
-        message: 'No active editor found for single file mode.'
-      })
-      return null
-    }
-
-    const document = editor.document
-    let instruction = params.clipboard_text
-
-    // Remove first line if it's a comment containing a file path
-    const lines = instruction.split('\n')
-    if (lines.length > 0) {
-      const first_line = lines[0].trim()
-      if (
-        (first_line.startsWith('//') || first_line.startsWith('#')) &&
-        first_line.match(/(?:[\w\-./]+\/)*[\w\-.]+\.\w{1,10}/)
-      ) {
-        instruction = lines.slice(1).join('\n')
-      }
-    }
-
-    const document_text = document.getText()
-    const file_path = vscode.workspace.asRelativePath(document.uri)
-
-    // Store original content for potential reversion
-    const original_state: OriginalFileState = {
-      file_path: file_path,
-      content: document_text,
-      is_new: false
-      // workspace_name is not strictly needed for single file in active editor
-    }
-    const original_states = [original_state]
-
-    const cancel_token_source = axios.CancelToken.source()
-    let previous_length = 0
-    let result_content: string | null = null
-    let success = false
-
-    await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: 'Waiting for the updated file...',
-        cancellable: true
-      },
-      async (progress, token) => {
-        token.onCancellationRequested(() => {
-          cancel_token_source.cancel('Cancelled by user.')
-        })
-
-        try {
-          const process_result = await process_file({
-            endpoint_url: params.endpoint_url,
-            api_key: params.api_key,
-            model: params.model,
-            temperature: params.temperature,
-            file_path: file_path,
-            file_content: document_text, // Send current content
-            instruction,
-            cancel_token: cancel_token_source.token,
-            on_progress: (receivedLength, totalLength) => {
-              const actual_increment = receivedLength - previous_length
-              previous_length = receivedLength
-              const increment_percentage =
-                totalLength > 0 ? (actual_increment / totalLength) * 100 : 0
-              progress.report({
-                increment: increment_percentage > 0 ? increment_percentage : 0
+          } else {
+            // Apply changes to existing file
+            const document = change.document
+            if (!document) {
+              Logger.warn({
+                function_name: 'handle_intelligent_update',
+                message: 'Document missing for existing file change',
+                data: change.filePath
               })
+              continue
             }
-          })
-
-          // If process_file returned null (due to cancellation, empty response, or rate limit)
-          if (token.isCancellationRequested || !process_result) {
-            if (!token.isCancellationRequested) {
-              // process_file returned null, likely an error, empty response, or rate limit
-              // An error message is already shown in process_file for empty response/rate limit
+            try {
+              const editor = await vscode.window.showTextDocument(document)
+              await editor.edit((edit) => {
+                edit.replace(
+                  new vscode.Range(
+                    document.positionAt(0),
+                    document.positionAt(document.getText().length) // Use current length for replacement range
+                  ),
+                  change.content // Apply the AI-generated content
+                )
+              })
+              await format_document(document)
+              await document.save()
+            } catch (error) {
               Logger.error({
                 function_name: 'handle_intelligent_update',
-                message:
-                  'Single file processing failed (process_file returned null).'
+                message: 'Failed to apply changes to existing file',
+                data: { error, file_path: change.filePath }
               })
-            } else {
-              Logger.log({
-                function_name: 'handle_intelligent_update',
-                message: 'Single file processing cancelled.'
-              })
+              vscode.window.showWarningMessage(
+                `Failed to apply changes to file: ${change.filePath}`
+              )
+              // Continue applying other changes
             }
-            return // Stop progress
-          } else {
-            // No rate limit fallback needed, just use the result
-            result_content = process_result // Already cleaned
-            success = true
-            Logger.log({
-              function_name: 'handle_intelligent_update',
-              message: 'Single file processing successful.'
-            })
           }
-
-          // Ensure progress reaches 100%
-          const final_increment =
-            100 - (previous_length / document_text.length) * 100
-          progress.report({
-            increment: final_increment > 0 ? final_increment : 0
-          })
-        } catch (error) {
-          if (axios.isCancel(error)) {
-            Logger.log({
-              function_name: 'handle_intelligent_update',
-              message: 'Single file processing cancelled by axios.'
-            })
-            return // Silently return on cancellation
-          }
-          Logger.error({
-            function_name: 'handle_intelligent_update',
-            message: 'Single file refactoring error',
-            data: error
-          })
-          console.error('Refactoring error:', error)
-          vscode.window.showErrorMessage(
-            'An error occurred during refactoring. See console for details.'
-          )
         }
-      }
-    )
 
-    // Apply changes only if successful and content exists
-    if (success && result_content !== null) {
-      try {
-        const full_range = new vscode.Range(
-          document.positionAt(0),
-          document.positionAt(document.getText().length) // Use current length for range
-        )
-        await editor.edit((edit_builder) => {
-          edit_builder.replace(full_range, result_content!) // Apply AI content
-        })
-        await format_document(document)
-        await document.save()
-        return original_states // Return original state for revert functionality
-      } catch (error) {
+        operation_successful = true // Mark as successful if all applies finished (or were skipped gracefully)
+      } catch (error: any) {
+        cancel_token_source.cancel('Operation failed due to error.') // Cancel any pending requests
         Logger.error({
           function_name: 'handle_intelligent_update',
-          message: 'Failed to apply changes to single file editor',
+          message: 'Multi-file processing failed',
           data: error
         })
-        vscode.window.showErrorMessage('Failed to apply changes to the editor.')
-        return null
+
+        if (error.message !== 'Operation cancelled' && !axios.isCancel(error)) {
+          vscode.window.showErrorMessage(
+            `An error occurred during processing: ${error.message}`
+          )
+        }
+        // Do not set operation_successful = true
       }
-    } else {
-      Logger.log({
-        function_name: 'handle_intelligent_update',
-        message: 'Single file processing not successful or no content to apply.'
-      })
-      return null // Indicate failure or cancellation
     }
-  }
+  )
+
+  return operation_successful ? original_states : null
 }

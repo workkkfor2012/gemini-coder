@@ -133,12 +133,10 @@ export function apply_chat_response_command(params: {
         }
       }
     } else {
-      // Single file always uses Intelligent Update implicitly
-      selected_mode_label = 'Intelligent update'
-      Logger.log({
-        function_name: 'apply_chat_response_command',
-        message: 'Single file detected, using Intelligent update mode.'
-      })
+      vscode.window.showErrorMessage(
+        'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment. This is ensured by default system instructions for AI Studio, OpenRouter and Open WebUI.'
+      )
+      return
     }
 
     // --- Execute Mode Handler ---
@@ -206,7 +204,6 @@ export function apply_chat_response_command(params: {
         model: apply_chat_response_settings.model,
         temperature: apply_chat_response_settings.temperature || 0,
         clipboard_text,
-        is_multiple_files,
         context: params.context,
         is_single_root_folder_workspace
       })
@@ -295,7 +292,6 @@ export function apply_chat_response_command(params: {
             model: apply_chat_response_settings.model,
             temperature: apply_chat_response_settings.temperature || 0,
             clipboard_text,
-            is_multiple_files,
             context: params.context,
             is_single_root_folder_workspace
           })

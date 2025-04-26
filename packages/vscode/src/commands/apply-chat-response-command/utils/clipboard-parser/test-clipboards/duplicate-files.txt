@@ -1,7 +1,9 @@
-```typescript name=src/index.ts
+```typescript
+// src/index.ts
 First part
 ```
 
-```typescript name=src/index.ts
+```typescript
+// src/index.ts
 Second part
 ```
