@@ -17,7 +17,7 @@ function HomepageHeader() {
           {siteConfig.title}
         </Heading>
         <p className="hero__subtitle">
-          free AI coding
+          Free AI coding
         </p>
         <div className={styles.buttons}>
           <Link
