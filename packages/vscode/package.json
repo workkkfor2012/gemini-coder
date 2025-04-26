@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Gemini Coder - free AI coding",
   "description": "Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for code completions, file refactoring and applying chat responses.",
-  "version": "1.0.383",
+  "version": "1.0.384",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
