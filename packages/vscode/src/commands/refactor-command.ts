@@ -173,7 +173,7 @@ export function refactor_command(params: {
       .withProgress(
         {
           location: vscode.ProgressLocation.Notification,
-          title: 'Using API tool to refactor the file...',
+          title: 'Using API Tool to refactor the file...',
           cancellable: true
         },
         async (progress, token) => {

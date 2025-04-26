@@ -190,7 +190,7 @@ async function perform_code_completion(params: {
     vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Window,
-        title: 'Waiting for a completion...'
+        title: 'Using API Tool for code completion...'
       },
       async (progress) => {
         progress.report({ increment: 0 })

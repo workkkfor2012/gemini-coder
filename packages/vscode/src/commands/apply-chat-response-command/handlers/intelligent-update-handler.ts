@@ -306,7 +306,7 @@ export async function handle_intelligent_update(params: {
       new_files.length > 1 ? 's' : ''
     }`
   } else if (existing_files.length > 0) {
-    progress_title = `Using API tool to update ${existing_files.length} file${
+    progress_title = `Using API Tool to update ${existing_files.length} file${
       existing_files.length > 1 ? 's' : ''
     }...`
   } else {
