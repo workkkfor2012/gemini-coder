@@ -17,7 +17,9 @@ function HomepageHeader() {
           {siteConfig.title}
         </Heading>
         <p className="hero__subtitle">
-          Free AI coding
+          Copy folders and files for chatbots or initialize them hands-free! Use
+          the free Gemini API for code completions, file refactoring and
+          applying chat responses.
         </p>
         <div className={styles.buttons}>
           <Link

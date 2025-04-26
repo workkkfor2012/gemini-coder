@@ -1,8 +1,7 @@
 <div align="center">
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
-  <h1>Gemini Coder</h1>
-  <h2>Free AI coding</h2>
+  <h1>Gemini Coder - free AI coding</h1>
   <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
   Use the free Gemini API for code completions, file refactoring and applying chat responses.</h4>
   <br/>
