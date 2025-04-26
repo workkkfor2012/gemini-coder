@@ -3,7 +3,7 @@
   <br/>
   <h1>Gemini Coder - free AI coding</h1>
   <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
-  Use the free Gemini API for code completions, file refactoring and applying chat responses.</h4>
+  Use built-in API Tools for code completions, file refactoring and applying chat responses.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>

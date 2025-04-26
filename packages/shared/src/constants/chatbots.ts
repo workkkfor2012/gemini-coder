@@ -23,7 +23,7 @@ export const CHATBOTS = {
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions:
-      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line.\nExample of a code block with a file path in the first line:\n```typescript\n// src/filename.ts\ncontents of file\n```",
+      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line comment.\nExample of a code block with a file path in the first line comment:\n```typescript\n// src/filename.ts\ncontents of file\n```",
     supported_options: {
       // TODO
       // close sidebar
@@ -57,7 +57,7 @@ export const CHATBOTS = {
     supports_user_provided_model: true,
     supports_user_provided_port: true,
     default_system_instructions:
-      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line.\nExample of a code block with a file path in the first line:\n```typescript\n// src/filename.ts\ncontents of file\n```",
+      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line comment.\nExample of a code block with a file path in the first line comment:\n```typescript\n// src/filename.ts\ncontents of file\n```",
     supported_options: {},
     models: {}
   },
@@ -68,7 +68,7 @@ export const CHATBOTS = {
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions:
-      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line.\nExample of a code block with a file path in the first line:\n```typescript\n// src/filename.ts\ncontents of file\n```",
+      "You're a helpful coding assistant. Whenever proposing a file use the file block syntax.\nFiles must be represented as code blocks with their path in the first line comment.\nExample of a code block with a file path in the first line comment:\n```typescript\n// src/filename.ts\ncontents of file\n```",
     supported_options: {},
     models: {
       // Populated dynamically
