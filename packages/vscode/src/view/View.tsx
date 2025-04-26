@@ -23,25 +23,8 @@ export const View = () => {
   const [is_configuring_api_tools, set_is_configuring_api_tools] =
     useState(false)
   const [has_active_editor, set_has_active_editor] = useState(false)
-  const {
-    open_router_models,
-    request_open_router_models,
-    get_newly_picked_open_router_model
-  } = use_open_router_models(vscode)
-  const {
-    gemini_api_key,
-    open_router_api_key,
-    handle_gemini_api_key_change,
-    handle_open_router_api_key_change,
-    code_completions_settings,
-    file_refactoring_settings,
-    apply_chat_response_settings,
-    commit_message_settings,
-    handle_code_completions_settings_change,
-    handle_file_refactoring_settings_change,
-    handle_apply_chat_response_settings_change,
-    handle_commit_message_settings_change
-  } = use_api_tools_configuration(vscode)
+  const open_router_models_hook = use_open_router_models(vscode)
+  const api_tools_configuration_hook = use_api_tools_configuration(vscode)
   const chat_hook = use_chat()
 
   // --- START back click handling in edit preset form ---
@@ -69,8 +52,6 @@ export const View = () => {
   // --- END back click handling in edit preset form ---
 
   const handle_preview_preset = () => {
-    if (!updating_preset) return // Ensure there's a preset to preview
-
     vscode.postMessage({
       command: 'PREVIEW_PRESET',
       instruction: chat_hook.is_code_completions_mode
@@ -81,10 +62,10 @@ export const View = () => {
   }
 
   if (
-    !code_completions_settings ||
-    !file_refactoring_settings ||
-    !apply_chat_response_settings ||
-    !commit_message_settings
+    !api_tools_configuration_hook.code_completions_settings ||
+    !api_tools_configuration_hook.file_refactoring_settings ||
+    !api_tools_configuration_hook.apply_chat_response_settings ||
+    !api_tools_configuration_hook.commit_message_settings
   ) {
     return null
   }
@@ -143,10 +124,12 @@ export const View = () => {
         <EditPresetForm
           preset={updating_preset}
           on_update={set_updated_preset}
-          request_open_router_models={request_open_router_models}
-          open_router_models={open_router_models}
+          request_open_router_models={
+            open_router_models_hook.request_open_router_models
+          }
+          open_router_models={open_router_models_hook.open_router_models}
           get_newly_picked_open_router_model={
-            get_newly_picked_open_router_model
+            open_router_models_hook.get_newly_picked_open_router_model
           }
         />
       </EditView>
@@ -159,36 +142,50 @@ export const View = () => {
         }}
       >
         <ApiSettingsForm
-          gemini_api_key={gemini_api_key}
-          open_router_models={open_router_models}
+          gemini_api_key={api_tools_configuration_hook.gemini_api_key}
+          open_router_models={open_router_models_hook.open_router_models}
           gemini_api_models={Object.fromEntries(
             BUILT_IN_PROVIDERS.map((provider) => [
               provider.model,
               provider.name
             ])
           )}
-          open_router_api_key={open_router_api_key}
-          code_completions_settings={code_completions_settings}
-          file_refactoring_settings={file_refactoring_settings}
-          apply_chat_response_settings={apply_chat_response_settings}
-          commit_messages_settings={commit_message_settings}
+          open_router_api_key={api_tools_configuration_hook.open_router_api_key}
+          code_completions_settings={
+            api_tools_configuration_hook.code_completions_settings
+          }
+          file_refactoring_settings={
+            api_tools_configuration_hook.file_refactoring_settings
+          }
+          apply_chat_response_settings={
+            api_tools_configuration_hook.apply_chat_response_settings
+          }
+          commit_messages_settings={
+            api_tools_configuration_hook.commit_message_settings
+          }
           on_code_completions_settings_update={
-            handle_code_completions_settings_change
+            api_tools_configuration_hook.handle_code_completions_settings_change
           }
           on_file_refactoring_settings_update={
-            handle_file_refactoring_settings_change
+            api_tools_configuration_hook.handle_file_refactoring_settings_change
           }
           on_apply_chat_response_settings_update={
-            handle_apply_chat_response_settings_change
+            api_tools_configuration_hook.handle_apply_chat_response_settings_change
           }
           on_commit_messages_settings_update={
-            handle_commit_message_settings_change
+            api_tools_configuration_hook.handle_commit_message_settings_change
           }
-          on_gemini_api_key_change={handle_gemini_api_key_change}
-          on_open_router_api_key_change={handle_open_router_api_key_change}
-          request_open_router_models={request_open_router_models}
+          on_gemini_api_key_change={
+            api_tools_configuration_hook.handle_gemini_api_key_change
+          }
+          on_open_router_api_key_change={
+            api_tools_configuration_hook.handle_open_router_api_key_change
+          }
+          request_open_router_models={
+            open_router_models_hook.request_open_router_models
+          }
           get_newly_picked_open_router_model={
-            get_newly_picked_open_router_model
+            open_router_models_hook.get_newly_picked_open_router_model
           }
         />
       </EditView>
