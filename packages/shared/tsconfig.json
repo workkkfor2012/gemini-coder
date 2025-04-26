@@ -1,0 +1,24 @@
+{
+  "compilerOptions": {
+    "target": "ESNext", // Align with vscode tsconfig
+    "module": "CommonJS", // Align with vscode tsconfig
+    "lib": ["ESNext"], // Shared code likely doesn't need DOM
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "composite": true, // Useful if you build packages separately
+    "baseUrl": ".", // Keep it simple for shared
+    "paths": {
+      "@shared/*": ["./src/*"] // Optional: Allow imports within shared using @shared/
+    },
+    "types": ["jest"] // Add jest types for test files
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist", "**/*.spec.ts", "**/*.test.ts"] // Exclude tests from general compilation if using a separate build config
+}

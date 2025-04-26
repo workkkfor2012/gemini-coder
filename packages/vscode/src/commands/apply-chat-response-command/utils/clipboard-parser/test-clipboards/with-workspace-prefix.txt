@@ -1,3 +1,4 @@
-```typescript name=frontend/src/index.ts
+```typescript
+// frontend/src/index.ts
 console.log("hello")
 ```
