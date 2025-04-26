@@ -5,8 +5,9 @@ import type * as Preset from '@docusaurus/preset-classic'
 // This runs in Node.js - Don't use client-side code here (browser APIs, JSX...)
 
 const config: Config = {
-  title: 'Gemini Coder',
-  tagline: 'The 2M context AI coding assistant',
+  title: 'Gemini Coder - free AI coding',
+  tagline:
+    'Copy folders and files for chatbots or initialize them hands-free! Use the free Gemini API for code completions, file refactoring and applying chat responses.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here

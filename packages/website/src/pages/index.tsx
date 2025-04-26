@@ -16,11 +16,7 @@ function HomepageHeader() {
         <Heading as="h1" className="hero__title">
           {siteConfig.title}
         </Heading>
-        <p className="hero__subtitle">
-          Copy folders and files for chatbots or initialize them hands-free! Use
-          the free Gemini API for code completions, file refactoring and
-          applying chat responses.
-        </p>
+        <p className="hero__subtitle">{siteConfig.tagline}</p>
         <div className={styles.buttons}>
           <Link
             className="button button--secondary button--lg"
