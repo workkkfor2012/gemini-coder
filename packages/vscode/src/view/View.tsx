@@ -22,7 +22,7 @@ export const View = () => {
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_configuring_api_tools, set_is_configuring_api_tools] =
     useState(false)
-  const [has_active_editor, set_has_active_editor] = useState(false)
+
   const open_router_models_hook = use_open_router_models(vscode)
   const api_tools_configuration_hook = use_api_tools_configuration(vscode)
   const chat_hook = use_chat()
@@ -31,7 +31,7 @@ export const View = () => {
   const edit_preset_back_click_handler = () => {
     vscode.postMessage({
       command: 'UPDATE_PRESET',
-      original_name: updating_preset!.name,
+      updating_preset: updating_preset,
       updated_preset: updated_preset
     })
   }
@@ -42,8 +42,6 @@ export const View = () => {
       if (message.command == 'PRESET_UPDATED') {
         set_updated_preset(undefined)
         set_updating_preset(undefined)
-      } else if (message.command == 'EDITOR_STATE_CHANGED') {
-        set_has_active_editor(message.has_active_editor)
       }
     }
     window.addEventListener('message', handle_message)
@@ -92,7 +90,6 @@ export const View = () => {
         vscode={vscode}
         is_visible={active_tab == 'api'}
         on_configure_api_tools_click={() => set_is_configuring_api_tools(true)}
-        has_active_editor={has_active_editor}
       />
     </>
   )

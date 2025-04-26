@@ -905,14 +905,61 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               config.get<ConfigPresetFormat[]>('geminiCoder.presets', []) || []
 
             const preset_index = current_presets.findIndex(
-              (p) => p.name == update_msg.original_name
+              (p) => p.name == update_msg.updating_preset.name
             )
 
             if (preset_index != -1) {
+              const are_presets_equal = (a: Preset, b: Preset): boolean => {
+                return (
+                  a.name == b.name &&
+                  a.chatbot == b.chatbot &&
+                  a.prompt_prefix == b.prompt_prefix &&
+                  a.prompt_suffix == b.prompt_suffix &&
+                  a.model == b.model &&
+                  a.temperature == b.temperature &&
+                  a.system_instructions == b.system_instructions &&
+                  JSON.stringify(a.options) == JSON.stringify(b.options) &&
+                  a.port == b.port
+                )
+              }
+
+              const has_changes = !are_presets_equal(
+                update_msg.updating_preset,
+                update_msg.updated_preset
+              )
+
+              if (!has_changes) {
+                this._send_message<ExtensionMessage>({
+                  command: 'PRESET_UPDATED'
+                })
+                return
+              }
+
+              const save_changes_button = 'Update'
+              const keep_editing = 'Keep editing'
+              const result = await vscode.window.showInformationMessage(
+                'Please confirm',
+                {
+                  modal: true,
+                  detail: 'Are you sure you want to update this preset?'
+                },
+                save_changes_button,
+                keep_editing
+              )
+
+              if (result == keep_editing) return
+
+              if (result != save_changes_button) {
+                this._send_message<ExtensionMessage>({
+                  command: 'PRESET_UPDATED'
+                })
+                return
+              }
+
               const updated_ui_preset = { ...update_msg.updated_preset }
               let final_name = updated_ui_preset.name.trim()
 
-              // --- Start Uniqueness Check ---
+              // --- Start uniqueness check ---
               let is_unique = false
               let copy_number = 0
               const base_name = final_name
@@ -935,7 +982,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   copy_number++
                 }
               }
-              // --- End Uniqueness Check ---
+              // --- End uniqueness check ---
 
               // If the name had to be changed, update the preset object
               if (final_name != updated_ui_preset.name) {
@@ -958,9 +1005,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 'selectedPresets',
                 []
               )
-              if (selected_names.includes(update_msg.original_name)) {
+              if (selected_names.includes(update_msg.updating_preset.name)) {
                 const updated_selected_names = selected_names.map((name) =>
-                  name == update_msg.original_name ? final_name : name
+                  name == update_msg.updating_preset.name ? final_name : name
                 )
                 await this._context.globalState.update(
                   'selectedPresets',
@@ -979,14 +1026,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               })
             } else {
               console.error(
-                `Preset with original name "${update_msg.original_name}" not found.`
+                `Preset with original name "${update_msg.updating_preset.name}" not found.`
               )
               vscode.window.showErrorMessage(
-                `Could not update preset: Original preset "${update_msg.original_name}" not found.`
+                `Could not update preset: Original preset "${update_msg.updating_preset.name}" not found.`
               )
             }
           } else if (message.command == 'DELETE_PRESET') {
-            const presetName = (message as DeletePresetMessage).name
+            const preset_name = (message as DeletePresetMessage).name
             const config = vscode.workspace.getConfiguration()
             const current_presets =
               config.get<ConfigPresetFormat[]>('geminiCoder.presets', []) || []
@@ -994,8 +1041,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             // Show confirmation dialog with revert option
             const delete_button = 'Delete'
             const result = await vscode.window.showInformationMessage(
-              `Are you sure you want to delete the preset "${presetName}"?`,
-              { modal: true },
+              'Please confirm',
+              {
+                modal: true,
+                detail: `Are you sure you want to delete the preset "${preset_name}"?`
+              },
               delete_button
             )
 
@@ -1005,11 +1055,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             // Store the deleted preset and its index in case we need to revert
             const preset_index = current_presets.findIndex(
-              (p) => p.name == presetName
+              (p) => p.name == preset_name
             )
             const deleted_preset = current_presets[preset_index]
             const updated_presets = current_presets.filter(
-              (p) => p.name != presetName
+              (p) => p.name != preset_name
             )
 
             try {
@@ -1022,7 +1072,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               // Show notification with undo option
               const button_text = 'Undo'
               const undo_result = await vscode.window.showInformationMessage(
-                `Preset "${presetName}" has been deleted.`,
+                `Preset "${preset_name}" has been deleted.`,
                 button_text
               )
 
@@ -1037,7 +1087,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   vscode.ConfigurationTarget.Global
                 )
                 vscode.window.showInformationMessage(
-                  `Preset "${presetName}" restored`
+                  `Preset "${preset_name}" restored.`
                 )
               }
 
@@ -1049,9 +1099,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 'selectedPresets',
                 []
               )
-              if (selected_names.includes(presetName)) {
+              if (selected_names.includes(preset_name)) {
                 const updated_selected = selected_names.filter(
-                  (n) => n != presetName
+                  (n) => n != preset_name
                 )
                 await this._context.globalState.update(
                   'selectedPresets',
@@ -1129,12 +1179,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const new_preset: ConfigPresetFormat = {
               name: new_name,
               chatbot: 'AI Studio',
+              model: Object.keys(CHATBOTS['AI Studio'].models)[0],
               promptPrefix: '',
               promptSuffix: '',
-              model: undefined,
-              temperature: undefined,
-              systemInstructions: '',
-              options: undefined,
+              temperature: 0.5,
+              systemInstructions:
+                CHATBOTS['AI Studio'].default_system_instructions,
+              options: [],
               port: undefined
             }
 

@@ -109,7 +109,7 @@ export interface GetCurrentTokenCountMessage extends BaseMessage {
 
 export interface UpdatePresetMessage extends BaseMessage {
   command: 'UPDATE_PRESET'
-  original_name: string
+  updating_preset: Preset
   updated_preset: Preset
 }
 

@@ -1,4 +1,4 @@
-import { CHATBOTS } from '@shared/constants/chatbots'
+import { CHATBOTS } from '../constants/chatbots'
 
 export type Preset = {
   name: string
