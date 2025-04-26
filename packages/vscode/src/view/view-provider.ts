@@ -936,7 +936,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
 
               const save_changes_button = 'Update'
-              const keep_editing = 'Keep editing'
+              const discard_changes = 'Discard changes'
               const result = await vscode.window.showInformationMessage(
                 'Please confirm',
                 {
@@ -944,15 +944,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   detail: 'Are you sure you want to update this preset?'
                 },
                 save_changes_button,
-                keep_editing
+                discard_changes
               )
 
-              if (result == keep_editing) return
-
-              if (result != save_changes_button) {
+              if (result == discard_changes) {
                 this._send_message<ExtensionMessage>({
                   command: 'PRESET_UPDATED'
                 })
+                return
+              }
+
+              if (result != save_changes_button) {
                 return
               }
 
@@ -1044,7 +1046,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'Please confirm',
               {
                 modal: true,
-                detail: `Are you sure you want to delete the preset "${preset_name}"?`
+                detail: 'Are you sure you want to delete this preset?'
               },
               delete_button
             )
