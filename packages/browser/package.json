@@ -8,6 +8,7 @@
   "devDependencies": {
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
     "@svgr/webpack": "^8.1.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "20.x",
     "@types/turndown": "^5.0.5",
     "@types/webextension-polyfill": "^0.12.3",
