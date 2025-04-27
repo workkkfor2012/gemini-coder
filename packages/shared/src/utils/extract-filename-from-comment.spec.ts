@@ -7,6 +7,12 @@ describe('extract_filename_from_comment', () => {
     )
   })
 
+  it('should extract filename from // comment', () => {
+    expect(extract_filename_from_comment('// [path]/(to)/file.ts')).toBe(
+      '[path]/(to)/file.ts'
+    )
+  })
+
   it('should extract filename from // comment starting with dot', () => {
     expect(extract_filename_from_comment('// .gitignore')).toBe('.gitignore')
   })

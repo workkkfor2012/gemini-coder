@@ -10,10 +10,16 @@ export const extract_filename_from_comment = (line: string): string | null => {
     .replace(/^(?:\/\/|#|--|\/\*|\*)\s*/, '')
     .trim()
 
-  // Match hidden files (e.g., .gitignore) or regular files with a valid extension
-  const path_match = stripped.match(/(?:[\w\-\.\/]+\/)*(?:\.[\w\-.]+|[\w\-.]+\.\w{1,10})/)
+  // Match a path pattern that can include special characters like (), [], etc.
+  // First, try to match until the first whitespace or end of string
+  const path_match = stripped.match(/^([^\s]+)/)
   if (path_match) {
-    return path_match[0]
+    const potential_path = path_match[1]
+
+    // Check if it has an extension
+    if (/\.\w{1,10}$/.test(potential_path)) {
+      return potential_path
+    }
   }
 
   return null
