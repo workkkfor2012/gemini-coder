@@ -1,7 +1,7 @@
 import { Chatbot } from '../types/chatbot'
 import { ApplyChatResponseMessage } from '@/types/messages'
 import { debounce } from '@/utils/debounce'
-import { extract_filename_from_comment } from '@shared/utils/extract-filename-from-comment'
+import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 import browser from 'webextension-polyfill'
 
 const apply_chat_response_button_style = (button: HTMLButtonElement) => {
@@ -181,7 +181,7 @@ export const ai_studio: Chatbot = {
           ) as HTMLElement
           if (
             code_block?.textContent &&
-            extract_filename_from_comment(code_block.textContent)
+            extract_path_from_comment(code_block.textContent)
           ) {
             has_eligible_block = true
           }

@@ -1,5 +1,5 @@
 import { cleanup_api_response } from '@/helpers/cleanup-api-response'
-import { extract_filename_from_comment } from '@shared/utils/extract-filename-from-comment'
+import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 
 export interface ClipboardFile {
   file_path: string
@@ -114,7 +114,7 @@ export const parse_clipboard_multiple_files = (params: {
             line.trim().startsWith('/*') ||
             line.trim().startsWith('*')
           ) {
-            const extracted_filename = extract_filename_from_comment(line)
+            const extracted_filename = extract_path_from_comment(line)
             if (extracted_filename) {
               const { workspace_name, relative_path } =
                 extract_workspace_and_path(
@@ -187,7 +187,7 @@ export const is_multiple_files_clipboard = (clipboard_text: string): boolean => 
             secondLine.startsWith('#') ||
             secondLine.startsWith('/*') ||
             secondLine.startsWith('*')) &&
-          extract_filename_from_comment(secondLine)
+          extract_path_from_comment(secondLine)
         ) {
           return true
         }
