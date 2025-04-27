@@ -1,6 +1,5 @@
 import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
-import { inject_apply_response_button } from './inject-apply-chat-response-buttons'
 import { openrouter } from './chatbots/openrouter'
 import { open_webui } from './chatbots/open-webui'
 import { deepseek } from './chatbots/deepseek'
@@ -173,19 +172,17 @@ const enter_message_and_send = async (params: {
 }
 
 const initialize_chat = async (params: { message: string; chat: Chat }) => {
-  if (chatbot) {
-    if (params.chat.model && chatbot.set_model) {
-      await chatbot.set_model(params.chat.model)
-    }
-    if (params.chat.system_instructions && chatbot.enter_system_instructions) {
-      await chatbot.enter_system_instructions(params.chat.system_instructions)
-    }
-    if (params.chat.temperature && chatbot.set_temperature) {
-      await chatbot.set_temperature(params.chat.temperature)
-    }
-    if (params.chat.options && chatbot.set_options) {
-      await chatbot.set_options(params.chat.options)
-    }
+  if (params.chat.model && chatbot?.set_model) {
+    await chatbot.set_model(params.chat.model)
+  }
+  if (params.chat.system_instructions && chatbot?.enter_system_instructions) {
+    await chatbot.enter_system_instructions(params.chat.system_instructions)
+  }
+  if (params.chat.temperature && chatbot?.set_temperature) {
+    await chatbot.set_temperature(params.chat.temperature)
+  }
+  if (params.chat.options && chatbot?.set_options) {
+    await chatbot.set_options(params.chat.options)
   }
 
   enter_message_and_send({
@@ -232,7 +229,7 @@ const main = async () => {
     return
   }
 
-  if (chatbot && chatbot.wait_until_ready) {
+  if (chatbot?.wait_until_ready) {
     await chatbot.wait_until_ready()
   }
 
@@ -244,10 +241,9 @@ const main = async () => {
   // Clean up the storage entry after using it
   await browser.storage.local.remove(storage_key)
 
-  inject_apply_response_button({
-    client_id: stored_data.client_id,
-    is_ai_studio
-  })
+  if (chatbot?.inject_apply_response_button) {
+    chatbot.inject_apply_response_button(stored_data.client_id)
+  }
 }
 
 if (document.readyState == 'loading') {

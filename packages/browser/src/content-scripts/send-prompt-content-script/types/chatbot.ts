@@ -4,4 +4,5 @@ export type Chatbot = {
   set_model?: (model: string) => Promise<void>
   set_temperature?: (temperature: number) => Promise<void>
   enter_system_instructions?: (instructions: string) => Promise<void>
+  inject_apply_response_button?: (client_id: number) => void
 }
