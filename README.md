@@ -22,7 +22,7 @@
 
 Gemini Coder lets you conveniently copy folders and files for chatbots. With the Connector browser extension you can initalize them hands-free!
 
-The extension uses the same context for built-in API tools: **code completions** and **file refactoring**. Hit **apply chat response** to integrate multi-file updates with just a single click.
+The extension uses the same context for built-in API Tools: **code completions** and **file refactoring**.
 
 <br/>
 
