@@ -9,11 +9,9 @@ Gemini Coder lets you conveniently copy folders and files for chatbots. With the
 
 The extension uses the same context for built-in API tools: **code completions** and **file refactoring**. Hit **apply chat response** to integrate multi-file updates with just a single click.
 
-<br/>
-
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 
-<br/>
+<br/><br/>
 
 - **100% free & open source:** MIT License
 - **Explorer view:** Intuitive context selection
