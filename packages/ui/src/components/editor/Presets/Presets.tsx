@@ -122,8 +122,8 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 }}
                 role="button"
                 title={
-                  preset.name + props.disabled
-                    ? ' (Unavailable for code completion due to affixes)'
+                  props.disabled
+                    ? 'Unavailable for code completions due to affixes'
                     : ''
                 }
               >
