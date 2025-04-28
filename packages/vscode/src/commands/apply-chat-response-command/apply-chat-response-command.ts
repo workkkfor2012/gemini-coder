@@ -305,7 +305,7 @@ export function apply_chat_response_command(params: {
               .showInformationMessage(
                 `Successfully updated ${file_count} ${
                   file_count > 1 ? 'files' : 'file'
-                } using API tool.`,
+                }.`,
                 'Revert'
               )
               .then((response) => {
