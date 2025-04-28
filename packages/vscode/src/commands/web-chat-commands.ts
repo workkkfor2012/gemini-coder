@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
+import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 
 // Shared logic extracted to a helper function
 async function handle_chat_command(
@@ -13,8 +14,8 @@ async function handle_chat_command(
 ) {
   // Get instruction from user
   const last_chat_prompt =
-    context.workspaceState.get<string>('lastChatPrompt') || ''
-  const instruction = await vscode.window.showInputBox({
+    context.workspaceState.get<string>('last-chat-prompt') || ''
+  let instruction = await vscode.window.showInputBox({
     prompt: 'E.g. Our task is to...',
     placeHolder: 'Ask anything',
     value: last_chat_prompt
@@ -24,7 +25,14 @@ async function handle_chat_command(
     return // User cancelled
   }
 
-  await context.workspaceState.update('lastChatPrompt', instruction)
+  await context.workspaceState.update('last-chat-prompt', instruction)
+
+  const current_history = context.workspaceState.get<string[]>(
+    'chat-history',
+    []
+  )
+  const updated_history = [instruction, ...current_history].slice(0, 100)
+  await context.workspaceState.update('chat-history', updated_history)
 
   // Files Collection using FilesCollector
   const files_collector = new FilesCollector(
@@ -43,28 +51,25 @@ async function handle_chat_command(
     return
   }
 
-  // Apply prefixes and suffixes to the instruction
-  const modified_instruction = apply_preset_affixes_to_instruction(
-    instruction,
-    preset_names
+  instruction = replace_selection_placeholder(instruction)
+  instruction = apply_preset_affixes_to_instruction(instruction, preset_names)
+
+  const config = vscode.workspace.getConfiguration()
+  const chat_style_instructions = config.get<string>(
+    'geminiCoder.chatStyleInstructions',
+    ''
   )
 
-  const final_text = `${
-    context_text
-      ? `${modified_instruction}\n<files>\n${context_text}</files>\n`
-      : ''
-  }${modified_instruction}`
+  if (chat_style_instructions) {
+    instruction += `\n${chat_style_instructions}`
+  }
 
-  // Add to chat history
-  const current_history = context.workspaceState.get<string[]>(
-    'chat-history',
-    []
-  )
-  const updated_history = [instruction, ...current_history].slice(0, 100)
-  await context.workspaceState.update('chat-history', updated_history)
+  const text = `${
+    context_text ? `${instruction}\n<files>\n${context_text}</files>\n` : ''
+  }${instruction}`
 
   // Initialize chats with selected preset names
-  websocket_server_instance.initialize_chats(final_text, preset_names)
+  websocket_server_instance.initialize_chats(text, preset_names)
 }
 
 // For single preset selection

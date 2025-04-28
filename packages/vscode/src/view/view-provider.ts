@@ -44,6 +44,7 @@ import axios from 'axios'
 import { Logger } from '@/helpers/logger'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
+import { replace_selection_placeholder } from '../utils/replace-selection-placeholder' // Import the utility function
 
 type ConfigPresetFormat = {
   name: string
@@ -336,40 +337,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  // Helper method to replace @selection with selected text
-  private _replace_selection_placeholder(instruction: string): string {
-    if (!instruction.includes('@selection')) {
-      return instruction
-    }
-
-    const active_editor = vscode.window.activeTextEditor
-    if (!active_editor || active_editor.selection.isEmpty) {
-      // If no selection, just return the original instruction
-      vscode.window.showInformationMessage(
-        'No text selected for @selection placeholder.'
-      )
-      return instruction.replace(/@selection/g, '')
-    }
-
-    const selected_text = active_editor.document.getText(
-      active_editor.selection
-    )
-
-    // Check if the selected text is a single line
-    const is_single_line = !selected_text.includes('\n')
-
-    if (is_single_line) {
-      // For single-line text, wrap with single backticks
-      return instruction.replace(/@selection/g, `\`${selected_text}\``)
-    } else {
-      // For multi-line text, wrap with triple backticks as before
-      return instruction.replace(
-        /@selection/g,
-        `\n\`\`\`\n${selected_text}\n\`\`\`\n`
-      )
-    }
-  }
-
   // Inside ChatViewProvider class, add this new helper method
   private async _validate_presets(preset_names: string[]): Promise<string[]> {
     // Get current presets from configuration
@@ -640,9 +607,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               const context_text = await files_collector.collect_files({
                 active_path
               })
-              let instruction = this._replace_selection_placeholder(
-                message.instruction
-              )
+
+              let instruction = message.instruction
+              instruction = replace_selection_placeholder(instruction)
               instruction = apply_preset_affixes_to_instruction(
                 instruction,
                 valid_preset_names
@@ -653,8 +620,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 'geminiCoder.chatStyleInstructions',
                 ''
               )
+
               if (chat_style_instructions) {
-                instruction += '\n' + chat_style_instructions
+                instruction += `\n${chat_style_instructions}`
               }
 
               const text = `${
@@ -733,7 +701,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               })
 
               // Replace @selection with selected text if present
-              let instruction = this._replace_selection_placeholder(
+              let instruction = replace_selection_placeholder(
+                // Use imported function
                 preview_msg.instruction
               )
 
@@ -809,14 +778,26 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              // Replace @selection with selected text if present
-              const instruction = this._replace_selection_placeholder(
+              let instruction = replace_selection_placeholder(
+                // Use imported function
                 message.instruction
               )
 
+              const config = vscode.workspace.getConfiguration()
+              const chat_style_instructions = config.get<string>(
+                'geminiCoder.chatStyleInstructions',
+                ''
+              )
+              if (chat_style_instructions) {
+                instruction += `\n${chat_style_instructions}`
+              }
+
               const text = `${
-                context_text ? `<files>\n${context_text}</files>\n` : ''
+                context_text
+                  ? `${instruction}\n<files>\n${context_text}</files>\n`
+                  : ''
               }${instruction}`
+
               await vscode.env.clipboard.writeText(text)
             }
 

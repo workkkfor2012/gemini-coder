@@ -285,7 +285,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'Use state-of-the-art models for top-quality inline code completions. The tool attaches selected context in each request.',
+          'Use state-of-the-art models for top-quality code completions. The tool attaches selected context in each request.',
         settings: props.code_completions_settings,
         on_update: props.on_code_completions_settings_update
       })}
