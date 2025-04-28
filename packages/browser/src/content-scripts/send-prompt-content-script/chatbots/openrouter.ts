@@ -53,6 +53,7 @@ export const openrouter: Chatbot = {
       }
       check_for_element()
     })
+    await new Promise((resolve) => setTimeout(resolve, 500))
   },
   enter_system_instructions: async (system_instructions: string) => {
     const options_button = Array.from(
