@@ -15,7 +15,7 @@ The extension uses the same context for built-in API Tools: **code completions**
 
 - **100% free & open source:** MIT License
 - **Explorer view:** Intuitive context selection
-- **Versitale:** Initializes all major chatbots
+- **Versitale:** Not limited to Gemini or AI Studio
 - **API Tools with your keys**: Gemini API or OpenRouter
 - **Private:** Does not collect any usage data
 - **Local:** WebSockets for local browser communication
