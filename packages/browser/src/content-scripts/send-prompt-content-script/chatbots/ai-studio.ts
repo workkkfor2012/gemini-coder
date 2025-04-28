@@ -21,39 +21,24 @@ const handle_apply_chat_response_button_click = (
   clicked_button: HTMLButtonElement,
   client_id: number
 ) => {
-  // Find the parent chat-turn-container
-  const chat_turn_container = clicked_button.closest('.chat-turn-container')
-  if (!chat_turn_container) return
-
-  // Set disabled state of the injected button
-  const custom_buttons = chat_turn_container.querySelectorAll('button')
-
-  custom_buttons.forEach((button) => {
-    if (button.textContent == 'Apply response') {
-      ;(button as HTMLButtonElement).disabled = true
-      ;(button as HTMLButtonElement).style.opacity = '50%'
-      ;(button as HTMLButtonElement).style.cursor = 'not-allowed'
-    }
-  })
-
-  // Find options button of the response
+  clicked_button.disabled = true
+  clicked_button.style.opacity = '50%'
+  clicked_button.style.cursor = 'not-allowed'
+  const chat_turn_container = clicked_button.closest('.chat-turn-container')!
   const options = chat_turn_container.querySelector(
     'ms-chat-turn-options > div > button'
-  )
-  if (options) {
-    ;(options as any).click()
-    const markdown_copy_button = Array.from(
-      document.querySelectorAll('button')
-    ).find((button) => button.textContent?.includes('markdown_copy'))
-
-    if (markdown_copy_button) {
-      ;(markdown_copy_button as any).click()
-      browser.runtime.sendMessage({
-        action: 'apply-chat-response',
-        client_id
-      } as ApplyChatResponseMessage)
-    }
-  }
+  ) as HTMLElement
+  options.click()
+  const markdown_copy_button = Array.from(
+    document.querySelectorAll('button')
+  ).find((button) =>
+    button.textContent?.includes('markdown_copy')
+  ) as HTMLElement
+  markdown_copy_button.click()
+  browser.runtime.sendMessage({
+    action: 'apply-chat-response',
+    client_id
+  } as ApplyChatResponseMessage)
 }
 
 export const ai_studio: Chatbot = {
@@ -164,30 +149,21 @@ export const ai_studio: Chatbot = {
           return
         }
 
-        // TODO Remove checking for name attribute a few weeks from 18 Apr 2025
+        const first_line_comments_of_code_blocks = chat_turn.querySelectorAll(
+          'ms-code-block code > span.hljs-comment:first-child'
+        )
         let has_eligible_block = false
-
-        const language_span = chat_turn.querySelector(
-          'ms-code-block footer > span.language'
-        ) as HTMLSpanElement
-
-        if (language_span?.textContent?.includes('name=')) {
-          has_eligible_block = true
-        }
-
-        if (!has_eligible_block) {
-          const code_block = chat_turn.querySelector(
-            'ms-code-block code > span.hljs-comment:first-child'
-          ) as HTMLElement
+        for (const code_block of Array.from(
+          first_line_comments_of_code_blocks
+        )) {
           if (
             code_block?.textContent &&
             extract_path_from_comment(code_block.textContent)
           ) {
             has_eligible_block = true
+            break
           }
         }
-
-        // Only proceed if we found at least one code block with a name attribute or filename comment
         if (!has_eligible_block) return
 
         const create_apply_response_button = () => {
