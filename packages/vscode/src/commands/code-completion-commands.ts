@@ -189,11 +189,15 @@ async function perform_code_completion(params: {
 
     vscode.window.withProgress(
       {
-        location: vscode.ProgressLocation.Window,
-        title: 'Using API Tool for code completion...'
+        location: vscode.ProgressLocation.Notification,
+        title: 'Waiting for code completion...',
+        cancellable: true
       },
-      async (progress) => {
-        progress.report({ increment: 0 })
+      async (_, token) => {
+        token.onCancellationRequested(() => {
+          cancel_token_source.cancel('User cancelled the operation')
+        })
+
         try {
           const completion = await make_api_request(
             connection_details.endpoint_url,
@@ -233,7 +237,6 @@ async function perform_code_completion(params: {
           })
         } finally {
           cursor_listener.dispose()
-          progress.report({ increment: 100 })
         }
       }
     )
