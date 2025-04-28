@@ -1,5 +1,6 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
+import * as fs from 'fs'
 import { create_safe_path } from '../utils/path-sanitizer'
 
 export function new_folder_command() {
@@ -35,6 +36,17 @@ export function new_folder_command() {
           'Could not determine location to create folder'
         )
         return
+      }
+
+      // Check if the parent_path is a file and not a directory
+      try {
+        const stats = fs.statSync(parent_path)
+        if (!stats.isDirectory()) {
+          // If it's a file, use its parent directory
+          parent_path = path.dirname(parent_path)
+        }
+      } catch (error) {
+        // If the path doesn't exist, we'll create it later
       }
 
       // Ask user for folder name
