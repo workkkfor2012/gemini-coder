@@ -151,7 +151,7 @@ const enter_message_and_send = async (params: {
     params.input_element.dispatchEvent(new Event('input', { bubbles: true }))
     params.input_element.dispatchEvent(new Event('change', { bubbles: true }))
     await new Promise((r) => requestAnimationFrame(r))
-    if (is_openrouter) {
+    if (is_openrouter || is_mistral) {
       await new Promise((r) => setTimeout(r, 500))
     }
     if (form && !is_github_copilot) {
