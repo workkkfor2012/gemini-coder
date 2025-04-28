@@ -113,7 +113,8 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 key={i}
                 className={cn(styles.presets__item, {
                   [styles['presets__item--highlighted']]:
-                    highlighted_preset_name == preset.name
+                    highlighted_preset_name == preset.name,
+                  [styles['presets__item--disabled']]: is_disabled_in_fim
                 })}
                 onClick={() => {
                   if (is_disabled_in_fim) return
@@ -122,9 +123,9 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 }}
                 role="button"
                 title={
-                  props.disabled
-                    ? 'Unavailable for code completions due to affixes'
-                    : ''
+                  is_disabled_in_fim
+                    ? `${preset.name} (Unavailable for code completions due to affixes)`
+                    : preset.name
                 }
               >
                 <div className={styles.presets__item__left}>

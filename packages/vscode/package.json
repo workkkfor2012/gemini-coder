@@ -275,7 +275,7 @@
       },
       {
         "command": "geminiCoder.generateCommitMessage",
-        "title": "Generate Commit Message with Gemini Coder's API Tool",
+        "title": "Generate Commit Message with Gemini Coder",
         "category": "Gemini Coder",
         "icon": "$(sparkle)"
       }

@@ -57,6 +57,10 @@
       }
     }
 
+    &--disabled {
+      cursor: not-allowed;
+    }
+
     &__left {
       display: flex;
       align-items: center;

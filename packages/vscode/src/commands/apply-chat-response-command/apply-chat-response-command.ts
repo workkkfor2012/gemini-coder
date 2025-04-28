@@ -175,7 +175,7 @@ export function apply_chat_response_command(params: {
 
       if (!apply_chat_response_settings.provider) {
         vscode.window.showErrorMessage(
-          'API provider is not specified for Apply Chat Response tool. Please configure them in API Tools -> Configuration.'
+          'API provider is not specified for Apply Chat Response tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
         )
         Logger.warn({
           function_name: 'apply_chat_response_command',
@@ -184,7 +184,7 @@ export function apply_chat_response_command(params: {
         return
       } else if (!apply_chat_response_settings.model) {
         vscode.window.showErrorMessage(
-          'Model is not specified for Apply Chat Response tool. Please configure them in API Tools -> Configuration.'
+          'Model is not specified for Apply Chat Response tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
         )
         Logger.warn({
           function_name: 'apply_chat_response_command',
@@ -276,7 +276,7 @@ export function apply_chat_response_command(params: {
             !apply_chat_response_settings.model
           ) {
             vscode.window.showErrorMessage(
-              'API provider or model is not configured for Intelligent update. Please configure them in API Tools -> Configuration.'
+              'API provider or model is not configured for Intelligent update. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
             )
             return
           }
