@@ -583,7 +583,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 exclude_path: active_path
               })
 
-              // relative path
               const workspace_folder =
                 vscode.workspace.workspaceFolders?.[0].uri.fsPath
               const relative_path = active_path!.replace(
@@ -675,7 +674,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 exclude_path: active_path
               })
 
-              // relative path
               const workspace_folder =
                 vscode.workspace.workspaceFolders?.[0].uri.fsPath
               const relative_path = active_path!.replace(
@@ -700,13 +698,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              // Replace @selection with selected text if present
               let instruction = replace_selection_placeholder(
-                // Use imported function
                 preview_msg.instruction
               )
 
-              // Apply prefix and suffix from the single preset
               if (preview_msg.preset.prompt_prefix) {
                 instruction =
                   preview_msg.preset.prompt_prefix + '\n' + instruction
@@ -757,7 +752,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 exclude_path: active_path
               })
 
-              // relative path
               const workspace_folder =
                 vscode.workspace.workspaceFolders?.[0].uri.fsPath
               const relative_path = active_path.replace(
@@ -765,11 +759,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const text = `<files>\n${context_text}<file path="${relative_path}"><![CDATA[${text_before_cursor}<missing text>${text_after_cursor}]]>\n</file>\n</files>\n${code_completion_instruction_external}${
+              const instructions = `${code_completion_instruction_external}${
                 message.instruction
                   ? ` Follow suggestions: ${message.instruction}`
                   : ''
               }`
+
+              const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
               await vscode.env.clipboard.writeText(text)
             } else if (!this._is_code_completions_mode) {
