@@ -13,18 +13,27 @@ export function chat_to_clipboard_command(
       const last_chat_prompt =
         context.workspaceState.get<string>('last-chat-prompt') || ''
 
-      let instruction = await vscode.window.showInputBox({
-        prompt: 'Ask anything',
-        placeHolder: 'e.g., "Our task is to..."',
-        value: last_chat_prompt
+      const input_box = vscode.window.createInputBox()
+      input_box.prompt = 'Ask anything'
+      input_box.placeholder = 'e.g., "Our task is to..."'
+      input_box.value = last_chat_prompt
+
+      input_box.onDidChangeValue(async (value) => {
+        await context.workspaceState.update('last-chat-prompt', value)
+      })
+
+      let instruction = await new Promise<string | undefined>((resolve) => {
+        input_box.onDidAccept(() => {
+          resolve(input_box.value)
+          input_box.hide()
+        })
+        input_box.onDidHide(() => resolve(undefined))
+        input_box.show()
       })
 
       if (!instruction) {
         return // User cancelled
       }
-
-      // Save the instruction for next time
-      await context.workspaceState.update('last-chat-prompt', instruction)
 
       const current_history = context.workspaceState.get<string[]>(
         'chat-history',

@@ -15,17 +15,28 @@ async function handle_chat_command(
   // Get instruction from user
   const last_chat_prompt =
     context.workspaceState.get<string>('last-chat-prompt') || ''
-  let instruction = await vscode.window.showInputBox({
-    prompt: 'E.g. Our task is to...',
-    placeHolder: 'Ask anything',
-    value: last_chat_prompt
+
+  const input_box = vscode.window.createInputBox()
+  input_box.prompt = 'E.g. Our task is to...'
+  input_box.placeholder = 'Ask anything'
+  input_box.value = last_chat_prompt
+
+  input_box.onDidChangeValue(async (value) => {
+    await context.workspaceState.update('last-chat-prompt', value)
+  })
+
+  let instruction = await new Promise<string | undefined>((resolve) => {
+    input_box.onDidAccept(() => {
+      resolve(input_box.value)
+      input_box.hide()
+    })
+    input_box.onDidHide(() => resolve(undefined))
+    input_box.show()
   })
 
   if (!instruction) {
     return // User cancelled
   }
-
-  await context.workspaceState.update('last-chat-prompt', instruction)
 
   const current_history = context.workspaceState.get<string[]>(
     'chat-history',
