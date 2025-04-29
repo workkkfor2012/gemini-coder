@@ -56,7 +56,6 @@ async function check_if_all_files_new(
 export function apply_chat_response_command(params: {
   command: string
   context: vscode.ExtensionContext
-  use_default_model?: boolean
   mode?: 'Fast replace' | 'Intelligent update'
 }) {
   return vscode.commands.registerCommand(params.command, async () => {

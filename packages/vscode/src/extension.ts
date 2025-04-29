@@ -32,10 +32,15 @@ import {
 let websocket_server_instance: WebSocketManager | null = null
 
 export async function activate(context: vscode.ExtensionContext) {
-  websocket_server_instance = new WebSocketManager(context)
-
   const { workspace_provider, open_editors_provider, websites_provider } =
     context_initialization(context)
+
+  if (!workspace_provider || !open_editors_provider || !websites_provider) {
+    // No workspace opened
+    return
+  }
+
+  websocket_server_instance = new WebSocketManager(context, websites_provider)
 
   const migrations = async () => {
     // Migrate Gemini API key from settings to global state
@@ -76,21 +81,15 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     apply_chat_response_command({
       command: 'geminiCoder.applyChatResponse',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
       context
     }),
     apply_chat_response_command({
       command: 'geminiCoder.applyChatResponseFastReplace',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
       context,
       mode: 'Fast replace'
     }),
     apply_chat_response_command({
       command: 'geminiCoder.applyChatResponseIntelligentUpdate',
-      file_tree_provider: workspace_provider,
-      open_editors_provider: open_editors_provider,
       context,
       mode: 'Intelligent update'
     }),

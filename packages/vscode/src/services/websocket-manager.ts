@@ -30,7 +30,7 @@ export class WebSocketManager {
 
   constructor(
     context: vscode.ExtensionContext,
-    websites_provider?: WebsitesProvider
+    websites_provider: WebsitesProvider
   ) {
     this.context = context
     this.websites_provider = websites_provider || null

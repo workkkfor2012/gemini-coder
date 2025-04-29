@@ -12,9 +12,9 @@ import { select_saved_context_command } from '../commands/select-saved-context-c
 export const token_count_emitter = new EventEmitter()
 
 export function context_initialization(context: vscode.ExtensionContext): {
-  workspace_provider: WorkspaceProvider | undefined
-  open_editors_provider: OpenEditorsProvider | undefined
-  websites_provider: WebsitesProvider | undefined
+  workspace_provider?: WorkspaceProvider
+  open_editors_provider?: OpenEditorsProvider
+  websites_provider?: WebsitesProvider
 } {
   const workspace_folders = vscode.workspace.workspaceFolders
 
@@ -25,11 +25,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
     vscode.window.showInformationMessage(
       'Please open a project to use Gemini Coder.'
     )
-    return {
-      workspace_provider: undefined,
-      open_editors_provider: undefined,
-      websites_provider: undefined
-    }
+    return {}
   }
 
   // Pass all workspace folders to the workspace provider
@@ -416,8 +412,8 @@ export function context_initialization(context: vscode.ExtensionContext): {
   }, 1000) // Wait for 1 second to ensure VS Code has fully loaded
 
   return {
-    workspace_provider: workspace_provider,
-    open_editors_provider: open_editors_provider,
-    websites_provider: websites_provider
+    workspace_provider,
+    open_editors_provider,
+    websites_provider
   }
 }
