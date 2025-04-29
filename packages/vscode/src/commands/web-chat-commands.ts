@@ -17,7 +17,6 @@ async function handle_chat_command(
     context.workspaceState.get<string>('last-chat-prompt') || ''
 
   const input_box = vscode.window.createInputBox()
-  input_box.prompt = 'E.g. Our task is to...'
   input_box.placeholder = 'Ask anything'
   input_box.value = last_chat_prompt
 
