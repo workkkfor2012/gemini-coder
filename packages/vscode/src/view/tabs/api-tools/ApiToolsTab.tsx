@@ -66,7 +66,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
   }
 
   const code_completion_title = has_active_editor
-    ? 'Get code completion at the caret position'
+    ? 'Insert code completion at the caret position'
     : 'Requires an active editor'
 
   const refactor_title = has_active_editor
@@ -91,7 +91,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
           disabled={!has_active_editor}
           title={code_completion_title}
         >
-          Get Code Completion
+          Insert Code Completion
         </Button>
         <Button
           on_click={() => handle_execute_command('geminiCoder.refactor')}
