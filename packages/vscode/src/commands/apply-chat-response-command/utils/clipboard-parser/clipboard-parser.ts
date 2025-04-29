@@ -42,6 +42,12 @@ export const parse_clipboard_multiple_files = (params: {
   clipboard_text: string
   is_single_root_folder_workspace: boolean
 }): ClipboardFile[] => {
+  // Check if it's a file-content-only format first
+  const file_content_result = parse_file_content_only(params)
+  if (file_content_result) {
+    return [file_content_result]
+  }
+
   // Use Map to keep track of files by their unique identifier (workspace+path)
   const files_map = new Map<string, ClipboardFile>()
 
@@ -170,7 +176,59 @@ export const parse_clipboard_multiple_files = (params: {
   return Array.from(files_map.values())
 }
 
-export const is_multiple_files_clipboard = (clipboard_text: string): boolean => {
+export const parse_file_content_only = (params: {
+  clipboard_text: string
+  is_single_root_folder_workspace: boolean
+}): ClipboardFile | null => {
+  const lines = params.clipboard_text.trim().split('\n')
+
+  // Check if the first line looks like a file path comment
+  if (lines.length < 2) return null
+
+  const first_line = lines[0].trim()
+  if (
+    !(
+      first_line.startsWith('//') ||
+      first_line.startsWith('#') ||
+      first_line.startsWith('--') ||
+      first_line.startsWith('/*') ||
+      first_line.startsWith('*')
+    )
+  ) {
+    return null
+  }
+
+  const extracted_filename = extract_path_from_comment(first_line)
+  if (!extracted_filename) return null
+
+  const { workspace_name, relative_path } = extract_workspace_and_path(
+    extracted_filename,
+    params.is_single_root_folder_workspace
+  )
+
+  // Get content (everything after the first line)
+  const content = lines.slice(1).join('\n')
+  const cleaned_content = cleanup_api_response({ content })
+
+  return {
+    file_path: relative_path,
+    content: cleaned_content,
+    workspace_name: workspace_name
+  }
+}
+
+export const is_multiple_files_clipboard = (
+  clipboard_text: string
+): boolean => {
+  // First check if it's a file-content-only format
+  const file_content_result = parse_file_content_only({
+    clipboard_text,
+    is_single_root_folder_workspace: true
+  })
+  if (file_content_result) {
+    return true
+  }
+
   // Check for code blocks with potential comment filenames
   const code_block_regex = /```(\w+)?[\s\S]*?```/g
   const code_blocks = [...clipboard_text.matchAll(code_block_regex)]
