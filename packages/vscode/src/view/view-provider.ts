@@ -603,6 +603,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 valid_preset_names
               )
             } else if (!this._is_code_completions_mode) {
+              if (!message.instruction) {
+                vscode.window.showInformationMessage(
+                  'Please enter an instruction to use the preset.'
+                )
+                return
+              }
+
               const context_text = await files_collector.collect_files({
                 active_path
               })
