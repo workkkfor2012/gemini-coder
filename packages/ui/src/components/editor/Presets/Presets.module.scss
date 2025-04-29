@@ -81,6 +81,10 @@
         &--selected > svg {
           fill: var(--vscode-textLink-foreground);
         }
+
+        &--disabled {
+          opacity: var(--disabled-opacity);
+        }
       }
 
       &__title {
@@ -92,7 +96,7 @@
         }
 
         &--disabled {
-          opacity: 0.5;
+          opacity: var(--disabled-opacity);
         }
       }
     }

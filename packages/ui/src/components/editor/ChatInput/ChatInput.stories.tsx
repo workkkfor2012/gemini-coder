@@ -14,7 +14,7 @@ export const Empty = () => (
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
     is_connected={true}
-    is_code_completions_mode={false}
+    is_in_code_completions_mode={false}
     on_code_completions_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
     has_active_selection={false}
@@ -31,7 +31,7 @@ export const WithText = () => (
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
     is_connected={true}
-    is_code_completions_mode={false}
+    is_in_code_completions_mode={false}
     on_code_completions_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
     has_active_selection={false}
@@ -49,7 +49,7 @@ export const DisabledSubmit = () => (
     on_copy={() => console.log('Copied')}
     is_connected={false}
     submit_disabled_title="Cannot submit at this time"
-    is_code_completions_mode={false}
+    is_in_code_completions_mode={false}
     on_code_completions_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
     has_active_selection={false}
@@ -66,7 +66,7 @@ export const MultilineText = () => (
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
     is_connected={true}
-    is_code_completions_mode={false}
+    is_in_code_completions_mode={false}
     on_code_completions_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
     has_active_selection={false}
@@ -83,7 +83,7 @@ export const LongText = () => (
     on_submit={() => console.log('Submitted')}
     on_copy={() => console.log('Copied')}
     is_connected={true}
-    is_code_completions_mode={false}
+    is_in_code_completions_mode={false}
     on_code_completions_mode_click={() => console.log('FIM Mode Clicked')}
     has_active_editor={false}
     has_active_selection={false}

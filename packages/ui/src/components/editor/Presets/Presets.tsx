@@ -22,6 +22,7 @@ export namespace Presets {
     on_preset_click: (name: string) => void
     disabled: boolean
     selected_presets: string[]
+    selected_code_completion_presets: string[]
     on_create_preset: () => void
     is_code_completions_mode: boolean
     on_preset_copy: (name: string) => void
@@ -29,7 +30,7 @@ export namespace Presets {
     on_preset_edit: (name: string) => void
     on_preset_duplicate: (name: string) => void
     on_preset_delete: (name: string) => void
-    on_set_default: () => void
+    on_set_default_presets: () => void
   }
 }
 
@@ -45,6 +46,7 @@ const with_ids = (
 const ChatbotIcon: React.FC<{
   chatbot: keyof typeof CHATBOTS
   is_selected: boolean
+  is_disabled: boolean
 }> = (params) => {
   const icon_variant = chatbot_to_icon[params.chatbot]
 
@@ -53,7 +55,8 @@ const ChatbotIcon: React.FC<{
   return (
     <div
       className={cn(styles.presets__item__left__icon, {
-        [styles['presets__item__left__icon--selected']]: params.is_selected
+        [styles['presets__item__left__icon--selected']]: params.is_selected,
+        [styles['presets__item__left__icon--disabled']]: params.is_disabled
       })}
     >
       <Icon variant={icon_variant} />
@@ -80,7 +83,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
         </div>
 
         <TextButton
-          on_click={props.on_set_default}
+          on_click={props.on_set_default_presets}
           title="Set presets opening by default"
         >
           Select default
@@ -105,7 +108,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           disabled={props.disabled}
         >
           {props.presets.map((preset, i) => {
-            const is_disabled_in_fim =
+            const is_disabled_in_code_completion_mode =
               props.is_code_completions_mode && preset.has_affixes
 
             return (
@@ -114,32 +117,44 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 className={cn(styles.presets__item, {
                   [styles['presets__item--highlighted']]:
                     highlighted_preset_name == preset.name,
-                  [styles['presets__item--disabled']]: is_disabled_in_fim
+                  [styles['presets__item--disabled']]:
+                    is_disabled_in_code_completion_mode
                 })}
                 onClick={() => {
-                  if (is_disabled_in_fim) return
+                  if (is_disabled_in_code_completion_mode) return
                   props.on_preset_click(preset.name)
                   set_highlighted_preset_name(preset.name)
                 }}
                 role="button"
                 title={
-                  is_disabled_in_fim
-                    ? `${preset.name} (Unavailable for code completions due to affixes)`
+                  is_disabled_in_code_completion_mode
+                    ? `${preset.name} (Presets with prompt prefix or suffix are unaviailable for code completions)`
                     : preset.name
                 }
               >
                 <div className={styles.presets__item__left}>
                   <ChatbotIcon
                     chatbot={preset.chatbot}
-                    is_selected={props.selected_presets.includes(preset.name)}
+                    is_selected={
+                      !props.is_code_completions_mode
+                        ? props.selected_presets.includes(preset.name)
+                        : props.selected_code_completion_presets.includes(
+                            preset.name
+                          )
+                    }
+                    is_disabled={is_disabled_in_code_completion_mode}
                   />
 
                   <div
                     className={cn(styles.presets__item__left__title, {
                       [styles['presets__item__left__title--selected']]:
-                        props.selected_presets.includes(preset.name),
+                        !props.is_code_completions_mode
+                          ? props.selected_presets.includes(preset.name)
+                          : props.selected_code_completion_presets.includes(
+                              preset.name
+                            ),
                       [styles['presets__item__left__title--disabled']]:
-                        is_disabled_in_fim
+                        is_disabled_in_code_completion_mode
                     })}
                   >
                     {preset.name}
