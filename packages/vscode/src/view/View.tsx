@@ -11,8 +11,8 @@ import { use_open_router_models } from './hooks/use-open-router-models'
 import { ApiSettingsForm } from '@ui/components/editor/ApiSettingsForm'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
-import { use_chat } from './providers/chat-provider'
 import { TextButton } from '@ui/components/editor/TextButton'
+import { use_chat } from './providers/chat-provider'
 
 const vscode = acquireVsCodeApi()
 
@@ -22,12 +22,31 @@ export const View = () => {
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_configuring_api_tools, set_is_configuring_api_tools] =
     useState(false)
+  const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
+    useState(false)
 
   const open_router_models_hook = use_open_router_models(vscode)
   const api_tools_configuration_hook = use_api_tools_configuration(vscode)
   const chat_hook = use_chat()
 
-  // --- START back click handling in edit preset form ---
+  useEffect(() => {
+    const handle_message = (event: MessageEvent<ExtensionMessage>) => {
+      const message = event.data
+      if (message.command == 'CODE_COMPLETIONS_MODE') {
+        set_is_in_code_completions_mode(message.enabled)
+      } else if (message.command == 'PRESET_UPDATED') {
+        set_updating_preset(undefined)
+        set_updated_preset(undefined)
+      }
+    }
+    window.addEventListener('message', handle_message)
+    return () => window.removeEventListener('message', handle_message)
+  }, [])
+
+  useEffect(() => {
+    vscode.postMessage({ command: 'GET_CODE_COMPLETIONS_MODE' })
+  }, [])
+
   const edit_preset_back_click_handler = () => {
     vscode.postMessage({
       command: 'UPDATE_PRESET',
@@ -36,23 +55,10 @@ export const View = () => {
     })
   }
 
-  useEffect(() => {
-    const handle_message = (event: MessageEvent<ExtensionMessage>) => {
-      const message = event.data
-      if (message.command == 'PRESET_UPDATED') {
-        set_updated_preset(undefined)
-        set_updating_preset(undefined)
-      }
-    }
-    window.addEventListener('message', handle_message)
-    return () => window.removeEventListener('message', handle_message)
-  }, [])
-  // --- END back click handling in edit preset form ---
-
   const handle_preview_preset = () => {
     vscode.postMessage({
       command: 'PREVIEW_PRESET',
-      instruction: chat_hook.is_code_completions_mode
+      instruction: is_in_code_completions_mode
         ? chat_hook.code_completion_suggestions
         : chat_hook.normal_instructions,
       preset: updated_preset
@@ -104,13 +110,13 @@ export const View = () => {
           <TextButton
             on_click={handle_preview_preset}
             disabled={
-              chat_hook.is_code_completions_mode &&
+              is_in_code_completions_mode &&
               !!(updated_preset?.prompt_prefix || updated_preset?.prompt_suffix)
             }
             title={
-              chat_hook.is_code_completions_mode &&
+              is_in_code_completions_mode &&
               !!(updated_preset?.prompt_prefix || updated_preset?.prompt_suffix)
-                ? 'Unavailable for code completion due to affixes'
+                ? 'Preview is not available for presets with prompt prefix or suffix in code completions mode.'
                 : undefined
             }
           >

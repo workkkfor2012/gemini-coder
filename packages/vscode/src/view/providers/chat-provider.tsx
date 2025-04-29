@@ -5,8 +5,8 @@ type ChatContext = {
   set_normal_instructions: React.Dispatch<React.SetStateAction<string>>
   code_completion_suggestions: string
   set_code_completion_suggestions: React.Dispatch<React.SetStateAction<string>>
-  is_code_completions_mode: boolean
-  set_is_code_completions_mode: React.Dispatch<React.SetStateAction<boolean>>
+  // is_code_completions_mode: boolean
+  // set_is_code_completions_mode: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 const ChatContext = createContext<ChatContext>({} as ChatContext)
@@ -19,8 +19,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = (
   const [normal_instructions, set_normal_instructions] = useState('')
   const [code_completion_suggestions, set_code_completion_suggestions] =
     useState('')
-  const [is_code_completions_mode, set_is_code_completions_mode] =
-    useState<boolean>(false)
+  // const [is_code_completions_mode, set_is_code_completions_mode] =
+  //   useState<boolean>(false)
 
   return (
     <ChatContext.Provider
@@ -29,8 +29,8 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = (
         set_normal_instructions,
         code_completion_suggestions,
         set_code_completion_suggestions,
-        is_code_completions_mode,
-        set_is_code_completions_mode
+        // is_code_completions_mode,
+        // set_is_code_completions_mode
       }}
     >
       {props.children}

@@ -17,7 +17,9 @@ type Props = {
   is_connected: boolean
   presets: Preset[]
   selected_presets: string[]
+  selected_code_completion_presets: string[]
   on_code_completions_mode_click: () => void
+  is_in_code_completions_mode: boolean
   has_active_editor: boolean
   has_active_selection: boolean
   chat_history: string[]
@@ -29,7 +31,7 @@ type Props = {
   on_preset_edit: (preset_name: string) => void
   on_preset_duplicate: (preset_name: string) => void
   on_preset_delete: (preset_name: string) => void
-  on_set_default: () => void
+  on_set_default_presets: () => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -37,7 +39,7 @@ export const Main: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   // Current instruction is determined by mode
-  const current_instruction = chat_hook.is_code_completions_mode
+  const current_instruction = props.is_in_code_completions_mode
     ? chat_hook.code_completion_suggestions
     : chat_hook.normal_instructions
 
@@ -61,7 +63,7 @@ export const Main: React.FC<Props> = (props) => {
     estimated_tokens = Math.ceil(text.length / 4)
 
     // Add active file length tokens when in FIM mode
-    if (chat_hook.is_code_completions_mode && props.active_file_length) {
+    if (props.is_in_code_completions_mode && props.active_file_length) {
       // Estimate tokens for the file content
       const file_tokens = Math.ceil(props.active_file_length / 4)
       estimated_tokens += file_tokens
@@ -72,13 +74,13 @@ export const Main: React.FC<Props> = (props) => {
     current_instruction,
     props.has_active_selection,
     props.selection_text,
-    chat_hook.is_code_completions_mode,
+    props.is_in_code_completions_mode,
     props.active_file_length
   ])
 
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
-    if (chat_hook.is_code_completions_mode) {
+    if (props.is_in_code_completions_mode) {
       chat_hook.set_code_completion_suggestions(value)
     } else {
       chat_hook.set_normal_instructions(value)
@@ -88,7 +90,9 @@ export const Main: React.FC<Props> = (props) => {
   const handle_submit = async () => {
     props.initialize_chats({
       instruction: current_instruction,
-      preset_names: props.selected_presets
+      preset_names: !props.is_in_code_completions_mode
+        ? props.selected_presets
+        : props.selected_code_completion_presets
     })
   }
 
@@ -114,7 +118,7 @@ export const Main: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_fim_mode_click = () => {
+  const handle_code_completion_mode_click = () => {
     if (props.has_active_editor) {
       props.on_code_completions_mode_click()
     }
@@ -143,8 +147,8 @@ export const Main: React.FC<Props> = (props) => {
               ? 'WebSocket connection not established. Please install the browser extension.'
               : 'Initialize chats'
           }
-          is_code_completions_mode={chat_hook.is_code_completions_mode}
-          on_code_completions_mode_click={handle_fim_mode_click}
+          is_in_code_completions_mode={props.is_in_code_completions_mode}
+          on_code_completions_mode_click={handle_code_completion_mode_click}
           has_active_editor={props.has_active_editor}
           has_active_selection={props.has_active_selection}
         />
@@ -182,6 +186,9 @@ export const Main: React.FC<Props> = (props) => {
         })}
         disabled={!props.is_connected}
         selected_presets={props.selected_presets}
+        selected_code_completion_presets={
+          props.selected_code_completion_presets
+        }
         on_create_preset={props.on_create_preset}
         on_preset_click={(name) => {
           props.initialize_chats({
@@ -191,11 +198,11 @@ export const Main: React.FC<Props> = (props) => {
         }}
         on_preset_copy={handle_preset_copy}
         on_preset_edit={props.on_preset_edit}
-        is_code_completions_mode={chat_hook.is_code_completions_mode}
+        is_code_completions_mode={props.is_in_code_completions_mode}
         on_presets_reorder={props.on_presets_reorder}
         on_preset_duplicate={props.on_preset_duplicate}
         on_preset_delete={props.on_preset_delete}
-        on_set_default={props.on_set_default}
+        on_set_default_presets={props.on_set_default_presets}
       />
     </div>
   )

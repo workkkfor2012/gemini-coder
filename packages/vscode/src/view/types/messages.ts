@@ -72,11 +72,11 @@ export interface ShowPresetPickerMessage extends BaseMessage {
   command: 'SHOW_PRESET_PICKER'
 }
 
-export interface GetFimModeMessage extends BaseMessage {
+export interface GetCodeCompletionsModeMessage extends BaseMessage {
   command: 'GET_CODE_COMPLETIONS_MODE'
 }
 
-export interface SaveFimModeMessage extends BaseMessage {
+export interface SaveCodeCompletionsModeMessage extends BaseMessage {
   command: 'SAVE_CODE_COMPLETIONS_MODE'
   enabled: boolean
 }
@@ -93,14 +93,13 @@ export interface GetChatHistoryMessage extends BaseMessage {
   command: 'GET_CHAT_HISTORY'
 }
 
-export interface GetFimChatHistoryMessage extends BaseMessage {
-  command: 'GET_FIM_CHAT_HISTORY'
+export interface GetCodeCompletionsChatHistoryMessage extends BaseMessage {
+  command: 'GET_CODE_COMPLETIONS_CHAT_HISTORY'
 }
 
 export interface SaveChatHistoryMessage extends BaseMessage {
   command: 'SAVE_CHAT_HISTORY'
   messages: string[]
-  is_fim_mode: boolean
 }
 
 export interface GetCurrentTokenCountMessage extends BaseMessage {
@@ -201,6 +200,15 @@ export interface PreviewPresetMessage extends BaseMessage {
   preset: Preset
 }
 
+export interface GetSelectedCodeCompletionPresetsMessage extends BaseMessage {
+  command: 'GET_SELECTED_CODE_COMPLETION_PRESETS'
+}
+
+export interface SaveSelectedCodeCompletionPresetsMessage extends BaseMessage {
+  command: 'SAVE_SELECTED_CODE_COMPLETION_PRESETS'
+  names: string[]
+}
+
 // Messages from extension to webview:
 export interface GeminiApiKeyMessage extends BaseMessage {
   command: 'GEMINI_API_KEY'
@@ -249,7 +257,7 @@ export interface ExpandedPresetsMessage extends BaseMessage {
   indices: number[]
 }
 
-export interface FimModeMessage extends BaseMessage {
+export interface CodeCompletionsModeMessage extends BaseMessage {
   command: 'CODE_COMPLETIONS_MODE'
   enabled: boolean
 }
@@ -289,12 +297,12 @@ export interface ActiveFileInfoMessage extends BaseMessage {
   fileLength: number
 }
 
-export interface PresetCreated extends BaseMessage {
+export interface PresetCreatedMessage extends BaseMessage {
   command: 'PRESET_CREATED'
   preset: Preset
 }
 
-export interface PresetUpdated extends BaseMessage {
+export interface PresetUpdatedMessage extends BaseMessage {
   command: 'PRESET_UPDATED'
 }
 
@@ -345,6 +353,11 @@ export interface CommitMessagesSettingsMessage extends BaseMessage {
   settings: ApiToolSettings
 }
 
+export interface SelectedCodeCompletionPresetsMessage extends BaseMessage {
+  command: 'SELECTED_CODE_COMPLETION_PRESETS'
+  names: string[]
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetGeminiApiKeyMessage
@@ -361,12 +374,12 @@ export type WebviewMessage =
   | SendPromptMessage
   | CopyPromptMessage
   | ShowPresetPickerMessage
-  | GetFimModeMessage
-  | SaveFimModeMessage
+  | GetCodeCompletionsModeMessage
+  | SaveCodeCompletionsModeMessage
   | RequestEditorStateMessage
   | RequestEditorSelectionStateMessage
   | GetChatHistoryMessage
-  | GetFimChatHistoryMessage
+  | GetCodeCompletionsChatHistoryMessage
   | SaveChatHistoryMessage
   | GetCurrentTokenCountMessage
   | UpdatePresetMessage
@@ -387,6 +400,8 @@ export type WebviewMessage =
   | ExecuteCommandMessage
   | ShowQuickPickMessage
   | PreviewPresetMessage
+  | GetSelectedCodeCompletionPresetsMessage
+  | SaveSelectedCodeCompletionPresetsMessage
 
 export type ExtensionMessage =
   | GeminiApiKeyMessage
@@ -396,7 +411,7 @@ export type ExtensionMessage =
   | SelectedPresetsMessage
   | PresetsSelectedFromPickerMessage
   | ExpandedPresetsMessage
-  | FimModeMessage
+  | CodeCompletionsModeMessage
   | EditorStateChangedMessage
   | EditorSelectionChangedMessage
   | ChatHistoryMessage
@@ -404,8 +419,8 @@ export type ExtensionMessage =
   | TokenCountMessage
   | SelectionTextMessage
   | ActiveFileInfoMessage
-  | PresetCreated
-  | PresetUpdated
+  | PresetCreatedMessage
+  | PresetUpdatedMessage
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
@@ -413,3 +428,4 @@ export type ExtensionMessage =
   | FileRefactoringSettingsMessage
   | ApplyChatResponseSettingsMessage
   | CommitMessagesSettingsMessage
+  | SelectedCodeCompletionPresetsMessage

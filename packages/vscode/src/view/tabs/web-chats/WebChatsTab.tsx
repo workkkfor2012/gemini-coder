@@ -3,22 +3,9 @@ import { Main } from './Main'
 import {
   WebviewMessage,
   ExtensionMessage,
-  ConnectionStatusMessage,
-  PresetsMessage,
-  SelectedPresetsMessage,
-  PresetsSelectedFromPickerMessage,
-  FimModeMessage,
-  EditorStateChangedMessage,
-  EditorSelectionChangedMessage,
-  ChatHistoryMessage,
-  FimChatHistoryMessage,
-  TokenCountMessage,
-  SelectionTextMessage,
-  ActiveFileInfoMessage,
-  PresetCreated
+  PresetsMessage
 } from '../../types/messages'
 import { Preset } from '@shared/types/preset'
-import { use_chat } from '@/view/providers/chat-provider'
 
 type Props = {
   vscode: any
@@ -30,6 +17,10 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
+  const [
+    selected_code_completion_presets,
+    set_selected_code_completion_presets
+  ] = useState<string[]>([])
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
   const [has_active_selection, set_has_active_selection] = useState<boolean>()
   const [chat_history, set_chat_history] = useState<string[]>()
@@ -38,21 +29,22 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
   const [active_file_length, set_active_file_length] = useState<number>(0)
-  const chat_hook = use_chat()
+  const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
+    useState<boolean>()
 
   useEffect(() => {
-    const initial_messages = [
+    const initial_messages: WebviewMessage[] = [
       { command: 'GET_CONNECTION_STATUS' },
       { command: 'GET_PRESETS' },
       { command: 'GET_SELECTED_PRESETS' },
-      { command: 'GET_EXPANDED_PRESETS' },
+      { command: 'GET_SELECTED_CODE_COMPLETION_PRESETS' },
       { command: 'GET_CODE_COMPLETIONS_MODE' },
       { command: 'REQUEST_EDITOR_STATE' },
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
       { command: 'GET_CHAT_HISTORY' },
-      { command: 'GET_FIM_CHAT_HISTORY' },
+      { command: 'GET_CODE_COMPLETIONS_CHAT_HISTORY' },
       { command: 'GET_CURRENT_TOKEN_COUNT' }
-    ] as WebviewMessage[]
+    ]
 
     initial_messages.forEach((message) => props.vscode.postMessage(message))
 
@@ -60,33 +52,27 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       const message = event.data as ExtensionMessage
       switch (message.command) {
         case 'CONNECTION_STATUS':
-          set_is_connected((message as ConnectionStatusMessage).connected)
+          set_is_connected(message.connected)
           break
         case 'PRESETS':
           set_presets((message as PresetsMessage).presets)
           break
         case 'SELECTED_PRESETS':
-          set_selected_presets((message as SelectedPresetsMessage).names)
+          set_selected_presets(message.names)
+          break
+        case 'SELECTED_CODE_COMPLETION_PRESETS':
+          set_selected_code_completion_presets(message.names)
           break
         case 'PRESETS_SELECTED_FROM_PICKER':
-          set_selected_presets(
-            (message as PresetsSelectedFromPickerMessage).names
-          )
+          set_selected_presets(message.names)
           break
         case 'CODE_COMPLETIONS_MODE':
-          chat_hook.set_is_code_completions_mode(
-            (message as FimModeMessage).enabled
-          )
+          set_is_in_code_completions_mode(message.enabled)
           break
         case 'EDITOR_STATE_CHANGED':
-          set_has_active_editor(
-            (message as EditorStateChangedMessage).has_active_editor
-          )
-          if (
-            !(message as EditorStateChangedMessage).has_active_editor &&
-            chat_hook.is_code_completions_mode
-          ) {
-            chat_hook.set_is_code_completions_mode(false)
+          set_has_active_editor(message.has_active_editor)
+          if (!message.has_active_editor && is_in_code_completions_mode) {
+            set_is_in_code_completions_mode(false)
             props.vscode.postMessage({
               command: 'SAVE_CODE_COMPLETIONS_MODE',
               enabled: false
@@ -94,74 +80,79 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           }
           break
         case 'EDITOR_SELECTION_CHANGED':
-          set_has_active_selection(
-            (message as EditorSelectionChangedMessage).hasSelection
-          )
+          set_has_active_selection(message.hasSelection)
           break
         case 'CHAT_HISTORY':
-          set_chat_history((message as ChatHistoryMessage).messages || [])
+          set_chat_history(message.messages || [])
           break
         case 'FIM_CHAT_HISTORY':
-          set_chat_history_fim_mode(
-            (message as FimChatHistoryMessage).messages || []
-          )
+          set_chat_history_fim_mode(message.messages || [])
           break
         case 'TOKEN_COUNT_UPDATED':
-          set_token_count((message as TokenCountMessage).tokenCount)
+          set_token_count(message.tokenCount)
           break
         case 'SELECTION_TEXT_UPDATED':
-          set_selection_text((message as SelectionTextMessage).text)
+          set_selection_text(message.text)
           break
         case 'ACTIVE_FILE_INFO_UPDATED':
-          set_active_file_length((message as ActiveFileInfoMessage).fileLength)
+          set_active_file_length(message.fileLength)
           break
         case 'PRESET_CREATED':
-          props.on_preset_edit((message as PresetCreated).preset)
+          props.on_preset_edit(message.preset)
           break
       }
     }
 
     window.addEventListener('message', handle_message)
     return () => window.removeEventListener('message', handle_message)
-  }, [chat_hook.is_code_completions_mode])
+  }, [])
 
   const handle_initialize_chats = async (params: {
     instruction: string
     preset_names: string[]
   }) => {
-    let preset_names = params.preset_names
-    if (params.preset_names.length == 0) {
-      const selected_names = await new Promise<string[]>((resolve) => {
-        const message_handler = (event: MessageEvent) => {
-          const message = event.data as ExtensionMessage
-          if (message.command == 'PRESETS_SELECTED_FROM_PICKER') {
-            window.removeEventListener('message', message_handler)
-            resolve((message as PresetsSelectedFromPickerMessage).names)
-          }
-        }
-        window.addEventListener('message', message_handler)
-        props.vscode.postMessage({
-          command: 'SHOW_PRESET_PICKER'
-        } as WebviewMessage)
-      })
-      if (selected_names.length > 0) {
-        props.vscode.postMessage({
-          command: 'SAVE_SELECTED_PRESETS',
-          names: selected_names
-        } as WebviewMessage)
-        set_selected_presets(selected_names)
-        preset_names = selected_names
-      }
-    }
+    // let preset_names = params.preset_names
+    // if (params.preset_names.length == 0) {
+    //   const selected_names = await new Promise<string[]>((resolve) => {
+    //     const message_handler = (event: MessageEvent) => {
+    //       const message = event.data as ExtensionMessage
+    //       if (message.command == 'PRESETS_SELECTED_FROM_PICKER') {
+    //         window.removeEventListener('message', message_handler)
+    //         resolve(message.names)
+    //       }
+    //     }
+    //     window.addEventListener('message', message_handler)
+    //     props.vscode.postMessage({
+    //       command: 'SHOW_PRESET_PICKER'
+    //     } as WebviewMessage)
+    //   })
+    //   if (selected_names.length > 0) {
+    //     // Determine which state to update based on mode
+    //     if (is_in_code_completions_mode) {
+    //       props.vscode.postMessage({
+    //         command: 'SAVE_SELECTED_CODE_COMPLETION_PRESETS',
+    //         names: selected_names
+    //       } as WebviewMessage)
+    //       set_selected_code_completion_presets(selected_names)
+    //     } else {
+    //       props.vscode.postMessage({
+    //         command: 'SAVE_SELECTED_PRESETS',
+    //         names: selected_names
+    //       } as WebviewMessage)
+    //       set_selected_presets(selected_names)
+    //     }
+    //     preset_names = selected_names
+    //   }
+    // }
 
     props.vscode.postMessage({
       command: 'SEND_PROMPT',
       instruction: params.instruction,
-      preset_names: preset_names
+      preset_names: params.preset_names
     } as WebviewMessage)
 
     // Update the appropriate chat history based on mode
-    if (chat_hook.is_code_completions_mode) {
+    if (is_in_code_completions_mode) {
       // Check if this instruction is already at the top of history
       const is_duplicate =
         chat_history_fim_mode &&
@@ -171,15 +162,14 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       if (!is_duplicate) {
         const new_history = [
           params.instruction,
-          ...chat_history_fim_mode!
+          ...(chat_history_fim_mode || [])
         ].slice(0, 100)
         set_chat_history_fim_mode(new_history)
 
         // Save to workspace state
         props.vscode.postMessage({
           command: 'SAVE_CHAT_HISTORY',
-          messages: new_history,
-          is_fim_mode: true
+          messages: new_history
         } as WebviewMessage)
       }
     } else {
@@ -190,14 +180,16 @@ export const WebChatsTab: React.FC<Props> = (props) => {
         chat_history[0] == params.instruction
 
       if (!is_duplicate) {
-        const new_history = [params.instruction, ...chat_history!].slice(0, 100)
+        const new_history = [params.instruction, ...(chat_history || [])].slice(
+          0,
+          100
+        )
         set_chat_history(new_history)
 
         // Save to workspace state
         props.vscode.postMessage({
           command: 'SAVE_CHAT_HISTORY',
-          messages: new_history,
-          is_fim_mode: false
+          messages: new_history
         } as WebviewMessage)
       }
     }
@@ -213,9 +205,8 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const handle_code_completions_mode_click = () => {
     props.vscode.postMessage({
       command: 'SAVE_CODE_COMPLETIONS_MODE',
-      enabled: !chat_hook.is_code_completions_mode
+      enabled: !is_in_code_completions_mode
     } as WebviewMessage)
-    chat_hook.set_is_code_completions_mode(!chat_hook.is_code_completions_mode)
   }
 
   const handle_presets_reorder = (reordered_presets: Preset[]) => {
@@ -264,7 +255,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_set_default = () => {
+  const handle_set_default_presets = () => {
     props.vscode.postMessage({
       command: 'SHOW_PRESET_PICKER'
     } as WebviewMessage)
@@ -273,11 +264,11 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   if (
     is_connected === undefined ||
     presets === undefined ||
-    chat_hook.is_code_completions_mode === undefined ||
     has_active_editor === undefined ||
     has_active_selection === undefined ||
     chat_history === undefined ||
-    chat_history_fim_mode === undefined
+    chat_history_fim_mode === undefined ||
+    is_in_code_completions_mode === undefined
   ) {
     return null
   }
@@ -290,8 +281,10 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}
+      selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
       has_active_editor={has_active_editor}
+      is_in_code_completions_mode={is_in_code_completions_mode}
       on_code_completions_mode_click={handle_code_completions_mode_click}
       has_active_selection={has_active_selection}
       chat_history={chat_history}
@@ -303,7 +296,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       on_preset_edit={handle_preset_edit}
       on_preset_duplicate={handle_preset_duplicate}
       on_preset_delete={handle_preset_delete}
-      on_set_default={handle_set_default}
+      on_set_default_presets={handle_set_default_presets}
     />
   )
 }
