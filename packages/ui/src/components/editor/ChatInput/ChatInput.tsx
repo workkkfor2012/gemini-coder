@@ -82,7 +82,8 @@ export const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_submit = () => {
+  const handle_submit = (e?: React.MouseEvent<HTMLButtonElement>) => {
+    e?.stopPropagation()
     if (
       !props.is_connected ||
       (!props.is_in_code_completions_mode && !props.value)
@@ -92,9 +93,17 @@ export const ChatInput: React.FC<Props> = (props) => {
     set_history_index(-1) // Reset history index after submitting
   }
 
-  const handle_copy = () => {
+  const handle_copy = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation()
     if (!props.is_in_code_completions_mode && !props.value) return
     props.on_copy()
+  }
+
+  const handle_code_completions_mode_click = (
+    e: React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.stopPropagation()
+    props.on_code_completions_mode_click()
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -260,7 +269,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           {(!props.has_active_selection ||
             props.is_in_code_completions_mode) && (
             <button
-              onClick={props.on_code_completions_mode_click}
+              onClick={handle_code_completions_mode_click}
               className={cn(
                 styles.footer__left__button,
                 styles['footer__left__button--fim'],

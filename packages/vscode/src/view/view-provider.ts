@@ -963,12 +963,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               })
             }
           } else if (message.command == 'SAVE_CODE_COMPLETIONS_MODE') {
-            const is_code_completions_mode = !this._is_code_completions_mode
-            this._is_code_completions_mode = is_code_completions_mode
+            this._is_code_completions_mode = message.enabled
             this._calculate_token_count()
-            this._send_message<CodeCompletionsModeMessage>({
+            this._send_message<ExtensionMessage>({
               command: 'CODE_COMPLETIONS_MODE',
-              enabled: this._is_code_completions_mode
+              enabled: message.enabled
             })
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             this._send_message<ExtensionMessage>({
