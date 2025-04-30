@@ -11,6 +11,10 @@ type Props = {
   vscode: any
   is_visible: boolean
   on_preset_edit: (preset: Preset) => void
+  normal_instructions: string
+  set_normal_instructions: (value: string) => void
+  code_completion_suggestions: string
+  set_code_completion_suggestions: (value: string) => void
 }
 
 export const WebChatsTab: React.FC<Props> = (props) => {
@@ -41,9 +45,11 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       { command: 'GET_CODE_COMPLETIONS_MODE' },
       { command: 'REQUEST_EDITOR_STATE' },
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
-      { command: 'GET_CHAT_HISTORY' },
-      { command: 'GET_CODE_COMPLETIONS_CHAT_HISTORY' },
-      { command: 'GET_CURRENT_TOKEN_COUNT' }
+      { command: 'GET_HISTORY' },
+      { command: 'GET_CODE_COMPLETIONS_HISTORY' },
+      { command: 'GET_CURRENT_TOKEN_COUNT' },
+      { command: 'GET_INSTRUCTIONS' },
+      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' }
     ]
 
     initial_messages.forEach((message) => props.vscode.postMessage(message))
@@ -71,7 +77,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           break
         case 'EDITOR_STATE_CHANGED':
           set_has_active_editor(message.has_active_editor)
-          if (!message.has_active_editor && is_in_code_completions_mode) {
+          if (!message.has_active_editor) {
             set_is_in_code_completions_mode(false)
             props.vscode.postMessage({
               command: 'SAVE_CODE_COMPLETIONS_MODE',
@@ -100,6 +106,12 @@ export const WebChatsTab: React.FC<Props> = (props) => {
         case 'PRESET_CREATED':
           props.on_preset_edit(message.preset)
           break
+        case 'INSTRUCTIONS':
+          props.set_normal_instructions(message.value || '')
+          break
+        case 'CODE_COMPLETION_SUGGESTIONS':
+          props.set_code_completion_suggestions(message.value || '')
+          break
       }
     }
 
@@ -108,46 +120,11 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   }, [])
 
   const handle_initialize_chats = async (params: {
-    instruction: string
+    prompt: string
     preset_names: string[]
   }) => {
-    // let preset_names = params.preset_names
-    // if (params.preset_names.length == 0) {
-    //   const selected_names = await new Promise<string[]>((resolve) => {
-    //     const message_handler = (event: MessageEvent) => {
-    //       const message = event.data as ExtensionMessage
-    //       if (message.command == 'PRESETS_SELECTED_FROM_PICKER') {
-    //         window.removeEventListener('message', message_handler)
-    //         resolve(message.names)
-    //       }
-    //     }
-    //     window.addEventListener('message', message_handler)
-    //     props.vscode.postMessage({
-    //       command: 'SHOW_PRESET_PICKER'
-    //     } as WebviewMessage)
-    //   })
-    //   if (selected_names.length > 0) {
-    //     // Determine which state to update based on mode
-    //     if (is_in_code_completions_mode) {
-    //       props.vscode.postMessage({
-    //         command: 'SAVE_SELECTED_CODE_COMPLETION_PRESETS',
-    //         names: selected_names
-    //       } as WebviewMessage)
-    //       set_selected_code_completion_presets(selected_names)
-    //     } else {
-    //       props.vscode.postMessage({
-    //         command: 'SAVE_SELECTED_PRESETS',
-    //         names: selected_names
-    //       } as WebviewMessage)
-    //       set_selected_presets(selected_names)
-    //     }
-    //     preset_names = selected_names
-    //   }
-    // }
-
     props.vscode.postMessage({
       command: 'SEND_PROMPT',
-      instruction: params.instruction,
       preset_names: params.preset_names
     } as WebviewMessage)
 
@@ -157,19 +134,20 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       const is_duplicate =
         chat_history_fim_mode &&
         chat_history_fim_mode.length > 0 &&
-        chat_history_fim_mode[0] == params.instruction
+        chat_history_fim_mode[0] == params.prompt
 
       if (!is_duplicate) {
         const new_history = [
-          params.instruction,
+          params.prompt,
           ...(chat_history_fim_mode || [])
         ].slice(0, 100)
         set_chat_history_fim_mode(new_history)
 
         // Save to workspace state
         props.vscode.postMessage({
-          command: 'SAVE_CHAT_HISTORY',
-          messages: new_history
+          command: 'SAVE_HISTORY',
+          messages: new_history,
+          is_fim_mode: true // Indicate FIM mode
         } as WebviewMessage)
       }
     } else {
@@ -177,10 +155,10 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       const is_duplicate =
         chat_history &&
         chat_history.length > 0 &&
-        chat_history[0] == params.instruction
+        chat_history[0] == params.prompt
 
       if (!is_duplicate) {
-        const new_history = [params.instruction, ...(chat_history || [])].slice(
+        const new_history = [params.prompt, ...(chat_history || [])].slice(
           0,
           100
         )
@@ -188,8 +166,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
 
         // Save to workspace state
         props.vscode.postMessage({
-          command: 'SAVE_CHAT_HISTORY',
-          messages: new_history
+          command: 'SAVE_HISTORY',
+          messages: new_history,
+          is_fim_mode: false // Indicate normal mode
         } as WebviewMessage)
       }
     }
@@ -268,7 +247,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     has_active_selection === undefined ||
     chat_history === undefined ||
     chat_history_fim_mode === undefined ||
-    is_in_code_completions_mode === undefined
+    is_in_code_completions_mode === undefined ||
+    props.normal_instructions === undefined ||
+    props.code_completion_suggestions === undefined
   ) {
     return null
   }
@@ -297,6 +278,10 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       on_preset_duplicate={handle_preset_duplicate}
       on_preset_delete={handle_preset_delete}
       on_set_default_presets={handle_set_default_presets}
+      normal_instructions={props.normal_instructions}
+      set_normal_instructions={props.set_normal_instructions}
+      code_completion_suggestions={props.code_completion_suggestions}
+      set_code_completion_suggestions={props.set_code_completion_suggestions}
     />
   )
 }

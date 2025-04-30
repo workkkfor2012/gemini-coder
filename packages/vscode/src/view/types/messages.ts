@@ -25,13 +25,21 @@ export interface UpdateOpenRouterApiKeyMessage extends BaseMessage {
   api_key: string
 }
 
-export interface SaveChatInstructionMessage extends BaseMessage {
-  command: 'SAVE_CHAT_INSTRUCTION'
+export interface GetInstructionsMessage extends BaseMessage {
+  command: 'GET_INSTRUCTIONS'
+}
+
+export interface GetCodeCompletionSuggestionsMessage extends BaseMessage {
+  command: 'GET_CODE_COMPLETION_SUGGESTIONS'
+}
+
+export interface SaveInstructionsMessage extends BaseMessage {
+  command: 'SAVE_INSTRUCTIONS'
   instruction: string
 }
 
-export interface SaveFimInstructionMessage extends BaseMessage {
-  command: 'SAVE_FIM_INSTRUCTION'
+export interface SaveCodeCompletionSuggestionsMessage extends BaseMessage {
+  command: 'SAVE_CODE_COMPLETION_SUGGESTIONS'
   instruction: string
 }
 
@@ -59,7 +67,6 @@ export interface SavePresetsOrderMessage extends BaseMessage {
 
 export interface SendPromptMessage extends BaseMessage {
   command: 'SEND_PROMPT'
-  instruction: string
   preset_names: string[]
 }
 
@@ -89,16 +96,16 @@ export interface RequestEditorSelectionStateMessage extends BaseMessage {
   command: 'REQUEST_EDITOR_SELECTION_STATE'
 }
 
-export interface GetChatHistoryMessage extends BaseMessage {
-  command: 'GET_CHAT_HISTORY'
+export interface GetHistoryMessage extends BaseMessage {
+  command: 'GET_HISTORY'
 }
 
-export interface GetCodeCompletionsChatHistoryMessage extends BaseMessage {
-  command: 'GET_CODE_COMPLETIONS_CHAT_HISTORY'
+export interface GetCodeCompletionsHistoryMessage extends BaseMessage {
+  command: 'GET_CODE_COMPLETIONS_HISTORY'
 }
 
-export interface SaveChatHistoryMessage extends BaseMessage {
-  command: 'SAVE_CHAT_HISTORY'
+export interface SaveHistoryMessage extends BaseMessage {
+  command: 'SAVE_HISTORY'
   messages: string[]
 }
 
@@ -196,7 +203,6 @@ export interface ShowQuickPickMessage extends BaseMessage {
 
 export interface PreviewPresetMessage extends BaseMessage {
   command: 'PREVIEW_PRESET'
-  instruction: string
   preset: Preset
 }
 
@@ -218,6 +224,16 @@ export interface GeminiApiKeyMessage extends BaseMessage {
 export interface OpenRouterApiKeyMessage extends BaseMessage {
   command: 'OPEN_ROUTER_API_KEY'
   api_key: string
+}
+
+export interface InstructionsMessage extends BaseMessage {
+  command: 'INSTRUCTIONS'
+  value: string
+}
+
+export interface CodeCompletionSuggestionsMessage extends BaseMessage {
+  command: 'CODE_COMPLETION_SUGGESTIONS'
+  value: string
 }
 
 export interface ConnectionStatusMessage extends BaseMessage {
@@ -364,8 +380,10 @@ export type WebviewMessage =
   | UpdateGeminiApiKeyMessage
   | GetOpenRouterApiKeyMessage
   | UpdateOpenRouterApiKeyMessage
-  | SaveChatInstructionMessage
-  | SaveFimInstructionMessage
+  | GetInstructionsMessage
+  | GetCodeCompletionSuggestionsMessage
+  | SaveInstructionsMessage
+  | SaveCodeCompletionSuggestionsMessage
   | GetConnectionStatusMessage
   | GetPresetsMessage
   | GetSelectedPresetsMessage
@@ -378,9 +396,9 @@ export type WebviewMessage =
   | SaveCodeCompletionsModeMessage
   | RequestEditorStateMessage
   | RequestEditorSelectionStateMessage
-  | GetChatHistoryMessage
-  | GetCodeCompletionsChatHistoryMessage
-  | SaveChatHistoryMessage
+  | GetHistoryMessage
+  | GetCodeCompletionsHistoryMessage
+  | SaveHistoryMessage
   | GetCurrentTokenCountMessage
   | UpdatePresetMessage
   | DeletePresetMessage
@@ -406,6 +424,8 @@ export type WebviewMessage =
 export type ExtensionMessage =
   | GeminiApiKeyMessage
   | OpenRouterApiKeyMessage
+  | InstructionsMessage
+  | CodeCompletionSuggestionsMessage
   | ConnectionStatusMessage
   | PresetsMessage
   | SelectedPresetsMessage

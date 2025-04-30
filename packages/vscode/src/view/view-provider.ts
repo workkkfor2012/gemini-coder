@@ -27,7 +27,9 @@ import {
   ShowQuickPickMessage,
   PreviewPresetMessage,
   SelectedCodeCompletionPresetsMessage,
-  CodeCompletionsModeMessage
+  CodeCompletionsModeMessage,
+  InstructionsMessage,
+  CodeCompletionSuggestionsMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -62,6 +64,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _has_active_selection: boolean = false
   private _is_code_completions_mode: boolean = false
   private _api_tools_settings_manager: ApiToolsSettingsManager
+  private _instructions: string = ''
+  private _code_completion_suggestions: string = ''
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -170,6 +174,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._api_tools_settings_manager = new ApiToolsSettingsManager(
       this._context
     )
+
+    this._instructions = this._context.workspaceState.get<string>(
+      'instructions',
+      ''
+    )
+    this._code_completion_suggestions =
+      this._context.workspaceState.get<string>(
+        'code-completion-suggestions',
+        ''
+      )
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -329,6 +343,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | ExecuteCommandMessage
       | ShowQuickPickMessage
       | PreviewPresetMessage
+      | InstructionsMessage
+      | CodeCompletionSuggestionsMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -494,29 +510,51 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     webview_view.webview.onDidReceiveMessage(
       async (message: WebviewMessage) => {
         try {
-          if (message.command == 'GET_CHAT_HISTORY') {
+          if (message.command == 'GET_HISTORY') {
             const history = this._context.workspaceState.get<string[]>(
-              'chat-history',
+              'history',
               []
             )
             this._send_message<ExtensionMessage>({
               command: 'CHAT_HISTORY',
               messages: history
             })
-          } else if (message.command == 'GET_CODE_COMPLETIONS_CHAT_HISTORY') {
+          } else if (message.command == 'GET_CODE_COMPLETIONS_HISTORY') {
             const history = this._context.workspaceState.get<string[]>(
-              'fim-chat-history',
+              'code-completions-history',
               []
             )
             this._send_message<ExtensionMessage>({
               command: 'FIM_CHAT_HISTORY',
               messages: history
             })
-          } else if (message.command == 'SAVE_CHAT_HISTORY') {
-            const key = this._is_code_completions_mode
-              ? 'fim-chat-history'
-              : 'chat-history'
-            await this._context.workspaceState.update(key, message.messages)
+          } else if (message.command == 'SAVE_HISTORY') {
+            const key = !this._is_code_completions_mode
+              ? 'history'
+              : 'code-completions-history'
+            this._context.workspaceState.update(key, message.messages)
+          } else if (message.command == 'GET_INSTRUCTIONS') {
+            this._send_message<InstructionsMessage>({
+              command: 'INSTRUCTIONS',
+              value: this._instructions
+            })
+          } else if (message.command == 'SAVE_INSTRUCTIONS') {
+            this._instructions = message.instruction
+            this._context.workspaceState.update(
+              'instructions',
+              message.instruction
+            )
+          } else if (message.command == 'GET_CODE_COMPLETION_SUGGESTIONS') {
+            this._send_message<CodeCompletionSuggestionsMessage>({
+              command: 'CODE_COMPLETION_SUGGESTIONS',
+              value: this._code_completion_suggestions
+            })
+          } else if (message.command == 'SAVE_CODE_COMPLETION_SUGGESTIONS') {
+            this._code_completion_suggestions = message.instruction
+            this._context.workspaceState.update(
+              'code-completion-suggestions',
+              message.instruction
+            )
           } else if (message.command == 'GET_CONNECTION_STATUS') {
             this._send_message<ExtensionMessage>({
               command: 'CONNECTION_STATUS',
@@ -608,8 +646,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               const instructions = `${code_completion_instruction_external}${
-                message.instruction
-                  ? ` Follow suggestions: ${message.instruction}`
+                this._code_completion_suggestions
+                  ? ` Follow suggestions: ${this._code_completion_suggestions}`
                   : ''
               }`
 
@@ -620,9 +658,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 valid_preset_names
               )
             } else if (!this._is_code_completions_mode) {
-              if (!message.instruction) {
+              if (!this._instructions) {
                 vscode.window.showInformationMessage(
-                  'Please enter an instruction to use the preset.'
+                  'Please enter instructions to use the preset.'
                 )
                 return
               }
@@ -631,7 +669,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              let instruction = message.instruction
+              let instruction = this._instructions
               instruction = replace_selection_placeholder(instruction)
               instruction = apply_preset_affixes_to_instruction(
                 instruction,
@@ -677,6 +715,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const active_path = active_editor?.document.uri.fsPath
 
             let text_to_send: string
+            const current_instruction = !this._is_code_completions_mode
+              ? this._instructions
+              : this._code_completion_suggestions
 
             if (this._is_code_completions_mode && active_editor) {
               const document = active_editor.document
@@ -704,26 +745,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               const instructions = `${code_completion_instruction_external}${
-                message.instruction
-                  ? ` Follow suggestions: ${message.instruction}`
+                current_instruction
+                  ? ` Follow suggestions: ${current_instruction}`
                   : ''
               }`
 
               text_to_send = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
-
-              this.websocket_server_instance.preview_preset(
-                text_to_send,
-                message.preset
-              )
             } else if (!this._is_code_completions_mode) {
               const context_text = await files_collector.collect_files({
                 active_path
               })
 
-              let instruction = replace_selection_placeholder(
-                message.instruction
-              )
+              let instruction =
+                replace_selection_placeholder(current_instruction)
 
+              // Apply affixes from the PREVIEW preset, not default selected ones
               if (message.preset.prompt_prefix) {
                 instruction = message.preset.prompt_prefix + '\n' + instruction
               }
@@ -735,12 +771,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               if (context_text) {
                 text_to_send += `\n<files>\n${context_text}</files>\n`
               }
-
-              this.websocket_server_instance.preview_preset(
-                text_to_send,
-                message.preset
+            } else {
+              vscode.window.showWarningMessage(
+                'Cannot preview in code completion mode without an active editor.'
               )
+              return
             }
+
+            this.websocket_server_instance.preview_preset(
+              text_to_send,
+              message.preset
+            )
             vscode.window.showInformationMessage(
               'Preset preview sent to the connected browser.'
             )
@@ -752,6 +793,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             )
 
             const active_editor = vscode.window.activeTextEditor
+            const current_instruction = this._is_code_completions_mode
+              ? this._code_completion_suggestions
+              : this._instructions
 
             if (this._is_code_completions_mode && active_editor) {
               const document = active_editor.document
@@ -780,8 +824,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               const instructions = `${code_completion_instruction_external}${
-                message.instruction
-                  ? ` Follow suggestions: ${message.instruction}`
+                current_instruction
+                  ? ` Follow suggestions: ${current_instruction}`
                   : ''
               }`
 
@@ -794,11 +838,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              let instruction = replace_selection_placeholder(
-                // Use imported function
-                message.instruction
-              )
+              let instruction =
+                replace_selection_placeholder(current_instruction)
 
+              // Note: Affixes are not applied when just copying the base prompt
               const config = vscode.workspace.getConfiguration()
               const chat_style_instructions = config.get<string>(
                 'geminiCoder.chatStyleInstructions',
@@ -815,6 +858,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }${instruction}`
 
               await vscode.env.clipboard.writeText(text)
+            } else {
+              vscode.window.showWarningMessage(
+                'Cannot copy prompt in code completion mode without an active editor.'
+              )
+              return
             }
 
             vscode.window.showInformationMessage('Prompt copied to clipboard!')
@@ -1456,6 +1504,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._send_message<ExtensionMessage>({
       command: 'CODE_COMPLETIONS_MODE',
       enabled: this._is_code_completions_mode
+    })
+    this._send_message<ExtensionMessage>({
+      command: 'INSTRUCTIONS',
+      value: this._instructions
+    })
+    this._send_message<ExtensionMessage>({
+      command: 'CODE_COMPLETION_SUGGESTIONS',
+      value: this._code_completion_suggestions
     })
 
     this._update_active_file_info()

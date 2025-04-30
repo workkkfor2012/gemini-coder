@@ -4,12 +4,11 @@ import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { Preset } from '@shared/types/preset'
-import { use_chat } from '@/view/providers/chat-provider'
 
 type Props = {
   is_visible: boolean
   initialize_chats: (params: {
-    instruction: string
+    prompt: string
     preset_names: string[]
   }) => void
   copy_to_clipboard: (instruction: string) => void
@@ -32,22 +31,24 @@ type Props = {
   on_preset_duplicate: (preset_name: string) => void
   on_preset_delete: (preset_name: string) => void
   on_set_default_presets: () => void
+  normal_instructions: string
+  set_normal_instructions: (value: string) => void
+  code_completion_suggestions: string
+  set_code_completion_suggestions: (value: string) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
-  const chat_hook = use_chat()
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
-  // Current instruction is determined by mode
-  const current_instruction = props.is_in_code_completions_mode
-    ? chat_hook.code_completion_suggestions
-    : chat_hook.normal_instructions
+  const current_prompt = props.is_in_code_completions_mode
+    ? props.code_completion_suggestions
+    : props.normal_instructions
 
   // Calculate input token estimation
   useEffect(() => {
     let estimated_tokens = 0
     // Basic estimation for instruction
-    let text = current_instruction
+    let text = current_prompt
 
     // If there's @selection in the instruction and we have an active selection
     if (
@@ -71,7 +72,7 @@ export const Main: React.FC<Props> = (props) => {
 
     set_estimated_input_tokens(estimated_tokens)
   }, [
-    current_instruction,
+    current_prompt,
     props.has_active_selection,
     props.selection_text,
     props.is_in_code_completions_mode,
@@ -81,15 +82,15 @@ export const Main: React.FC<Props> = (props) => {
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
     if (props.is_in_code_completions_mode) {
-      chat_hook.set_code_completion_suggestions(value)
+      props.set_code_completion_suggestions(value) // Use prop setter
     } else {
-      chat_hook.set_normal_instructions(value)
+      props.set_normal_instructions(value) // Use prop setter
     }
   }
 
   const handle_submit = async () => {
     props.initialize_chats({
-      instruction: current_instruction,
+      prompt: current_prompt,
       preset_names: !props.is_in_code_completions_mode
         ? props.selected_presets
         : props.selected_code_completion_presets
@@ -97,7 +98,7 @@ export const Main: React.FC<Props> = (props) => {
   }
 
   const handle_copy = () => {
-    props.copy_to_clipboard(current_instruction)
+    props.copy_to_clipboard(current_prompt)
   }
 
   const handle_preset_copy = (preset_name: string) => {
@@ -106,7 +107,7 @@ export const Main: React.FC<Props> = (props) => {
 
     if (preset) {
       // Apply prefix and suffix if they exist
-      let modified_instruction = current_instruction
+      let modified_instruction = current_prompt
       if (preset.prompt_prefix) {
         modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
       }
@@ -124,7 +125,6 @@ export const Main: React.FC<Props> = (props) => {
     }
   }
 
-  // Calculate total token count (base + input estimation)
   const total_token_count = props.token_count + estimated_input_tokens
 
   return (
@@ -134,7 +134,7 @@ export const Main: React.FC<Props> = (props) => {
     >
       <div className={styles['chat-input']}>
         <UiChatInput
-          value={current_instruction}
+          value={current_prompt}
           chat_history={props.chat_history}
           chat_history_fim_mode={props.chat_history_fim_mode}
           on_change={handle_input_change}
@@ -192,7 +192,7 @@ export const Main: React.FC<Props> = (props) => {
         on_create_preset={props.on_create_preset}
         on_preset_click={(name) => {
           props.initialize_chats({
-            instruction: current_instruction,
+            prompt: current_prompt,
             preset_names: [name]
           })
         }}

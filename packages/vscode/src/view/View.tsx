@@ -6,13 +6,16 @@ import { Template } from '@ui/components/editor/Template'
 import { EditView } from '@ui/components/editor/EditView'
 import { EditPresetForm } from '@ui/components/editor/EditPresetForm'
 import { Preset } from '@shared/types/preset'
-import { ExtensionMessage } from './types/messages'
+import {
+  ExtensionMessage,
+  SaveInstructionsMessage,
+  SaveCodeCompletionSuggestionsMessage
+} from './types/messages'
 import { use_open_router_models } from './hooks/use-open-router-models'
 import { ApiSettingsForm } from '@ui/components/editor/ApiSettingsForm'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
 import { TextButton } from '@ui/components/editor/TextButton'
-import { use_chat } from './providers/chat-provider'
 
 const vscode = acquireVsCodeApi()
 
@@ -24,10 +27,41 @@ export const View = () => {
     useState(false)
   const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
     useState(false)
+  const [instructions, set_instructions] = useState<string | undefined>(
+    undefined
+  )
+  const [code_completion_suggestions, set_code_completion_suggestions] =
+    useState<string | undefined>(undefined)
 
   const open_router_models_hook = use_open_router_models(vscode)
   const api_tools_configuration_hook = use_api_tools_configuration(vscode)
-  const chat_hook = use_chat()
+
+  const save_normal_instructions_debounced = debounce((instruction: string) => {
+    vscode.postMessage({
+      command: 'SAVE_INSTRUCTIONS',
+      instruction
+    } as SaveInstructionsMessage)
+  }, 500)
+
+  const save_code_completion_suggestions_debounced = debounce(
+    (instruction: string) => {
+      vscode.postMessage({
+        command: 'SAVE_CODE_COMPLETION_SUGGESTIONS',
+        instruction
+      } as SaveCodeCompletionSuggestionsMessage)
+    },
+    500
+  )
+
+  const handle_instructions_change = (value: string) => {
+    set_instructions(value)
+    save_normal_instructions_debounced(value)
+  }
+
+  const handle_code_completion_suggestions_change = (value: string) => {
+    set_code_completion_suggestions(value)
+    save_code_completion_suggestions_debounced(value)
+  }
 
   useEffect(() => {
     const handle_message = (event: MessageEvent<ExtensionMessage>) => {
@@ -37,14 +71,18 @@ export const View = () => {
       } else if (message.command == 'PRESET_UPDATED') {
         set_updating_preset(undefined)
         set_updated_preset(undefined)
+      } else if (message.command == 'INSTRUCTIONS') {
+        set_instructions(message.value)
+      } else if (message.command == 'CODE_COMPLETION_SUGGESTIONS') {
+        set_code_completion_suggestions(message.value)
       }
     }
     window.addEventListener('message', handle_message)
-    return () => window.removeEventListener('message', handle_message)
-  }, [])
-
-  useEffect(() => {
     vscode.postMessage({ command: 'GET_CODE_COMPLETIONS_MODE' })
+    vscode.postMessage({ command: 'GET_INSTRUCTIONS' })
+    vscode.postMessage({ command: 'GET_CODE_COMPLETION_SUGGESTIONS' })
+
+    return () => window.removeEventListener('message', handle_message)
   }, [])
 
   const edit_preset_back_click_handler = () => {
@@ -56,11 +94,13 @@ export const View = () => {
   }
 
   const handle_preview_preset = () => {
+    const instructions_to_send = is_in_code_completions_mode
+      ? code_completion_suggestions
+      : instructions
+
     vscode.postMessage({
       command: 'PREVIEW_PRESET',
-      instruction: is_in_code_completions_mode
-        ? chat_hook.code_completion_suggestions
-        : chat_hook.normal_instructions,
+      instruction: instructions_to_send,
       preset: updated_preset
     })
   }
@@ -69,7 +109,9 @@ export const View = () => {
     !api_tools_configuration_hook.code_completions_settings ||
     !api_tools_configuration_hook.file_refactoring_settings ||
     !api_tools_configuration_hook.apply_chat_response_settings ||
-    !api_tools_configuration_hook.commit_message_settings
+    !api_tools_configuration_hook.commit_message_settings ||
+    instructions === undefined ||
+    code_completion_suggestions === undefined
   ) {
     return null
   }
@@ -91,6 +133,12 @@ export const View = () => {
         on_preset_edit={(preset) => {
           set_updating_preset(preset)
         }}
+        normal_instructions={instructions}
+        set_normal_instructions={handle_instructions_change}
+        code_completion_suggestions={code_completion_suggestions}
+        set_code_completion_suggestions={
+          handle_code_completion_suggestions_change
+        }
       />
       <ApiToolsTab
         vscode={vscode}
@@ -200,4 +248,17 @@ export const View = () => {
       <Template edit_view_slot={edit_view} tabs_slot={tabs} />
     </>
   )
+}
+
+export const debounce = <F extends (...args: any[]) => any>(
+  func: F,
+  wait: number
+) => {
+  let timeout: ReturnType<typeof setTimeout> | null = null
+  return (...args: Parameters<F>): void => {
+    if (timeout) {
+      clearTimeout(timeout)
+    }
+    timeout = setTimeout(() => func(...args), wait)
+  }
 }
