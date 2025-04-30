@@ -178,7 +178,7 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
   if (params.chat.system_instructions && chatbot?.enter_system_instructions) {
     await chatbot.enter_system_instructions(params.chat.system_instructions)
   }
-  if (params.chat.temperature && chatbot?.set_temperature) {
+  if (params.chat.temperature !== undefined && chatbot?.set_temperature) {
     await chatbot.set_temperature(params.chat.temperature)
   }
   if (params.chat.options && chatbot?.set_options) {
