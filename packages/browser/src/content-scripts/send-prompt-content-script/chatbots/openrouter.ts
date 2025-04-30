@@ -3,20 +3,7 @@ import { Chatbot } from '../types/chatbot'
 import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
-
-const apply_chat_response_button_style = (button: HTMLButtonElement) => {
-  button.style.fontSize = '13px'
-  button.style.marginLeft = '8px'
-  button.style.padding = '4px 9px'
-  button.style.borderRadius = '4px'
-  button.style.fontWeight = '500'
-  button.style.color = 'white'
-  button.style.background =
-    'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
-  button.style.border = 'none'
-  button.style.cursor = 'pointer'
-  button.style.transition = 'opacity 0.2s ease-in-out'
-}
+import { apply_chat_response_button_style } from '../utils/apply-response'
 
 const handle_apply_chat_response_button_click = async (
   clicked_button: HTMLButtonElement,
