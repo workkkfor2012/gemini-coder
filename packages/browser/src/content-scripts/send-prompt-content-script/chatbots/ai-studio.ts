@@ -5,30 +5,6 @@ import { extract_path_from_comment } from '@shared/utils/extract-path-from-comme
 import browser from 'webextension-polyfill'
 import { apply_chat_response_button_style } from '../utils/apply-response'
 
-const handle_apply_chat_response_button_click = (
-  clicked_button: HTMLButtonElement,
-  client_id: number
-) => {
-  clicked_button.disabled = true
-  clicked_button.style.opacity = '50%'
-  clicked_button.style.cursor = 'not-allowed'
-  const chat_turn_container = clicked_button.closest('.chat-turn-container')!
-  const options = chat_turn_container.querySelector(
-    'ms-chat-turn-options > div > button'
-  ) as HTMLElement
-  options.click()
-  const markdown_copy_button = Array.from(
-    document.querySelectorAll('button')
-  ).find((button) =>
-    button.textContent?.includes('markdown_copy')
-  ) as HTMLElement
-  markdown_copy_button.click()
-  browser.runtime.sendMessage({
-    action: 'apply-chat-response',
-    client_id
-  } as ApplyChatResponseMessage)
-}
-
 export const ai_studio: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
@@ -113,69 +89,80 @@ export const ai_studio: Chatbot = {
     }
   },
   inject_apply_response_button: (client_id: number) => {
-    const debounced_add_buttons = debounce(
-      (params: { footer: Element; client_id: number }) => {
-        const apply_response_button_text = 'Apply response'
+    const debounced_add_buttons = debounce((params: { footer: Element }) => {
+      const apply_response_button_text = 'Apply response'
 
-        // Check if buttons already exist by text content to avoid duplicates
-        const existing_apply_response_button = Array.from(
-          params.footer.querySelectorAll('button')
-        ).find((btn) => btn.textContent == apply_response_button_text)
+      // Check if buttons already exist by text content to avoid duplicates
+      const existing_apply_response_button = Array.from(
+        params.footer.querySelectorAll('button')
+      ).find((btn) => btn.textContent == apply_response_button_text)
 
-        if (existing_apply_response_button) {
-          return
+      if (existing_apply_response_button) {
+        return
+      }
+
+      // Find the parent chat-turn-container
+      const chat_turn = params.footer.closest('ms-chat-turn') as HTMLElement
+
+      if (!chat_turn) {
+        console.error(
+          'Chat turn container not found for footer:',
+          params.footer
+        )
+        return
+      }
+
+      const first_line_comments_of_code_blocks =
+        chat_turn.querySelectorAll('ms-code-block code')
+      let has_eligible_block = false
+      for (const code_block of Array.from(first_line_comments_of_code_blocks)) {
+        const first_line_text = code_block?.textContent?.split('\n')[0]
+        if (first_line_text && extract_path_from_comment(first_line_text)) {
+          has_eligible_block = true
+          break
         }
+      }
+      if (!has_eligible_block) return
 
-        // Find the parent chat-turn-container
-        const chat_turn = params.footer.closest('ms-chat-turn') as HTMLElement
+      const create_apply_response_button = () => {
+        const apply_response_button = document.createElement('button')
+        apply_response_button.textContent = apply_response_button_text
+        apply_response_button.title =
+          'Integrate changes with the codebase. You can fully revert the operation.'
+        apply_chat_response_button_style(apply_response_button)
 
-        if (!chat_turn) {
-          console.error(
-            'Chat turn container not found for footer:',
-            params.footer
-          )
-          return
-        }
+        // Add event listener for Fast replace button click
+        apply_response_button.addEventListener('click', () => {
+          apply_response_button.disabled = true
+          apply_response_button.style.opacity = '50%'
+          apply_response_button.style.cursor = 'not-allowed'
+          const chat_turn_container = apply_response_button.closest(
+            '.chat-turn-container'
+          )!
+          const options = chat_turn_container.querySelector(
+            'ms-chat-turn-options > div > button'
+          ) as HTMLElement
+          options.click()
+          const markdown_copy_button = Array.from(
+            document.querySelectorAll('button')
+          ).find((button) =>
+            button.textContent?.includes('markdown_copy')
+          ) as HTMLElement
+          markdown_copy_button.click()
+          browser.runtime.sendMessage({
+            action: 'apply-chat-response',
+            client_id
+          } as ApplyChatResponseMessage)
+        })
 
-        const first_line_comments_of_code_blocks =
-          chat_turn.querySelectorAll('ms-code-block code')
-        let has_eligible_block = false
-        for (const code_block of Array.from(
-          first_line_comments_of_code_blocks
-        )) {
-          const first_line_text = code_block?.textContent?.split('\n')[0]
-          if (first_line_text && extract_path_from_comment(first_line_text)) {
-            has_eligible_block = true
-            break
-          }
-        }
-        if (!has_eligible_block) return
+        params.footer.insertBefore(
+          apply_response_button,
+          params.footer.children[2]
+        )
+      }
 
-        const create_apply_response_button = () => {
-          const apply_response_button = document.createElement('button')
-          apply_response_button.textContent = apply_response_button_text
-          apply_response_button.title =
-            'Integrate changes with the codebase. You can fully revert the operation.'
-          apply_chat_response_button_style(apply_response_button)
-
-          // Add event listener for Fast replace button click
-          apply_response_button.addEventListener('click', () => {
-            handle_apply_chat_response_button_click(
-              apply_response_button,
-              params.client_id
-            )
-          })
-
-          params.footer.insertBefore(
-            apply_response_button,
-            params.footer.children[2]
-          )
-        }
-
-        create_apply_response_button()
-      },
-      100
-    )
+      create_apply_response_button()
+    }, 100)
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
@@ -187,8 +174,7 @@ export const ai_studio: Chatbot = {
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {
             debounced_add_buttons({
-              footer,
-              client_id
+              footer
             })
           }
         })

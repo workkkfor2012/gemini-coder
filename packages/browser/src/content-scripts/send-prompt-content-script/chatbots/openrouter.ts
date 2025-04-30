@@ -5,30 +5,6 @@ import browser from 'webextension-polyfill'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 import { apply_chat_response_button_style } from '../utils/apply-response'
 
-const handle_apply_chat_response_button_click = async (
-  clicked_button: HTMLButtonElement,
-  client_id: number
-) => {
-  clicked_button.disabled = true
-  clicked_button.style.opacity = '50%'
-  clicked_button.style.cursor = 'not-allowed'
-  const parent = clicked_button.parentElement!
-  const actions = parent.querySelectorAll('button')
-  const copy_button = Array.from(actions).find((button) => {
-    const path = button.querySelector('path')
-    return (
-      path?.getAttribute('d') ==
-      'M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184'
-    )
-  }) as HTMLButtonElement
-  copy_button.click()
-  await new Promise((r) => requestAnimationFrame(r)) // Necessary for some reason
-  browser.runtime.sendMessage({
-    action: 'apply-chat-response',
-    client_id
-  } as ApplyChatResponseMessage)
-}
-
 export const openrouter: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
@@ -116,66 +92,77 @@ export const openrouter: Chatbot = {
     close_button.click()
   },
   inject_apply_response_button: (client_id: number) => {
-    const debounced_add_buttons = debounce(
-      (params: { footer: Element; client_id: number }) => {
-        const apply_response_button_text = 'Apply response'
+    const debounced_add_buttons = debounce((params: { footer: Element }) => {
+      const apply_response_button_text = 'Apply response'
 
-        // Check if buttons already exist by text content to avoid duplicates
-        const existing_apply_response_button = Array.from(
-          params.footer.querySelectorAll('button')
-        ).find((btn) => btn.textContent == apply_response_button_text)
+      // Check if buttons already exist by text content to avoid duplicates
+      const existing_apply_response_button = Array.from(
+        params.footer.querySelectorAll('button')
+      ).find((btn) => btn.textContent == apply_response_button_text)
 
-        if (existing_apply_response_button) {
-          return
+      if (existing_apply_response_button) {
+        return
+      }
+
+      // Find the parent chat-turn-container
+      const chat_turn = params.footer.closest('.duration-200') as HTMLElement
+
+      if (!chat_turn) {
+        console.error(
+          'Chat turn container not found for footer:',
+          params.footer
+        )
+        return
+      }
+
+      const first_lines_of_code_blocks = chat_turn.querySelectorAll('code')
+      let has_eligible_block = false
+      for (const code_block of Array.from(first_lines_of_code_blocks)) {
+        const first_line_text = code_block?.textContent?.split('\n')[0]
+        if (first_line_text && extract_path_from_comment(first_line_text)) {
+          has_eligible_block = true
+          break
         }
+      }
+      if (!has_eligible_block) return
 
-        // Find the parent chat-turn-container
-        const chat_turn = params.footer.closest('.duration-200') as HTMLElement
+      const create_apply_response_button = () => {
+        const apply_response_button = document.createElement('button')
+        apply_response_button.textContent = apply_response_button_text
+        apply_response_button.title =
+          'Integrate changes with the codebase. You can fully revert the operation.'
+        apply_chat_response_button_style(apply_response_button)
 
-        if (!chat_turn) {
-          console.error(
-            'Chat turn container not found for footer:',
-            params.footer
-          )
-          return
-        }
-
-        const first_lines_of_code_blocks = chat_turn.querySelectorAll('code')
-        let has_eligible_block = false
-        for (const code_block of Array.from(first_lines_of_code_blocks)) {
-          const first_line_text = code_block?.textContent?.split('\n')[0]
-          if (first_line_text && extract_path_from_comment(first_line_text)) {
-            has_eligible_block = true
-            break
-          }
-        }
-        if (!has_eligible_block) return
-
-        const create_apply_response_button = () => {
-          const apply_response_button = document.createElement('button')
-          apply_response_button.textContent = apply_response_button_text
-          apply_response_button.title =
-            'Integrate changes with the codebase. You can fully revert the operation.'
-          apply_chat_response_button_style(apply_response_button)
-
-          // Add event listener for Fast replace button click
-          apply_response_button.addEventListener('click', () => {
-            handle_apply_chat_response_button_click(
-              apply_response_button,
-              params.client_id
+        // Add event listener for Fast replace button click
+        apply_response_button.addEventListener('click', async () => {
+          apply_response_button.disabled = true
+          apply_response_button.style.opacity = '50%'
+          apply_response_button.style.cursor = 'not-allowed'
+          const parent = apply_response_button.parentElement!
+          const actions = parent.querySelectorAll('button')
+          const copy_button = Array.from(actions).find((button) => {
+            const path = button.querySelector('path')
+            return (
+              path?.getAttribute('d') ==
+              'M15.666 3.888A2.25 2.25 0 0 0 13.5 2.25h-3c-1.03 0-1.9.693-2.166 1.638m7.332 0c.055.194.084.4.084.612v0a.75.75 0 0 1-.75.75H9a.75.75 0 0 1-.75-.75v0c0-.212.03-.418.084-.612m7.332 0c.646.049 1.288.11 1.927.184 1.1.128 1.907 1.077 1.907 2.185V19.5a2.25 2.25 0 0 1-2.25 2.25H6.75A2.25 2.25 0 0 1 4.5 19.5V6.257c0-1.108.806-2.057 1.907-2.185a48.208 48.208 0 0 1 1.927-.184'
             )
-          })
+          }) as HTMLButtonElement
+          copy_button.click()
+          await new Promise((r) => requestAnimationFrame(r)) // Necessary for some reason
+          browser.runtime.sendMessage({
+            action: 'apply-chat-response',
+            client_id
+          } as ApplyChatResponseMessage)
+        })
 
-          params.footer.insertBefore(
-            apply_response_button,
-            params.footer.children[5]
-          )
-        }
+        params.footer.insertBefore(
+          apply_response_button,
+          params.footer.children[5]
+        )
+      }
 
-        create_apply_response_button()
-      },
-      100
-    )
+      create_apply_response_button()
+    }, 100)
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
@@ -193,8 +180,7 @@ export const openrouter: Chatbot = {
         )
         all_footers.forEach((footer) => {
           debounced_add_buttons({
-            footer,
-            client_id
+            footer
           })
         })
       })
