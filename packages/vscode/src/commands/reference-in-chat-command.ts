@@ -3,6 +3,7 @@ import * as path from 'path'
 import { ViewProvider } from '../view/view-provider'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
 import { FileItem } from '../context/providers/workspace-provider'
+import { SharedFileState } from '../context/shared-file-state'
 
 export function reference_in_chat_command(
   view_provider: ViewProvider | undefined,
@@ -10,7 +11,7 @@ export function reference_in_chat_command(
 ) {
   return vscode.commands.registerCommand(
     'geminiCoder.referenceInChat',
-    (uri: FileItem) => {
+    async (uri: FileItem) => {
       if (!view_provider || !workspace_provider) {
         return
       }
@@ -25,6 +26,29 @@ export function reference_in_chat_command(
           'Cannot reference file outside of the workspace.'
         )
         return
+      }
+
+      // Check if file is not already checked
+      const shared_state = SharedFileState.getInstance()
+      const is_checked = shared_state.get_checked_files().includes(file_path)
+
+      if (!is_checked) {
+        // Create a temporary FileItem to update the check state
+        const temp_item = new FileItem(
+          path.basename(file_path),
+          uri.resourceUri,
+          vscode.TreeItemCollapsibleState.None,
+          false,
+          vscode.TreeItemCheckboxState.Checked,
+          false,
+          false,
+          false
+        )
+
+        await workspace_provider.update_check_state(
+          temp_item,
+          vscode.TreeItemCheckboxState.Checked
+        )
       }
 
       const relative_path = path.relative(workspace_root, file_path)
