@@ -1,9 +1,10 @@
-import { ApplyChatResponseMessage } from '@/types/messages'
+import { Message } from '@/types/messages'
 import { Chatbot } from '../types/chatbot'
 import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 import { apply_chat_response_button_style } from '../utils/apply-response'
+import { APPLY_RESPONSE_DISABLED_STATE_TIMEOUT } from '../constants'
 
 export const openrouter: Chatbot = {
   wait_until_ready: async () => {
@@ -100,9 +101,7 @@ export const openrouter: Chatbot = {
         params.footer.querySelectorAll('button')
       ).find((btn) => btn.textContent == apply_response_button_text)
 
-      if (existing_apply_response_button) {
-        return
-      }
+      if (existing_apply_response_button) return
 
       // Find the parent chat-turn-container
       const chat_turn = params.footer.closest('.duration-200') as HTMLElement
@@ -136,8 +135,13 @@ export const openrouter: Chatbot = {
         // Add event listener for Fast replace button click
         apply_response_button.addEventListener('click', async () => {
           apply_response_button.disabled = true
-          apply_response_button.style.opacity = '50%'
+          apply_response_button.style.opacity = '0.5'
           apply_response_button.style.cursor = 'not-allowed'
+          setTimeout(() => {
+            apply_response_button.disabled = false
+            apply_response_button.style.opacity = ''
+            apply_response_button.style.cursor = 'pointer'
+          }, APPLY_RESPONSE_DISABLED_STATE_TIMEOUT)
           const parent = apply_response_button.parentElement!
           const actions = parent.querySelectorAll('button')
           const copy_button = Array.from(actions).find((button) => {
@@ -148,11 +152,12 @@ export const openrouter: Chatbot = {
             )
           }) as HTMLButtonElement
           copy_button.click()
-          await new Promise((r) => requestAnimationFrame(r)) // Necessary for some reason
-          browser.runtime.sendMessage({
-            action: 'apply-chat-response',
-            client_id
-          } as ApplyChatResponseMessage)
+          setTimeout(() => {
+            browser.runtime.sendMessage<Message>({
+              action: 'apply-chat-response',
+              client_id: client_id
+            })
+          }, 500)
         })
 
         params.footer.insertBefore(

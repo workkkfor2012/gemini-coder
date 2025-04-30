@@ -1,9 +1,10 @@
 import { Chatbot } from '../types/chatbot'
-import { ApplyChatResponseMessage } from '@/types/messages'
+import { Message } from '@/types/messages'
 import { debounce } from '@/utils/debounce'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 import browser from 'webextension-polyfill'
 import { apply_chat_response_button_style } from '../utils/apply-response'
+import { APPLY_RESPONSE_DISABLED_STATE_TIMEOUT } from '../constants'
 
 export const ai_studio: Chatbot = {
   wait_until_ready: async () => {
@@ -121,9 +122,7 @@ export const ai_studio: Chatbot = {
         params.footer.querySelectorAll('button')
       ).find((btn) => btn.textContent == apply_response_button_text)
 
-      if (existing_apply_response_button) {
-        return
-      }
+      if (existing_apply_response_button) return
 
       // Find the parent chat-turn-container
       const chat_turn = params.footer.closest('ms-chat-turn') as HTMLElement
@@ -158,8 +157,13 @@ export const ai_studio: Chatbot = {
         // Add event listener for Fast replace button click
         apply_response_button.addEventListener('click', () => {
           apply_response_button.disabled = true
-          apply_response_button.style.opacity = '50%'
+          apply_response_button.style.opacity = '0.5'
           apply_response_button.style.cursor = 'not-allowed'
+          setTimeout(() => {
+            apply_response_button.disabled = false
+            apply_response_button.style.opacity = ''
+            apply_response_button.style.cursor = 'pointer'
+          }, APPLY_RESPONSE_DISABLED_STATE_TIMEOUT)
           const chat_turn_container = apply_response_button.closest(
             '.chat-turn-container'
           )!
@@ -173,10 +177,10 @@ export const ai_studio: Chatbot = {
             button.textContent?.includes('markdown_copy')
           ) as HTMLElement
           markdown_copy_button.click()
-          browser.runtime.sendMessage({
+          browser.runtime.sendMessage<Message>({
             action: 'apply-chat-response',
             client_id
-          } as ApplyChatResponseMessage)
+          })
         })
 
         params.footer.insertBefore(

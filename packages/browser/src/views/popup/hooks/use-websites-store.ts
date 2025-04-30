@@ -1,4 +1,4 @@
-import { UpdateSavedWebsitesMessage } from '@/types/messages'
+import { Message } from '@/types/messages'
 import localforage from 'localforage'
 import browser from 'webextension-polyfill'
 
@@ -37,13 +37,11 @@ export const use_websites_store = () => {
         favicon: site.favicon
       }))
 
-      const message: UpdateSavedWebsitesMessage = {
+      // Send message to background script
+      await browser.runtime.sendMessage<Message>({
         action: 'update-saved-websites',
         websites: websites_to_send
-      }
-
-      // Send message to background script
-      await browser.runtime.sendMessage(message)
+      })
     } catch (error) {
       console.error('Error notifying website changes:', error)
     }

@@ -11,6 +11,7 @@ import { chatgpt } from './chatbots/chatgpt'
 import { gemini } from './chatbots/gemini'
 import { ai_studio } from './chatbots/ai-studio'
 import { Chatbot } from './types/chatbot'
+import { Message } from '@/types/messages'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -194,7 +195,7 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
   })
 
   // Process next chat from the queue
-  browser.runtime.sendMessage({
+  browser.runtime.sendMessage<Message>({
     action: 'chat-initialized'
   })
 }
