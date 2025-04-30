@@ -246,7 +246,7 @@ export function apply_chat_response_command(params: {
         const all_files_new = await check_if_all_files_new(parsed_files)
         const buttons = all_files_new
           ? ['Revert']
-          : ['Revert', 'Looks off, use API tool']
+          : ['Revert', 'Looks off, update with AI']
 
         const response = await vscode.window.showInformationMessage(
           message,
@@ -259,7 +259,7 @@ export function apply_chat_response_command(params: {
             LAST_APPLIED_CHANGES_STATE_KEY,
             null
           )
-        } else if (response == 'Looks off, use API tool') {
+        } else if (response == 'Looks off, update with AI') {
           // First revert the fast replace changes
           await revert_files(final_original_states)
 
