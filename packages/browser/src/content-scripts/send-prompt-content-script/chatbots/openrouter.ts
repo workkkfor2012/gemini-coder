@@ -130,7 +130,7 @@ export const openrouter: Chatbot = {
         const apply_response_button = document.createElement('button')
         apply_response_button.textContent = apply_response_button_text
         apply_response_button.title =
-          'Integrate changes with the codebase. You can fully revert the operation.'
+          'Integrate changes with the codebase. You can fully revert this operation.'
         apply_chat_response_button_style(apply_response_button)
 
         // Add event listener for Fast replace button click
@@ -166,8 +166,8 @@ export const openrouter: Chatbot = {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
-        // Return early when stopping response generation button is visible
         if (
+          // Stop icon of a stopping response generation button
           document.querySelector(
             'path[d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"]'
           )

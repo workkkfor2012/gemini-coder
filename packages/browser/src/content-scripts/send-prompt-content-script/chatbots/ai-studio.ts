@@ -152,7 +152,7 @@ export const ai_studio: Chatbot = {
         const apply_response_button = document.createElement('button')
         apply_response_button.textContent = apply_response_button_text
         apply_response_button.title =
-          'Integrate changes with the codebase. You can fully revert the operation.'
+          'Integrate changes with the codebase. You can fully revert this operation.'
         apply_chat_response_button_style(apply_response_button)
 
         // Add event listener for Fast replace button click
