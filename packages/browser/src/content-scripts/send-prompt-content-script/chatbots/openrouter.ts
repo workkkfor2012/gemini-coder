@@ -3,8 +3,10 @@ import { Chatbot } from '../types/chatbot'
 import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
-import { apply_chat_response_button_style } from '../utils/apply-response'
-import { APPLY_RESPONSE_DISABLED_STATE_TIMEOUT } from '../constants'
+import {
+  apply_chat_response_button_style,
+  set_button_disabled_state
+} from '../utils/apply-response'
 
 export const openrouter: Chatbot = {
   wait_until_ready: async () => {
@@ -134,14 +136,7 @@ export const openrouter: Chatbot = {
 
         // Add event listener for Fast replace button click
         apply_response_button.addEventListener('click', async () => {
-          apply_response_button.disabled = true
-          apply_response_button.style.opacity = '0.5'
-          apply_response_button.style.cursor = 'not-allowed'
-          setTimeout(() => {
-            apply_response_button.disabled = false
-            apply_response_button.style.opacity = ''
-            apply_response_button.style.cursor = 'pointer'
-          }, APPLY_RESPONSE_DISABLED_STATE_TIMEOUT)
+          set_button_disabled_state(apply_response_button)
           const parent = apply_response_button.parentElement!
           const actions = parent.querySelectorAll('button')
           const copy_button = Array.from(actions).find((button) => {
