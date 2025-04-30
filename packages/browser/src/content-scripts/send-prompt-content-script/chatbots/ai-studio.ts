@@ -149,17 +149,14 @@ export const ai_studio: Chatbot = {
           return
         }
 
-        const first_line_comments_of_code_blocks = chat_turn.querySelectorAll(
-          'ms-code-block code > span.hljs-comment:first-child'
-        )
+        const first_line_comments_of_code_blocks =
+          chat_turn.querySelectorAll('ms-code-block code')
         let has_eligible_block = false
         for (const code_block of Array.from(
           first_line_comments_of_code_blocks
         )) {
-          if (
-            code_block?.textContent &&
-            extract_path_from_comment(code_block.textContent)
-          ) {
+          const first_line_text = code_block?.textContent?.split('\n')[0]
+          if (first_line_text && extract_path_from_comment(first_line_text)) {
             has_eligible_block = true
             break
           }
@@ -170,7 +167,7 @@ export const ai_studio: Chatbot = {
           const apply_response_button = document.createElement('button')
           apply_response_button.textContent = apply_response_button_text
           apply_response_button.title =
-            'Send response to the editor. The operation can be completely rolled back.'
+            'Integrate changes with the codebase. You can fully revert the operation.'
           apply_chat_response_button_style(apply_response_button)
 
           // Add event listener for Fast replace button click
@@ -198,7 +195,6 @@ export const ai_studio: Chatbot = {
           'ms-chat-turn .turn-footer'
         )
         all_footers.forEach((footer) => {
-          // Check if the footer is for an AI response (contains thumb_up icon)
           if (
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {

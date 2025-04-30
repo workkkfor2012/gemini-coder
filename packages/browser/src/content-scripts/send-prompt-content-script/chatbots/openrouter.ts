@@ -9,6 +9,7 @@ const apply_chat_response_button_style = (button: HTMLButtonElement) => {
   button.style.marginLeft = '8px'
   button.style.padding = '4px 9px'
   button.style.borderRadius = '4px'
+  button.style.fontWeight = '500'
   button.style.color = 'white'
   button.style.background =
     'linear-gradient(to bottom right, #9168C0 12%, #319749 40%, #42de67 90%)'
@@ -152,15 +153,11 @@ export const openrouter: Chatbot = {
           return
         }
 
-        const first_lines_of_code_blocks = chat_turn.querySelectorAll(
-          'code > span:first-child'
-        )
+        const first_lines_of_code_blocks = chat_turn.querySelectorAll('code')
         let has_eligible_block = false
         for (const code_block of Array.from(first_lines_of_code_blocks)) {
-          if (
-            code_block?.textContent &&
-            extract_path_from_comment(code_block.textContent)
-          ) {
+          const first_line_text = code_block?.textContent?.split('\n')[0]
+          if (first_line_text && extract_path_from_comment(first_line_text)) {
             has_eligible_block = true
             break
           }
@@ -171,7 +168,7 @@ export const openrouter: Chatbot = {
           const apply_response_button = document.createElement('button')
           apply_response_button.textContent = apply_response_button_text
           apply_response_button.title =
-            'Send response to the editor. The operation can be completely rolled back.'
+            'Integrate changes with the codebase. You can fully revert the operation.'
           apply_chat_response_button_style(apply_response_button)
 
           // Add event listener for Fast replace button click
