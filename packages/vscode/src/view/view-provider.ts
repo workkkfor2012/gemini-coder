@@ -1029,13 +1029,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 return
               }
 
-              const save_changes_button = 'Update'
-              const discard_changes = 'Discard changes'
+              const save_changes_button = 'Save'
+              const discard_changes = 'Close without saving'
               const result = await vscode.window.showInformationMessage(
-                'Please confirm',
+                'Save changes to the preset?',
                 {
                   modal: true,
-                  detail: 'Are you sure you want to update this preset?'
+                  detail:
+                    "If you don't save, updates to the preset will be lost."
                 },
                 save_changes_button,
                 discard_changes
