@@ -38,6 +38,27 @@ const extract_workspace_and_path = (
   return { relative_path: file_path }
 }
 
+// Helper function to check if content has real code (not just comments or empty)
+const has_real_code = (content: string): boolean => {
+  // Remove comments and check if there's any non-whitespace content
+  const lines = content.split('\n')
+
+  // Filter out empty lines and lines that are just comments
+  const non_comment_lines = lines.filter((line) => {
+    const trimmed = line.trim()
+    return (
+      trimmed != '' &&
+      !trimmed.startsWith('// ...') &&
+      !trimmed.startsWith('# ...') &&
+      !trimmed.startsWith('/* ...') &&
+      !trimmed.startsWith('* ...') &&
+      !trimmed.startsWith('-- ...')
+    )
+  })
+
+  return non_comment_lines.length > 0
+}
+
 export const parse_clipboard_multiple_files = (params: {
   clipboard_text: string
   is_single_root_folder_workspace: boolean
@@ -85,8 +106,8 @@ export const parse_clipboard_multiple_files = (params: {
           content: current_content
         })
 
-        // Add the collected file if we have a valid filename
-        if (current_file_name) {
+        // Add the collected file if we have a valid filename and it has real code
+        if (current_file_name && has_real_code(cleaned_content)) {
           const file_key = `${
             current_workspace_name || ''
           }:${current_file_name}`
@@ -116,9 +137,9 @@ export const parse_clipboard_multiple_files = (params: {
           if (
             line.trim().startsWith('//') ||
             line.trim().startsWith('#') ||
-            line.trim().startsWith('--') ||
             line.trim().startsWith('/*') ||
-            line.trim().startsWith('*')
+            line.trim().startsWith('*') ||
+            line.trim().startsWith('--')
           ) {
             const extracted_filename = extract_path_from_comment(line)
             if (extracted_filename) {
@@ -157,19 +178,22 @@ export const parse_clipboard_multiple_files = (params: {
     // Clean up the collected content before adding/appending
     const cleaned_content = cleanup_api_response({ content: current_content })
 
-    const file_key = `${current_workspace_name || ''}:${current_file_name}`
+    // Only add if it has real code
+    if (has_real_code(cleaned_content)) {
+      const file_key = `${current_workspace_name || ''}:${current_file_name}`
 
-    if (files_map.has(file_key)) {
-      const existing_file = files_map.get(file_key)!
-      // Append cleaned content
-      existing_file.content += '\n\n' + cleaned_content
-    } else {
-      files_map.set(file_key, {
-        file_path: current_file_name,
-        // Use cleaned content
-        content: cleaned_content,
-        workspace_name: current_workspace_name
-      })
+      if (files_map.has(file_key)) {
+        const existing_file = files_map.get(file_key)!
+        // Append cleaned content
+        existing_file.content += '\n\n' + cleaned_content
+      } else {
+        files_map.set(file_key, {
+          file_path: current_file_name,
+          // Use cleaned content
+          content: cleaned_content,
+          workspace_name: current_workspace_name
+        })
+      }
     }
   }
 
@@ -190,9 +214,9 @@ export const parse_file_content_only = (params: {
     !(
       first_line.startsWith('//') ||
       first_line.startsWith('#') ||
-      first_line.startsWith('--') ||
       first_line.startsWith('/*') ||
-      first_line.startsWith('*')
+      first_line.startsWith('*') ||
+      first_line.startsWith('--')
     )
   ) {
     return null
@@ -210,11 +234,16 @@ export const parse_file_content_only = (params: {
   const content = lines.slice(1).join('\n')
   const cleaned_content = cleanup_api_response({ content })
 
-  return {
-    file_path: relative_path,
-    content: cleaned_content,
-    workspace_name: workspace_name
+  // Only return if it has real code
+  if (has_real_code(cleaned_content)) {
+    return {
+      file_path: relative_path,
+      content: cleaned_content,
+      workspace_name: workspace_name
+    }
   }
+
+  return null
 }
 
 export const is_multiple_files_clipboard = (

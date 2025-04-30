@@ -83,6 +83,25 @@ describe('clipboard-parser', () => {
       expect(result[0].content).toContain('First part')
       expect(result[0].content).toContain('Second part')
     })
+
+    it('should ignore files without real code', () => {
+      const text = load_clipboard_text('empty-file.txt')
+      const result = parse_clipboard_multiple_files({
+        clipboard_text: text,
+        is_single_root_folder_workspace: true
+      })
+
+      // Should only include the backend file with real code
+      expect(result).toHaveLength(1)
+      expect(result[0].file_path).toBe('backend/src/index.ts')
+      expect(result[0].content).toContain('console.log("hello")')
+
+      // Should not include the frontend file that has no real code
+      const frontendFile = result.find(
+        (f) => f.file_path == 'frontend/src/index.ts'
+      )
+      expect(frontendFile).toBeUndefined()
+    })
   })
 
   describe('parse_file_content_only', () => {
