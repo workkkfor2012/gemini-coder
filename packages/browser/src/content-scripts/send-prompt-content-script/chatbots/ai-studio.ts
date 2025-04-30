@@ -75,10 +75,34 @@ export const ai_studio: Chatbot = {
       await new Promise((r) => requestAnimationFrame(r))
     }
     const temperature_element = document.querySelector(
-      'ms-prompt-run-settings input[type=number]'
+      'ms-prompt-run-settings div[data-test-id="temperatureSliderContainer"] input[type=number]'
     ) as HTMLInputElement
     temperature_element.value = temperature.toString()
     temperature_element.dispatchEvent(new Event('change', { bubbles: true }))
+    if (window.innerWidth <= 768) {
+      const close_button = Array.from(
+        document.querySelectorAll('ms-run-settings button')
+      ).find(
+        (button) => button.textContent?.trim() == 'close'
+      ) as HTMLButtonElement
+      close_button.click()
+    }
+  },
+  set_top_p: async (top_p: number) => {
+    if (window.innerWidth <= 768) {
+      const tune_button = Array.from(
+        document.querySelectorAll('prompt-header button')
+      ).find(
+        (button) => button.textContent?.trim() == 'tune'
+      ) as HTMLButtonElement
+      tune_button.click()
+      await new Promise((r) => requestAnimationFrame(r))
+    }
+    const top_p_element = document.querySelector(
+      'ms-prompt-run-settings div[mattooltip="Probability threshold for top-p sampling"] input[type=number]'
+    ) as HTMLInputElement
+    top_p_element.value = top_p.toString()
+    top_p_element.dispatchEvent(new Event('change', { bubbles: true }))
     if (window.innerWidth <= 768) {
       const close_button = Array.from(
         document.querySelectorAll('ms-run-settings button')

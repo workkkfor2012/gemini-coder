@@ -2,10 +2,12 @@ type Chatbot = {
   [key: string]: {
     url: string
     supports_custom_temperature: boolean
+    supports_custom_top_p: boolean
     supports_system_instructions: boolean
     supports_user_provided_model: boolean
     supports_user_provided_port: boolean
     default_system_instructions: string
+    default_top_p: number
     supported_options: {
       [option: string]: string
     }
@@ -19,10 +21,12 @@ export const CHATBOTS = {
   'AI Studio': {
     url: 'https://aistudio.google.com/prompts/new_chat',
     supports_custom_temperature: true,
+    supports_custom_top_p: true,
     supports_system_instructions: true,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: "You're a helpful coding assistant.",
+    default_top_p: 0.95,
     supported_options: {
       // TODO
       // close sidebar
@@ -38,11 +42,13 @@ export const CHATBOTS = {
   Gemini: {
     url: 'https://gemini.google.com/app',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     supported_options: { canvas: 'Canvas' },
     default_system_instructions: '',
+    default_top_p: 0,
     models: {
       '2.0-flash': '2.0 Flash',
       '2.5-flash-experimental': '2.5 Flash (experimental)',
@@ -52,21 +58,25 @@ export const CHATBOTS = {
   'Open WebUI': {
     url: 'http://openwebui/',
     supports_custom_temperature: true,
+    supports_custom_top_p: false,
     supports_system_instructions: true,
     supports_user_provided_model: true,
     supports_user_provided_port: true,
     default_system_instructions: "You're a helpful coding assistant.",
     supported_options: {},
+    default_top_p: 0,
     models: {}
   },
   OpenRouter: {
     url: 'https://openrouter.ai/chat',
     supports_custom_temperature: true,
+    supports_custom_top_p: false,
     supports_system_instructions: true,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: "You're a helpful coding assistant.",
     supported_options: {},
+    default_top_p: 0,
     models: {
       // Populated dynamically
     }
@@ -74,21 +84,25 @@ export const CHATBOTS = {
   ChatGPT: {
     url: 'https://chatgpt.com/',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {},
+    default_top_p: 0,
     models: {}
   },
   'GitHub Copilot': {
     url: 'https://github.com/copilot',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {},
+    default_top_p: 0,
     models: {
       '4o': 'GPT-4o',
       'o3-mini': 'o3-mini',
@@ -102,51 +116,61 @@ export const CHATBOTS = {
   Claude: {
     url: 'https://claude.ai/new',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {},
+    default_top_p: 0,
     models: {}
   },
   DeepSeek: {
     url: 'https://chat.deepseek.com/',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: { 'deep-think': 'DeepThink (R1)', search: 'Search' },
+    default_top_p: 0,
     models: {}
   },
   Mistral: {
     url: 'https://chat.mistral.ai/chat',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {},
+    default_top_p: 0,
     models: {}
   },
   Grok: {
     url: 'https://grok.com/',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: { think: 'Think' },
+    default_top_p: 0,
     models: {}
   },
   HuggingChat: {
     url: 'https://huggingface.co/chat/',
     supports_custom_temperature: false,
+    supports_custom_top_p: false,
     supports_system_instructions: false,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {},
+    default_top_p: 0,
     models: {}
   }
 } satisfies Chatbot

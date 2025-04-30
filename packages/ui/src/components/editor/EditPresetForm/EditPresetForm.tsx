@@ -6,7 +6,7 @@ import TextareaAutosize from 'react-textarea-autosize'
 import { Icon } from '../Icon'
 import { Field } from '../Field'
 import { chatbot_to_icon } from '../../../constants/chatbot-to-icon'
-import { TemperatureControl } from '../TemperatureControl'
+import { Slider } from '../Slider'
 
 type Props = {
   preset: Preset
@@ -25,6 +25,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   const [chatbot, set_chatbot] = useState(props.preset.chatbot)
   const [name, set_name] = useState(props.preset.name)
   const [temperature, set_temperature] = useState(props.preset.temperature)
+  const [top_p, set_top_p] = useState(props.preset.top_p)
   const [model, set_model] = useState(props.preset.model)
   const [system_instructions, set_system_instructions] = useState(
     props.preset.system_instructions
@@ -45,6 +46,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   }>({})
 
   const supports_temperature = CHATBOTS[chatbot].supports_custom_temperature
+  const supports_top_p = CHATBOTS[chatbot].supports_custom_top_p
   const supports_system_instructions =
     CHATBOTS[chatbot].supports_system_instructions
   const supports_port = CHATBOTS[chatbot].supports_user_provided_port
@@ -60,6 +62,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       ...(prompt_prefix ? { prompt_prefix } : {}),
       ...(prompt_suffix ? { prompt_suffix } : {}),
       ...(temperature !== undefined ? { temperature } : {}),
+      ...(top_p !== CHATBOTS[chatbot].default_top_p ? { top_p } : {}),
       ...(model ? { model } : {}),
       ...(system_instructions ? { system_instructions } : {}),
       ...(port !== undefined ? { port } : {}),
@@ -68,6 +71,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
   }, [
     name,
     temperature,
+    top_p,
     chatbot,
     model,
     system_instructions,
@@ -85,6 +89,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
     set_temperature(
       CHATBOTS[new_chatbot].supports_custom_temperature ? 0.5 : undefined
     )
+    set_top_p(undefined)
     if (CHATBOTS[new_chatbot].supports_system_instructions) {
       set_system_instructions(CHATBOTS[new_chatbot].default_system_instructions)
     } else {
@@ -118,7 +123,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         <Icon variant={chatbot_to_icon[chatbot]} />
       </div>
 
-      <Field label="Chatbot" htmlFor="chatbot">
+      <Field label="Chatbot" html_for="chatbot">
         <select id="chatbot" value={chatbot} onChange={handle_chatbot_change}>
           {Object.keys(CHATBOTS).map((key) => (
             <option key={key} value={key}>
@@ -129,7 +134,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       </Field>
 
       {Object.keys(models).length > 0 && (
-        <Field label="Model" htmlFor="model">
+        <Field label="Model" html_for="model">
           <select
             id="model"
             value={model}
@@ -146,7 +151,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       {chatbot == 'OpenRouter' &&
         (Object.keys(open_router_models).length > 0 ? (
-          <Field label="Model" htmlFor="open-router-model">
+          <Field label="Model" html_for="open-router-model">
             <div
               onClick={async () => {
                 const new_pick =
@@ -185,7 +190,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         ))}
 
       {supports_user_provided_model && (
-        <Field label="Model" htmlFor="custom-model">
+        <Field label="Model" html_for="custom-model">
           <input
             id="custom-model"
             type="text"
@@ -196,7 +201,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         </Field>
       )}
 
-      <Field label="Name" htmlFor="name">
+      <Field label="Name" html_for="name">
         <input
           id="name"
           type="text"
@@ -208,7 +213,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       {supports_port && (
         <Field
           label="Port"
-          htmlFor="port"
+          html_for="port"
           info={
             chatbot == 'Open WebUI' && (
               <>
@@ -251,17 +256,23 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         </Field>
       )}
 
-      {supports_temperature && (
-        <Field label="Temperature" htmlFor="temperature">
-          <TemperatureControl
-            value={temperature || 0}
-            onChange={set_temperature}
+      {supports_temperature && temperature !== undefined && (
+        <Field label="Temperature" title="Creativity allowed in the responses">
+          <Slider value={temperature} onChange={set_temperature} />
+        </Field>
+      )}
+
+      {supports_top_p && (
+        <Field label="Top P" title="Probability threshold for top-p sampling">
+          <Slider
+            value={top_p || CHATBOTS[chatbot].default_top_p}
+            onChange={set_top_p}
           />
         </Field>
       )}
 
       {supports_system_instructions && (
-        <Field label="System Instructions" htmlFor="instructions">
+        <Field label="System Instructions" html_for="instructions">
           <TextareaAutosize
             id="instructions"
             value={system_instructions}
@@ -274,7 +285,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       <Field
         label="Prompt Prefix"
-        htmlFor="prefix"
+        html_for="prefix"
         info="Text prepended to prompts used with this preset"
       >
         <input
@@ -287,7 +298,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
       <Field
         label="Prompt Suffix"
-        htmlFor="suffix"
+        html_for="suffix"
         info="Text appended to prompts used with this preset"
       >
         <input

@@ -202,6 +202,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
         prompt_suffix: preset.prompt_suffix,
         model: preset.model,
         temperature: preset.temperature,
+        top_p: preset.top_p,
         system_instructions: preset.system_instructions,
         options: preset.options,
         port: preset.port

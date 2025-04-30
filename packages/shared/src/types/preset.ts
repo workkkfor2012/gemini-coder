@@ -7,6 +7,7 @@ export type Preset = {
   prompt_suffix?: string
   model?: string
   temperature?: number
+  top_p?: number
   system_instructions?: string
   options?: string[]
   port?: number

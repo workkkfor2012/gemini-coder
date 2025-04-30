@@ -255,6 +255,7 @@ export class WebSocketManager {
             url,
             model: preset.model,
             temperature: preset.temperature,
+            top_p: preset.top_p,
             system_instructions: preset.systemInstructions,
             options: preset.options
           }
@@ -300,6 +301,7 @@ export class WebSocketManager {
           url,
           model: preset.model,
           temperature: preset.temperature,
+          top_p: preset.top_p,
           system_instructions: preset.system_instructions,
           options: preset.options
         }

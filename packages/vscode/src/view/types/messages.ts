@@ -248,6 +248,7 @@ export interface PresetMessageFormat {
   prompt_suffix?: string
   model?: string
   temperature?: number
+  top_p?: number
   system_instructions?: string
   options?: string[]
   port?: number
@@ -330,6 +331,7 @@ export interface CustomProvidersUpdatedMessage extends BaseMessage {
     apiKey: string
     model: string
     temperature?: number
+    top_p?: number
     systemInstructions?: string
   }>
 }

@@ -3,19 +3,20 @@ import styles from './Field.module.scss'
 
 type Props = {
   label: string
-  htmlFor?: string
+  html_for?: string
   info?: React.ReactNode
   children?: React.ReactNode
+  title?: string
 }
 
-export const Field: React.FC<Props> = ({ label, htmlFor, info, children }) => {
+export const Field: React.FC<Props> = (props) => {
   return (
-    <div className={styles.field}>
-      <label htmlFor={htmlFor} className={styles.field__label}>
-        {label}
+    <div className={styles.field} title={props.title}>
+      <label htmlFor={props.html_for} className={styles.field__label}>
+        {props.label}
       </label>
-      {children}
-      {info && <div className={styles.field__info}>{info}</div>}
+      {props.children}
+      {props.info && <div className={styles.field__info}>{props.info}</div>}
     </div>
   )
 }

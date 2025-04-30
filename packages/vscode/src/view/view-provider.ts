@@ -27,7 +27,6 @@ import {
   ShowQuickPickMessage,
   PreviewPresetMessage,
   SelectedCodeCompletionPresetsMessage,
-  CodeCompletionsModeMessage,
   InstructionsMessage,
   CodeCompletionSuggestionsMessage
 } from './types/messages'
@@ -52,6 +51,7 @@ type ConfigPresetFormat = {
   promptSuffix?: string
   model?: string
   temperature?: number
+  topP?: number
   systemInstructions?: string
   options?: string[]
   port?: number
@@ -431,6 +431,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       promptSuffix: preset.prompt_suffix,
       model: preset.model,
       temperature: preset.temperature,
+      topP: preset.top_p,
       systemInstructions: preset.system_instructions,
       options: preset.options,
       port: preset.port
@@ -439,18 +440,19 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   // Helper function to convert Config Preset format to UI format (already used in _send_presets_to_webview)
   private _config_preset_to_ui_format(
-    configPreset: ConfigPresetFormat
+    config_preset: ConfigPresetFormat
   ): Preset {
     return {
-      name: configPreset.name,
-      chatbot: configPreset.chatbot,
-      prompt_prefix: configPreset.promptPrefix,
-      prompt_suffix: configPreset.promptSuffix,
-      model: configPreset.model,
-      temperature: configPreset.temperature,
-      system_instructions: configPreset.systemInstructions,
-      options: configPreset.options,
-      port: configPreset.port
+      name: config_preset.name,
+      chatbot: config_preset.chatbot,
+      prompt_prefix: config_preset.promptPrefix,
+      prompt_suffix: config_preset.promptSuffix,
+      model: config_preset.model,
+      temperature: config_preset.temperature,
+      top_p: config_preset.topP,
+      system_instructions: config_preset.systemInstructions,
+      options: config_preset.options,
+      port: config_preset.port
     }
   }
 
@@ -1009,7 +1011,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   a.prompt_prefix == b.prompt_prefix &&
                   a.prompt_suffix == b.prompt_suffix &&
                   a.model == b.model &&
-                  a.temperature == b.temperature &&
+                  a.temperature === b.temperature && // can be undefined and 0
+                  a.top_p === b.top_p && // same
                   a.system_instructions == b.system_instructions &&
                   JSON.stringify(a.options) == JSON.stringify(b.options) &&
                   a.port == b.port

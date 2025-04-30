@@ -2,6 +2,7 @@ export type Chat = {
   url: string
   model?: string
   temperature?: number
+  top_p?: number
   system_instructions?: string
   options?: string[]
 }

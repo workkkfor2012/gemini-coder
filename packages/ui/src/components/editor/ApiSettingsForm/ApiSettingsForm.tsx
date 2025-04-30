@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import styles from './ApiSettingsForm.module.scss'
 import { Field } from '../Field'
 import { IconButton } from '../IconButton/IconButton'
-import { TemperatureControl } from '../TemperatureControl'
+import { Slider } from '../Slider'
 import { ConfigurationHeader } from '../ConfigurationHeader'
 import { ApiToolSettings, Provider } from '@shared/types/api-tool-settings'
 
@@ -95,7 +95,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
 
       <Field
         label="Provider"
-        htmlFor={`${params.title.toLowerCase().replaceAll(' ', '-')}-provider`}
+        html_for={`${params.title.toLowerCase().replaceAll(' ', '-')}-provider`}
       >
         <select
           id={`${params.title.toLowerCase().replaceAll(' ', '-')}-provider`}
@@ -119,7 +119,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
         params.settings.provider == 'Gemini API') && (
         <Field
           label="Model"
-          htmlFor={`${params.title.toLowerCase().replaceAll(' ', '-')}-model`}
+          html_for={`${params.title.toLowerCase().replaceAll(' ', '-')}-model`}
         >
           <select
             id={`${params.title.toLowerCase().replaceAll(' ', '-')}-model`}
@@ -146,7 +146,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
         (Object.keys(props.open_router_models).length > 0 ? (
           <Field
             label="Model"
-            htmlFor={`${params.title.toLowerCase().replaceAll(' ', '-')}-model`}
+            html_for={`${params.title.toLowerCase().replaceAll(' ', '-')}-model`}
           >
             <div
               onClick={async () => {
@@ -199,11 +199,11 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
         ))}
       <Field
         label="Temperature"
-        htmlFor={`${params.title
+        html_for={`${params.title
           .toLowerCase()
           .replaceAll(' ', '-')}-temperature`}
       >
-        <TemperatureControl
+        <Slider
           value={params.settings.temperature || 0}
           onChange={(value) => {
             params.on_update({
@@ -220,7 +220,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
     <div className={styles.form}>
       <Field
         label="Gemini API Key"
-        htmlFor="gemini-api-key"
+        html_for="gemini-api-key"
         info={
           !props.gemini_api_key && (
             <>
@@ -249,7 +249,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       </Field>
       <Field
         label="Open Router API Key"
-        htmlFor="open-router-api-key"
+        html_for="open-router-api-key"
         info={
           !props.open_router_api_key && (
             <>

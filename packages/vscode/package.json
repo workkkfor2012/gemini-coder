@@ -519,8 +519,6 @@
             {
               "name": "2.5 Pro",
               "chatbot": "AI Studio",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "gemini-2.5-pro-preview-03-25",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
@@ -528,8 +526,6 @@
             {
               "name": "2.5 Flash",
               "chatbot": "AI Studio",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "gemini-2.5-flash-preview-04-17",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
@@ -537,8 +533,6 @@
             {
               "name": "2.0 Flash",
               "chatbot": "AI Studio",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "gemini-2.0-flash",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
@@ -546,15 +540,11 @@
             {
               "name": "2.5 Pro",
               "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "2.5-pro"
             },
             {
               "name": "2.5 Pro (canvas)",
               "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "2.5-pro",
               "options": [
                 "canvas"
@@ -563,15 +553,11 @@
             {
               "name": "2.5 Flash",
               "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "2.5-flash-experimental"
             },
             {
               "name": "2.5 Flash (canvas)",
               "chatbot": "Gemini",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "model": "2.5-flash-experimental",
               "options": [
                 "canvas"
@@ -581,70 +567,50 @@
               "name": "Open WebUI",
               "chatbot": "Open WebUI",
               "port": 3000,
-              "promptPrefix": "",
-              "promptSuffix": "",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
             },
             {
               "name": "ChatGPT",
-              "chatbot": "ChatGPT",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "ChatGPT"
             },
             {
               "name": "Claude",
-              "chatbot": "Claude",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "Claude"
             },
             {
               "name": "GitHub Copilot",
-              "chatbot": "GitHub Copilot",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "GitHub Copilot"
             },
             {
               "name": "Grok",
-              "chatbot": "Grok",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "Grok"
             },
             {
               "name": "Grok (Think)",
               "chatbot": "Grok",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "options": [
                 "think"
               ]
             },
             {
               "name": "DeepSeek",
-              "chatbot": "DeepSeek",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "DeepSeek"
             },
             {
               "name": "DeepSeek - DeepThink (R1)",
               "chatbot": "DeepSeek",
-              "promptPrefix": "",
-              "promptSuffix": "",
               "options": [
                 "deep-think"
               ]
             },
             {
               "name": "Mistral",
-              "chatbot": "Mistral",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "Mistral"
             },
             {
               "name": "HuggingChat",
-              "chatbot": "HuggingChat",
-              "promptPrefix": "",
-              "promptSuffix": ""
+              "chatbot": "HuggingChat"
             }
           ],
           "description": "Preset is a general or task specific web chat configuration.",
@@ -717,6 +683,10 @@
               "temperature": {
                 "type": "number",
                 "description": "Temperature to use."
+              },
+              "top_p": {
+                "type": "number",
+                "description": "Top P setting to use."
               },
               "systemInstructions": {
                 "type": "string",
