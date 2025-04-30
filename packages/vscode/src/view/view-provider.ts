@@ -353,16 +353,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   // Inside ChatViewProvider class, add this new helper method
   private async _validate_presets(preset_names: string[]): Promise<string[]> {
-    // Get current presets from configuration
     const config = vscode.workspace.getConfiguration()
     const presets = config.get<any[]>('geminiCoder.presets', [])
-    const available_preset_names = presets
-      .filter((preset) =>
-        !this._is_code_completions_mode
-          ? true
-          : !preset.promptPrefix && !preset.promptSuffix
-      )
-      .map((preset) => preset.name)
+    const available_presets = presets.filter((preset) =>
+      !this._is_code_completions_mode
+        ? true
+        : !preset.promptPrefix && !preset.promptSuffix
+    )
+    const available_preset_names = available_presets.map(
+      (preset) => preset.name
+    )
 
     // Filter out any presets that no longer exist
     const valid_presets = preset_names.filter((name) =>
@@ -371,7 +371,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     // If no valid presets, show the picker
     if (valid_presets.length == 0) {
-      const preset_quick_pick_items = available_preset_names.map((preset) => ({
+      const preset_quick_pick_items = available_presets.map((preset) => ({
         label: preset.name,
         description: `${preset.chatbot}${
           preset.model ? ` - ${preset.model}` : ''
@@ -1633,5 +1633,31 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       command: 'CUSTOM_PROVIDERS_UPDATED',
       custom_providers: providers
     })
+  }
+
+  public append_text_to_prompt(text: string) {
+    if (this._is_code_completions_mode) {
+      this._code_completion_suggestions =
+        this._code_completion_suggestions.trim() +
+        `${this._code_completion_suggestions ? ` ${text} ` : `${text} `}`
+
+      this._context.workspaceState.update(
+        'code-completion-suggestions',
+        this._code_completion_suggestions
+      )
+      this._send_message<CodeCompletionSuggestionsMessage>({
+        command: 'CODE_COMPLETION_SUGGESTIONS',
+        value: this._code_completion_suggestions
+      })
+    } else {
+      this._instructions =
+        this._instructions.trim() +
+        `${this._instructions ? ` ${text} ` : `${text} `}`
+      this._context.workspaceState.update('instructions', this._instructions)
+      this._send_message<InstructionsMessage>({
+        command: 'INSTRUCTIONS',
+        value: this._instructions
+      })
+    }
   }
 }

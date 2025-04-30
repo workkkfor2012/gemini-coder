@@ -25,7 +25,8 @@ import {
   revert_command,
   generate_commit_message_command,
   code_completion_to_clipboard_command,
-  code_completion_with_suggestions_to_clipboard_command
+  code_completion_with_suggestions_to_clipboard_command,
+  reference_in_chat_command
 } from './commands'
 
 // Store WebSocketServer instance at module level
@@ -69,7 +70,8 @@ export async function activate(context: vscode.ExtensionContext) {
             retainContextWhenHidden: true
           }
         }
-      )
+      ),
+      reference_in_chat_command(view_provider, workspace_provider)
     )
   }
 
@@ -156,6 +158,7 @@ export async function activate(context: vscode.ExtensionContext) {
     save_context_command(workspace_provider, context),
     revert_command(context),
     generate_commit_message_command(context),
+
     {
       dispose: () => {
         if (websocket_server_instance) {

@@ -1,0 +1,36 @@
+import * as vscode from 'vscode'
+import * as path from 'path'
+import { ViewProvider } from '../view/view-provider'
+import { WorkspaceProvider } from '../context/providers/workspace-provider'
+import { FileItem } from '../context/providers/workspace-provider'
+
+export function reference_in_chat_command(
+  view_provider: ViewProvider | undefined,
+  workspace_provider: WorkspaceProvider | undefined
+) {
+  return vscode.commands.registerCommand(
+    'geminiCoder.referenceInChat',
+    (uri: FileItem) => {
+      if (!view_provider || !workspace_provider) {
+        return
+      }
+
+      const file_path = uri.resourceUri.fsPath
+
+      const workspace_root =
+        workspace_provider.get_workspace_root_for_file(file_path)
+
+      if (!workspace_root) {
+        vscode.window.showWarningMessage(
+          'Cannot reference file outside of the workspace.'
+        )
+        return
+      }
+
+      const relative_path = path.relative(workspace_root, file_path)
+      const reference_text = `\`${relative_path}\``
+
+      view_provider.append_text_to_prompt(reference_text)
+    }
+  )
+}

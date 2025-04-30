@@ -278,6 +278,11 @@
         "title": "Generate Commit Message with Gemini Coder",
         "category": "Gemini Coder",
         "icon": "$(sparkle)"
+      },
+      {
+        "command": "geminiCoder.referenceInChat",
+        "title": "Reference in Chat",
+        "category": "Gemini Coder"
       }
     ],
     "menus": {
@@ -352,6 +357,10 @@
         },
         {
           "command": "geminiCoder.codeCompletionWithSuggestionsAutoAccept",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.referenceInChat",
           "when": "false"
         }
       ],
@@ -434,6 +443,11 @@
           "group": "1_modification@2"
         },
         {
+          "command": "geminiCoder.referenceInChat",
+          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "group": "1_modification@3"
+        },
+        {
           "command": "geminiCoder.newFile",
           "when": "view == geminiCoderViewWorkspace && viewItem == directory",
           "group": "1_creation@1"
@@ -452,6 +466,11 @@
           "command": "geminiCoder.delete",
           "when": "view == geminiCoderViewWorkspace",
           "group": "1_modification@2"
+        },
+        {
+          "command": "geminiCoder.referenceInChat",
+          "when": "view == geminiCoderViewWorkspace",
+          "group": "1_modification@3"
         }
       ],
       "scm/title": [
