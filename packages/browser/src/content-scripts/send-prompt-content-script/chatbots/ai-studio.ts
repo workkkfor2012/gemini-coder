@@ -3,7 +3,10 @@ import { Message } from '@/types/messages'
 import { debounce } from '@/utils/debounce'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
 import browser from 'webextension-polyfill'
-import { apply_chat_response_button_style, set_button_disabled_state } from '../utils/apply-response'
+import {
+  apply_chat_response_button_style,
+  set_button_disabled_state
+} from '../utils/apply-response'
 
 export const ai_studio: Chatbot = {
   wait_until_ready: async () => {
@@ -154,7 +157,7 @@ export const ai_studio: Chatbot = {
         apply_chat_response_button_style(apply_response_button)
 
         // Add event listener for Fast replace button click
-        apply_response_button.addEventListener('click', () => {
+        apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
           const chat_turn_container = apply_response_button.closest(
             '.chat-turn-container'
@@ -169,6 +172,7 @@ export const ai_studio: Chatbot = {
             button.textContent?.includes('markdown_copy')
           ) as HTMLElement
           markdown_copy_button.click()
+          await new Promise((resolve) => setTimeout(resolve, 500))
           browser.runtime.sendMessage<Message>({
             action: 'apply-chat-response',
             client_id

@@ -118,9 +118,7 @@ export const openrouter: Chatbot = {
         'div[data-headlessui-portal] div.flex.justify-between.text-sm'
       )
     ).find((div) => div.textContent?.trim() == 'Top P') as HTMLElement
-    const top_p_input = top_p_div.querySelector(
-      'input'
-    ) as HTMLInputElement
+    const top_p_input = top_p_div.querySelector('input') as HTMLInputElement
     top_p_input.focus()
     top_p_input.value = top_p.toString()
     top_p_input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -189,12 +187,11 @@ export const openrouter: Chatbot = {
             )
           }) as HTMLButtonElement
           copy_button.click()
-          setTimeout(() => {
-            browser.runtime.sendMessage<Message>({
-              action: 'apply-chat-response',
-              client_id: client_id
-            })
-          }, 500)
+          await new Promise((resolve) => setTimeout(resolve, 500))
+          browser.runtime.sendMessage<Message>({
+            action: 'apply-chat-response',
+            client_id: client_id
+          })
         })
 
         params.footer.insertBefore(
