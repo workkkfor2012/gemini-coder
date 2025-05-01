@@ -20,9 +20,13 @@
 
 </div>
 
-Gemini Coder lets you conveniently copy folders and files for chatbots. With the Connector browser extension you can initalize them hands-free!
+Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-The extension uses the same context for built-in API Tools: **code completions** and **file refactoring**.
+All manually selected folders and files are always attached as context with all your web chats, code completions and file refactoring API requests. If you prefer working on your code with web-based chatbots, Gemini Coder is for you. It initializes Gemini and 10+ other AI platforms hands-free.
+
+What will you ship today?
+
+Not affiliated with Google.
 
 <br/>
 
@@ -30,14 +34,15 @@ The extension uses the same context for built-in API Tools: **code completions**
 
 <br/>
 
-- **100% free & open source:** MIT License
-- **Explorer view:** Intuitive context selection
-- **Versitale:** Not limited to Gemini or AI Studio
-- **API Tools with your keys**: Gemini API or OpenRouter
-- **Private:** Does not collect any usage data
-- **Local:** WebSockets for local browser communication
-- **One of a kind**: Include websites in context
-- **Lightweight:** Unpacked build is just ~1.3MB
+- MIT License
+- Intuitive context selection
+- Initializes web chats
+- Not limited to Gemini
+- Code completions with any model
+- Handles truncated chat reponses
+- Include websites in context
+- Does not collect usage data
+- Lightweight, just ~1.3MB
 
 ## You own the context
 
@@ -55,21 +60,16 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 Gemini Coder initializes many popular chatbots hands-free.
 
-Fully supported chatbots, with system instructions, temperature, model selection and automatic response applying:
-
-- **AI Studio**
-- **OpenRouter Chat**
-- **Open WebUI (self-hosted)**
-
-Other supported chatbots:
-
-- Gemini
+- **Gemini**
+- AI Studio
+- OpenRouter Chat
+- Open WebUI (self-hosted)
 - ChatGPT
 - Claude
-- GitHub Copilot
 - Grok
 - DeepSeek
 - Mistral
+- GitHub Copilot
 - HuggingChat
 
 ## Quick start for chat
