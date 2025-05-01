@@ -257,13 +257,19 @@ export const EditPresetForm: React.FC<Props> = (props) => {
       )}
 
       {supports_temperature && temperature !== undefined && (
-        <Field label="Temperature" title="Creativity allowed in the responses">
+        <Field
+          label="Temperature"
+          title="This setting influences the variety in the model's responses. Lower values lead to more predictable and typical responses, while higher values encourage more diverse and less common responses. At 0, the model always gives the same response for a given input."
+        >
           <Slider value={temperature} onChange={set_temperature} />
         </Field>
       )}
 
       {supports_top_p && (
-        <Field label="Top P" title="Probability threshold for top-p sampling">
+        <Field
+          label="Top P"
+          title="This setting limits the model's choices to a percentage of likely tokens: only the top tokens whose probabilities add up to P. A lower value makes the model's responses more predictable, while the default setting allows for a full range of token choices. Think of it like a dynamic Top-K."
+        >
           <Slider
             value={top_p || CHATBOTS[chatbot].default_top_p}
             onChange={set_top_p}

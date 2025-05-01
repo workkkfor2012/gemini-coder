@@ -1032,7 +1032,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
 
               const save_changes_button = 'Save'
-              const discard_changes = 'Close without saving'
+              const discard_changes = 'Discard Changes'
               const result = await vscode.window.showInformationMessage(
                 'Save changes to the preset?',
                 {
