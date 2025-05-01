@@ -511,7 +511,7 @@
           "type": "string",
           "scope": "resource",
           "description": "Style instructions for chat responses.",
-          "default": "Whenever proposing a file use the code block syntax. File must be represented as code blocks with its path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
+          "default": "Whenever proposing a file use the code block syntax, with its path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
         },
         "geminiCoder.chatCodeCompletionInstructions": {
           "type": "string",
