@@ -15,7 +15,7 @@ export const Slider: React.FC<Props> = (props) => {
         type="number"
         min="0"
         max="1"
-        step="0.01"
+        step="0.05"
         value={value}
         onChange={(e) => {
           set_value(parseFloat(e.target.value))
@@ -30,7 +30,7 @@ export const Slider: React.FC<Props> = (props) => {
         type="range"
         min="0"
         max="1"
-        step="0.01"
+        step="0.05"
         value={value}
         onChange={(e) => set_value(parseFloat(e.target.value))}
         onMouseUp={() => props.onChange(value)}
