@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
-import { code_completion_instruction_external } from '../constants/instructions'
 
 async function handle_code_completion_in_chat_command(
   context: vscode.ExtensionContext,
@@ -62,7 +61,6 @@ async function handle_code_completion_in_chat_command(
       new vscode.Range(position, document.positionAt(document.getText().length))
     )
 
-    // Get context files excluding the current file
     const context_text = await files_collector.collect_files({
       exclude_path: active_path
     })
@@ -71,23 +69,25 @@ async function handle_code_completion_in_chat_command(
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
-    const instructions = `${code_completion_instruction_external}${
+    const config = vscode.workspace.getConfiguration()
+    const chat_code_completion_instructions = config.get<string>(
+      'geminiCoder.chatCodeCompletionInstructions',
+    )
+
+    const instructions = `${chat_code_completion_instructions}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
-    // Set FIM mode in workspace state
-    await context.workspaceState.update('isFimMode', true)
-
     // Add to FIM chat history if there are suggestions
     if (suggestions) {
       const current_history = context.workspaceState.get<string[]>(
-        'fim-chat-history',
+        'code-completions-history',
         []
       )
       const updated_history = [suggestions, ...current_history].slice(0, 100)
-      await context.workspaceState.update('fim-chat-history', updated_history)
+      await context.workspaceState.update('code-completions-history', updated_history)
     }
 
     // Initialize chats with selected preset names in FIM mode

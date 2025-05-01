@@ -513,6 +513,12 @@
           "description": "Style instructions for chat responses.",
           "default": "Whenever proposing a file use the code block syntax. File must be represented as code blocks with its path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
         },
+        "geminiCoder.chatCodeCompletionInstructions": {
+          "type": "string",
+          "scope": "resource",
+          "description": "Instruction for code completion in chat",
+          "default": "Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol \"<missing_text>\" as \"cursor position\" and \"replacement\" as \"completion\"."
+        },
         "geminiCoder.presets": {
           "type": "array",
           "default": [

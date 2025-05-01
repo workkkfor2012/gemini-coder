@@ -38,11 +38,11 @@ async function handle_chat_command(
   }
 
   const current_history = context.workspaceState.get<string[]>(
-    'chat-history',
+    'history',
     []
   )
   const updated_history = [instruction, ...current_history].slice(0, 100)
-  await context.workspaceState.update('chat-history', updated_history)
+  await context.workspaceState.update('history', updated_history)
 
   // Files Collection using FilesCollector
   const files_collector = new FilesCollector(

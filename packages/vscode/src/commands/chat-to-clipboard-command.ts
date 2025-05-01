@@ -35,11 +35,11 @@ export function chat_to_clipboard_command(
       }
 
       const current_history = context.workspaceState.get<string[]>(
-        'chat-history',
+        'history',
         []
       )
       const updated_history = [instruction, ...current_history].slice(0, 100)
-      await context.workspaceState.update('chat-history', updated_history)
+      await context.workspaceState.update('history', updated_history)
 
       const files_collector = new FilesCollector(
         file_tree_provider,

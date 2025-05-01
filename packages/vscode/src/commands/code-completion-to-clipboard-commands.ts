@@ -1,5 +1,4 @@
 import * as vscode from 'vscode'
-import { code_completion_instruction_external } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 
 // Core function that contains the shared logic
@@ -58,7 +57,12 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const instructions = `${code_completion_instruction_external}${
+    const config = vscode.workspace.getConfiguration()
+    const chat_code_completion_instructions = config.get<string>(
+      'geminiCoder.chatCodeCompletionInstructions'
+    )
+
+    const instructions = `${chat_code_completion_instructions}${
       suggestions ? ` Follow suggestions: ${suggestions}` : ''
     }`
 

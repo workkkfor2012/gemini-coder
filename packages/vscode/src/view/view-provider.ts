@@ -1,7 +1,6 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '@/services/websocket-manager'
-import { code_completion_instruction_external } from '@/constants/instructions'
 import {
   WebviewMessage,
   ExtensionMessage,
@@ -647,7 +646,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const instructions = `${code_completion_instruction_external}${
+              const config = vscode.workspace.getConfiguration()
+              const chat_code_completion_instructions = config.get<string>(
+                'geminiCoder.chatCodeCompletionInstructions'
+              )
+
+              const instructions = `${chat_code_completion_instructions}${
                 this._code_completion_suggestions
                   ? ` Follow suggestions: ${this._code_completion_suggestions}`
                   : ''
@@ -746,7 +750,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const instructions = `${code_completion_instruction_external}${
+              // Use the configurable instruction for code completions preview
+              const config = vscode.workspace.getConfiguration()
+              const chatCodeCompletionInstructions = config.get<string>(
+                'geminiCoder.chatCodeCompletionInstructions',
+                'Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol "<missing_text>" as "cursor position" and "replacement" as "completion".'
+              )
+
+              const instructions = `${chatCodeCompletionInstructions}${
                 current_instruction
                   ? ` Follow suggestions: ${current_instruction}`
                   : ''
@@ -825,7 +836,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const instructions = `${code_completion_instruction_external}${
+              // Use the configurable instruction for code completions copy
+              const config = vscode.workspace.getConfiguration()
+              const chatCodeCompletionInstructions = config.get<string>(
+                'geminiCoder.chatCodeCompletionInstructions',
+                'Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol "<missing_text>" as "cursor position" and "replacement" as "completion".'
+              )
+
+              const instructions = `${chatCodeCompletionInstructions}${
                 current_instruction
                   ? ` Follow suggestions: ${current_instruction}`
                   : ''
