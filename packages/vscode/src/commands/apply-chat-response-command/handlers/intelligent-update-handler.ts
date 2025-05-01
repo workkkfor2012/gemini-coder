@@ -29,7 +29,7 @@ async function process_file(params: {
   file_content: string
   instruction: string
   cancel_token?: CancelToken
-  on_progress?: (chunkLength: number, totalLength: number) => void
+  on_progress?: (chunk_length: number, total_length: number) => void
 }): Promise<string | null> {
   Logger.log({
     function_name: 'process_file',
