@@ -22,7 +22,7 @@ Not affiliated with Google.
 - Initializes web chats
 - Not limited to Gemini
 - Code completions with any model
-- Handles truncated chat reponses
+- Apply chat reponses one-click
 - Include websites in context
 - Does not collect usage data
 - Lightweight, just ~1.3MB
