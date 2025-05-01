@@ -246,7 +246,7 @@ export function apply_chat_response_command(params: {
         const all_files_new = await check_if_all_files_new(parsed_files)
         const buttons = all_files_new
           ? ['Revert']
-          : ['Revert', 'Looks off, use Intelligent Update']
+          : ['Revert', 'Looks off, use intelligent mode']
 
         const response = await vscode.window.showInformationMessage(
           message,
@@ -259,7 +259,7 @@ export function apply_chat_response_command(params: {
             LAST_APPLIED_CHANGES_STATE_KEY,
             null
           )
-        } else if (response == 'Looks off, use Intelligent Update') {
+        } else if (response == 'Looks off, use intelligent mode') {
           // First revert the fast replace changes
           await revert_files(final_original_states)
 
