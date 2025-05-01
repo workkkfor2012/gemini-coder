@@ -55,6 +55,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   )
 
   const update_activity_bar_badge_token_count = async () => {
+    console.log('x')
     let context_text = ''
 
     try {
@@ -106,8 +107,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
       for (const [item, state] of e.items) {
         await workspace_provider!.update_check_state(item, state)
       }
-
-      await update_activity_bar_badge_token_count()
     })
 
     // Fix for issue when the collapsed item has some of its children selected
@@ -188,24 +187,20 @@ export function context_initialization(context: vscode.ExtensionContext): {
     }),
     vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
       workspace_provider!.clear_checks()
-      update_activity_bar_badge_token_count()
     }),
     vscode.commands.registerCommand('geminiCoder.checkAll', async () => {
       await workspace_provider!.check_all()
-      update_activity_bar_badge_token_count()
     }),
     vscode.commands.registerCommand(
       'geminiCoder.clearChecksOpenEditors',
       () => {
         open_editors_provider!.clear_checks()
-        update_activity_bar_badge_token_count()
       }
     ),
     vscode.commands.registerCommand(
       'geminiCoder.checkAllOpenEditors',
       async () => {
         await open_editors_provider!.check_all()
-        update_activity_bar_badge_token_count()
       }
     ),
     vscode.commands.registerCommand(
@@ -256,22 +251,11 @@ export function context_initialization(context: vscode.ExtensionContext): {
     )
   )
 
-  // Handle checkbox state changes asynchronously for file tree
-  workspace_view.onDidChangeCheckboxState(async (e) => {
-    for (const [item, state] of e.items) {
-      await workspace_provider!.update_check_state(item, state)
-    }
-
-    update_activity_bar_badge_token_count()
-  })
-
   // Handle checkbox state changes asynchronously for open editors
   open_editors_view.onDidChangeCheckboxState(async (e) => {
     for (const [item, state] of e.items) {
       await open_editors_provider!.update_check_state(item, state)
     }
-
-    update_activity_bar_badge_token_count()
   })
 
   // Subscribe to the onDidChangeCheckedFiles events from both providers
