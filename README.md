@@ -1,30 +1,27 @@
-<div align="center">
+<div >
     <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
   <h1>Gemini Coder - free AI coding</h1>
   <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
-  Use built-in API Tools for code completions, file refactoring and applying chat responses.</h4>
+  Use built-in API tools for code completions, file refactoring and applying chat responses.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
 <a href="https://open-vsx.org/extension/robertpiosik/gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue" alt="Download from Open VSX Registry"></a>
-<br/>
-<a href="https://x.com/intent/follow?screen_name=robertpiosik"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
-<a href="https://www.buymeacoffee.com/robertpiosik"><img src="https://img.shields.io/badge/Donate-Buy_me_a_coffee-green.svg" alt="Buy Me A Coffee"></a>
 <img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
-<br/>
-<br/>
-<a href="https://gemini-coder.netlify.app/">Documentation</a>
+<a href="https://x.com/intent/follow?screen_name=robertpiosik"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
 <br/>
 <br/>
 
 </div>
 
+<a href="https://gemini-coder.netlify.app/">Documentation</a>
+
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are always attached as context with all your web chats, code completions and file refactoring API requests. If you prefer working on your code with web-based chatbots, Gemini Coder is for you. It initializes Gemini and 10+ other AI platforms hands-free.
+All manually selected folders and files are always attached as context with web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
 
-What will you ship today?
+Cut your AI spendings to 0 with Gemini Coder today!
 
 Not affiliated with Google.
 
@@ -34,15 +31,18 @@ Not affiliated with Google.
 
 <br/>
 
+## Overview
+
 - MIT License
+- Totally free
 - Intuitive context selection
 - Initializes web chats
 - Not limited to Gemini
 - Code completions with any model
-- Apply chat reponses one-click
+- Integrate chat reponses
 - Include websites in context
 - Does not collect usage data
-- Lightweight, just ~1.3MB
+- Lightweight ~1.3MB
 
 ## You own the context
 
@@ -77,7 +77,7 @@ Gemini Coder initializes many popular chatbots hands-free.
 1. Open the new Gemini Coder view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
 3. Enter instructions and copy generated prompt.
-4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free web chats initializations.
+4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
 
 ## Quick start for code completions
 

@@ -7,9 +7,9 @@ hide_table_of_contents: true
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are always attached as context with all your web chats, code completions and file refactoring API requests. If you prefer working on your code with web-based chatbots, Gemini Coder is for you. It initializes Gemini and 10+ other AI platforms hands-free.
+All manually selected folders and files are always attached as context with web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
 
-What will you ship today?
+Cut your AI spendings to 0 with Gemini Coder today!
 
 Not affiliated with Google.
 
@@ -17,15 +17,18 @@ Not affiliated with Google.
 
 <br/><br/>
 
+## Overview
+
 - MIT License
+- Totally free
 - Intuitive context selection
 - Initializes web chats
 - Not limited to Gemini
 - Code completions with any model
-- Apply chat reponses one-click
+- Integrate chat reponses
 - Include websites in context
 - Does not collect usage data
-- Lightweight, just ~1.3MB
+- Lightweight ~1.3MB
 
 ## You own the context
 
@@ -43,21 +46,16 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 Gemini Coder initializes many popular chatbots hands-free.
 
-Fully supported chatbots, with system instructions, temperature, model selection and automatic response applying:
-
-- **AI Studio**
-- **OpenRouter Chat**
-- **Open WebUI (self-hosted)**
-
-Other supported chatbots:
-
-- Gemini
+- **Gemini**
+- AI Studio
+- OpenRouter Chat
+- Open WebUI (self-hosted)
 - ChatGPT
 - Claude
-- GitHub Copilot
 - Grok
 - DeepSeek
 - Mistral
+- GitHub Copilot
 - HuggingChat
 
 ## Quick start for chat
@@ -65,7 +63,7 @@ Other supported chatbots:
 1. Open the new Gemini Coder view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
 3. Enter instructions and copy generated prompt.
-4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free web chats initializations.
+4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
 
 ## Quick start for code completions
 
