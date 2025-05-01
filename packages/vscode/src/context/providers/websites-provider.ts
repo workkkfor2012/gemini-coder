@@ -1,7 +1,6 @@
 import { Website } from '@shared/types/websocket-message'
 import * as vscode from 'vscode'
 
-// Custom tree item for websites
 export class WebsiteItem extends vscode.TreeItem {
   public readonly token_count: number
 
@@ -128,7 +127,6 @@ export class WebsitesProvider
     )
   }
 
-  // Get checked websites
   get_checked_websites(): Website[] {
     return this._websites.filter(
       (website) =>
@@ -137,14 +135,12 @@ export class WebsitesProvider
     )
   }
 
-  // Get total token count of checked websites
   get_checked_websites_token_count(): number {
     return this.get_checked_websites()
       .map((website) => Math.floor(website.content.length / 4))
       .reduce((sum, count) => sum + count, 0)
   }
 
-  // Update checkbox state for a website
   async update_check_state(
     item: WebsiteItem,
     state: vscode.TreeItemCheckboxState

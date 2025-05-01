@@ -47,7 +47,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
   )
   context.subscriptions.push(websites_provider, websites_view)
 
-  // Create FilesCollector instance that can collect from both providers and websites provider
   const files_collector = new FilesCollector(
     workspace_provider,
     open_editors_provider,
@@ -55,29 +54,25 @@ export function context_initialization(context: vscode.ExtensionContext): {
   )
 
   const update_activity_bar_badge_token_count = async () => {
-    console.log('x')
-    let context_text = ''
+    let total_token_count = 0
 
-    try {
-      // Use FilesCollector to get all files and websites
-      context_text = await files_collector.collect_files({
-        disable_xml: true
-      })
-    } catch (error) {
-      console.error('Error collecting files and websites:', error)
-      return
+    if (workspace_provider) {
+      total_token_count +=
+        await workspace_provider.get_checked_files_token_count()
     }
 
-    // Calculate tokens from the collected context
-    const total_token_count = Math.floor(context_text.length / 4)
-
-    // Update the badge on the workspace files view
-    workspace_view.badge = {
-      value: total_token_count,
-      tooltip: `About ${total_token_count} tokens in the context`
+    if (websites_provider) {
+      total_token_count += websites_provider.get_checked_websites_token_count()
     }
 
-    // Emit the token count event for other components to listen to
+    if (workspace_view) {
+      workspace_view.badge = {
+        value: total_token_count,
+        tooltip: `About ${total_token_count} tokens in the context`
+      }
+    }
+
+    // Emit the token count event for chat box
     token_count_emitter.emit('token-count-updated')
   }
 

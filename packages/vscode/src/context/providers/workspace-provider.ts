@@ -1251,6 +1251,34 @@ export class WorkspaceProvider
     this.attach_open_files = value
     this.refresh()
   }
+
+  public async get_checked_files_token_count(): Promise<number> {
+    const checked_files = this.get_checked_files()
+    let total = 0
+
+    for (const file_path of checked_files) {
+      try {
+        // Ensure it's a file before calculating tokens
+        if (fs.statSync(file_path).isFile()) {
+          if (this.file_token_counts.has(file_path)) {
+            total += this.file_token_counts.get(file_path)!
+          } else {
+            // Calculate if not cached
+            const count = await this.calculate_file_tokens(file_path)
+            total += count
+          }
+        }
+      } catch (error) {
+        // Handle cases where the file might have been deleted since get_checked_files was called
+        console.error(
+          `Error accessing file ${file_path} for token count:`,
+          error
+        )
+      }
+    }
+
+    return total
+  }
 }
 
 export class FileItem extends vscode.TreeItem {
