@@ -21,9 +21,9 @@ Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
 All manually selected folders and files are always attached in context for web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
 
-Cut down on your AI spending with Gemini Coder today!
+Cut down on your AI spending with Gemini Coder!
 
-Not affiliated with Google.
+<small>Not affiliated with Google (Gemini is the author's zodiac sign).</small>
 
 <br/>
 
@@ -72,6 +72,8 @@ Gemini Coder initializes many popular chatbots hands-free.
 - Mistral
 - GitHub Copilot
 - HuggingChat
+
+<small>Legal Disclaimer: After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected 'Apply response' button is not a means of automatic output extraction, it's an alias for the original 'copy to clipboard' button.</small>
 
 ## Quick start for chat
 
