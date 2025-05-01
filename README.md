@@ -41,6 +41,7 @@ Not affiliated with Google.
 - Code completions with any model
 - Integrate chat reponses
 - Include websites in context
+- Generate commit messages
 - Does not collect usage data
 - Lightweight ~1.3MB
 
