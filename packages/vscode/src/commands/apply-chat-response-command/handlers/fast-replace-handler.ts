@@ -26,7 +26,7 @@ export async function handle_fast_replace(
 
     if (
       !vscode.workspace.workspaceFolders ||
-      vscode.workspace.workspaceFolders.length === 0
+      vscode.workspace.workspaceFolders.length == 0
     ) {
       vscode.window.showErrorMessage('No workspace folder open.')
       Logger.warn({
@@ -88,7 +88,7 @@ export async function handle_fast_replace(
         data: unsafe_files
       })
 
-      if (safe_files.length === 0) {
+      if (safe_files.length == 0) {
         return { success: false }
       }
     }
@@ -124,7 +124,7 @@ export async function handle_fast_replace(
         'Yes'
       )
 
-      if (confirmation !== 'Yes') {
+      if (confirmation != 'Yes') {
         vscode.window.showInformationMessage(
           'Operation cancelled. No files were modified.'
         )
