@@ -58,14 +58,40 @@ export const open_webui: Chatbot = {
     const fifth_div = pb_safe_bottom.querySelector(
       'div:nth-child(5)'
     ) as HTMLElement
-    const temperature_button = fifth_div.querySelector('button') as HTMLElement
-    temperature_button.click()
+    const button = fifth_div.querySelector('button') as HTMLElement
+    button.click()
     await new Promise((r) => requestAnimationFrame(r))
-    const temperature_input = fifth_div.querySelector(
-      'input'
-    ) as HTMLInputElement
-    temperature_input.value = temperature.toString()
-    temperature_input.dispatchEvent(new Event('change', { bubbles: true }))
+    const input = fifth_div.querySelector('input') as HTMLInputElement
+    input.value = temperature.toString()
+    input.dispatchEvent(new Event('change', { bubbles: true }))
+    const close_button = controls_pane.querySelector(
+      'button'
+    ) as HTMLButtonElement
+    close_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+  },
+  set_top_p: async (top_p: number) => {
+    const controls_button = document.querySelector(
+      'button[aria-label="Controls"]'
+    ) as HTMLButtonElement
+    controls_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const controls_pane =
+      window.innerWidth >= 1024
+        ? (document.querySelector('[data-pane]:last-child') as HTMLElement)
+        : (document.querySelector('div.modal') as HTMLElement)
+    const pb_safe_bottom = controls_pane.querySelector(
+      '.pb-safe-bottom'
+    ) as HTMLElement
+    const fifth_div = pb_safe_bottom.querySelector(
+      'div:nth-child(12)'
+    ) as HTMLElement
+    const button = fifth_div.querySelector('button') as HTMLElement
+    button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const input = fifth_div.querySelector('input') as HTMLInputElement
+    input.value = top_p.toString()
+    input.dispatchEvent(new Event('change', { bubbles: true }))
     const close_button = controls_pane.querySelector(
       'button'
     ) as HTMLButtonElement

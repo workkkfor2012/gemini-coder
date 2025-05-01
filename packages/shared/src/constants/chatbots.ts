@@ -58,25 +58,25 @@ export const CHATBOTS = {
   'Open WebUI': {
     url: 'http://openwebui/',
     supports_custom_temperature: true,
-    supports_custom_top_p: false,
+    supports_custom_top_p: true,
     supports_system_instructions: true,
     supports_user_provided_model: true,
     supports_user_provided_port: true,
     default_system_instructions: "You're a helpful coding assistant.",
     supported_options: {},
-    default_top_p: 0,
+    default_top_p: 0.9,
     models: {}
   },
   OpenRouter: {
     url: 'https://openrouter.ai/chat',
     supports_custom_temperature: true,
-    supports_custom_top_p: false,
+    supports_custom_top_p: true,
     supports_system_instructions: true,
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: "You're a helpful coding assistant.",
     supported_options: {},
-    default_top_p: 0,
+    default_top_p: 1,
     models: {
       // Populated dynamically
     }

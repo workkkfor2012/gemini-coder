@@ -94,6 +94,48 @@ export const openrouter: Chatbot = {
     }) as HTMLButtonElement
     close_button.click()
   },
+  set_top_p: async (top_p: number) => {
+    const options_button = Array.from(
+      document.querySelectorAll('main > div > div > div.flex-col button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'M12 6.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 12.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5ZM12 18.75a.75.75 0 1 1 0-1.5.75.75 0 0 1 0 1.5Z'
+      )
+    }) as HTMLButtonElement
+    options_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const sampling_parameters_button = Array.from(
+      document.querySelectorAll('div[data-headlessui-portal] button')
+    ).find(
+      (button) => button.textContent?.trim() == 'Sampling Parameters'
+    ) as HTMLButtonElement
+    sampling_parameters_button.click()
+    await new Promise((r) => requestAnimationFrame(r))
+    const top_p_div = Array.from(
+      document.querySelectorAll(
+        'div[data-headlessui-portal] div.flex.justify-between.text-sm'
+      )
+    ).find((div) => div.textContent?.trim() == 'Top P') as HTMLElement
+    const top_p_input = top_p_div.querySelector(
+      'input'
+    ) as HTMLInputElement
+    top_p_input.focus()
+    top_p_input.value = top_p.toString()
+    top_p_input.dispatchEvent(new Event('change', { bubbles: true }))
+    top_p_input.blur()
+    const close_button = Array.from(
+      document.querySelectorAll('div[data-headlessui-portal] button')
+    ).find((button) => {
+      const path = button.querySelector('path')
+      return (
+        path?.getAttribute('d') ==
+        'm9.75 9.75 4.5 4.5m0-4.5-4.5 4.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z'
+      )
+    }) as HTMLButtonElement
+    close_button.click()
+  },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
       const apply_response_button_text = 'Apply response'
