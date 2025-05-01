@@ -21,7 +21,7 @@ Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
 All manually selected folders and files are always attached in context for web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
 
-Cut your AI spendings to 0 with Gemini Coder today!
+Cut down on your AI spending with Gemini Coder today!
 
 Not affiliated with Google.
 
