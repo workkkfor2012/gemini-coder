@@ -56,9 +56,6 @@ export function rename_command() {
           vscode.Uri.file(new_path),
           { overwrite: false }
         )
-
-        // Refresh the workspace tree view
-        vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')
       } catch (error: any) {
         vscode.window.showErrorMessage(`Failed to rename: ${error.message}`)
       }

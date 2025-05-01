@@ -44,9 +44,6 @@ export function delete_command() {
         await vscode.workspace.fs.delete(uri, {
           recursive: true
         })
-
-        // Refresh the workspace tree view
-        vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')
       } catch (error: any) {
         vscode.window.showErrorMessage(`Failed to delete: ${error.message}`)
       }

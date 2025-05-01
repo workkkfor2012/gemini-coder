@@ -87,9 +87,6 @@ export function new_folder_command() {
         await vscode.workspace.fs.createDirectory(
           vscode.Uri.file(new_folder_path)
         )
-
-        // Refresh the workspace tree view
-        vscode.commands.executeCommand('geminiCoderViewWorkspace.refresh')
       } catch (error: any) {
         vscode.window.showErrorMessage(
           `Failed to create folder: ${error.message}`
