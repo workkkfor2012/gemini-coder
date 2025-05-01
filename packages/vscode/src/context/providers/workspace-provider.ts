@@ -55,9 +55,9 @@ export class WorkspaceProvider
 
     // Create a file system watcher for general file changes
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
-    this.watcher.onDidCreate(() => this.handle_file_create())
-    this.watcher.onDidChange(() => this.on_file_system_changed())
-    this.watcher.onDidDelete(() => this.on_file_system_changed())
+    this.watcher.onDidCreate((uri) => this.handle_file_create(uri.fsPath))
+    this.watcher.onDidChange((uri) => this.on_file_system_changed(uri.fsPath))
+    this.watcher.onDidDelete((uri) => this.on_file_system_changed(uri.fsPath))
 
     // Watch for .gitignore changes specifically
     this.gitignore_watcher =
@@ -454,17 +454,48 @@ export class WorkspaceProvider
     return path.basename(root_path)
   }
 
-  private on_file_system_changed(): void {
-    // Clear cached token counts when files change
-    this.file_token_counts.clear()
-    this.directory_token_counts.clear()
+  private on_file_system_changed(changed_file_path?: string): void {
+    if (changed_file_path) {
+      // Clear token count for the specific file
+      this.file_token_counts.delete(changed_file_path)
+
+      // Clear token counts only for parent directories
+      let dir_path = path.dirname(changed_file_path)
+      const workspace_root = this.get_workspace_root_for_file(changed_file_path)
+
+      // Traverse up the directory tree and clear cache for each parent
+      while (workspace_root && dir_path.startsWith(workspace_root)) {
+        this.directory_token_counts.delete(dir_path)
+        dir_path = path.dirname(dir_path)
+      }
+    } else {
+      // If no specific file path provided, clear all caches (fallback)
+      this.file_token_counts.clear()
+      this.directory_token_counts.clear()
+    }
+
     this.refresh()
   }
 
-  private async handle_file_create(): Promise<void> {
-    // Clear cached token counts for fresh calculation
-    this.file_token_counts.clear()
-    this.directory_token_counts.clear()
+  private async handle_file_create(created_file_path?: string): Promise<void> {
+    if (created_file_path) {
+      // Clear token count for the specific file
+      this.file_token_counts.delete(created_file_path)
+
+      // Clear token counts only for parent directories
+      let dir_path = path.dirname(created_file_path)
+      const workspace_root = this.get_workspace_root_for_file(created_file_path)
+
+      // Traverse up the directory tree and clear cache for each parent
+      while (workspace_root && dir_path.startsWith(workspace_root)) {
+        this.directory_token_counts.delete(dir_path)
+        dir_path = path.dirname(dir_path)
+      }
+    } else {
+      // If no specific file path provided, clear all caches (fallback)
+      this.file_token_counts.clear()
+      this.directory_token_counts.clear()
+    }
 
     // Update the file to workspace mapping
     this.update_file_workspace_mapping()
