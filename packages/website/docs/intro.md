@@ -47,7 +47,7 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 Gemini Coder initializes many popular chatbots hands-free.
 
-- **Gemini**
+- Gemini
 - AI Studio
 - OpenRouter Chat
 - Open WebUI (self-hosted)
