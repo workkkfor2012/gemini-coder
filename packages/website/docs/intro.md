@@ -13,11 +13,11 @@ Cut down on your AI spending with Gemini Coder!
 
 Not affiliated with Google.
 
-<br/><br/>
+<br/>
 
 <img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 
-<br/><br/>
+<br/>
 
 ## Overview
 
