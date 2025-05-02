@@ -23,7 +23,7 @@ All manually selected folders and files are always attached in context for web c
 
 Cut down on your AI spending with Gemini Coder!
 
-<small>Not affiliated with Google (Gemini is the author's zodiac sign).</small>
+<small>Not affiliated with Google.</small>
 
 <br/>
 
