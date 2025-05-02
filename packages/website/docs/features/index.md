@@ -25,4 +25,4 @@ Integrate chat responses with the codebase.
 
 ### [Generate Commit Message](./generate-commit-message))
 
-Create meaningful commit messages automatically.
+Generate meaningful commit messages automatically.
