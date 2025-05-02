@@ -19,9 +19,13 @@
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are always attached in context for web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
+All manually selected folders and files are always attached in context for chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
-Don't let automatic agents dull your skills; stay sharp by AI-assisting your own coding efforts.
+Gemini Coder is for you if:
+
+- you're an experienced developer working on a large codebase
+- coding agents failed you too many times
+- student or hobbyist on a budget
 
 Not affiliated with Google.
 
@@ -49,33 +53,58 @@ Not affiliated with Google.
 
 Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
 
-- **You select** which folders and files provide relevant context
-- **You control** what examples of coding conventions to include
-- **You know** how much tokens are used in web chats and code completion/file refactoring requests
+- **You select** which folders and files are relevant to the task
+- **You choose** what examples outside of the task to include to point the model in the right direction
+- **You know** exactly how much tokens you have in the context
 
-The result? Unmatched in accuracy, speed and cost AI assistance.
+The result? Unmatched in accuracy and cost AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
-## Supported chatbots
+## Web chats
 
-Our Connector browser extension initializes many popular chatbots:
+As everyone have their own favourite chat interface, each with unique features and feel, Gemini Coder have you covered by initializing all of the most popular ones with your context and instructions, hands-free!
+
+Continous and the most thorough support is ensured for:
 
 - Gemini
 - AI Studio
+- OpenRouter Chat
+- Open WebUI (self-hosted)
+
+While many more chatbots are supported as well:
+
 - ChatGPT
 - Claude
 - Grok
 - DeepSeek
 - Mistral
-- OpenRouter Chat
 - GitHub Copilot
 - HuggingChat
-- Open WebUI (self-hosted)
 
 Available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
-><small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
+> <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
+
+## 🧰 API Tools
+
+Supported providers: **Gemini API**, **OpenRouter**.
+
+#### 🛠️ Code completions
+
+Use state-of-the-art models for top-quality code completions. The tool attaches selected context in each request.
+
+#### 🛠️ File refactoring
+
+Modify the active file based on natural language instructions. The tool attaches selected context in each request.
+
+#### 🛠️ Apply Chat Response
+
+Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.
+
+#### 🛠️ Commit messages
+
+Generate meaningful commit messages based on fully attached affected files and diffs of changes.
 
 ## Quick start for chat
 
@@ -131,4 +160,21 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 ## License
 
-Copyright (c) 2025 [Robert Piosik](https://buymeacoffee.com/robertpiosik). MIT License.
+Copyright (c) 2025 [Robert Piosik](https://buymeacoffee.com/robertpiosik).
+</br>MIT License.
+
+## Kind Words From Users
+
+_"You did exactly what I wished, I feel you bro. Thank you very much for the early Christmas gift!"_ — [Coffee from Dat LQ.](https://buymeacoffee.com/robertpiosik)
+
+_"Gemini Coder is amazing!"_ — [Coffee from Matt](https://buymeacoffee.com/robertpiosik)
+
+_"You've built something incredibly helpful and useful man. Saves money and time. Thanks"_ — [Coffee from Kieron Dixon](https://buymeacoffee.com/robertpiosik)
+
+_"First time I've used a tool that improved my life so substantially that clicking the "buymeacoffee" button was a no brainer"_ — [Coffee from Gabriel Bryk](https://buymeacoffee.com/robertpiosik)
+
+_"This has been SUPER helpful with coding. Appreciate you putting it out into the world!"_ — [Coffee from Sebastian Kipman](https://buymeacoffee.com/robertpiosik)
+
+_"Seriously love Gemini Coder and your fast support! It's genuinely the best tool I've found for actually understanding big codebases and learning new things. Really hope more people discover this gem! Thanks!"_ — [Coffee from mazuralexandru](https://buymeacoffee.com/robertpiosik)
+
+_"Love this plugin, perfectly emulates my preferred way to AI pair program (using browser rather than IDE autocomplete)"_ — [Coffee from wecraw](https://buymeacoffee.com/robertpiosik)
