@@ -1,5 +1,5 @@
 <div >
-    <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
+  <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
   <h1>Gemini Coder - free AI coding</h1>
   <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
@@ -21,7 +21,7 @@ Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
 All manually selected folders and files are always attached in context for web chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate suggested changes with the codebase with a single click.
 
-Spend less on AI development with Gemini Coder!
+Don't let automatic agents dull your skills; stay sharp by AI-assisting your own coding efforts.
 
 Not affiliated with Google.
 
@@ -59,21 +59,23 @@ The result? Unmatched in accuracy, speed and cost AI assistance.
 
 ## Supported chatbots
 
-Gemini Coder initializes many popular chatbots hands-free.
+Our Connector browser extension initializes many popular chatbots:
 
 - Gemini
 - AI Studio
-- OpenRouter Chat
-- Open WebUI (self-hosted)
 - ChatGPT
 - Claude
 - Grok
 - DeepSeek
 - Mistral
+- OpenRouter Chat
 - GitHub Copilot
 - HuggingChat
+- Open WebUI (self-hosted)
 
-<small>Legal Disclaimer: After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected 'Apply response' button is not a means of automatic output extraction, it's an alias for the original 'copy to clipboard' button.</small>
+Available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
+
+><small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
 ## Quick start for chat
 
