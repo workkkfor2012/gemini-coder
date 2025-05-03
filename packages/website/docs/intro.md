@@ -53,7 +53,7 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all of the most popular ones with your context, instructions and settings, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all the most popular ones with your context, instructions and settings, hands-free!
 
 **The feature has two modes:**
 
@@ -67,7 +67,7 @@ Just a single click is needed to integrate responses with the codebase.
 - Gemini
 - AI Studio
 - OpenRouter Chat
-- Open WebUI (self-hosted)
+- Open WebUI
 - ChatGPT
 - Claude
 - Grok

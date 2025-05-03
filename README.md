@@ -37,16 +37,15 @@ Not affiliated with Google.
 
 ## Overview
 
-- MIT License
-- Totally free
 - Intuitive context selection
-- Initializes web chats
-- Not limited to Gemini
+- Web chat initialization
 - Code completions with any model
-- Integrate chat reponses
-- Include websites in context
-- Generate commit messages
-- Does not collect usage data
+- Not limited to Gemini
+- Chat response integration
+- Any website in context
+- Commit message generation
+- Totally free
+- Zero usage tracking
 - Lightweight ~1.3MB
 
 ## You own the context
@@ -65,21 +64,21 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all of the most popular ones with your context, instructions and settings, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all the most popular ones with your context, instructions and settings, hands-free!
 
 **The feature has two modes:**
 
-- ask anything
-- optional suggestions for code completion with explanation
+- Ask anything
+- Ask for code completion
 
-Just a single click is needed to integrate responses with the codebase.
+Chat responses can be integrated with a single click.
 
 **Supported chatbots:**
 
 - Gemini
 - AI Studio
 - OpenRouter Chat
-- Open WebUI (self-hosted)
+- Open WebUI
 - ChatGPT
 - Claude
 - Grok
@@ -88,7 +87,7 @@ Just a single click is needed to integrate responses with the codebase.
 - GitHub Copilot
 - HuggingChat
 
-The Connector extension is vailable in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
+The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
