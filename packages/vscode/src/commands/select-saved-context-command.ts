@@ -57,6 +57,25 @@ async function apply_saved_context(
   vscode.window.showInformationMessage(`Applied context "${context.name}".`)
 }
 
+// Helper function to save contexts to JSON file
+async function saveContextsToFile(
+  contexts: SavedContext[],
+  filePath: string
+): Promise<void> {
+  try {
+    // Ensure the .vscode directory exists
+    const dirPath = path.dirname(filePath)
+    if (!fs.existsSync(dirPath)) {
+      fs.mkdirSync(dirPath, { recursive: true })
+    }
+
+    // Write the contexts to the file
+    fs.writeFileSync(filePath, JSON.stringify(contexts, null, 2), 'utf8')
+  } catch (error: any) {
+    throw new Error(`Failed to save contexts to file: ${error.message}`)
+  }
+}
+
 export function select_saved_context_command(
   workspace_provider: WorkspaceProvider | undefined,
   on_context_selected: () => void,
@@ -77,7 +96,7 @@ export function select_saved_context_command(
       }
 
       // Get saved contexts from workspace state
-      const internal_contexts: SavedContext[] =
+      let internal_contexts: SavedContext[] =
         extension_context.workspaceState.get(SAVED_CONTEXTS_STATE_KEY, [])
 
       // Check if .vscode/contexts.json exists
@@ -128,7 +147,7 @@ export function select_saved_context_command(
         const source = await vscode.window.showQuickPick(
           [
             {
-              label: 'Internal Store',
+              label: 'Workspace State',
               description: `${internal_contexts.length} ${
                 internal_contexts.length == 1 ? 'context' : 'contexts'
               }`,
@@ -168,33 +187,33 @@ export function select_saved_context_command(
       }
 
       try {
-        // Define delete button
+        const edit_button = {
+          iconPath: new vscode.ThemeIcon('edit'),
+          tooltip: 'Edit context name'
+        }
         const delete_button = {
           iconPath: new vscode.ThemeIcon('trash'),
           tooltip: 'Delete this saved context'
         }
 
         // Function to create quickpick items from contexts
-        const createQuickPickItems = (
-          contexts: SavedContext[],
-          source: 'internal' | 'file'
-        ) => {
+        const create_quick_pick_items = (contexts: SavedContext[]) => {
           return contexts.map((context) => ({
             label: context.name,
             description: `${context.paths.length} ${
               context.paths.length > 1 ? 'paths' : 'path'
             }`,
-            context: context,
-            buttons: source == 'internal' ? [delete_button] : [] // Only show delete button for internal contexts
+            context,
+            buttons: [edit_button, delete_button]
           }))
         }
 
         // Create QuickPick with buttons
         const quick_pick = vscode.window.createQuickPick()
-        quick_pick.items = createQuickPickItems(contexts_to_use, context_source)
+        quick_pick.items = create_quick_pick_items(contexts_to_use)
         quick_pick.placeholder = `Select saved context (from ${
           context_source == 'internal'
-            ? 'internal store'
+            ? 'Workspace State'
             : '.vscode/contexts.json'
         })`
 
@@ -216,47 +235,172 @@ export function select_saved_context_command(
           })
 
           quick_pick.onDidTriggerItemButton(async (event) => {
-            // Only handle delete for internal contexts
-            if (context_source != 'internal') return
-
             const item = event.item as vscode.QuickPickItem & {
               context: SavedContext
             }
-            const confirm_delete = await vscode.window.showWarningMessage(
-              `Are you sure you want to delete context "${item.context.name}"?`,
-              { modal: true },
-              'Delete'
-            )
 
-            if (confirm_delete == 'Delete') {
-              // Remove the context from the state
-              const updatedContexts = internal_contexts.filter(
-                (c) => c.name != item.context.name
-              )
+            // Handle edit button
+            if (event.button === edit_button) {
+              const currentContexts =
+                context_source === 'internal'
+                  ? internal_contexts
+                  : file_contexts
+              const new_name = await vscode.window.showInputBox({
+                prompt: 'Enter new name for context',
+                value: item.context.name,
+                validateInput: (value) => {
+                  if (!value.trim()) {
+                    return 'Name cannot be empty'
+                  }
 
-              // Update workspace state
-              await extension_context.workspaceState.update(
-                SAVED_CONTEXTS_STATE_KEY,
-                updatedContexts
-              )
-              vscode.window.showInformationMessage(
-                `Deleted context "${item.context.name}"`
-              )
+                  // Check for duplicate names, excluding the current item's original name
+                  const duplicate = currentContexts.find(
+                    (c) =>
+                      c.name === value.trim() && c.name !== item.context.name
+                  )
 
-              // Update the quick pick items
-              if (updatedContexts.length == 0) {
-                quick_pick.hide()
-                vscode.window.showInformationMessage(
-                  'No saved contexts remaining in the internal store.'
-                )
-              } else {
-                // Update items and ensure the quick pick stays visible
-                quick_pick.items = createQuickPickItems(
-                  updatedContexts,
-                  'internal'
-                )
-                quick_pick.show() // Ensure quick pick is visible
+                  if (duplicate) {
+                    return 'A context with this name already exists'
+                  }
+
+                  return null
+                }
+              })
+
+              if (new_name && new_name.trim() !== item.context.name) {
+                const trimmed_name = new_name.trim()
+                if (context_source === 'internal') {
+                  // Update the context in the internal state
+                  const updatedContexts = internal_contexts.map((c) =>
+                    c.name === item.context.name
+                      ? { ...c, name: trimmed_name }
+                      : c
+                  )
+
+                  // Update workspace state
+                  await extension_context.workspaceState.update(
+                    SAVED_CONTEXTS_STATE_KEY,
+                    updatedContexts
+                  )
+                  internal_contexts = updatedContexts // Update the cached array
+
+                  vscode.window.showInformationMessage(
+                    `Renamed context to "${trimmed_name}" in workspace state`
+                  )
+
+                  // Update quick pick items
+                  quick_pick.items = create_quick_pick_items(internal_contexts)
+                  quick_pick.show() // Ensure quick pick is visible
+                } else if (context_source === 'file') {
+                  // Update the context in the file
+                  const updatedFileContexts = file_contexts.map((c) =>
+                    c.name === item.context.name
+                      ? { ...c, name: trimmed_name }
+                      : c
+                  )
+
+                  try {
+                    // Save updated contexts back to file
+                    await saveContextsToFile(
+                      updatedFileContexts,
+                      contexts_file_path
+                    )
+
+                    vscode.window.showInformationMessage(
+                      `Renamed context to "${trimmed_name}" in the JSON file`
+                    )
+
+                    // Update quick pick items
+                    file_contexts = updatedFileContexts // Update the cached file contexts
+                    quick_pick.items = create_quick_pick_items(file_contexts)
+                    quick_pick.show() // Ensure quick pick is visible
+                  } catch (error: any) {
+                    vscode.window.showErrorMessage(
+                      `Error updating context name in file: ${error.message}`
+                    )
+                    console.error('Error updating context name in file:', error)
+                  }
+                }
               }
+              return // Stop processing after handling the edit button
+            }
+
+            // Handle delete button
+            if (event.button === delete_button) {
+              const confirm_delete = await vscode.window.showWarningMessage(
+                `Are you sure you want to delete context "${item.context.name}"?`,
+                { modal: true },
+                'Delete'
+              )
+
+              if (confirm_delete == 'Delete') {
+                if (context_source == 'internal') {
+                  // Remove the context from the state
+                  const updatedContexts = internal_contexts.filter(
+                    (c) => c.name != item.context.name
+                  )
+
+                  // Update workspace state
+                  await extension_context.workspaceState.update(
+                    SAVED_CONTEXTS_STATE_KEY,
+                    updatedContexts
+                  )
+                  internal_contexts = updatedContexts // Update the cached array
+
+                  vscode.window.showInformationMessage(
+                    `Deleted context "${item.context.name}" from workspace state`
+                  )
+
+                  // Update the quick pick items
+                  if (internal_contexts.length == 0) {
+                    quick_pick.hide()
+                    vscode.window.showInformationMessage(
+                      'No saved contexts remaining in the Workspace State.'
+                    )
+                  } else {
+                    // Update items and ensure the quick pick stays visible
+                    quick_pick.items =
+                      create_quick_pick_items(internal_contexts)
+                    quick_pick.show() // Ensure quick pick is visible
+                  }
+                } else if (context_source === 'file') {
+                  // Remove the context from the file
+                  const updatedFileContexts = file_contexts.filter(
+                    (c) => c.name != item.context.name
+                  )
+
+                  try {
+                    // Save updated contexts back to file
+                    await saveContextsToFile(
+                      updatedFileContexts,
+                      contexts_file_path
+                    )
+                    vscode.window.showInformationMessage(
+                      `Deleted context "${item.context.name}" from the JSON file`
+                    )
+
+                    // Update the quick pick items
+                    if (updatedFileContexts.length == 0) {
+                      quick_pick.hide()
+                      vscode.window.showInformationMessage(
+                        'No saved contexts remaining in the JSON file.'
+                      )
+                    } else {
+                      // Update items and ensure the quick pick stays visible
+                      quick_pick.items =
+                        create_quick_pick_items(updatedFileContexts)
+                      file_contexts = updatedFileContexts // Update the cached file contexts
+                      quick_pick.show() // Ensure quick pick is visible
+                    }
+                  } catch (error: any) {
+                    vscode.window.showErrorMessage(
+                      `Error deleting context from file: ${error.message}`
+                    )
+                    console.error('Error deleting context from file:', error)
+                  }
+                }
+              }
+              return // Stop processing after handling the delete button
             }
           })
         })
@@ -272,16 +416,24 @@ export function select_saved_context_command(
         )
 
         // Only update recent contexts list for internal contexts
+        // Note: The selected context might have been renamed, so find it by its *new* name if applicable
         if (context_source == 'internal') {
-          // Move the selected context to the top of the list
-          const updated_contexts = internal_contexts.filter(
-            (c) => c.name != selected.context.name
+          // Find the context in the potentially updated internal_contexts array
+          const contextToMove = internal_contexts.find(
+            (c) => c.name === selected.context.name
           )
-          updated_contexts.unshift(selected.context)
-          await extension_context.workspaceState.update(
-            SAVED_CONTEXTS_STATE_KEY,
-            updated_contexts
-          )
+
+          if (contextToMove) {
+            // Move the selected context to the top of the list
+            const updated_contexts = internal_contexts.filter(
+              (c) => c.name != contextToMove.name
+            )
+            updated_contexts.unshift(contextToMove)
+            await extension_context.workspaceState.update(
+              SAVED_CONTEXTS_STATE_KEY,
+              updated_contexts
+            )
+          }
         }
 
         on_context_selected()
