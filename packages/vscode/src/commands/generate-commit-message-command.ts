@@ -8,6 +8,14 @@ import { Logger } from '@/helpers/logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
 import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
+import { COMMIT_MESSAGE_GENERATION_HISTORY_KEY } from '../constants/state-keys'
+
+// Holds regenerations for the current message sent to API
+type CommitMessageGenerationHistory = {
+  current_message: string
+  history: string[]
+  current_index: number
+}
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -40,6 +48,17 @@ export function generate_commit_message_command(
       }
 
       try {
+        // Get or initialize history from workspace storage
+        const history =
+          context.workspaceState.get<CommitMessageGenerationHistory>(
+            COMMIT_MESSAGE_GENERATION_HISTORY_KEY,
+            {
+              current_message: '',
+              history: [],
+              current_index: -1
+            }
+          )
+
         // Check for staged changes first
         const staged_changes = repository.state.indexChanges || []
 
@@ -167,6 +186,26 @@ export function generate_commit_message_command(
                 let commit_message = process_single_trailing_dot(response)
                 commit_message = strip_wrapping_quotes(commit_message)
                 repository.inputBox.value = commit_message
+
+                // Update history
+                const updated_history: CommitMessageGenerationHistory = {
+                  current_message: commit_message,
+                  history:
+                    history.current_message == commit_message
+                      ? [...history.history]
+                      : [commit_message],
+                  current_index:
+                    history.current_message == commit_message
+                      ? history.history.length
+                      : 0
+                }
+                await context.workspaceState.update(
+                  COMMIT_MESSAGE_GENERATION_HISTORY_KEY,
+                  updated_history
+                )
+
+                // Show navigation notification
+                show_history_navigation(context, repository, updated_history)
               }
             } catch (error) {
               if (axios.isCancel(error)) {
@@ -196,6 +235,82 @@ export function generate_commit_message_command(
       }
     }
   )
+}
+
+async function show_history_navigation(
+  context: vscode.ExtensionContext,
+  repository: any,
+  history: CommitMessageGenerationHistory
+) {
+  const has_previous = history.current_index > 0
+  const has_next = history.current_index < history.history.length - 1
+
+  // If there's no navigation possible, just show a success message
+  if (!has_previous && !has_next) {
+    vscode.window.showInformationMessage(
+      'Commit message generated successfully.'
+    )
+    return
+  }
+
+  // Build navigation message with current position info
+  const position_info = `${history.current_index + 1}/${history.history.length}`
+  const message = `Commit message generated (${position_info})`
+
+  // Create notification with navigation buttons
+  const items: string[] = []
+
+  if (has_previous) {
+    items.push('Older')
+  }
+
+  if (has_next) {
+    items.push('Newer')
+  }
+
+  const selected = await vscode.window.showInformationMessage(message, ...items)
+
+  if (!selected) return // User dismissed notification
+
+  if (selected == 'Older') {
+    const new_index = history.current_index - 1
+    const previous_message = history.history[new_index]
+
+    repository.inputBox.value = previous_message
+
+    const updated_history: CommitMessageGenerationHistory = {
+      ...history,
+      current_message: previous_message,
+      current_index: new_index
+    }
+
+    await context.workspaceState.update(
+      COMMIT_MESSAGE_GENERATION_HISTORY_KEY,
+      updated_history
+    )
+
+    // Show the notification again for continued navigation
+    show_history_navigation(context, repository, updated_history)
+  } else if (selected == 'Newer') {
+    const new_index = history.current_index + 1
+    const next_message = history.history[new_index]
+
+    repository.inputBox.value = next_message
+
+    const updated_history: CommitMessageGenerationHistory = {
+      ...history,
+      current_message: next_message,
+      current_index: new_index
+    }
+
+    await context.workspaceState.update(
+      COMMIT_MESSAGE_GENERATION_HISTORY_KEY,
+      updated_history
+    )
+
+    // Show the notification again for continued navigation
+    show_history_navigation(context, repository, updated_history)
+  }
 }
 
 async function collect_affected_files(
