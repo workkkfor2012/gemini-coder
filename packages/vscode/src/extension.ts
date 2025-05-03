@@ -161,6 +161,10 @@ export async function activate(context: vscode.ExtensionContext) {
     revert_command(context),
     generate_commit_message_command(context),
     open_url_command({
+      command: 'geminiCoder.openDocumentation',
+      url: 'https://gemini-coder.netlify.app/'
+    }),
+    open_url_command({
       command: 'geminiCoder.openRepository',
       url: 'https://github.com/robertpiosik/gemini-coder'
     }),

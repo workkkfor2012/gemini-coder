@@ -291,6 +291,12 @@
         "icon": "$(settings)"
       },
       {
+        "command": "geminiCoder.openDocumentation",
+        "title": "Documentation",
+        "category": "Gemini Coder",
+        "icon": "$(book)"
+      },
+      {
         "command": "geminiCoder.rateExtension",
         "title": "Rate Extension",
         "category": "Gemini Coder",
@@ -298,7 +304,7 @@
       },
       {
         "command": "geminiCoder.openRepository",
-        "title": "Open Repository",
+        "title": "Repository",
         "category": "Gemini Coder",
         "icon": "$(github-alt)"
       }
@@ -386,6 +392,10 @@
           "when": "false"
         },
         {
+          "command": "geminiCoder.openDocumentation",
+          "when": "false"
+        },
+        {
           "command": "geminiCoder.rateExtension",
           "when": "false"
         },
@@ -456,7 +466,7 @@
           "group": "navigation@4"
         },
         {
-          "command": "geminiCoder.rateExtension",
+          "command": "geminiCoder.openDocumentation",
           "when": "view == geminiCoderView",
           "group": "navigation@1"
         },
@@ -466,9 +476,14 @@
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.openSettings",
+          "command": "geminiCoder.rateExtension",
           "when": "view == geminiCoderView",
           "group": "navigation@3"
+        },
+        {
+          "command": "geminiCoder.openSettings",
+          "when": "view == geminiCoderView",
+          "group": "navigation@4"
         }
       ],
       "view/item/context": [
