@@ -5,11 +5,7 @@ import { WorkspaceProvider } from '../context/providers/workspace-provider'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { ignored_extensions } from '../context/constants/ignored-extensions'
 import { SAVED_CONTEXTS_STATE_KEY } from '../constants/state-keys'
-
-type SavedContext = {
-  name: string
-  paths: string[]
-}
+import { SavedContext } from '@/types/context'
 
 function condense_paths(
   paths: string[],
@@ -356,7 +352,8 @@ export function save_context_command(
       const selected_item = await vscode.window.showQuickPick(
         quick_pick_items,
         {
-          placeHolder: 'Select existing context to overwrite or create a new one'
+          placeHolder:
+            'Select existing context to overwrite or create a new one'
         }
       )
 
