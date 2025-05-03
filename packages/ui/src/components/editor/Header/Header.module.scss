@@ -3,7 +3,7 @@
   justify-content: space-between;
   height: var(--header-height);
   flex-shrink: 0;
-  padding: 0 11px 0 var(--padding-12px);
+  padding: var(--padding-2px) 11px 0 var(--padding-12px);
   border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
 }
 
