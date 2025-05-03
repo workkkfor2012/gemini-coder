@@ -1,9 +1,58 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
+import * as glob from 'glob'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
-import { SAVED_CONTEXTS_STATE_KEY } from '../constants/state-keys'
+import {
+  SAVED_CONTEXTS_STATE_KEY,
+  LAST_CONTEXT_READ_LOCATION_KEY
+} from '../constants/state-keys'
 import { SavedContext } from '@/types/context'
+
+// Function to resolve glob patterns to file paths using the workspace provider's cache
+async function resolve_glob_patterns(
+  patterns: string[],
+  workspace_provider: WorkspaceProvider
+): Promise<string[]> {
+  const resolved_paths: string[] = []
+  const all_files = new Set<string>()
+
+  // Get all files from workspace provider's cache
+  for (const root of workspace_provider.getWorkspaceRoots()) {
+    const files = workspace_provider.find_all_files(root)
+    files.forEach((file) => all_files.add(file))
+  }
+
+  for (const pattern of patterns) {
+    try {
+      if (all_files.has(pattern)) {
+        resolved_paths.push(pattern)
+        continue
+      }
+
+      const matches = glob.sync(pattern, {
+        nodir: true,
+        cwd: process.cwd(),
+        absolute: true,
+        matchBase: true
+      })
+
+      // Filter matches to only include files that exist in our cache
+      const valid_matches = matches.filter((match) => all_files.has(match))
+      resolved_paths.push(...valid_matches)
+    } catch (error) {
+      console.warn(`Failed to resolve glob pattern "${pattern}":`, error)
+      // If the pattern doesn't resolve as a glob or fails, treat it as a regular path
+      // and check against the cache.
+      if (all_files.has(pattern)) {
+        resolved_paths.push(pattern)
+      }
+    }
+  }
+
+  // Remove duplicates and return
+  return [...new Set(resolved_paths)]
+}
 
 async function apply_saved_context(
   context: SavedContext,
@@ -43,8 +92,15 @@ async function apply_saved_context(
       : path.join(workspace_root, prefixed_path)
   })
 
-  // Filter to only existing paths
-  const existing_paths = absolute_paths.filter((p) => fs.existsSync(p))
+  // Resolve any glob patterns within the absolute paths, filtering against the cache
+  const resolved_paths = await resolve_glob_patterns(
+    absolute_paths,
+    workspace_provider
+  )
+
+  // The resolved_glob_patterns function now filters for existing paths using the cache,
+  // so we don't need an extra fs.existsSync filter here.
+  const existing_paths = resolved_paths
 
   if (existing_paths.length == 0) {
     vscode.window.showWarningMessage(
@@ -58,19 +114,19 @@ async function apply_saved_context(
 }
 
 // Helper function to save contexts to JSON file
-async function saveContextsToFile(
+async function save_contexts_to_file(
   contexts: SavedContext[],
-  filePath: string
+  file_path: string
 ): Promise<void> {
   try {
     // Ensure the .vscode directory exists
-    const dirPath = path.dirname(filePath)
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true })
+    const dir_path = path.dirname(file_path)
+    if (!fs.existsSync(dir_path)) {
+      fs.mkdirSync(dir_path, { recursive: true })
     }
 
     // Write the contexts to the file
-    fs.writeFileSync(filePath, JSON.stringify(contexts, null, 2), 'utf8')
+    fs.writeFileSync(file_path, JSON.stringify(contexts, null, 2), 'utf8')
   } catch (error: any) {
     throw new Error(`Failed to save contexts to file: ${error.message}`)
   }
@@ -95,6 +151,11 @@ export function select_saved_context_command(
         return
       }
 
+      // Get the last used read location from extension context
+      const last_read_location = extension_context.workspaceState.get<
+        'internal' | 'file'
+      >(LAST_CONTEXT_READ_LOCATION_KEY, 'internal')
+
       // Get saved contexts from workspace state
       let internal_contexts: SavedContext[] =
         extension_context.workspaceState.get(SAVED_CONTEXTS_STATE_KEY, [])
@@ -116,11 +177,11 @@ export function select_saved_context_command(
             // Further validation: check if items look like SavedContext
             file_contexts = parsed.filter(
               (item) =>
-                typeof item === 'object' &&
+                typeof item == 'object' &&
                 item !== null &&
-                typeof item.name === 'string' &&
+                typeof item.name == 'string' &&
                 Array.isArray(item.paths) &&
-                item.paths.every((p: any) => typeof p === 'string')
+                item.paths.every((p: any) => typeof p == 'string')
             ) as SavedContext[]
           } else {
             console.warn('Contexts file is not an array:', contexts_file_path)
@@ -134,7 +195,7 @@ export function select_saved_context_command(
       }
 
       // If no contexts found in either location, show message
-      if (internal_contexts.length === 0 && file_contexts.length === 0) {
+      if (internal_contexts.length == 0 && file_contexts.length == 0) {
         vscode.window.showInformationMessage('No saved contexts found.')
         return
       }
@@ -144,23 +205,53 @@ export function select_saved_context_command(
 
       // If both sources have contexts, ask user which one to use
       if (internal_contexts.length > 0 && file_contexts.length > 0) {
+        // Create quick pick items with last used option first
+        const quick_pick_storage_options = [
+          {
+            label: 'Workspace State',
+            description: `${internal_contexts.length} ${
+              internal_contexts.length == 1 ? 'context' : 'contexts'
+            }`,
+            value: 'internal'
+          },
+          {
+            label: 'JSON File',
+            description: `${file_contexts.length} ${
+              file_contexts.length == 1 ? 'context' : 'contexts'
+            }`,
+            value: 'file'
+          }
+        ]
+
+        // Reorder to put the last used option first
+        if (last_read_location == 'file') {
+          // Find the 'file' option and move it to the front
+          const fileOptionIndex = quick_pick_storage_options.findIndex(
+            (opt) => opt.value == 'file'
+          )
+          if (fileOptionIndex > -1) {
+            const [fileOption] = quick_pick_storage_options.splice(
+              fileOptionIndex,
+              1
+            )
+            quick_pick_storage_options.unshift(fileOption)
+          }
+        } else {
+          // Find the 'internal' option and move it to the front (default behavior, but explicit)
+          const internalOptionIndex = quick_pick_storage_options.findIndex(
+            (opt) => opt.value == 'internal'
+          )
+          if (internalOptionIndex > -1) {
+            const [internalOption] = quick_pick_storage_options.splice(
+              internalOptionIndex,
+              1
+            )
+            quick_pick_storage_options.unshift(internalOption)
+          }
+        }
+
         const source = await vscode.window.showQuickPick(
-          [
-            {
-              label: 'Workspace State',
-              description: `${internal_contexts.length} ${
-                internal_contexts.length == 1 ? 'context' : 'contexts'
-              }`,
-              value: 'internal'
-            },
-            {
-              label: 'JSON File',
-              description: `${file_contexts.length} ${
-                file_contexts.length == 1 ? 'context' : 'contexts'
-              }`,
-              value: 'file'
-            }
-          ],
+          quick_pick_storage_options,
           {
             placeHolder: 'Select contexts location'
           }
@@ -171,15 +262,31 @@ export function select_saved_context_command(
         context_source = source.value as 'internal' | 'file'
         contexts_to_use =
           context_source == 'internal' ? internal_contexts : file_contexts
+
+        // Save the selected option as the last used option
+        await extension_context.workspaceState.update(
+          LAST_CONTEXT_READ_LOCATION_KEY,
+          context_source
+        )
       } else if (internal_contexts.length > 0) {
         contexts_to_use = internal_contexts
         context_source = 'internal'
+        // If only internal exists, set it as last used
+        await extension_context.workspaceState.update(
+          LAST_CONTEXT_READ_LOCATION_KEY,
+          context_source
+        )
       } else if (file_contexts.length > 0) {
         contexts_to_use = file_contexts
         context_source = 'file'
+        // If only file exists, set it as last used
+        await extension_context.workspaceState.update(
+          LAST_CONTEXT_READ_LOCATION_KEY,
+          context_source
+        )
       }
 
-      if (!context_source || contexts_to_use.length === 0) {
+      if (!context_source || contexts_to_use.length == 0) {
         vscode.window.showInformationMessage(
           'No saved contexts found in the selected source.'
         )
@@ -239,12 +346,9 @@ export function select_saved_context_command(
               context: SavedContext
             }
 
-            // Handle edit button
             if (event.button === edit_button) {
               const currentContexts =
-                context_source === 'internal'
-                  ? internal_contexts
-                  : file_contexts
+                context_source == 'internal' ? internal_contexts : file_contexts
               const new_name = await vscode.window.showInputBox({
                 prompt: 'Enter new name for context',
                 value: item.context.name,
@@ -255,8 +359,7 @@ export function select_saved_context_command(
 
                   // Check for duplicate names, excluding the current item's original name
                   const duplicate = currentContexts.find(
-                    (c) =>
-                      c.name === value.trim() && c.name !== item.context.name
+                    (c) => c.name == value.trim() && c.name != item.context.name
                   )
 
                   if (duplicate) {
@@ -267,51 +370,46 @@ export function select_saved_context_command(
                 }
               })
 
-              if (new_name && new_name.trim() !== item.context.name) {
+              if (new_name?.trim()) {
                 const trimmed_name = new_name.trim()
-                if (context_source === 'internal') {
-                  // Update the context in the internal state
-                  const updatedContexts = internal_contexts.map((c) =>
-                    c.name === item.context.name
-                      ? { ...c, name: trimmed_name }
-                      : c
-                  )
+                if (context_source == 'internal') {
+                  if (trimmed_name != item.context.name) {
+                    // Update the context in the internal state
+                    const updated_contexts = internal_contexts.map((c) =>
+                      c.name == item.context.name
+                        ? { ...c, name: trimmed_name }
+                        : c
+                    )
 
-                  // Update workspace state
-                  await extension_context.workspaceState.update(
-                    SAVED_CONTEXTS_STATE_KEY,
-                    updatedContexts
-                  )
-                  internal_contexts = updatedContexts // Update the cached array
-
-                  vscode.window.showInformationMessage(
-                    `Renamed context to "${trimmed_name}" in workspace state`
-                  )
+                    // Update workspace state
+                    await extension_context.workspaceState.update(
+                      SAVED_CONTEXTS_STATE_KEY,
+                      updated_contexts
+                    )
+                    internal_contexts = updated_contexts // Update the cached array
+                  }
 
                   // Update quick pick items
                   quick_pick.items = create_quick_pick_items(internal_contexts)
                   quick_pick.show() // Ensure quick pick is visible
-                } else if (context_source === 'file') {
-                  // Update the context in the file
-                  const updatedFileContexts = file_contexts.map((c) =>
-                    c.name === item.context.name
-                      ? { ...c, name: trimmed_name }
-                      : c
-                  )
+                } else if (context_source == 'file') {
+                  if (trimmed_name != item.context.name) {
+                    const updated_contexts = file_contexts.map((c) =>
+                      c.name == item.context.name
+                        ? { ...c, name: trimmed_name }
+                        : c
+                    )
+                    internal_contexts = updated_contexts
+                  }
 
                   try {
-                    // Save updated contexts back to file
-                    await saveContextsToFile(
-                      updatedFileContexts,
+                    await save_contexts_to_file(
+                      internal_contexts,
                       contexts_file_path
                     )
 
-                    vscode.window.showInformationMessage(
-                      `Renamed context to "${trimmed_name}" in the JSON file`
-                    )
-
                     // Update quick pick items
-                    file_contexts = updatedFileContexts // Update the cached file contexts
+                    file_contexts = internal_contexts // Update the cached file contexts
                     quick_pick.items = create_quick_pick_items(file_contexts)
                     quick_pick.show() // Ensure quick pick is visible
                   } catch (error: any) {
@@ -321,11 +419,15 @@ export function select_saved_context_command(
                     console.error('Error updating context name in file:', error)
                   }
                 }
+                if (trimmed_name != item.context.name) {
+                  vscode.window.showInformationMessage(
+                    `Renamed context to "${trimmed_name}".`
+                  )
+                }
               }
-              return // Stop processing after handling the edit button
+              return
             }
 
-            // Handle delete button
             if (event.button === delete_button) {
               const confirm_delete = await vscode.window.showWarningMessage(
                 `Are you sure you want to delete context "${item.context.name}"?`,
@@ -336,16 +438,16 @@ export function select_saved_context_command(
               if (confirm_delete == 'Delete') {
                 if (context_source == 'internal') {
                   // Remove the context from the state
-                  const updatedContexts = internal_contexts.filter(
+                  const updated_contexts = internal_contexts.filter(
                     (c) => c.name != item.context.name
                   )
 
                   // Update workspace state
                   await extension_context.workspaceState.update(
                     SAVED_CONTEXTS_STATE_KEY,
-                    updatedContexts
+                    updated_contexts
                   )
-                  internal_contexts = updatedContexts // Update the cached array
+                  internal_contexts = updated_contexts // Update the cached array
 
                   vscode.window.showInformationMessage(
                     `Deleted context "${item.context.name}" from workspace state`
@@ -363,16 +465,15 @@ export function select_saved_context_command(
                       create_quick_pick_items(internal_contexts)
                     quick_pick.show() // Ensure quick pick is visible
                   }
-                } else if (context_source === 'file') {
+                } else if (context_source == 'file') {
                   // Remove the context from the file
-                  const updatedFileContexts = file_contexts.filter(
+                  const updated_contexts = file_contexts.filter(
                     (c) => c.name != item.context.name
                   )
 
                   try {
-                    // Save updated contexts back to file
-                    await saveContextsToFile(
-                      updatedFileContexts,
+                    await save_contexts_to_file(
+                      updated_contexts,
                       contexts_file_path
                     )
                     vscode.window.showInformationMessage(
@@ -380,7 +481,7 @@ export function select_saved_context_command(
                     )
 
                     // Update the quick pick items
-                    if (updatedFileContexts.length == 0) {
+                    if (updated_contexts.length == 0) {
                       quick_pick.hide()
                       vscode.window.showInformationMessage(
                         'No saved contexts remaining in the JSON file.'
@@ -388,8 +489,8 @@ export function select_saved_context_command(
                     } else {
                       // Update items and ensure the quick pick stays visible
                       quick_pick.items =
-                        create_quick_pick_items(updatedFileContexts)
-                      file_contexts = updatedFileContexts // Update the cached file contexts
+                        create_quick_pick_items(updated_contexts)
+                      file_contexts = updated_contexts // Update the cached file contexts
                       quick_pick.show() // Ensure quick pick is visible
                     }
                   } catch (error: any) {
@@ -400,7 +501,7 @@ export function select_saved_context_command(
                   }
                 }
               }
-              return // Stop processing after handling the delete button
+              return
             }
           })
         })
@@ -420,7 +521,7 @@ export function select_saved_context_command(
         if (context_source == 'internal') {
           // Find the context in the potentially updated internal_contexts array
           const contextToMove = internal_contexts.find(
-            (c) => c.name === selected.context.name
+            (c) => c.name == selected.context.name
           )
 
           if (contextToMove) {

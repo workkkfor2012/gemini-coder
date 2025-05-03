@@ -117,7 +117,7 @@ export class WorkspaceProvider
   }
 
   // Helper method to find all files recursively in a directory
-  private find_all_files(dir_path: string): string[] {
+  public find_all_files(dir_path: string): string[] {
     let results: string[] = []
     try {
       const entries = fs.readdirSync(dir_path, { withFileTypes: true })

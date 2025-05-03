@@ -7,3 +7,4 @@ export const TEMP_REFACTORING_INSTRUCTION_STATE_KEY =
 export const COMMIT_MESSAGE_GENERATION_HISTORY_KEY =
   'commitMessageGenerationHistory'
 export const LAST_CONTEXT_SAVE_LOCATION_KEY = 'lastSaveLocation'
+export const LAST_CONTEXT_READ_LOCATION_KEY = 'lastReadLocation'
