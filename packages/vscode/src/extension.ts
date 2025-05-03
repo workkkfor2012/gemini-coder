@@ -26,7 +26,9 @@ import {
   generate_commit_message_command,
   code_completion_to_clipboard_command,
   code_completion_with_suggestions_to_clipboard_command,
-  reference_in_chat_command
+  reference_in_chat_command,
+  open_settings_command,
+  open_url_command
 } from './commands'
 
 // Store WebSocketServer instance at module level
@@ -158,7 +160,15 @@ export async function activate(context: vscode.ExtensionContext) {
     save_context_command(workspace_provider, context),
     revert_command(context),
     generate_commit_message_command(context),
-
+    open_url_command({
+      command: 'geminiCoder.openRepository',
+      url: 'https://github.com/robertpiosik/gemini-coder'
+    }),
+    open_url_command({
+      command: 'geminiCoder.rateExtension',
+      url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
+    }),
+    open_settings_command(),
     {
       dispose: () => {
         if (websocket_server_instance) {

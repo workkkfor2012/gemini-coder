@@ -1,5 +1,4 @@
 import BuyMeACoffee from '../../../assets/icons/buy-me-a-coffee.svg'
-import Github from '../../../assets/icons/github.svg'
 import AIStudio from '../../../assets/icons/ai-studio.svg'
 import Gemini from '../../../assets/icons/gemini.svg'
 import OpenWebUI from '../../../assets/icons/open-webui.svg'
@@ -15,7 +14,6 @@ import HuggingChat from '../../../assets/icons/hugging-chat.svg'
 export namespace Icon {
   export type Variant =
     | 'BUY_ME_A_COFFEE'
-    | 'GITHUB'
     | 'AI_STUDIO'
     | 'GEMINI'
     | 'OPEN_WEBUI'
@@ -39,9 +37,6 @@ export const Icon: React.FC<Icon.Props> = ({ variant }) => {
   switch (variant) {
     case 'BUY_ME_A_COFFEE':
       icon = <BuyMeACoffee />
-      break
-    case 'GITHUB':
-      icon = <Github />
       break
     case 'AI_STUDIO':
       icon = <AIStudio />
@@ -75,6 +70,11 @@ export const Icon: React.FC<Icon.Props> = ({ variant }) => {
       break
     case 'HUGGING_CHAT':
       icon = <HuggingChat />
+      break
+    default:
+      // Handle cases where variant might not match any known icon
+      // This could be an empty fragment, a default icon, or throw an error
+      icon = <></>
       break
   }
 

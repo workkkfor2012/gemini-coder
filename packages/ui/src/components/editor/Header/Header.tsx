@@ -48,13 +48,6 @@ export const Header: React.FC<Props> = (props) => {
         >
           <Icon variant="BUY_ME_A_COFFEE" />
         </a>
-        <a
-          href="https://github.com/robertpiosik/gemini-coder"
-          className={styles.right__button}
-          title="Open issue or discussion"
-        >
-          <Icon variant="GITHUB" />
-        </a>
       </div>
     </div>
   )

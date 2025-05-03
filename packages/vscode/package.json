@@ -283,6 +283,24 @@
         "command": "geminiCoder.referenceInChat",
         "title": "Reference in Chat",
         "category": "Gemini Coder"
+      },
+      {
+        "command": "geminiCoder.openSettings",
+        "title": "Open Settings",
+        "category": "Gemini Coder",
+        "icon": "$(settings)"
+      },
+      {
+        "command": "geminiCoder.rateExtension",
+        "title": "Rate Extension",
+        "category": "Gemini Coder",
+        "icon": "$(feedback)"
+      },
+      {
+        "command": "geminiCoder.openRepository",
+        "title": "Open Repository",
+        "category": "Gemini Coder",
+        "icon": "$(github-alt)"
       }
     ],
     "menus": {
@@ -362,6 +380,18 @@
         {
           "command": "geminiCoder.referenceInChat",
           "when": "false"
+        },
+        {
+          "command": "geminiCoder.openSettings",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.rateExtension",
+          "when": "false"
+        },
+        {
+          "command": "geminiCoder.openRepository",
+          "when": "false"
         }
       ],
       "view/title": [
@@ -424,6 +454,21 @@
           "command": "geminiCoder.closeAllEditors",
           "when": "view == geminiCoderViewOpenEditors",
           "group": "navigation@4"
+        },
+        {
+          "command": "geminiCoder.rateExtension",
+          "when": "view == geminiCoderView",
+          "group": "navigation@1"
+        },
+        {
+          "command": "geminiCoder.openRepository",
+          "when": "view == geminiCoderView",
+          "group": "navigation@2"
+        },
+        {
+          "command": "geminiCoder.openSettings",
+          "when": "view == geminiCoderView",
+          "group": "navigation@3"
         }
       ],
       "view/item/context": [
