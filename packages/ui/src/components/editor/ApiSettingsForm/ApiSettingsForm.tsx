@@ -287,7 +287,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'Use state-of-the-art models for top-quality code completions. The tool attaches selected context in each request.',
+          'Use any model for accurate code completions. The tool attaches selected context in each request.',
         settings: props.code_completions_settings,
         on_update: props.on_code_completions_settings_update
       })}
@@ -301,14 +301,14 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Apply Chat Response',
         description:
-          'Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.',
+          'Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in a first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.',
         settings: props.apply_chat_response_settings,
         on_update: props.on_apply_chat_response_settings_update
       })}
       {render_api_tool_settings({
         title: 'Commit Messages',
         description:
-          'Generate meaningful commit messages based on fully attached affected files and diffs of changes.',
+          'Generate meaningful commit messages based on contents of affected files and diffs of changes.',
         settings: props.commit_messages_settings,
         on_update: props.on_commit_messages_settings_update
       })}

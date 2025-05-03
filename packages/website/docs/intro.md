@@ -7,7 +7,7 @@ hide_table_of_contents: true
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are always attached in context for chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
 Gemini Coder is for you if:
 
@@ -39,29 +39,35 @@ Not affiliated with Google.
 
 ## You own the context
 
-Other AI coding tools try to "guess" what context matters, often getting it wrong. Gemini Coder works differently:
+Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this problem by overloading context with excessive information, hurting model's performance and your wallet.
+
+Gemini Coder works differently:
 
 - **You select** which folders and files are relevant to the task
-- **You choose** what examples outside of the task to include to point the model in the right direction
+- **You decide** what examples of coding conventions will work best
 - **You know** exactly how much tokens you have in the context
 
-The result? Unmatched in accuracy and cost AI assistance.
+The result? Unmatched in cost, speed and accuracy AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
 ## Web chats
 
-As everyone have their own favourite chat interface, each with unique features and feel, Gemini Coder have you covered by initializing all of the most popular ones with your context and instructions, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all of the most popular ones with your context, instructions and settings, hands-free!
 
-We're commited to ensure continous and the most thorough support for:
+**The feature has two modes:**
+
+- ask anything
+- optional suggestions for code completion with explanation
+
+Just a single click is needed to integrate responses with the codebase.
+
+**Supported chatbots:**
 
 - Gemini
 - AI Studio
 - OpenRouter Chat
 - Open WebUI (self-hosted)
-
-While many more chatbots are supported as well:
-
 - ChatGPT
 - Claude
 - Grok
@@ -70,17 +76,20 @@ While many more chatbots are supported as well:
 - GitHub Copilot
 - HuggingChat
 
-Available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
+The Connector extension is vailable in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
-> <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message, nor does it take any other action. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
+> <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
 ## 🧰 API Tools
 
-Supported providers: **Gemini API**, **OpenRouter**.
+**Supported providers:**
+
+- Gemini API
+- OpenRouter
 
 #### 🛠️ Code completions
 
-Use state-of-the-art models for top-quality code completions. The tool attaches selected context in each request.
+Use any model for accurate code completions. The tool attaches selected context in each request.
 
 #### 🛠️ File refactoring
 
@@ -88,11 +97,11 @@ Modify the active file based on natural language instructions. The tool attaches
 
 #### 🛠️ Apply Chat Response
 
-Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.
+Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in a first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.
 
 #### 🛠️ Commit messages
 
-Generate meaningful commit messages based on fully attached affected files and diffs of changes.
+Generate meaningful commit messages based on contents of affected files and diffs of changes.
 
 ## Quick start for chat
 
