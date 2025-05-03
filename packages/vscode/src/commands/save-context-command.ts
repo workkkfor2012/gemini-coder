@@ -299,7 +299,7 @@ export function save_context_command(
 
         // Process each workspace's files separately
         filesByWorkspace.forEach((files, root) => {
-          if (files.length === 0) return
+          if (files.length == 0) return
 
           // Condense paths for this workspace
           const condensed_paths = condense_paths(
@@ -333,15 +333,20 @@ export function save_context_command(
       }
 
       // Get existing context names
-      const existing_context_names = saved_contexts.map((ctx) => ctx.name)
+      const existing_context_names = saved_contexts.map(
+        (context) => context.name
+      )
 
       // Create quick pick items
       const quick_pick_items = [
         {
           label: '$(add) Create new...'
         },
-        ...existing_context_names.map((name) => ({
-          label: name
+        ...saved_contexts.map((context) => ({
+          label: context.name,
+          description: `${context.paths.length} ${
+            context.paths.length > 1 ? 'paths' : 'path'
+          }`
         }))
       ]
 
@@ -351,7 +356,7 @@ export function save_context_command(
       const selected_item = await vscode.window.showQuickPick(
         quick_pick_items,
         {
-          placeHolder: 'Select existing context to overwrite or create new one'
+          placeHolder: 'Select existing context to overwrite or create a new one'
         }
       )
 
