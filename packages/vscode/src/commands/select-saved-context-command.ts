@@ -12,7 +12,8 @@ type SavedContext = {
 async function apply_saved_context(
   context: SavedContext,
   workspace_root: string,
-  workspace_provider: WorkspaceProvider
+  workspace_provider: WorkspaceProvider,
+  extension_context: vscode.ExtensionContext
 ): Promise<void> {
   const workspace_name = path.basename(workspace_root)
 
@@ -31,7 +32,7 @@ async function apply_saved_context(
       const [prefix, relative_path] = prefixed_path.split(':', 2)
 
       // If this workspace name matches the current prefix, use current workspace root
-      if (prefix === workspace_name) {
+      if (prefix == workspace_name) {
         return path.join(workspace_root, relative_path)
       }
 
@@ -60,6 +61,18 @@ async function apply_saved_context(
     )
     return
   }
+
+  // Move the selected context to the top of the list
+  const saved_contexts: SavedContext[] = extension_context.workspaceState.get(
+    SAVED_CONTEXTS_STATE_KEY,
+    []
+  )
+  const updated_contexts = saved_contexts.filter((c) => c.name != context.name)
+  updated_contexts.unshift(context)
+  await extension_context.workspaceState.update(
+    SAVED_CONTEXTS_STATE_KEY,
+    updated_contexts
+  )
 
   await workspace_provider.set_checked_files(existing_paths)
   vscode.window.showInformationMessage(`Applied context "${context.name}".`)
@@ -179,7 +192,8 @@ export function select_saved_context_command(
         await apply_saved_context(
           selected.context,
           workspace_root,
-          workspace_provider
+          workspace_provider,
+          extContext
         )
         on_context_selected()
       } catch (error: any) {
