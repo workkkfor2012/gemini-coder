@@ -168,8 +168,9 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 ## License
 
-Copyright (c) 2025 [Robert Piosik](https://buymeacoffee.com/robertpiosik).
-</br>MIT License.
+Copyright ©️ 2025 [Robert Piosik](https://buymeacoffee.com/robertpiosik).
+</br>📨 `robertpiosik[at]gmail.com`
+</br>📃 [MIT License](https://github.com/robertpiosik/gemini-coder/blob/master/LICENSE)
 
 ## Kind Words From Users
 
