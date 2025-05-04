@@ -14,7 +14,6 @@ async function resolve_glob_patterns(
   patterns: string[],
   workspace_provider: WorkspaceProvider
 ): Promise<string[]> {
-  const resolved_paths: string[] = []
   const all_files = new Set<string>()
 
   // Get all files from workspace provider's cache
@@ -23,13 +22,68 @@ async function resolve_glob_patterns(
     files.forEach((file) => all_files.add(file))
   }
 
+  // Separate include and exclude patterns
+  const include_patterns: string[] = []
+  const exclude_patterns: string[] = []
+
   for (const pattern of patterns) {
+    if (pattern.startsWith('!')) {
+      exclude_patterns.push(pattern.substring(1))
+    } else {
+      include_patterns.push(pattern)
+    }
+  }
+
+  // First, process all include patterns
+  const included_paths = new Set<string>()
+
+  // If there are no include patterns, start with all files from the cache
+  if (include_patterns.length === 0) {
+    all_files.forEach((file) => included_paths.add(file))
+  } else {
+    for (const pattern of include_patterns) {
+      try {
+        // If the pattern is an exact file path that exists in our cache, include it
+        if (all_files.has(pattern)) {
+          included_paths.add(pattern)
+          continue
+        }
+
+        // Otherwise, try to resolve it as a glob pattern
+        const matches = glob.sync(pattern, {
+          nodir: true,
+          cwd: process.cwd(),
+          absolute: true,
+          matchBase: true
+        })
+
+        // Filter matches to only include files that exist in our cache
+        const valid_matches = matches.filter((match) => all_files.has(match))
+        valid_matches.forEach((match) => included_paths.add(match))
+      } catch (error) {
+        console.warn(
+          `Failed to resolve include glob pattern "${pattern}":`,
+          error
+        )
+        // If the pattern doesn't resolve as a glob or fails, treat it as a regular path
+        // and check against the cache.
+        if (all_files.has(pattern)) {
+          included_paths.add(pattern)
+        }
+      }
+    }
+  }
+
+  // Next, process all exclude patterns
+  for (const pattern of exclude_patterns) {
     try {
-      if (all_files.has(pattern)) {
-        resolved_paths.push(pattern)
+      // If the pattern is an exact file path, exclude it
+      if (included_paths.has(pattern)) {
+        included_paths.delete(pattern)
         continue
       }
 
+      // Otherwise, try to resolve it as a glob pattern
       const matches = glob.sync(pattern, {
         nodir: true,
         cwd: process.cwd(),
@@ -37,21 +91,27 @@ async function resolve_glob_patterns(
         matchBase: true
       })
 
-      // Filter matches to only include files that exist in our cache
-      const valid_matches = matches.filter((match) => all_files.has(match))
-      resolved_paths.push(...valid_matches)
+      // Remove any matches from our included paths
+      matches.forEach((match) => {
+        if (included_paths.has(match)) {
+          included_paths.delete(match)
+        }
+      })
     } catch (error) {
-      console.warn(`Failed to resolve glob pattern "${pattern}":`, error)
+      console.warn(
+        `Failed to resolve exclude glob pattern "${pattern}":`,
+        error
+      )
       // If the pattern doesn't resolve as a glob or fails, treat it as a regular path
-      // and check against the cache.
-      if (all_files.has(pattern)) {
-        resolved_paths.push(pattern)
+      // and check if it exists in the included set to remove it.
+      if (included_paths.has(pattern)) {
+        included_paths.delete(pattern)
       }
     }
   }
 
-  // Remove duplicates and return
-  return [...new Set(resolved_paths)]
+  // Return the final list of included paths
+  return [...included_paths]
 }
 
 async function apply_saved_context(
@@ -68,28 +128,35 @@ async function apply_saved_context(
 
   // Convert workspace-prefixed paths to absolute paths
   const absolute_paths = context.paths.map((prefixed_path) => {
+    const is_exclude = prefixed_path.startsWith('!')
+    const path_part = is_exclude ? prefixed_path.substring(1) : prefixed_path
+
+    let resolved_path_part: string
+
     // Check if path has workspace prefix
-    if (prefixed_path.includes(':')) {
-      const [prefix, relative_path] = prefixed_path.split(':', 2)
+    if (path_part.includes(':')) {
+      const [prefix, relative_path] = path_part.split(':', 2)
 
       // Find the root for the given prefix
       const root = workspace_map.get(prefix)
 
       if (root) {
-        return path.join(root, relative_path)
+        resolved_path_part = path.join(root, relative_path)
+      } else {
+        // Fallback if prefix doesn't match any workspace folder name - treat as a path in the current workspace
+        console.warn(
+          `Unknown workspace prefix "${prefix}" in path "${path_part}". Treating as relative to current workspace root.`
+        )
+        resolved_path_part = path.join(workspace_root, relative_path)
       }
-
-      // Fallback if prefix doesn't match any workspace folder name - treat as a path in the current workspace
-      console.warn(
-        `Unknown workspace prefix "${prefix}" in path "${prefixed_path}". Treating as relative to current workspace root.`
-      )
-      return path.join(workspace_root, relative_path)
+    } else {
+      // Legacy support for paths without workspace prefix or non-prefixed paths
+      resolved_path_part = path.isAbsolute(path_part)
+        ? path_part
+        : path.join(workspace_root, path_part)
     }
 
-    // Legacy support for paths without workspace prefix
-    return path.isAbsolute(prefixed_path)
-      ? prefixed_path
-      : path.join(workspace_root, prefixed_path)
+    return is_exclude ? `!${resolved_path_part}` : resolved_path_part
   })
 
   // Resolve any glob patterns within the absolute paths, filtering against the cache
@@ -215,7 +282,7 @@ export function select_saved_context_command(
             value: 'internal'
           },
           {
-            label: 'JSON File',
+            label: 'JSON File (.vscode/contexts.json)',
             description: `${file_contexts.length} ${
               file_contexts.length == 1 ? 'context' : 'contexts'
             }`,
@@ -308,7 +375,7 @@ export function select_saved_context_command(
           return contexts.map((context) => ({
             label: context.name,
             description: `${context.paths.length} ${
-              context.paths.length > 1 ? 'paths' : 'path'
+              context.paths.length == 1 ? 'path' : 'paths'
             }`,
             context,
             buttons: [edit_button, delete_button]
@@ -347,7 +414,7 @@ export function select_saved_context_command(
             }
 
             if (event.button === edit_button) {
-              const currentContexts =
+              const current_contexts =
                 context_source == 'internal' ? internal_contexts : file_contexts
               const new_name = await vscode.window.showInputBox({
                 prompt: 'Enter new name for context',
@@ -358,7 +425,7 @@ export function select_saved_context_command(
                   }
 
                   // Check for duplicate names, excluding the current item's original name
-                  const duplicate = currentContexts.find(
+                  const duplicate = current_contexts.find(
                     (c) => c.name == value.trim() && c.name != item.context.name
                   )
 
@@ -372,10 +439,13 @@ export function select_saved_context_command(
 
               if (new_name?.trim()) {
                 const trimmed_name = new_name.trim()
+                let updated_contexts: SavedContext[] = []
+                let context_updated = false
+
                 if (context_source == 'internal') {
                   if (trimmed_name != item.context.name) {
                     // Update the context in the internal state
-                    const updated_contexts = internal_contexts.map((c) =>
+                    updated_contexts = internal_contexts.map((c) =>
                       c.name == item.context.name
                         ? { ...c, name: trimmed_name }
                         : c
@@ -387,6 +457,9 @@ export function select_saved_context_command(
                       updated_contexts
                     )
                     internal_contexts = updated_contexts // Update the cached array
+                    context_updated = true
+                  } else {
+                    updated_contexts = internal_contexts // No change needed
                   }
 
                   // Update quick pick items
@@ -394,32 +467,43 @@ export function select_saved_context_command(
                   quick_pick.show() // Ensure quick pick is visible
                 } else if (context_source == 'file') {
                   if (trimmed_name != item.context.name) {
-                    const updated_contexts = file_contexts.map((c) =>
+                    updated_contexts = file_contexts.map((c) =>
                       c.name == item.context.name
                         ? { ...c, name: trimmed_name }
                         : c
                     )
-                    internal_contexts = updated_contexts
+                    context_updated = true
+                  } else {
+                    updated_contexts = file_contexts // No change needed
                   }
 
-                  try {
-                    await save_contexts_to_file(
-                      internal_contexts,
-                      contexts_file_path
-                    )
-
-                    // Update quick pick items
-                    file_contexts = internal_contexts // Update the cached file contexts
-                    quick_pick.items = create_quick_pick_items(file_contexts)
-                    quick_pick.show() // Ensure quick pick is visible
-                  } catch (error: any) {
-                    vscode.window.showErrorMessage(
-                      `Error updating context name in file: ${error.message}`
-                    )
-                    console.error('Error updating context name in file:', error)
+                  if (context_updated) {
+                    try {
+                      await save_contexts_to_file(
+                        updated_contexts,
+                        contexts_file_path
+                      )
+                      file_contexts = updated_contexts // Update the cached file contexts
+                    } catch (error: any) {
+                      vscode.window.showErrorMessage(
+                        `Error updating context name in file: ${error.message}`
+                      )
+                      console.error(
+                        'Error updating context name in file:',
+                        error
+                      )
+                      // Revert if save failed
+                      updated_contexts = file_contexts
+                      context_updated = false
+                    }
                   }
+
+                  // Update quick pick items
+                  quick_pick.items = create_quick_pick_items(file_contexts)
+                  quick_pick.show() // Ensure quick pick is visible
                 }
-                if (trimmed_name != item.context.name) {
+
+                if (context_updated) {
                   vscode.window.showInformationMessage(
                     `Renamed context to "${trimmed_name}".`
                   )
@@ -479,6 +563,7 @@ export function select_saved_context_command(
                     vscode.window.showInformationMessage(
                       `Deleted context "${item.context.name}" from the JSON file`
                     )
+                    file_contexts = updated_contexts // Update the cached file contexts
 
                     // Update the quick pick items
                     if (updated_contexts.length == 0) {
@@ -490,7 +575,6 @@ export function select_saved_context_command(
                       // Update items and ensure the quick pick stays visible
                       quick_pick.items =
                         create_quick_pick_items(updated_contexts)
-                      file_contexts = updated_contexts // Update the cached file contexts
                       quick_pick.show() // Ensure quick pick is visible
                     }
                   } catch (error: any) {
@@ -510,31 +594,49 @@ export function select_saved_context_command(
         const selected = await quick_pick_promise
         if (!selected) return
 
+        // Find the potentially updated context object before applying
+        // This handles the case where the context was renamed just before selection
+        let context_to_apply: SavedContext | undefined
+        if (context_source == 'internal') {
+          context_to_apply = internal_contexts.find(
+            (c) => c.name == selected.label // Use label as it reflects the current name
+          )
+        } else {
+          context_to_apply = file_contexts.find(
+            (c) => c.name == selected.label // Use label as it reflects the current name
+          )
+        }
+
+        if (!context_to_apply) {
+          // This should ideally not happen if the quick pick items are updated correctly
+          vscode.window.showErrorMessage(
+            `Could not find the selected context "${selected.label}" after potential edits.`
+          )
+          console.error(
+            'Could not find selected context after potential edits:',
+            selected.label
+          )
+          return
+        }
+
         await apply_saved_context(
-          selected.context,
+          context_to_apply,
           workspace_root,
           workspace_provider
         )
 
         // Only update recent contexts list for internal contexts
-        // Note: The selected context might have been renamed, so find it by its *new* name if applicable
         if (context_source == 'internal') {
-          // Find the context in the potentially updated internal_contexts array
-          const contextToMove = internal_contexts.find(
-            (c) => c.name == selected.context.name
+          // Move the selected context (using its current name) to the top of the list
+          const updated_contexts = internal_contexts.filter(
+            (c) => c.name != context_to_apply!.name
           )
-
-          if (contextToMove) {
-            // Move the selected context to the top of the list
-            const updated_contexts = internal_contexts.filter(
-              (c) => c.name != contextToMove.name
-            )
-            updated_contexts.unshift(contextToMove)
-            await extension_context.workspaceState.update(
-              SAVED_CONTEXTS_STATE_KEY,
-              updated_contexts
-            )
-          }
+          updated_contexts.unshift(context_to_apply!) // Add the applied context to the beginning
+          await extension_context.workspaceState.update(
+            SAVED_CONTEXTS_STATE_KEY,
+            updated_contexts
+          )
+          internal_contexts = updated_contexts // Update cache
         }
 
         on_context_selected()
