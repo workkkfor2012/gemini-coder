@@ -53,21 +53,22 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all the most popular ones with your context, instructions and settings, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing Gemini, AI Studio and many other popular chatbots with your context, instructions and settings, hands-free!
 
-**The feature has two modes:**
+**You can start chats in one of two modes:**
 
-- ask anything
-- optional suggestions for code completion with explanation
+- Ask anything
+- Ask for code completion
 
-Just a single click is needed to integrate responses with the codebase.
+**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
 
-**Supported chatbots:**
+**Chatbots ensured to work with the extension:**
 
 - Gemini
 - AI Studio
-- OpenRouter Chat
-- Open WebUI
+
+**While others work as well:**
+
 - ChatGPT
 - Claude
 - Grok
@@ -75,6 +76,8 @@ Just a single click is needed to integrate responses with the codebase.
 - Qwen
 - Mistral
 - HuggingChat
+- OpenRouter Chat
+- Open WebUI
 
 The Connector extension is vailable in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 

@@ -19,7 +19,7 @@
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and 10+ other chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and more, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
 Gemini Coder is for you if:
 
@@ -64,21 +64,22 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing all the most popular ones with your context, instructions and settings, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing Gemini, AI Studio and many other popular chatbots with your context, instructions and settings, hands-free!
 
-**The feature has two modes:**
+**You can start chats in one of two modes:**
 
 - Ask anything
 - Ask for code completion
 
-Chat responses can be integrated with a single click.
+**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
 
-**Supported chatbots:**
+**Chatbots ensured to work with the extension:**
 
 - Gemini
 - AI Studio
-- OpenRouter Chat
-- Open WebUI
+
+**While others work as well:**
+
 - ChatGPT
 - Claude
 - Grok
@@ -86,6 +87,8 @@ Chat responses can be integrated with a single click.
 - Qwen
 - Mistral
 - HuggingChat
+- OpenRouter Chat
+- Open WebUI
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
