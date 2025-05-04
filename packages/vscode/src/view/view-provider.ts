@@ -750,14 +750,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              // Use the configurable instruction for code completions preview
               const config = vscode.workspace.getConfiguration()
-              const chatCodeCompletionInstructions = config.get<string>(
-                'geminiCoder.chatCodeCompletionInstructions',
-                'Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol "<missing_text>" as "cursor position" and "replacement" as "completion".'
+              const chat_code_completion_instructions = config.get<string>(
+                'geminiCoder.chatCodeCompletionInstructions'
               )
 
-              const instructions = `${chatCodeCompletionInstructions}${
+              const instructions = `${chat_code_completion_instructions}${
                 current_instruction
                   ? ` Follow suggestions: ${current_instruction}`
                   : ''
@@ -778,6 +776,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
               if (message.preset.prompt_suffix) {
                 instruction = instruction + '\n' + message.preset.prompt_suffix
+              }
+
+              const config = vscode.workspace.getConfiguration()
+              const chat_style_instructions = config.get<string>(
+                'geminiCoder.chatStyleInstructions'
+              )
+              if (chat_style_instructions) {
+                instruction += `\n${chat_style_instructions}`
               }
 
               text_to_send = instruction
@@ -839,8 +845,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               // Use the configurable instruction for code completions copy
               const config = vscode.workspace.getConfiguration()
               const chatCodeCompletionInstructions = config.get<string>(
-                'geminiCoder.chatCodeCompletionInstructions',
-                'Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol "<missing_text>" as "cursor position" and "replacement" as "completion".'
+                'geminiCoder.chatCodeCompletionInstructions'
               )
 
               const instructions = `${chatCodeCompletionInstructions}${
@@ -851,7 +856,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
               const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
-              await vscode.env.clipboard.writeText(text)
+              vscode.env.clipboard.writeText(text)
             } else if (!this._is_code_completions_mode) {
               const active_path = active_editor?.document.uri.fsPath
               const context_text = await files_collector.collect_files({
@@ -861,11 +866,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               let instruction =
                 replace_selection_placeholder(current_instruction)
 
-              // Note: Affixes are not applied when just copying the base prompt
               const config = vscode.workspace.getConfiguration()
               const chat_style_instructions = config.get<string>(
-                'geminiCoder.chatStyleInstructions',
-                ''
+                'geminiCoder.chatStyleInstructions'
               )
               if (chat_style_instructions) {
                 instruction += `\n${chat_style_instructions}`
@@ -877,7 +880,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   : ''
               }${instruction}`
 
-              await vscode.env.clipboard.writeText(text)
+              vscode.env.clipboard.writeText(text)
             } else {
               vscode.window.showWarningMessage(
                 'Cannot copy prompt in code completion mode without an active editor.'
@@ -1530,7 +1533,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       command: 'INSTRUCTIONS',
       value: this._instructions
     })
-    this._send_message<ExtensionMessage>({
+    this._send_message<CodeCompletionSuggestionsMessage>({
       command: 'CODE_COMPLETION_SUGGESTIONS',
       value: this._code_completion_suggestions
     })
