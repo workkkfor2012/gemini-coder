@@ -45,7 +45,7 @@ Not affiliated with Google.
 - Any website in context
 - Commit message generation
 - Totally free
-- Zero usage tracking
+- Does not track usage
 - Lightweight ~1.3MB
 
 ## You own the context
@@ -96,10 +96,16 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 ## 🧰 API Tools
 
+Extend your editor with all necessary AI features supporting your work, everyday.
+
 **Supported providers:**
 
 - Gemini API
 - OpenRouter
+
+<small>
+API keys are stored locally on your computer and all requests are sent directly to the provider.
+</small>
 
 #### 🛠️ Code completions
 
