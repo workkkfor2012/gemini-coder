@@ -4,7 +4,7 @@
   "name": "Gemini Coder Connector",
   "short_name": "gemini-coder-connector",
   "description": "Initialize web chats hands-free, integrate responses with the codebase and include any website in the context.",
-  "version": "0.1.62",
+  "version": "0.1.63",
   "homepage_url": "https://github.com/robertpiosik/gemini-coder",
   "icons": {
     "16": "icons/icon16.png",
@@ -33,6 +33,7 @@
         "https://chat.deepseek.com/",
         "https://chat.mistral.ai/chat",
         "https://huggingface.co/chat/",
+        "https://chat.qwen.ai/",
         "http://localhost/",
         "http://openwebui/"
       ],
