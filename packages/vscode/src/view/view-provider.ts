@@ -786,10 +786,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 instruction += `\n${chat_style_instructions}`
               }
 
-              text_to_send = instruction
-              if (context_text) {
-                text_to_send += `\n<files>\n${context_text}</files>\n`
-              }
+              text_to_send = `${
+                context_text
+                  ? `${instruction}\n<files>\n${context_text}</files>\n`
+                  : ''
+              }${instruction}`
             } else {
               vscode.window.showWarningMessage(
                 'Cannot preview in code completion mode without an active editor.'
