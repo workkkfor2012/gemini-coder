@@ -72,6 +72,7 @@ Just a single click is needed to integrate responses with the codebase.
 - Claude
 - Grok
 - DeepSeek
+- Qwen
 - Mistral
 - HuggingChat
 

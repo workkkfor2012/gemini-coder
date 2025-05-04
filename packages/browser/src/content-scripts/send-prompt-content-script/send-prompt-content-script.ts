@@ -9,6 +9,7 @@ import { claude } from './chatbots/claude'
 import { chatgpt } from './chatbots/chatgpt'
 import { gemini } from './chatbots/gemini'
 import { ai_studio } from './chatbots/ai-studio'
+import { qwen } from './chatbots/qwen'
 import { Chatbot } from './types/chatbot'
 import { Message } from '@/types/messages'
 
@@ -46,6 +47,9 @@ const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
 const mistral_url = 'https://chat.mistral.ai/chat'
 const is_mistral = current_url.startsWith('https://chat.mistral.ai/chat')
 
+const qwen_url = 'https://chat.qwen.ai/'
+const is_qwen = current_url.startsWith('https://chat.qwen.ai/')
+
 // const grok_url = 'https://grok.com/'
 const is_grok = current_url.startsWith('https://grok.com/')
 
@@ -75,6 +79,8 @@ if (is_ai_studio) {
   chatbot = grok
 } else if (is_openrouter) {
   chatbot = openrouter
+} else if (is_qwen) {
+  chatbot = qwen
 }
 
 export const get_textarea_element = () => {
@@ -85,7 +91,8 @@ export const get_textarea_element = () => {
     [chatgpt_url]: 'div#prompt-textarea',
     [claude_url]: 'div[contenteditable=true]',
     [deepseek_url]: 'textarea',
-    [mistral_url]: 'textarea'
+    [mistral_url]: 'textarea',
+    [qwen_url]: 'textarea'
   } as any
 
   // Find the appropriate selector based on the URL without the hash
@@ -178,14 +185,18 @@ const initialize_chat = async (params: { message: string; chat: Chat }) => {
   if (params.chat.top_p !== undefined && chatbot?.set_top_p) {
     await chatbot.set_top_p(params.chat.top_p)
   }
-  if (params.chat.options && chatbot?.set_options) {
-    await chatbot.set_options(params.chat.options)
+  if (chatbot?.set_options) {
+    await chatbot.set_options(params.chat.options || [])
   }
 
-  enter_message_and_send({
-    input_element: get_textarea_element(),
-    message: params.message
-  })
+  if (chatbot?.enter_message_and_send) {
+    await chatbot.enter_message_and_send(params.message)
+  } else {
+    await enter_message_and_send({
+      input_element: get_textarea_element(),
+      message: params.message
+    })
+  }
 
   // Process next chat from the queue
   browser.runtime.sendMessage<Message>({

@@ -6,4 +6,5 @@ export type Chatbot = {
   set_top_p?: (top_p: number) => Promise<void>
   enter_system_instructions?: (instructions: string) => Promise<void>
   inject_apply_response_button?: (client_id: number) => void
+  enter_message_and_send?: (message: string) => Promise<void>
 }

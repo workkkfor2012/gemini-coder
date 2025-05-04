@@ -83,6 +83,7 @@ Chat responses can be integrated with a single click.
 - Claude
 - Grok
 - DeepSeek
+- Qwen
 - Mistral
 - HuggingChat
 

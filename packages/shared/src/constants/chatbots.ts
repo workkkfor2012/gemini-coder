@@ -152,5 +152,24 @@ export const CHATBOTS = {
     supported_options: {},
     default_top_p: 0,
     models: {}
+  },
+  Qwen: {
+    url: 'https://chat.qwen.ai/',
+    supports_custom_temperature: false,
+    supports_custom_top_p: false,
+    supports_system_instructions: false,
+    supports_user_provided_model: false,
+    supports_user_provided_port: false,
+    default_system_instructions: '',
+    supported_options: {
+      thinking: 'Thinking'
+    },
+    default_top_p: 0,
+    models: {
+      'qwen3-235b-a22b': 'Qwen3-235B-A22B',
+      'qwen3-30b-a3b': 'Qwen3-30B-A3B',
+      'qwen3-32b': 'Qwen3-32B',
+      'qwen2.5-max': 'Qwen2.5-Max'
+    }
   }
 } satisfies Chatbot

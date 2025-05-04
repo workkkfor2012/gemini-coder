@@ -100,7 +100,7 @@ export const open_webui: Chatbot = {
   },
   set_model: async (model: string) => {
     const model_selector_button = document.querySelector(
-      'button[id="model-selector-0-button"]'
+      'button#model-selector-0-button'
     ) as HTMLElement
     model_selector_button.click()
     await new Promise((r) => requestAnimationFrame(r))
