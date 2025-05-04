@@ -64,11 +64,10 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    --size: 24px;
     padding: 0 4px;
-    height: var(--size);
+    height: 24px;
     border-radius: var(--border-radius-4px);
-    opacity: 0.6;
+    opacity: 0.7;
 
     &:focus {
       outline: none;
@@ -81,7 +80,7 @@
 
     > svg {
       height: 16px;
-      fill: var(--vscode-icon-foreground);
+      fill: var(--vscode-editor-foreground);
     }
   }
 }

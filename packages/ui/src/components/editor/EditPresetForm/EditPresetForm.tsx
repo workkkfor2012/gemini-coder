@@ -108,7 +108,7 @@ export const EditPresetForm: React.FC<Props> = (props) => {
 
   useEffect(() => {
     if (chatbot == 'OpenRouter') {
-      // Use stale-while-revalidate technique
+      // Use stale-while-revalidate flow
       props.request_open_router_models()
     }
   }, [chatbot])
