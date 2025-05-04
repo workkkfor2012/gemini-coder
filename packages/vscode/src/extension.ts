@@ -3,6 +3,7 @@ import { context_initialization } from './context/context-initialization'
 import { ViewProvider } from './view/view-provider'
 import { WebSocketManager } from './services/websocket-manager'
 import { migrate_gemini_api_key } from './migrations/migrate-gemini-api-key'
+import { migrate_remove_copilot_presets } from './migrations/migrate-remove-copilot-presets' // Added import
 import {
   apply_chat_response_command,
   refactor_command,
@@ -49,6 +50,8 @@ export async function activate(context: vscode.ExtensionContext) {
     // Migrate Gemini API key from settings to global state
     // Delete a few weeks after 21 Apr 2025
     await migrate_gemini_api_key(context)
+    // Remove any GitHub Copilot presets delete a few weeks after 4 May 2025
+    await migrate_remove_copilot_presets()
   }
 
   await migrations()
