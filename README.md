@@ -84,7 +84,6 @@ Chat responses can be integrated with a single click.
 - Grok
 - DeepSeek
 - Mistral
-- GitHub Copilot
 - HuggingChat
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).

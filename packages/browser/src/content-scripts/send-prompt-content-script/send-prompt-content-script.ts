@@ -5,7 +5,6 @@ import { open_webui } from './chatbots/open-webui'
 import { deepseek } from './chatbots/deepseek'
 import { grok } from './chatbots/grok'
 import { mistral } from './chatbots/mistral'
-import { github_copilot } from './chatbots/github-copilot'
 import { claude } from './chatbots/claude'
 import { chatgpt } from './chatbots/chatgpt'
 import { gemini } from './chatbots/gemini'
@@ -41,9 +40,6 @@ const is_chatgpt = current_url.startsWith('https://chatgpt.com/')
 const claude_url = 'https://claude.ai/new'
 const is_claude = current_url.startsWith('https://claude.ai/new')
 
-const github_copilot_url = 'https://github.com/copilot'
-const is_github_copilot = current_url.startsWith('https://github.com/copilot')
-
 const deepseek_url = 'https://chat.deepseek.com/'
 const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
 
@@ -69,8 +65,6 @@ if (is_ai_studio) {
   chatbot = chatgpt
 } else if (is_claude) {
   chatbot = claude
-} else if (is_github_copilot) {
-  chatbot = github_copilot
 } else if (is_mistral) {
   chatbot = mistral
 } else if (is_open_webui) {
@@ -90,7 +84,6 @@ export const get_textarea_element = () => {
     [openrouter_url]: 'textarea',
     [chatgpt_url]: 'div#prompt-textarea',
     [claude_url]: 'div[contenteditable=true]',
-    [github_copilot_url]: 'textarea#copilot-chat-textarea',
     [deepseek_url]: 'textarea',
     [mistral_url]: 'textarea'
   } as any
@@ -155,7 +148,7 @@ const enter_message_and_send = async (params: {
     if (is_openrouter || is_mistral) {
       await new Promise((r) => setTimeout(r, 500))
     }
-    if (form && !is_github_copilot) {
+    if (form) {
       form.requestSubmit()
     } else if (is_ai_studio) {
       ;(document.querySelector('run-button > button') as HTMLElement)?.click()

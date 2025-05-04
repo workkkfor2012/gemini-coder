@@ -97,7 +97,6 @@ The extension uses a [content script](https://github.com/robertpiosik/gemini-cod
 - `https://aistudio.google.com/prompts/new_chat`
 - `https://chatgpt.com/`
 - `https://chat.deepseek.com/`
-- `https://github.com/copilot`
 - `https://claude.ai/new`
 - `https://chat.mistral.ai/chat`
 - `https://grok.com/`

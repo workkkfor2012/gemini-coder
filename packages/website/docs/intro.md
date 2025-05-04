@@ -73,7 +73,6 @@ Just a single click is needed to integrate responses with the codebase.
 - Grok
 - DeepSeek
 - Mistral
-- GitHub Copilot
 - HuggingChat
 
 The Connector extension is vailable in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).

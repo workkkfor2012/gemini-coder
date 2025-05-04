@@ -6,7 +6,6 @@ export const chatbot_to_icon = {
   'Open WebUI': 'OPEN_WEBUI',
   OpenRouter: 'OPENROUTER',
   ChatGPT: 'CHATGPT',
-  'GitHub Copilot': 'GITHUB_COPILOT',
   Claude: 'CLAUDE',
   DeepSeek: 'DEEPSEEK',
   Mistral: 'MISTRAL',

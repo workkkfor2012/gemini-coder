@@ -93,26 +93,6 @@ export const CHATBOTS = {
     default_top_p: 0,
     models: {}
   },
-  'GitHub Copilot': {
-    url: 'https://github.com/copilot',
-    supports_custom_temperature: false,
-    supports_custom_top_p: false,
-    supports_system_instructions: false,
-    supports_user_provided_model: false,
-    supports_user_provided_port: false,
-    default_system_instructions: '',
-    supported_options: {},
-    default_top_p: 0,
-    models: {
-      '4o': 'GPT-4o',
-      'o3-mini': 'o3-mini',
-      'sonnet-3.5': 'Claude 3.5 Sonnet',
-      'gemini-2.0-flash': 'Gemini 2.0 Flash',
-      'gpt-4.1': 'GPT-4.1',
-      'sonnet-3.7': 'Claude 3.7 Sonnet',
-      o1: 'o1'
-    }
-  },
   Claude: {
     url: 'https://claude.ai/new',
     supports_custom_temperature: false,

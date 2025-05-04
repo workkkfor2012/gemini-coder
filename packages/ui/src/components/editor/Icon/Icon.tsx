@@ -4,7 +4,6 @@ import Gemini from '../../../assets/icons/gemini.svg'
 import OpenWebUI from '../../../assets/icons/open-webui.svg'
 import OpenRouter from '../../../assets/icons/openrouter.svg'
 import ChatGPT from '../../../assets/icons/openai.svg'
-import GitHubCopilot from '../../../assets/icons/github-copilot.svg'
 import Claude from '../../../assets/icons/claude.svg'
 import DeepSeek from '../../../assets/icons/deepseek.svg'
 import Mistral from '../../../assets/icons/mistral.svg'
@@ -19,7 +18,6 @@ export namespace Icon {
     | 'OPEN_WEBUI'
     | 'OPENROUTER'
     | 'CHATGPT'
-    | 'GITHUB_COPILOT'
     | 'CLAUDE'
     | 'DEEPSEEK'
     | 'MISTRAL'
@@ -52,9 +50,6 @@ export const Icon: React.FC<Icon.Props> = ({ variant }) => {
       break
     case 'CHATGPT':
       icon = <ChatGPT />
-      break
-    case 'GITHUB_COPILOT':
-      icon = <GitHubCopilot />
       break
     case 'CLAUDE':
       icon = <Claude />

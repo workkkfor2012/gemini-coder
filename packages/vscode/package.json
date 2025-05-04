@@ -645,10 +645,6 @@
               "chatbot": "Claude"
             },
             {
-              "name": "GitHub Copilot",
-              "chatbot": "GitHub Copilot"
-            },
-            {
               "name": "Grok",
               "chatbot": "Grok"
             },
@@ -696,7 +692,6 @@
                   "OpenRouter",
                   "ChatGPT",
                   "Claude",
-                  "GitHub Copilot",
                   "Grok",
                   "DeepSeek",
                   "Mistral",

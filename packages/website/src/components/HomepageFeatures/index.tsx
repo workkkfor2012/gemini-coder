@@ -21,18 +21,15 @@ const FeatureList: FeatureItem[] = [
   {
     title: 'Web browser integration',
     description: (
-      <>
-        Hands-free chat initializations in AI Studio, Gemini, ChatGPT, Claude,
-        GitHub Copilot, and more.
-      </>
+      <>Hands-free chat initializations in Gemini, AI Studio and more.</>
     )
   },
   {
     title: 'Powerful API features',
     description: (
       <>
-        Use Fill-In-the-Middle (FIM) completions, refactor entire files, and apply
-        AI-suggested changes with a single click.
+        Use code completions, refactor files, and apply chat responses with a
+        single click.
       </>
     )
   }

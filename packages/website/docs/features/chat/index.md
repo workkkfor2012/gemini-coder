@@ -37,7 +37,6 @@ As longer conversations notably decrease model's performance, instead of submitt
 - Open WebUI (self-hosted)
 - ChatGPT
 - Claude
-- GitHub Copilot
 - Grok
 - DeepSeek
 - Mistral
