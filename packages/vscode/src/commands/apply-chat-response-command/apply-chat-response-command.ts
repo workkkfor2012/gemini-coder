@@ -13,7 +13,7 @@ import { handle_intelligent_update } from './handlers/intelligent-update-handler
 import { create_safe_path } from '@/utils/path-sanitizer'
 import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
-import { apply_git_patch } from './utils/patch-handler'
+import { apply_git_patch, DiffPatch } from './utils/patch-handler'
 
 async function check_if_all_files_new(
   files: ClipboardFile[]
@@ -92,8 +92,6 @@ export function apply_chat_response_command(params: {
         return
       }
 
-      console.log(clipboard_content.patches)
-
       // Create a map of workspace names to their root paths
       const workspace_map = new Map<string, string>()
       vscode.workspace.workspaceFolders.forEach((folder) => {
@@ -104,9 +102,9 @@ export function apply_chat_response_command(params: {
       let success_count = 0
       let failure_count = 0
       let all_original_states: OriginalFileState[] = []
-      let had_failures = false
+      const failed_patches: DiffPatch[] = []
 
-      // Process patches without showing progress
+      // Process patches
       const total_patches = clipboard_content.patches.length
 
       for (let i = 0; i < total_patches; i++) {
@@ -121,7 +119,6 @@ export function apply_chat_response_command(params: {
 
         if (result.success) {
           success_count++
-          // Collect original states for reversion
           if (result.original_states) {
             all_original_states = all_original_states.concat(
               result.original_states
@@ -129,21 +126,8 @@ export function apply_chat_response_command(params: {
           }
         } else {
           failure_count++
-          had_failures = true
-          // Break out of the loop on first failure if we want to abort immediately
-          break
+          failed_patches.push(patch)
         }
-      }
-
-      // If any patch failed, revert all changes
-      if (had_failures && all_original_states.length > 0) {
-        await revert_files(all_original_states)
-        vscode.window.showWarningMessage(
-          `Patch application failed. All changes have been reverted.`
-        )
-        // Reset counters since we reverted everything
-        success_count = 0
-        all_original_states = []
       }
 
       // Store all original states for potential reversion
@@ -154,10 +138,80 @@ export function apply_chat_response_command(params: {
         )
       }
 
-      // Show final results for patch application
-      if (had_failures) {
-        vscode.window.showErrorMessage('Failed to apply diff patches.')
-      } else if (failure_count == 0) {
+      // Handle results
+      if (failure_count > 0) {
+        const response = await vscode.window.showWarningMessage(
+          `Applied ${success_count} patch${
+            success_count !== 1 ? 'es' : ''
+          } successfully, ` +
+            `but ${failure_count} patch${
+              failure_count !== 1 ? 'es' : ''
+            } failed.`,
+          'Try Intelligent Update for failed patches',
+          'Revert all'
+        )
+
+        if (response === 'Revert all' && all_original_states.length > 0) {
+          await revert_files(all_original_states)
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            null
+          )
+        } else if (response === 'Try Intelligent Update for failed patches') {
+          const api_tool_settings_manager = new ApiToolsSettingsManager(
+            params.context
+          )
+          const file_refactoring_settings =
+            api_tool_settings_manager.get_file_refactoring_settings()
+
+          if (
+            !file_refactoring_settings.provider ||
+            !file_refactoring_settings.model
+          ) {
+            vscode.window.showErrorMessage(
+              'API provider or model is not configured for Intelligent update.'
+            )
+            return
+          }
+
+          const connection_details =
+            api_tool_settings_manager.provider_to_connection_details(
+              file_refactoring_settings.provider
+            )
+
+          // Convert failed patches to clipboard format for intelligent update
+          const failed_patches_text = failed_patches
+            .map((patch) => `// ${patch.file_path}\n${patch.content}`)
+            .join('\n\n')
+
+          const intelligent_update_states = await handle_intelligent_update({
+            endpoint_url: connection_details.endpoint_url,
+            api_key: connection_details.api_key,
+            model: file_refactoring_settings.model,
+            temperature: file_refactoring_settings.temperature || 0,
+            clipboard_text: failed_patches_text,
+            context: params.context,
+            is_single_root_folder_workspace
+          })
+
+          if (intelligent_update_states) {
+            // Combine original states from successful patches and intelligent update
+            const combined_states = [
+              ...all_original_states,
+              ...intelligent_update_states
+            ]
+            params.context.workspaceState.update(
+              LAST_APPLIED_CHANGES_STATE_KEY,
+              combined_states
+            )
+            vscode.window.showInformationMessage(
+              `Successfully applied intelligent update to ${
+                failed_patches.length
+              } failed patch${failed_patches.length !== 1 ? 'es' : ''}.`
+            )
+          }
+        }
+      } else if (success_count > 0) {
         const response = await vscode.window.showInformationMessage(
           `Successfully applied ${success_count} patch${
             success_count !== 1 ? 'es' : ''
