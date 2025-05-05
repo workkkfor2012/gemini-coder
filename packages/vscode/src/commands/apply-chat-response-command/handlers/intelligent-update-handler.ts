@@ -18,7 +18,7 @@ import { format_document } from '../utils/format-document'
 import { OriginalFileState } from '../../../types/common'
 import { create_file_if_needed } from '../utils/file-operations'
 
-const MAX_CONCURRENCY = 10
+const MAX_CONCURRENCY = 20
 
 async function process_file(params: {
   endpoint_url: string
