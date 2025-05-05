@@ -1,10 +1,17 @@
 import { cleanup_api_response } from '@/helpers/cleanup-api-response'
 import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
+import { extract_diff_patches, DiffPatch } from '../patch-handler'
 
 export interface ClipboardFile {
   file_path: string
   content: string
   workspace_name?: string
+}
+
+export interface ClipboardContent {
+  type: 'files' | 'patches'
+  files?: ClipboardFile[]
+  patches?: DiffPatch[]
 }
 
 // Helper function to check if path starts with a workspace name and extract it
@@ -246,41 +253,29 @@ export const parse_file_content_only = (params: {
   return null
 }
 
-export const is_multiple_files_clipboard = (
-  clipboard_text: string
-): boolean => {
-  // First check if it's a file-content-only format
-  const file_content_result = parse_file_content_only({
-    clipboard_text,
-    is_single_root_folder_workspace: true
-  })
-  if (file_content_result) {
-    return true
-  }
-
-  // Check for code blocks with potential comment filenames
-  const code_block_regex = /```(\w+)?[\s\S]*?```/g
-  const code_blocks = [...clipboard_text.matchAll(code_block_regex)]
-
-  for (const block of code_blocks) {
-    if (block[0]) {
-      const lines = block[0].split('\n')
-      // Skip first line (```language)
-      if (lines.length > 1) {
-        // Check if second line looks like a comment with filename
-        const secondLine = lines[1].trim()
-        if (
-          (secondLine.startsWith('//') ||
-            secondLine.startsWith('#') ||
-            secondLine.startsWith('/*') ||
-            secondLine.startsWith('*')) &&
-          extract_path_from_comment(secondLine)
-        ) {
-          return true
-        }
+export const parse_clipboard_content = async (
+  clipboard_text: string,
+  is_single_root_folder_workspace: boolean
+): Promise<ClipboardContent> => {
+  // First check for diff patches
+  if (clipboard_text.includes('```diff')) {
+    const patches = await extract_diff_patches(clipboard_text)
+    if (patches.length > 0) {
+      return {
+        type: 'patches',
+        patches
       }
     }
   }
 
-  return false
+  // If no patches found, parse as regular files
+  const files = parse_clipboard_multiple_files({
+    clipboard_text,
+    is_single_root_folder_workspace
+  })
+
+  return {
+    type: 'files',
+    files
+  }
 }

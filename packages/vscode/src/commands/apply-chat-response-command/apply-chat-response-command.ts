@@ -1,8 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import {
-  parse_clipboard_multiple_files,
-  is_multiple_files_clipboard,
+  parse_clipboard_content,
   ClipboardFile
 } from './utils/clipboard-parser'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
@@ -13,8 +12,8 @@ import { handle_fast_replace } from './handlers/fast-replace-handler'
 import { handle_intelligent_update } from './handlers/intelligent-update-handler'
 import { create_safe_path } from '@/utils/path-sanitizer'
 import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
-import { check_for_diff_markers } from '@/utils/check-for-diff-markers'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
+import { apply_git_patch } from './utils/patch-handler'
 
 async function check_if_all_files_new(
   files: ClipboardFile[]
@@ -64,6 +63,7 @@ export function apply_chat_response_command(params: {
       message: 'start',
       data: { command: params.command, mode: params.mode }
     })
+
     const clipboard_text = await vscode.env.clipboard.readText()
 
     if (!clipboard_text) {
@@ -79,82 +79,182 @@ export function apply_chat_response_command(params: {
     const is_single_root_folder_workspace =
       vscode.workspace.workspaceFolders?.length == 1
 
-    // --- Mode Selection ---
-    let selected_mode_label: 'Fast replace' | 'Intelligent update' | undefined =
-      undefined
-    let parsed_files: ClipboardFile[] = [] // Store parsed files if needed
+    // Parse clipboard content which can now contain either files or patches
+    const clipboard_content = await parse_clipboard_content(
+      clipboard_text,
+      is_single_root_folder_workspace
+    )
 
-    const is_multiple_files = is_multiple_files_clipboard(clipboard_text)
+    // Handle patches if found
+    if (clipboard_content.type === 'patches' && clipboard_content.patches) {
+      if (!vscode.workspace.workspaceFolders?.length) {
+        vscode.window.showErrorMessage('No workspace folder open.')
+        return
+      }
 
-    if (is_multiple_files) {
-      parsed_files = parse_clipboard_multiple_files({
-        clipboard_text,
-        is_single_root_folder_workspace
+      // Create a map of workspace names to their root paths
+      const workspace_map = new Map<string, string>()
+      vscode.workspace.workspaceFolders.forEach((folder) => {
+        workspace_map.set(folder.name, folder.uri.fsPath)
       })
 
-      const all_files_new = await check_if_all_files_new(parsed_files)
+      const default_workspace = vscode.workspace.workspaceFolders[0].uri.fsPath
+      let success_count = 0
+      let failure_count = 0
+      let all_original_states: OriginalFileState[] = []
 
-      if (all_files_new) {
-        selected_mode_label = 'Fast replace'
-        Logger.log({
-          function_name: 'apply_chat_response_command',
-          message:
-            'All files are new - automatically selecting Fast replace mode'
-        })
+      await vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Applying patches',
+          cancellable: true
+        },
+        async (progress, token) => {
+          const total_patches = clipboard_content.patches!.length
+
+          for (let i = 0; i < total_patches; i++) {
+            if (token.isCancellationRequested) {
+              vscode.window.showInformationMessage('Operation cancelled.')
+              return
+            }
+
+            const patch = clipboard_content.patches![i]
+            let workspace_path = default_workspace
+
+            if (
+              patch.workspace_name &&
+              workspace_map.has(patch.workspace_name)
+            ) {
+              workspace_path = workspace_map.get(patch.workspace_name)!
+            }
+
+            const result = await apply_git_patch(patch.content, workspace_path)
+
+            if (result.success) {
+              success_count++
+              // Collect original states for reversion
+              if (result.original_states) {
+                all_original_states = all_original_states.concat(
+                  result.original_states
+                )
+              }
+            } else {
+              failure_count++
+            }
+
+            progress.report({
+              message: `${i + 1}/${total_patches} patches processed`,
+              increment: (1 / total_patches) * 100
+            })
+          }
+        }
+      )
+
+      // Store all original states for potential reversion
+      if (all_original_states.length > 0) {
+        params.context.workspaceState.update(
+          LAST_APPLIED_CHANGES_STATE_KEY,
+          all_original_states
+        )
+      }
+
+      // Show final results for patch application
+      if (failure_count === 0) {
+        const response = await vscode.window.showInformationMessage(
+          `Successfully applied ${success_count} patch${
+            success_count !== 1 ? 'es' : ''
+          }.`,
+          'Revert'
+        )
+
+        if (response === 'Revert' && all_original_states.length > 0) {
+          await revert_files(all_original_states)
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            null
+          )
+        }
       } else {
-        const has_truncated_fragments =
-          check_for_truncated_fragments(clipboard_text)
-        const has_diff_markers = check_for_diff_markers(clipboard_text)
-        const auto_select_intelligent =
-          has_truncated_fragments || has_diff_markers
+        const response = await vscode.window.showWarningMessage(
+          `Applied ${success_count} patch${
+            success_count !== 1 ? 'es' : ''
+          } with ${failure_count} failure${failure_count !== 1 ? 's' : ''}.`,
+          'Revert Successful Changes'
+        )
 
-        if (auto_select_intelligent) {
-          selected_mode_label = 'Intelligent update'
-          Logger.log({
-            function_name: 'apply_chat_response_command',
-            message:
-              'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
-          })
-        } else if (params.mode) {
-          selected_mode_label = params.mode
-          Logger.log({
-            function_name: 'apply_chat_response_command',
-            message: 'Mode forced by command parameters',
-            data: selected_mode_label
-          })
-        } else {
-          // Instead of showing dialog, default to fast replace
-          selected_mode_label = 'Fast replace'
-          Logger.log({
-            function_name: 'apply_chat_response_command',
-            message: 'Defaulting to Fast replace mode'
-          })
+        if (
+          response === 'Revert Successful Changes' &&
+          all_original_states.length > 0
+        ) {
+          await revert_files(all_original_states)
+          params.context.workspaceState.update(
+            LAST_APPLIED_CHANGES_STATE_KEY,
+            null
+          )
         }
       }
-    } else {
+
+      return
+    }
+
+    // If no patches found, continue with regular file handling
+    if (!clipboard_content.files || clipboard_content.files.length === 0) {
       vscode.window.showErrorMessage(
         'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment. This is ensured by default system instructions for AI Studio, OpenRouter and Open WebUI.'
       )
       return
     }
 
+    const files = clipboard_content.files
+
+    // --- Mode Selection ---
+    let selected_mode_label: 'Fast replace' | 'Intelligent update' | undefined =
+      undefined
+    const parsed_files: ClipboardFile[] = files // Store parsed files if needed
+
+    const all_files_new = await check_if_all_files_new(parsed_files)
+
+    if (all_files_new) {
+      selected_mode_label = 'Fast replace'
+      Logger.log({
+        function_name: 'apply_chat_response_command',
+        message: 'All files are new - automatically selecting Fast replace mode'
+      })
+    } else {
+      const has_truncated_fragments =
+        check_for_truncated_fragments(clipboard_text)
+
+      if (has_truncated_fragments) {
+        selected_mode_label = 'Intelligent update'
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message:
+            'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
+        })
+      } else if (params.mode) {
+        selected_mode_label = params.mode
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message: 'Mode forced by command parameters',
+          data: selected_mode_label
+        })
+      } else {
+        // Instead of showing dialog, default to fast replace
+        selected_mode_label = 'Fast replace'
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message: 'Defaulting to Fast replace mode'
+        })
+      }
+    }
+
     // --- Execute Mode Handler ---
     let final_original_states: OriginalFileState[] | null = null
     let operation_success = false
-    let file_count = 0
+    let file_count = parsed_files.length
 
     if (selected_mode_label == 'Fast replace') {
-      // We already know it's multiple files if we reach here with Fast replace selected.
-      // Use the already parsed files if available, otherwise parse again (should be rare)
-      const files_to_process =
-        parsed_files.length > 0
-          ? parsed_files
-          : parse_clipboard_multiple_files({
-              clipboard_text,
-              is_single_root_folder_workspace
-            })
-      file_count = files_to_process.length
-      const result = await handle_fast_replace(files_to_process)
+      const result = await handle_fast_replace(parsed_files)
       if (result.success && result.original_states) {
         final_original_states = result.original_states
         operation_success = true
@@ -221,7 +321,6 @@ export function apply_chat_response_command(params: {
         function_name: 'apply_chat_response_command',
         message: 'No valid mode selected or determined.'
       })
-      // Should not happen with the logic above, but good to log
       return
     }
 
@@ -259,7 +358,7 @@ export function apply_chat_response_command(params: {
             LAST_APPLIED_CHANGES_STATE_KEY,
             null
           )
-        } else if (response == 'Looks off, use refactoring tool') {
+        } else if (response == 'Looks off, use intelligent mode') {
           // First revert the fast replace changes
           await revert_files(final_original_states)
 
