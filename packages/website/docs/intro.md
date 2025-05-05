@@ -100,11 +100,7 @@ Use any model for accurate code completions. The tool attaches selected context 
 
 #### 🛠️ File refactoring
 
-Modify the active file based on natural language instructions. The tool attaches selected context in each request.
-
-#### 🛠️ Apply Chat Response
-
-Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in a first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.
+Modify the active file based on natural language instructions. When used directly, the tool attaches selected context in each request. Indirect use involves modyfing files when applying a chat response of which code blocks contain truncation comments, e.g. "// ..."
 
 #### 🛠️ Commit messages
 

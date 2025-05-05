@@ -290,7 +290,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'File Refactoring',
         description:
-          'Modify the active file based on natural language instructions. The tool attaches selected context in each request.',
+          'Modify the active file based on natural language instructions. When used directly, the tool attaches selected context in each request. Indirect use involves modyfing files when applying a chat response of which code blocks contain truncation comments, e.g. "// ..."',
         settings: props.file_refactoring_settings,
         on_update: props.on_file_refactoring_settings_update
       })}
