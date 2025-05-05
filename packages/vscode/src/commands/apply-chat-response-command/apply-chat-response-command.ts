@@ -92,6 +92,8 @@ export function apply_chat_response_command(params: {
         return
       }
 
+      console.log(clipboard_content.patches)
+
       // Create a map of workspace names to their root paths
       const workspace_map = new Map<string, string>()
       vscode.workspace.workspaceFolders.forEach((folder) => {
