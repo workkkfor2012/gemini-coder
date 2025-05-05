@@ -22,12 +22,10 @@ type Props = {
 
   code_completions_settings: ApiToolSettings
   file_refactoring_settings: ApiToolSettings
-  apply_chat_response_settings: ApiToolSettings
   commit_messages_settings: ApiToolSettings
 
   on_code_completions_settings_update: (settings: ApiToolSettings) => void
   on_file_refactoring_settings_update: (settings: ApiToolSettings) => void
-  on_apply_chat_response_settings_update: (settings: ApiToolSettings) => void
   on_commit_messages_settings_update: (settings: ApiToolSettings) => void
 
   on_gemini_api_key_change: (api_key: string) => void
@@ -60,7 +58,6 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
     const settings = [
       props.code_completions_settings,
       props.file_refactoring_settings,
-      props.apply_chat_response_settings,
       props.commit_messages_settings
     ]
 
@@ -75,7 +72,6 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
   }, [
     props.code_completions_settings,
     props.file_refactoring_settings,
-    props.apply_chat_response_settings,
     props.commit_messages_settings,
     props.open_router_models
   ])
@@ -297,13 +293,6 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
           'Modify the active file based on natural language instructions. The tool attaches selected context in each request.',
         settings: props.file_refactoring_settings,
         on_update: props.on_file_refactoring_settings_update
-      })}
-      {render_api_tool_settings({
-        title: 'Apply Chat Response',
-        description:
-          'Automatically integrate copied chat response with the codebase. To correctly detect target files, the tool expects code blocks to have file paths in a first-line comments. The tool makes concurrent API calls for each modified file when code blocks have truncation comments, e.g. "// ...", otherwise files are replaced in place.',
-        settings: props.apply_chat_response_settings,
-        on_update: props.on_apply_chat_response_settings_update
       })}
       {render_api_tool_settings({
         title: 'Commit Messages',

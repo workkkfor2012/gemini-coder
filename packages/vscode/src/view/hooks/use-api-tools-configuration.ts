@@ -5,7 +5,6 @@ import {
   GetOpenRouterApiKeyMessage,
   GetCodeCompletionsSettingsMessage,
   GetFileRefactoringSettingsMessage,
-  GetApplyChatResponseSettingsMessage,
   GetCommitMessagesSettingsMessage
 } from '../types/messages'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
@@ -16,8 +15,6 @@ export const use_api_tools_configuration = (vscode: any) => {
   const [code_completions_settings, set_code_completions_settings] =
     useState<ApiToolSettings>()
   const [file_refactoring_settings, set_file_refactoring_settings] =
-    useState<ApiToolSettings>()
-  const [apply_chat_response_settings, set_apply_chat_response_settings] =
     useState<ApiToolSettings>()
   const [commit_message_settings, set_commit_message_settings] =
     useState<ApiToolSettings>()
@@ -36,9 +33,6 @@ export const use_api_tools_configuration = (vscode: any) => {
       command: 'GET_FILE_REFACTORING_SETTINGS'
     } as GetFileRefactoringSettingsMessage)
     vscode.postMessage({
-      command: 'GET_APPLY_CHAT_RESPONSE_SETTINGS'
-    } as GetApplyChatResponseSettingsMessage)
-    vscode.postMessage({
       command: 'GET_COMMIT_MESSAGES_SETTINGS'
     } as GetCommitMessagesSettingsMessage)
 
@@ -52,8 +46,6 @@ export const use_api_tools_configuration = (vscode: any) => {
         set_code_completions_settings(message.settings)
       } else if (message.command == 'FILE_REFACTORING_SETTINGS') {
         set_file_refactoring_settings(message.settings)
-      } else if (message.command == 'APPLY_CHAT_RESPONSE_SETTINGS') {
-        set_apply_chat_response_settings(message.settings)
       } else if (message.command == 'COMMIT_MESSAGES_SETTINGS') {
         set_commit_message_settings(message.settings)
       }
@@ -98,16 +90,6 @@ export const use_api_tools_configuration = (vscode: any) => {
     })
   }
 
-  const handle_apply_chat_response_settings_change = (
-    settings: ApiToolSettings
-  ) => {
-    set_apply_chat_response_settings(settings)
-    vscode.postMessage({
-      command: 'UPDATE_APPLY_CHAT_RESPONSE_SETTINGS',
-      settings
-    })
-  }
-
   const handle_commit_message_settings_change = (settings: ApiToolSettings) => {
     set_commit_message_settings(settings)
     vscode.postMessage({
@@ -121,13 +103,11 @@ export const use_api_tools_configuration = (vscode: any) => {
     open_router_api_key,
     code_completions_settings,
     file_refactoring_settings,
-    apply_chat_response_settings,
     commit_message_settings,
     handle_gemini_api_key_change,
     handle_open_router_api_key_change,
     handle_code_completions_settings_change,
     handle_file_refactoring_settings_change,
-    handle_apply_chat_response_settings_change,
     handle_commit_message_settings_change
   }
 }

@@ -168,15 +168,6 @@ export interface UpdateFileRefactoringSettingsMessage extends BaseMessage {
   settings: ApiToolSettings
 }
 
-export interface GetApplyChatResponseSettingsMessage extends BaseMessage {
-  command: 'GET_APPLY_CHAT_RESPONSE_SETTINGS'
-}
-
-export interface UpdateApplyChatResponseSettingsMessage extends BaseMessage {
-  command: 'UPDATE_APPLY_CHAT_RESPONSE_SETTINGS'
-  settings: ApiToolSettings
-}
-
 export interface GetCommitMessagesSettingsMessage extends BaseMessage {
   command: 'GET_COMMIT_MESSAGES_SETTINGS'
 }
@@ -361,11 +352,6 @@ export interface FileRefactoringSettingsMessage extends BaseMessage {
   settings: ApiToolSettings
 }
 
-export interface ApplyChatResponseSettingsMessage extends BaseMessage {
-  command: 'APPLY_CHAT_RESPONSE_SETTINGS'
-  settings: ApiToolSettings
-}
-
 export interface CommitMessagesSettingsMessage extends BaseMessage {
   command: 'COMMIT_MESSAGES_SETTINGS'
   settings: ApiToolSettings
@@ -413,8 +399,6 @@ export type WebviewMessage =
   | UpdateCodeCompletionsSettingsMessage
   | GetFileRefactoringSettingsMessage
   | UpdateFileRefactoringSettingsMessage
-  | GetApplyChatResponseSettingsMessage
-  | UpdateApplyChatResponseSettingsMessage
   | GetCommitMessagesSettingsMessage
   | UpdateCommitMessagesSettingsMessage
   | ExecuteCommandMessage
@@ -448,6 +432,5 @@ export type ExtensionMessage =
   | OpenRouterModelSelectedMessage
   | CodeCompletionsSettingsMessage
   | FileRefactoringSettingsMessage
-  | ApplyChatResponseSettingsMessage
   | CommitMessagesSettingsMessage
   | SelectedCodeCompletionPresetsMessage

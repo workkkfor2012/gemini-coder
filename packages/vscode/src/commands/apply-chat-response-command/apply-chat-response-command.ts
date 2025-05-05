@@ -169,10 +169,10 @@ export function apply_chat_response_command(params: {
         params.context
       )
 
-      const apply_chat_response_settings =
-        api_tool_settings_manager.get_apply_chat_response_settings()
+      const file_refactoring_settings =
+        api_tool_settings_manager.get_file_refactoring_settings()
 
-      if (!apply_chat_response_settings.provider) {
+      if (!file_refactoring_settings.provider) {
         vscode.window.showErrorMessage(
           'API provider is not specified for Apply Chat Response tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
         )
@@ -181,7 +181,7 @@ export function apply_chat_response_command(params: {
           message: 'API provider is not specified for Apply Chat Response tool.'
         })
         return
-      } else if (!apply_chat_response_settings.model) {
+      } else if (!file_refactoring_settings.model) {
         vscode.window.showErrorMessage(
           'Model is not specified for Apply Chat Response tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
         )
@@ -194,14 +194,14 @@ export function apply_chat_response_command(params: {
 
       const connection_details =
         api_tool_settings_manager.provider_to_connection_details(
-          apply_chat_response_settings.provider
+          file_refactoring_settings.provider
         )
 
       final_original_states = await handle_intelligent_update({
         endpoint_url: connection_details.endpoint_url,
         api_key: connection_details.api_key,
-        model: apply_chat_response_settings.model,
-        temperature: apply_chat_response_settings.temperature || 0,
+        model: file_refactoring_settings.model,
+        temperature: file_refactoring_settings.temperature || 0,
         clipboard_text,
         context: params.context,
         is_single_root_folder_workspace
@@ -259,7 +259,7 @@ export function apply_chat_response_command(params: {
             LAST_APPLIED_CHANGES_STATE_KEY,
             null
           )
-        } else if (response == 'Looks off, use intelligent mode') {
+        } else if (response == 'Looks off, use refactoring tool') {
           // First revert the fast replace changes
           await revert_files(final_original_states)
 
@@ -267,12 +267,12 @@ export function apply_chat_response_command(params: {
           const api_tool_settings_manager = new ApiToolsSettingsManager(
             params.context
           )
-          const apply_chat_response_settings =
-            api_tool_settings_manager.get_apply_chat_response_settings()
+          const file_refactoring_settings =
+            api_tool_settings_manager.get_file_refactoring_settings()
 
           if (
-            !apply_chat_response_settings.provider ||
-            !apply_chat_response_settings.model
+            !file_refactoring_settings.provider ||
+            !file_refactoring_settings.model
           ) {
             vscode.window.showErrorMessage(
               'API provider or model is not configured for Intelligent update. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
@@ -282,14 +282,14 @@ export function apply_chat_response_command(params: {
 
           const connection_details =
             api_tool_settings_manager.provider_to_connection_details(
-              apply_chat_response_settings.provider
+              file_refactoring_settings.provider
             )
 
           final_original_states = await handle_intelligent_update({
             endpoint_url: connection_details.endpoint_url,
             api_key: connection_details.api_key,
-            model: apply_chat_response_settings.model,
-            temperature: apply_chat_response_settings.temperature || 0,
+            model: file_refactoring_settings.model,
+            temperature: file_refactoring_settings.temperature || 0,
             clipboard_text,
             context: params.context,
             is_single_root_folder_workspace

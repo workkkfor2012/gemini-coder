@@ -816,29 +816,6 @@
             }
           }
         },
-        "geminiCoder.applyChatResponseSettings": {
-          "type": "object",
-          "scope": "resource",
-          "description": "Settings for applying chat responses API tool.",
-          "properties": {
-            "provider": {
-              "type": "string",
-              "enum": [
-                "Gemini API",
-                "OpenRouter"
-              ],
-              "description": "Provider to use for applying chat responses."
-            },
-            "model": {
-              "type": "string",
-              "description": "Model to use for applying chat responses."
-            },
-            "temperature": {
-              "type": "number",
-              "description": "Temperature setting for applying chat responses."
-            }
-          }
-        },
         "geminiCoder.commitMessagesSettings": {
           "type": "object",
           "scope": "resource",

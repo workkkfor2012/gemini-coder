@@ -70,19 +70,6 @@ export class ApiToolsSettingsManager {
     }
   }
 
-  get_apply_chat_response_settings(): ApiToolSettings {
-    const config = vscode.workspace.getConfiguration()
-    const settings = config.get<ApiToolSettings>(
-      'geminiCoder.applyChatResponseSettings',
-      {} as ApiToolSettings
-    )
-    return {
-      provider: settings.provider,
-      model: settings.model,
-      temperature: settings.temperature
-    }
-  }
-
   get_commit_messages_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
@@ -110,15 +97,6 @@ export class ApiToolsSettingsManager {
     const config = vscode.workspace.getConfiguration()
     await config.update(
       'geminiCoder.fileRefactoringSettings',
-      settings,
-      vscode.ConfigurationTarget.Global
-    )
-  }
-
-  async set_apply_chat_response_settings(settings: ApiToolSettings) {
-    const config = vscode.workspace.getConfiguration()
-    await config.update(
-      'geminiCoder.applyChatResponseSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )

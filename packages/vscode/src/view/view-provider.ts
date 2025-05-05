@@ -19,7 +19,6 @@ import {
   OpenRouterModelSelectedMessage,
   CodeCompletionsSettingsMessage,
   FileRefactoringSettingsMessage,
-  ApplyChatResponseSettingsMessage,
   CommitMessagesSettingsMessage,
   OpenRouterApiKeyMessage,
   ExecuteCommandMessage,
@@ -129,20 +128,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           )
           this._send_message<FileRefactoringSettingsMessage>({
             command: 'FILE_REFACTORING_SETTINGS',
-            settings
-          })
-        }
-        if (
-          event.affectsConfiguration('geminiCoder.applyChatResponseSettings') &&
-          this._webview_view
-        ) {
-          const config = vscode.workspace.getConfiguration()
-          const settings = config.get<ApiToolSettings>(
-            'geminiCoder.applyChatResponseSettings',
-            {}
-          )
-          this._send_message<ApplyChatResponseSettingsMessage>({
-            command: 'APPLY_CHAT_RESPONSE_SETTINGS',
             settings
           })
         }
@@ -337,7 +322,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | OpenRouterModelSelectedMessage
       | CodeCompletionsSettingsMessage
       | FileRefactoringSettingsMessage
-      | ApplyChatResponseSettingsMessage
       | CommitMessagesSettingsMessage
       | ExecuteCommandMessage
       | ShowQuickPickMessage
@@ -1459,17 +1443,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             this._api_tools_settings_manager.set_file_refactoring_settings(
               message.settings
             )
-          } else if (message.command == 'GET_APPLY_CHAT_RESPONSE_SETTINGS') {
-            const settings =
-              this._api_tools_settings_manager.get_apply_chat_response_settings()
-            this._send_message<ApplyChatResponseSettingsMessage>({
-              command: 'APPLY_CHAT_RESPONSE_SETTINGS',
-              settings
-            })
-          } else if (message.command == 'UPDATE_APPLY_CHAT_RESPONSE_SETTINGS') {
-            this._api_tools_settings_manager.set_apply_chat_response_settings(
-              message.settings
-            )
           } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_commit_messages_settings()
@@ -1556,13 +1529,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       command: 'FILE_REFACTORING_SETTINGS',
       settings: config.get<ApiToolSettings>(
         'geminiCoder.fileRefactoringSettings',
-        {}
-      )
-    })
-    this._send_message<ApplyChatResponseSettingsMessage>({
-      command: 'APPLY_CHAT_RESPONSE_SETTINGS',
-      settings: config.get<ApiToolSettings>(
-        'geminiCoder.applyChatResponseSettings',
         {}
       )
     })
