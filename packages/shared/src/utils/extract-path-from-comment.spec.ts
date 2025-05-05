@@ -72,21 +72,19 @@ describe('extract_path_from_comment', () => {
   })
 
   it('should extract path containing hyphens and dots', () => {
-    expect(
-      extract_path_from_comment('// src/my-component.v1.test.js')
-    ).toBe('src/my-component.v1.test.js')
-  })
-
-  it('should return null if no valid path is found', () => {
-    expect(extract_path_from_comment('// This is just a comment')).toBe(
-      null
+    expect(extract_path_from_comment('// src/my-component.v1.test.js')).toBe(
+      'src/my-component.v1.test.js'
     )
   })
 
+  it('should return null if no valid path is found', () => {
+    expect(extract_path_from_comment('// This is just a comment')).toBe(null)
+  })
+
   it('should return null if no extension is present', () => {
-    expect(
-      extract_path_from_comment('// path/to/file_without_extension')
-    ).toBe(null)
+    expect(extract_path_from_comment('// path/to/file_without_extension')).toBe(
+      null
+    )
   })
 
   it('should return null for empty comment', () => {
