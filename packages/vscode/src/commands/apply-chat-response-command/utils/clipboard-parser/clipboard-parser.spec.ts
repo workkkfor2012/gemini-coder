@@ -1,6 +1,5 @@
 import {
   parse_clipboard_multiple_files,
-  is_multiple_files_clipboard,
   parse_file_content_only
 } from './clipboard-parser'
 import * as fs from 'fs'
@@ -13,23 +12,6 @@ describe('clipboard-parser', () => {
       'utf-8'
     )
   }
-
-  describe('is_multiple_files_clipboard', () => {
-    it('should return false for non-code text', () => {
-      const text = 'This is just regular text'
-      expect(is_multiple_files_clipboard(text)).toBe(false)
-    })
-
-    it('should return true for comment filename format', () => {
-      const text = load_clipboard_text('comment-filename.txt')
-      expect(is_multiple_files_clipboard(text)).toBe(true)
-    })
-
-    it('should return false for single code block without filename', () => {
-      const text = '```\nconsole.log("hello")\n```'
-      expect(is_multiple_files_clipboard(text)).toBe(false)
-    })
-  })
 
   describe('parse_clipboard_multiple_files', () => {
     it('should parse comment filename format', () => {

@@ -86,7 +86,7 @@ export function apply_chat_response_command(params: {
     )
 
     // Handle patches if found
-    if (clipboard_content.type === 'patches' && clipboard_content.patches) {
+    if (clipboard_content.type == 'patches' && clipboard_content.patches) {
       if (!vscode.workspace.workspaceFolders?.length) {
         vscode.window.showErrorMessage('No workspace folder open.')
         return
@@ -154,10 +154,8 @@ export function apply_chat_response_command(params: {
 
       // Show final results for patch application
       if (had_failures) {
-        vscode.window.showErrorMessage(
-          `Failed to apply patches. All changes have been reverted.`
-        )
-      } else if (failure_count === 0) {
+        vscode.window.showErrorMessage('Failed to apply diff patches.')
+      } else if (failure_count == 0) {
         const response = await vscode.window.showInformationMessage(
           `Successfully applied ${success_count} patch${
             success_count !== 1 ? 'es' : ''
@@ -165,7 +163,7 @@ export function apply_chat_response_command(params: {
           'Revert'
         )
 
-        if (response === 'Revert' && all_original_states.length > 0) {
+        if (response == 'Revert' && all_original_states.length > 0) {
           await revert_files(all_original_states)
           params.context.workspaceState.update(
             LAST_APPLIED_CHANGES_STATE_KEY,
