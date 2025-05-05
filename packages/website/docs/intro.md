@@ -82,7 +82,7 @@ The Connector extension is vailable in [Chrome Web Store](https://chromewebstore
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
-## 🧰 API Tools
+## 🧰 Tools
 
 Support your day-to-day work with all must-have AI features.
 
