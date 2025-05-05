@@ -17,9 +17,9 @@ import {
   CustomProvidersUpdatedMessage,
   OpenRouterModelsMessage,
   OpenRouterModelSelectedMessage,
-  CodeCompletionsSettingsMessage,
-  FileRefactoringSettingsMessage,
-  CommitMessagesSettingsMessage,
+  ApiToolCodeCompletionsSettingsMessage,
+  ApiToolFileRefactoringSettingsMessage,
+  ApiToolCommitMessageSettingsMessage,
   OpenRouterApiKeyMessage,
   ExecuteCommandMessage,
   ShowQuickPickMessage,
@@ -104,43 +104,43 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.codeCompletionsSettings') &&
+          event.affectsConfiguration('geminiCoder.apiToolCodeCompletionsSettings') &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
           const settings = config.get<ApiToolSettings>(
-            'geminiCoder.codeCompletionsSettings',
+            'geminiCoder.apiToolCodeCompletionsSettings',
             {}
           )
-          this._send_message<CodeCompletionsSettingsMessage>({
+          this._send_message<ApiToolCodeCompletionsSettingsMessage>({
             command: 'CODE_COMPLETIONS_SETTINGS',
             settings
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.fileRefactoringSettings') &&
+          event.affectsConfiguration('geminiCoder.apiToolFileRefactoringSettings') &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
           const settings = config.get<ApiToolSettings>(
-            'geminiCoder.fileRefactoringSettings',
+            'geminiCoder.apiToolFileRefactoringSettings',
             {}
           )
-          this._send_message<FileRefactoringSettingsMessage>({
+          this._send_message<ApiToolFileRefactoringSettingsMessage>({
             command: 'FILE_REFACTORING_SETTINGS',
             settings
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.commitMessagesSettings') &&
+          event.affectsConfiguration('geminiCoder.apiToolCommitMessageSettings') &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
           const settings = config.get<ApiToolSettings>(
-            'geminiCoder.commitMessagesSettings',
+            'geminiCoder.apiToolCommitMessageSettings',
             {}
           )
-          this._send_message<CommitMessagesSettingsMessage>({
+          this._send_message<ApiToolCommitMessageSettingsMessage>({
             command: 'COMMIT_MESSAGES_SETTINGS',
             settings
           })
@@ -320,9 +320,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | CustomProvidersUpdatedMessage
       | OpenRouterModelsMessage
       | OpenRouterModelSelectedMessage
-      | CodeCompletionsSettingsMessage
-      | FileRefactoringSettingsMessage
-      | CommitMessagesSettingsMessage
+      | ApiToolCodeCompletionsSettingsMessage
+      | ApiToolFileRefactoringSettingsMessage
+      | ApiToolCommitMessageSettingsMessage
       | ExecuteCommandMessage
       | ShowQuickPickMessage
       | PreviewPresetMessage
@@ -1424,7 +1424,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_CODE_COMPLETIONS_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_code_completions_settings()
-            this._send_message<CodeCompletionsSettingsMessage>({
+            this._send_message<ApiToolCodeCompletionsSettingsMessage>({
               command: 'CODE_COMPLETIONS_SETTINGS',
               settings
             })
@@ -1435,7 +1435,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_FILE_REFACTORING_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_file_refactoring_settings()
-            this._send_message<FileRefactoringSettingsMessage>({
+            this._send_message<ApiToolFileRefactoringSettingsMessage>({
               command: 'FILE_REFACTORING_SETTINGS',
               settings
             })
@@ -1446,7 +1446,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_commit_messages_settings()
-            this._send_message<CommitMessagesSettingsMessage>({
+            this._send_message<ApiToolCommitMessageSettingsMessage>({
               command: 'COMMIT_MESSAGES_SETTINGS',
               settings
             })
@@ -1518,24 +1518,24 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     // Send initial settings for new tools
     const config = vscode.workspace.getConfiguration()
-    this._send_message<CodeCompletionsSettingsMessage>({
+    this._send_message<ApiToolCodeCompletionsSettingsMessage>({
       command: 'CODE_COMPLETIONS_SETTINGS',
       settings: config.get<ApiToolSettings>(
-        'geminiCoder.codeCompletionsSettings',
+        'geminiCoder.apiToolCodeCompletionsSettings',
         {}
       )
     })
-    this._send_message<FileRefactoringSettingsMessage>({
+    this._send_message<ApiToolFileRefactoringSettingsMessage>({
       command: 'FILE_REFACTORING_SETTINGS',
       settings: config.get<ApiToolSettings>(
-        'geminiCoder.fileRefactoringSettings',
+        'geminiCoder.apiToolFileRefactoringSettings',
         {}
       )
     })
-    this._send_message<CommitMessagesSettingsMessage>({
+    this._send_message<ApiToolCommitMessageSettingsMessage>({
       command: 'COMMIT_MESSAGES_SETTINGS',
       settings: config.get<ApiToolSettings>(
-        'geminiCoder.commitMessagesSettings',
+        'geminiCoder.apiToolCommitMessageSettings',
         {}
       )
     })

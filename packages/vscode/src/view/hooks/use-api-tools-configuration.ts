@@ -3,9 +3,9 @@ import {
   ExtensionMessage,
   GetGeminiApiKeyMessage,
   GetOpenRouterApiKeyMessage,
-  GetCodeCompletionsSettingsMessage,
-  GetFileRefactoringSettingsMessage,
-  GetCommitMessagesSettingsMessage
+  GetApiToolCodeCompletionsSettingsMessage,
+  GetApiToolFileRefactoringSettingsMessage,
+  GetApiToolCommitMessageSettingsMessage
 } from '../types/messages'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
 
@@ -28,13 +28,13 @@ export const use_api_tools_configuration = (vscode: any) => {
     } as GetOpenRouterApiKeyMessage)
     vscode.postMessage({
       command: 'GET_CODE_COMPLETIONS_SETTINGS'
-    } as GetCodeCompletionsSettingsMessage)
+    } as GetApiToolCodeCompletionsSettingsMessage)
     vscode.postMessage({
       command: 'GET_FILE_REFACTORING_SETTINGS'
-    } as GetFileRefactoringSettingsMessage)
+    } as GetApiToolFileRefactoringSettingsMessage)
     vscode.postMessage({
       command: 'GET_COMMIT_MESSAGES_SETTINGS'
-    } as GetCommitMessagesSettingsMessage)
+    } as GetApiToolCommitMessageSettingsMessage)
 
     const handle_message = (event: MessageEvent<ExtensionMessage>) => {
       const message = event.data

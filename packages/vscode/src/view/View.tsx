@@ -108,7 +108,6 @@ export const View = () => {
   if (
     !api_tools_configuration_hook.code_completions_settings ||
     !api_tools_configuration_hook.file_refactoring_settings ||
-    !api_tools_configuration_hook.apply_chat_response_settings ||
     !api_tools_configuration_hook.commit_message_settings ||
     instructions === undefined ||
     code_completion_suggestions === undefined
@@ -208,9 +207,6 @@ export const View = () => {
           file_refactoring_settings={
             api_tools_configuration_hook.file_refactoring_settings
           }
-          apply_chat_response_settings={
-            api_tools_configuration_hook.apply_chat_response_settings
-          }
           commit_messages_settings={
             api_tools_configuration_hook.commit_message_settings
           }
@@ -219,9 +215,6 @@ export const View = () => {
           }
           on_file_refactoring_settings_update={
             api_tools_configuration_hook.handle_file_refactoring_settings_change
-          }
-          on_apply_chat_response_settings_update={
-            api_tools_configuration_hook.handle_apply_chat_response_settings_change
           }
           on_commit_messages_settings_update={
             api_tools_configuration_hook.handle_commit_message_settings_change

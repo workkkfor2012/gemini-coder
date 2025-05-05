@@ -47,7 +47,7 @@ export class ApiToolsSettingsManager {
   get_code_completions_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.codeCompletionsSettings',
+      'geminiCoder.apiToolCodeCompletionsSettings',
       {} as ApiToolSettings
     )
     return {
@@ -60,7 +60,7 @@ export class ApiToolsSettingsManager {
   get_file_refactoring_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.fileRefactoringSettings',
+      'geminiCoder.apiToolFileRefactoringSettings',
       {} as ApiToolSettings
     )
     return {
@@ -73,7 +73,7 @@ export class ApiToolsSettingsManager {
   get_commit_messages_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.commitMessagesSettings',
+      'geminiCoder.apiToolCommitMessageSettings',
       {} as ApiToolSettings
     )
     return {
@@ -87,7 +87,7 @@ export class ApiToolsSettingsManager {
   async set_code_completions_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.codeCompletionsSettings',
+      'geminiCoder.apiToolCodeCompletionsSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
@@ -96,7 +96,7 @@ export class ApiToolsSettingsManager {
   async set_file_refactoring_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.fileRefactoringSettings',
+      'geminiCoder.apiToolFileRefactoringSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
@@ -105,7 +105,7 @@ export class ApiToolsSettingsManager {
   async set_commit_messages_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.commitMessagesSettings',
+      'geminiCoder.apiToolCommitMessageSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )

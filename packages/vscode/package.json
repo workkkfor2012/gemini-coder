@@ -770,7 +770,7 @@
             ]
           }
         },
-        "geminiCoder.codeCompletionsSettings": {
+        "geminiCoder.apiToolCodeCompletionsSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for code completions API tool.",
@@ -793,7 +793,7 @@
             }
           }
         },
-        "geminiCoder.fileRefactoringSettings": {
+        "geminiCoder.apiToolFileRefactoringSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for file refactoring API tool.",
@@ -816,7 +816,7 @@
             }
           }
         },
-        "geminiCoder.commitMessagesSettings": {
+        "geminiCoder.apiToolCommitMessageSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for commit messages API tool.",

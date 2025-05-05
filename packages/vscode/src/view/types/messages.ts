@@ -150,29 +150,29 @@ export interface ShowOpenRouterModelPickerMessage extends BaseMessage {
   }[]
 }
 
-export interface GetCodeCompletionsSettingsMessage extends BaseMessage {
+export interface GetApiToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'GET_CODE_COMPLETIONS_SETTINGS'
 }
 
-export interface UpdateCodeCompletionsSettingsMessage extends BaseMessage {
+export interface UpdateApiToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'UPDATE_CODE_COMPLETIONS_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface GetFileRefactoringSettingsMessage extends BaseMessage {
+export interface GetApiToolFileRefactoringSettingsMessage extends BaseMessage {
   command: 'GET_FILE_REFACTORING_SETTINGS'
 }
 
-export interface UpdateFileRefactoringSettingsMessage extends BaseMessage {
+export interface UpdateApiToolFileRefactoringSettingsMessage extends BaseMessage {
   command: 'UPDATE_FILE_REFACTORING_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface GetCommitMessagesSettingsMessage extends BaseMessage {
+export interface GetApiToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'GET_COMMIT_MESSAGES_SETTINGS'
 }
 
-export interface UpdateCommitMessagesSettingsMessage extends BaseMessage {
+export interface UpdateApiToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'UPDATE_COMMIT_MESSAGES_SETTINGS'
   settings: ApiToolSettings
 }
@@ -342,17 +342,17 @@ export interface OpenRouterModelSelectedMessage extends BaseMessage {
   model_id: string | undefined
 }
 
-export interface CodeCompletionsSettingsMessage extends BaseMessage {
+export interface ApiToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'CODE_COMPLETIONS_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface FileRefactoringSettingsMessage extends BaseMessage {
+export interface ApiToolFileRefactoringSettingsMessage extends BaseMessage {
   command: 'FILE_REFACTORING_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface CommitMessagesSettingsMessage extends BaseMessage {
+export interface ApiToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'COMMIT_MESSAGES_SETTINGS'
   settings: ApiToolSettings
 }
@@ -395,12 +395,12 @@ export type WebviewMessage =
   | GetCustomProvidersMessage
   | GetOpenRouterModelsMessage
   | ShowOpenRouterModelPickerMessage
-  | GetCodeCompletionsSettingsMessage
-  | UpdateCodeCompletionsSettingsMessage
-  | GetFileRefactoringSettingsMessage
-  | UpdateFileRefactoringSettingsMessage
-  | GetCommitMessagesSettingsMessage
-  | UpdateCommitMessagesSettingsMessage
+  | GetApiToolCodeCompletionsSettingsMessage
+  | UpdateApiToolCodeCompletionsSettingsMessage
+  | GetApiToolFileRefactoringSettingsMessage
+  | UpdateApiToolFileRefactoringSettingsMessage
+  | GetApiToolCommitMessageSettingsMessage
+  | UpdateApiToolCommitMessageSettingsMessage
   | ExecuteCommandMessage
   | ShowQuickPickMessage
   | PreviewPresetMessage
@@ -430,7 +430,7 @@ export type ExtensionMessage =
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
-  | CodeCompletionsSettingsMessage
-  | FileRefactoringSettingsMessage
-  | CommitMessagesSettingsMessage
+  | ApiToolCodeCompletionsSettingsMessage
+  | ApiToolFileRefactoringSettingsMessage
+  | ApiToolCommitMessageSettingsMessage
   | SelectedCodeCompletionPresetsMessage
