@@ -6,13 +6,13 @@ export default {
 }
 
 export const Default = () => {
-  const [activeTab, setActiveTab] = useState<'chat' | 'api'>('chat')
+  const [active_tab, set_active_tab] = useState<'chat' | 'tools'>('chat')
 
   return (
     <Header
-      active_tab={activeTab}
-      on_chat_tab_click={() => setActiveTab('chat')}
-      on_api_tab_click={() => setActiveTab('api')}
+      active_tab={active_tab}
+      on_chat_tab_click={() => set_active_tab('chat')}
+      on_tools_tab_click={() => set_active_tab('tools')}
     />
   )
 }

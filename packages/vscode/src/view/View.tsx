@@ -20,7 +20,7 @@ import { TextButton } from '@ui/components/editor/TextButton'
 const vscode = acquireVsCodeApi()
 
 export const View = () => {
-  const [active_tab, set_active_tab] = useState<'chat' | 'api'>('chat')
+  const [active_tab, set_active_tab] = useState<'chat' | 'tools'>('chat')
   const [updating_preset, set_updating_preset] = useState<Preset>()
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_configuring_api_tools, set_is_configuring_api_tools] =
@@ -122,8 +122,8 @@ export const View = () => {
         on_chat_tab_click={() => {
           set_active_tab('chat')
         }}
-        on_api_tab_click={() => {
-          set_active_tab('api')
+        on_tools_tab_click={() => {
+          set_active_tab('tools')
         }}
       />
       <WebChatsTab
@@ -141,7 +141,7 @@ export const View = () => {
       />
       <ApiToolsTab
         vscode={vscode}
-        is_visible={active_tab == 'api'}
+        is_visible={active_tab == 'tools'}
         on_configure_api_tools_click={() => set_is_configuring_api_tools(true)}
       />
     </>

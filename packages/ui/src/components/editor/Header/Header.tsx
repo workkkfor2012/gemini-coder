@@ -4,9 +4,9 @@ import styles from './Header.module.scss'
 import cn from 'classnames'
 
 type Props = {
-  active_tab: 'chat' | 'api'
+  active_tab: 'chat' | 'tools'
   on_chat_tab_click: () => void
-  on_api_tab_click: () => void
+  on_tools_tab_click: () => void
 }
 
 export const Header: React.FC<Props> = (props) => {
@@ -32,12 +32,12 @@ export const Header: React.FC<Props> = (props) => {
         </button>
         <button
           className={cn(styles.tabs__tab, {
-            [styles['tabs__tab--active']]: props.active_tab == 'api'
+            [styles['tabs__tab--active']]: props.active_tab == 'tools'
           })}
-          onClick={props.on_api_tab_click}
-          data-text={window_width >= 320 ? 'API Tools' : 'API'}
+          onClick={props.on_tools_tab_click}
+          data-text={'Tools'}
         >
-          {window_width >= 320 ? 'API Tools' : 'API'}
+          Tools
         </button>
       </div>
       <div className={styles.right}>
