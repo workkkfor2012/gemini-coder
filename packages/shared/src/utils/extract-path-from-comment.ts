@@ -1,13 +1,13 @@
 export const extract_path_from_comment = (line: string): string | null => {
   // First check if the line starts with a comment marker
-  if (!/^(\s*)(\/\/|#|--|\/\*|\*)/.test(line)) {
+  if (!/^(\s*)(\/\/|#|--|\/\*|\*|<!--)/.test(line)) {
     return null
   }
 
   // Strip the comment marker and surrounding whitespace
   const stripped = line
     .trim()
-    .replace(/^(?:\/\/|#|--|\/\*|\*)\s*/, '')
+    .replace(/^(?:\/\/|#|--|\/\*|\*|<!--)\s*/, '')
     .trim()
 
   // Match a path pattern that can include special characters like (), [], etc.

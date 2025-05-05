@@ -41,6 +41,12 @@ describe('extract_path_from_comment', () => {
     )
   })
 
+  it('should extract filename from <!-- comment line', () => {
+    expect(extract_path_from_comment('<!-- path/to/template.html')).toBe(
+      'path/to/template.html'
+    )
+  })
+
   it('should handle leading/trailing spaces', () => {
     expect(extract_path_from_comment('  //   spaced/path/file.go  ')).toBe(
       'spaced/path/file.go'
