@@ -1,10 +1,10 @@
 import { WebChatsTab } from './tabs/web-chats/WebChatsTab'
 import { ToolsTab } from './tabs/tools/ToolsTab'
-import { Header } from '@ui/components/editor/Header'
+import { Header as UiHeader } from '@ui/components/editor/Header'
 import { useEffect, useState } from 'react'
-import { Template } from '@ui/components/editor/Template'
-import { EditView } from '@ui/components/editor/EditView'
-import { EditPresetForm } from '@ui/components/editor/EditPresetForm'
+import { Template as UiTemplate } from '@ui/components/editor/Template'
+import { EditView as UiEditView } from '@ui/components/editor/EditView'
+import { EditPresetForm as UiEditPresetForm } from '@ui/components/editor/EditPresetForm'
 import { Preset } from '@shared/types/preset'
 import {
   ExtensionMessage,
@@ -12,10 +12,10 @@ import {
   SaveCodeCompletionSuggestionsMessage
 } from './types/messages'
 import { use_open_router_models } from './hooks/use-open-router-models'
-import { ToolsConfiguration } from '@ui/components/editor/ToolsConfiguration'
+import { ToolsConfiguration as UiToolsConfiguration } from '@ui/components/editor/ToolsConfiguration'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
-import { TextButton } from '@ui/components/editor/TextButton'
+import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
 
 const vscode = acquireVsCodeApi()
 
@@ -106,7 +106,7 @@ export const View = () => {
 
   const tabs = (
     <>
-      <Header
+      <UiHeader
         active_tab={active_tab}
         on_chat_tab_click={() => {
           set_active_tab('chat')
@@ -140,10 +140,10 @@ export const View = () => {
 
   if (updating_preset) {
     edit_view = (
-      <EditView
+      <UiEditView
         on_back_click={edit_preset_back_click_handler}
         header_slot={
-          <TextButton
+          <UiTextButton
             on_click={handle_preview_preset}
             disabled={
               is_in_code_completions_mode &&
@@ -157,10 +157,10 @@ export const View = () => {
             }
           >
             Preview
-          </TextButton>
+          </UiTextButton>
         }
       >
-        <EditPresetForm
+        <UiEditPresetForm
           preset={updating_preset}
           on_update={set_updated_preset}
           request_open_router_models={
@@ -171,16 +171,16 @@ export const View = () => {
             open_router_models_hook.get_newly_picked_open_router_model
           }
         />
-      </EditView>
+      </UiEditView>
     )
   } else if (is_configuring_api_tools) {
     edit_view = (
-      <EditView
+      <UiEditView
         on_back_click={() => {
           set_is_configuring_api_tools(false)
         }}
       >
-        <ToolsConfiguration
+        <UiToolsConfiguration
           gemini_api_key={api_tools_configuration_hook.gemini_api_key}
           open_router_models={open_router_models_hook.open_router_models}
           gemini_api_models={Object.fromEntries(
@@ -221,13 +221,13 @@ export const View = () => {
             open_router_models_hook.get_newly_picked_open_router_model
           }
         />
-      </EditView>
+      </UiEditView>
     )
   }
 
   return (
     <>
-      <Template edit_view_slot={edit_view} tabs_slot={tabs} />
+      <UiTemplate edit_view_slot={edit_view} tabs_slot={tabs} />
     </>
   )
 }
