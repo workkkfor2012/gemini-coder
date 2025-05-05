@@ -1,5 +1,5 @@
 import { Button } from '@ui/components/editor/Button'
-import styles from './ApiToolsTab.module.scss'
+import styles from './ToolsTab.module.scss'
 import { useEffect, useState } from 'react'
 import { ExtensionMessage } from '@/view/types/messages'
 
