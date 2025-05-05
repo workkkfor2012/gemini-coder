@@ -6,6 +6,7 @@ import { Logger } from '../../../helpers/logger'
 import { promisify } from 'util'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { OriginalFileState } from '../../../types/common'
+import { open_format_and_save_documents } from './open-format-save-documents'
 
 const execAsync = promisify(exec)
 
@@ -182,7 +183,7 @@ export async function apply_git_patch(
 
     // Apply the patch
     try {
-      // Use git apply with --reject option to generate .rej files for failed hunks
+      // Use git apply with --reject option to generate .rej files for failed chunks
       await execAsync('git apply --reject --whitespace=fix ' + temp_file, {
         cwd: workspace_path
       })
@@ -196,6 +197,10 @@ export async function apply_git_patch(
       // Clean up temp file
       await vscode.workspace.fs.delete(vscode.Uri.file(temp_file))
 
+      // Extract file paths from the patch and open, format, and save them
+      const file_paths = extract_file_paths_from_patch(patch_content)
+      await open_format_and_save_documents(file_paths, workspace_path)
+
       return { success: true, original_states }
     } catch (error: any) {
       // Check if there are .rej files indicating partial failure
@@ -205,6 +210,10 @@ export async function apply_git_patch(
         vscode.window.showWarningMessage(
           'Some parts of the patch could not be applied. Check .rej files for details.'
         )
+
+        // Even with partial failure, try to format the files that were modified
+        const file_paths = extract_file_paths_from_patch(patch_content)
+        await open_format_and_save_documents(file_paths, workspace_path)
       } else {
         vscode.window.showErrorMessage(
           `Failed to apply patch: ${error.message || 'Unknown error'}`
