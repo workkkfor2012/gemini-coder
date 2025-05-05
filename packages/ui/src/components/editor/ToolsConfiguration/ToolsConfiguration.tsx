@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import styles from './ApiSettingsForm.module.scss'
+import styles from './ToolsConfiguration.module.scss'
 import { Field } from '../Field'
 import { IconButton } from '../IconButton/IconButton'
 import { Slider } from '../Slider'
@@ -35,7 +35,7 @@ type Props = {
   get_newly_picked_open_router_model: () => Promise<string | undefined>
 }
 
-export const ApiSettingsForm: React.FC<Props> = (props) => {
+export const ToolsConfiguration: React.FC<Props> = (props) => {
   const [show_gemini_api_key, set_show_api_key] = useState(false)
   const [show_open_router_api_key, set_show_open_router_api_key] =
     useState(false)
@@ -84,7 +84,7 @@ export const ApiSettingsForm: React.FC<Props> = (props) => {
   }) => (
     <>
       <ConfigurationHeader
-        top_line="API TOOL"
+        top_line="TOOL"
         bottom_line={params.title}
         description={params.description}
       />

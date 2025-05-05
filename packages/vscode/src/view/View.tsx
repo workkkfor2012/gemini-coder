@@ -12,7 +12,7 @@ import {
   SaveCodeCompletionSuggestionsMessage
 } from './types/messages'
 import { use_open_router_models } from './hooks/use-open-router-models'
-import { ApiSettingsForm } from '@ui/components/editor/ApiSettingsForm'
+import { ToolsConfiguration } from '@ui/components/editor/ToolsConfiguration'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'
 import { use_api_tools_configuration } from './hooks/use-api-tools-configuration'
 import { TextButton } from '@ui/components/editor/TextButton'
@@ -191,7 +191,7 @@ export const View = () => {
           set_is_configuring_api_tools(false)
         }}
       >
-        <ApiSettingsForm
+        <ToolsConfiguration
           gemini_api_key={api_tools_configuration_hook.gemini_api_key}
           open_router_models={open_router_models_hook.open_router_models}
           gemini_api_models={Object.fromEntries(
