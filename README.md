@@ -19,7 +19,7 @@
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes Gemini, AI Studio and more, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
 Gemini Coder is for you if:
 
@@ -39,9 +39,10 @@ Not affiliated with Google.
 
 - Intuitive context selection
 - Web chat initialization
-- Code completions with any model
-- Not limited to Gemini
 - Chat response integration
+- Code completions with any model
+- Effective file refactoring
+- Not limited to Gemini
 - Any website in context
 - Commit message generation
 - Totally free
@@ -73,22 +74,20 @@ As everyone have their own favourite web chat interface, each with unique featur
 
 **_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
 
-**Chatbots ensured to work with the extension:**
+**Supported chatbots:**
 
-- Gemini
 - AI Studio
+- Gemini
 
-**While others work as well:**
+**Also works with:** _(Alphabetically)_
 
 - ChatGPT
 - Claude
-- Grok
 - DeepSeek
-- Qwen
-- Mistral
+- Grok
 - HuggingChat
-- OpenRouter Chat
-- Open WebUI
+- Mistral
+- Qwen
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
@@ -96,9 +95,9 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 ## 🧰 API Tools
 
-Extend your editor with all necessary AI features supporting your work, everyday.
+Support your day-to-day work with all must-have AI features.
 
-**Supported providers:**
+**Bring your own API keys for:**
 
 - Gemini API
 - OpenRouter

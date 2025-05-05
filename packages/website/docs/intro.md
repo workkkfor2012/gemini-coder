@@ -25,15 +25,15 @@ Not affiliated with Google.
 
 ## Overview
 
-- MIT License
-- Totally free
 - Intuitive context selection
-- Initializes web chats
-- Not limited to Gemini
+- Web chat initialization
+- Chat response integration
 - Code completions with any model
-- Integrate chat reponses
-- Include websites in context
-- Generate commit messages
+- Effective file refactoring
+- Not limited to Gemini
+- Any website in context
+- Commit message generation
+- Totally free
 - Does not track usage
 - Lightweight ~1.3MB
 
@@ -62,22 +62,20 @@ As everyone have their own favourite web chat interface, each with unique featur
 
 **_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
 
-**Chatbots with prioritized compatibility:**
+**Supported chatbots:**
 
 - AI Studio
 - Gemini
-- OpenRouter Chat
-- Open WebUI (self-hosted)
 
-**Other supported options:**
+**Also works with:** _(Alphabetically)_
 
 - ChatGPT
 - Claude
-- Grok
 - DeepSeek
-- Qwen
-- Mistral
+- Grok
 - HuggingChat
+- Mistral
+- Qwen
 
 The Connector extension is vailable in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
@@ -85,9 +83,9 @@ The Connector extension is vailable in [Chrome Web Store](https://chromewebstore
 
 ## 🧰 API Tools
 
-Extend your editor with all necessary AI features supporting your work, everyday.
+Support your day-to-day work with all must-have AI features.
 
-**Supported providers:**
+**Bring your own API keys for:**
 
 - Gemini API
 - OpenRouter
