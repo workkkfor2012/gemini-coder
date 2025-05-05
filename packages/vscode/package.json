@@ -631,13 +631,6 @@
               ]
             },
             {
-              "name": "Open WebUI",
-              "chatbot": "Open WebUI",
-              "port": 3000,
-              "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant."
-            },
-            {
               "name": "ChatGPT",
               "chatbot": "ChatGPT"
             },
@@ -669,7 +662,10 @@
             },
             {
               "name": "Qwen",
-              "chatbot": "Qwen"
+              "chatbot": "Qwen",
+              "options": [
+                "thinking"
+              ]
             },
             {
               "name": "Mistral",
@@ -678,6 +674,13 @@
             {
               "name": "HuggingChat",
               "chatbot": "HuggingChat"
+            },
+            {
+              "name": "Open WebUI",
+              "chatbot": "Open WebUI",
+              "port": 3000,
+              "temperature": 0.5,
+              "systemInstructions": "You're a helpful coding assistant."
             }
           ],
           "description": "Preset is a general or task specific web chat configuration.",
