@@ -9,7 +9,7 @@ type Props = {
   on_configure_api_tools_click: () => void
 }
 
-export const ApiToolsTab: React.FC<Props> = (props) => {
+export const ToolsTab: React.FC<Props> = (props) => {
   const [has_active_editor, set_has_active_editor] = useState(false)
 
   useEffect(() => {

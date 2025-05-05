@@ -1,5 +1,5 @@
 import { WebChatsTab } from './tabs/web-chats/WebChatsTab'
-import { ApiToolsTab } from './tabs/api-tools/ApiToolsTab'
+import { ToolsTab } from './tabs/tools/ToolsTab'
 import { Header } from '@ui/components/editor/Header'
 import { useEffect, useState } from 'react'
 import { Template } from '@ui/components/editor/Template'
@@ -139,7 +139,7 @@ export const View = () => {
           handle_code_completion_suggestions_change
         }
       />
-      <ApiToolsTab
+      <ToolsTab
         vscode={vscode}
         is_visible={active_tab == 'tools'}
         on_configure_api_tools_click={() => set_is_configuring_api_tools(true)}
