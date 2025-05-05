@@ -6,7 +6,7 @@ import { Logger } from '../../../helpers/logger'
 import { promisify } from 'util'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { OriginalFileState } from '../../../types/common'
-import { open_format_and_save_documents } from './open-format-save-documents'
+import { format_document } from './format-document'
 
 const execAsync = promisify(exec)
 
@@ -119,7 +119,6 @@ export async function store_original_file_states(
   for (const file_path of file_paths) {
     const full_path = path.join(workspace_path, file_path)
 
-    // Check if file exists
     if (fs.existsSync(full_path)) {
       try {
         const content = fs.readFileSync(full_path, 'utf8')
@@ -127,14 +126,7 @@ export async function store_original_file_states(
           file_path,
           content,
           is_new: false,
-          // Extract workspace name from workspace_path if needed
           workspace_name: path.basename(workspace_path)
-        })
-
-        Logger.log({
-          function_name: 'store_original_file_states',
-          message: 'Stored original state for file',
-          data: { file_path }
         })
       } catch (error) {
         Logger.error({
@@ -144,23 +136,62 @@ export async function store_original_file_states(
         })
       }
     } else {
-      // File doesn't exist yet, will be created by the patch
       original_states.push({
         file_path,
         content: '',
         is_new: true,
         workspace_name: path.basename(workspace_path)
       })
-
-      Logger.log({
-        function_name: 'store_original_file_states',
-        message: 'Marked file as new (to be created)',
-        data: { file_path }
-      })
     }
   }
 
   return original_states
+}
+
+/**
+ * Opens, formats, and saves a list of files.
+ */
+async function process_modified_files(
+  file_paths: string[],
+  workspace_path: string
+): Promise<void> {
+  for (const file_path of file_paths) {
+    const full_path = path.join(workspace_path, file_path)
+
+    // Only process if the file exists after the patch application
+    if (fs.existsSync(full_path)) {
+      try {
+        const uri = vscode.Uri.file(full_path)
+        const document = await vscode.workspace.openTextDocument(uri)
+        await vscode.window.showTextDocument(document)
+
+        // Format the document
+        await format_document(document)
+
+        // Save the document
+        await document.save()
+
+        Logger.log({
+          function_name: 'process_modified_files',
+          message: 'Successfully processed file',
+          data: { file_path }
+        })
+      } catch (error) {
+        Logger.error({
+          function_name: 'process_modified_files',
+          message: 'Error processing file',
+          data: { file_path, error }
+        })
+      }
+    } else {
+      Logger.log({
+        function_name: 'process_modified_files',
+        message:
+          'Skipping processing for non-existent file (likely deleted by patch)',
+        data: { file_path }
+      })
+    }
+  }
 }
 
 export async function apply_git_patch(
@@ -194,12 +225,12 @@ export async function apply_git_patch(
         data: { workspace_path }
       })
 
-      // Clean up temp file
-      await vscode.workspace.fs.delete(vscode.Uri.file(temp_file))
-
       // Extract file paths from the patch and open, format, and save them
       const file_paths = extract_file_paths_from_patch(patch_content)
-      await open_format_and_save_documents(file_paths, workspace_path)
+      await process_modified_files(file_paths, workspace_path) // Changed function call
+
+      // Clean up temp file
+      await vscode.workspace.fs.delete(vscode.Uri.file(temp_file))
 
       return { success: true, original_states }
     } catch (error: any) {
@@ -213,11 +244,7 @@ export async function apply_git_patch(
 
         // Even with partial failure, try to format the files that were modified
         const file_paths = extract_file_paths_from_patch(patch_content)
-        await open_format_and_save_documents(file_paths, workspace_path)
-      } else {
-        vscode.window.showErrorMessage(
-          `Failed to apply patch: ${error.message || 'Unknown error'}`
-        )
+        await process_modified_files(file_paths, workspace_path) // Changed function call
       }
 
       Logger.error({
