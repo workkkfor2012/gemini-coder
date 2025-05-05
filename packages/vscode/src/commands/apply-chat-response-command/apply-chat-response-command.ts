@@ -184,36 +184,72 @@ export function apply_chat_response_command(params: {
             .map((patch) => `// ${patch.file_path}\n${patch.content}`)
             .join('\n\n')
 
-          const intelligent_update_states = await handle_intelligent_update({
-            endpoint_url: connection_details.endpoint_url,
-            api_key: connection_details.api_key,
-            model: file_refactoring_settings.model,
-            temperature: file_refactoring_settings.temperature || 0,
-            clipboard_text: failed_patches_text,
-            context: params.context,
-            is_single_root_folder_workspace
-          })
+          try {
+            const intelligent_update_states = await handle_intelligent_update({
+              endpoint_url: connection_details.endpoint_url,
+              api_key: connection_details.api_key,
+              model: file_refactoring_settings.model,
+              temperature: file_refactoring_settings.temperature || 0,
+              clipboard_text: failed_patches_text,
+              context: params.context,
+              is_single_root_folder_workspace
+            })
 
-          if (intelligent_update_states) {
-            // Combine original states from successful patches and intelligent update
-            const combined_states = [
-              ...all_original_states,
-              ...intelligent_update_states
-            ]
-            params.context.workspaceState.update(
-              LAST_APPLIED_CHANGES_STATE_KEY,
-              combined_states
-            )
-            const response = await vscode.window.showInformationMessage(
-              `Successfully applied ${failed_patches.length} failed patch${
-                failed_patches.length != 1 ? 'es' : ''
-              }.`,
-              'Revert' // Added Revert button here
+            if (intelligent_update_states) {
+              // Combine original states from successful patches and intelligent update
+              const combined_states = [
+                ...all_original_states,
+                ...intelligent_update_states
+              ]
+              params.context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                combined_states
+              )
+              const response = await vscode.window.showInformationMessage(
+                `Successfully applied ${failed_patches.length} failed patch${
+                  failed_patches.length != 1 ? 'es' : ''
+                }.`,
+                'Revert'
+              )
+
+              if (response == 'Revert') {
+                await revert_files(combined_states)
+                params.context.workspaceState.update(
+                  LAST_APPLIED_CHANGES_STATE_KEY,
+                  null
+                )
+              }
+            } else {
+              // Intelligent update was canceled - show option to revert successful patches
+              const response = await vscode.window.showInformationMessage(
+                'Fix attempt with the refactoring tool was canceled. Would you like to revert the successfully applied patches?',
+                'Keep changes',
+                'Revert'
+              )
+
+              if (response == 'Revert' && all_original_states.length > 0) {
+                await revert_files(all_original_states)
+                params.context.workspaceState.update(
+                  LAST_APPLIED_CHANGES_STATE_KEY,
+                  null
+                )
+              }
+            }
+          } catch (error) {
+            // Handle any errors during intelligent update
+            Logger.error({
+              function_name: 'apply_chat_response_command',
+              message: 'Error during intelligent update of failed patches'
+            })
+
+            const response = await vscode.window.showErrorMessage(
+              'Error during fix attempt with the refactoring tool. Would you like to revert the successfully applied patches?',
+              'Keep changes',
+              'Revert'
             )
 
-            if (response == 'Revert') {
-              // Added Revert action here
-              await revert_files(combined_states)
+            if (response == 'Revert' && all_original_states.length > 0) {
+              await revert_files(all_original_states)
               params.context.workspaceState.update(
                 LAST_APPLIED_CHANGES_STATE_KEY,
                 null
@@ -244,7 +280,7 @@ export function apply_chat_response_command(params: {
     // If no patches found, continue with regular file handling
     if (!clipboard_content.files || clipboard_content.files.length == 0) {
       vscode.window.showErrorMessage(
-        'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment. This is ensured by default system instructions for AI Studio, OpenRouter and Open WebUI.'
+        'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment or be a diff.'
       )
       return
     }
@@ -428,37 +464,55 @@ export function apply_chat_response_command(params: {
               file_refactoring_settings.provider
             )
 
-          final_original_states = await handle_intelligent_update({
-            endpoint_url: connection_details.endpoint_url,
-            api_key: connection_details.api_key,
-            model: file_refactoring_settings.model,
-            temperature: file_refactoring_settings.temperature || 0,
-            clipboard_text,
-            context: params.context,
-            is_single_root_folder_workspace
-          })
+          try {
+            final_original_states = await handle_intelligent_update({
+              endpoint_url: connection_details.endpoint_url,
+              api_key: connection_details.api_key,
+              model: file_refactoring_settings.model,
+              temperature: file_refactoring_settings.temperature || 0,
+              clipboard_text,
+              context: params.context,
+              is_single_root_folder_workspace
+            })
 
-          if (final_original_states) {
-            params.context.workspaceState.update(
-              LAST_APPLIED_CHANGES_STATE_KEY,
-              final_original_states
-            )
-            vscode.window
-              .showInformationMessage(
-                `Successfully updated ${final_original_states.length} ${
-                  final_original_states.length > 1 ? 'files' : 'file'
-                }.`,
-                'Revert'
+            if (final_original_states) {
+              params.context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                final_original_states
               )
-              .then((response) => {
-                if (response == 'Revert') {
-                  revert_files(final_original_states!)
-                  params.context.workspaceState.update(
-                    LAST_APPLIED_CHANGES_STATE_KEY,
-                    null
-                  )
-                }
-              })
+              vscode.window
+                .showInformationMessage(
+                  `Successfully updated ${final_original_states.length} ${
+                    final_original_states.length > 1 ? 'files' : 'file'
+                  }.`,
+                  'Revert'
+                )
+                .then((response) => {
+                  if (response == 'Revert') {
+                    revert_files(final_original_states!)
+                    params.context.workspaceState.update(
+                      LAST_APPLIED_CHANGES_STATE_KEY,
+                      null
+                    )
+                  }
+                })
+            } else {
+              // Intelligent update was canceled after reverting fast replace
+              vscode.window.showInformationMessage(
+                'Intelligent update was canceled. Fast replace changes have been reverted.'
+              )
+              // State is already cleared by the revert_files call above
+            }
+          } catch (error) {
+            // Handle errors during the second intelligent update attempt
+            Logger.error({
+              function_name: 'apply_chat_response_command',
+              message: 'Error during second intelligent update attempt'
+            })
+            vscode.window.showErrorMessage(
+              'Error during intelligent update. Fast replace changes have been reverted.'
+            )
+            // State is already cleared by the revert_files call above
           }
         }
       } else {
