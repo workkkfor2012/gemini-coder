@@ -294,9 +294,8 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         html_for="prefix"
         info="Text prepended to prompts used with this preset"
       >
-        <input
+        <textarea
           id="prefix"
-          type="text"
           value={prompt_prefix}
           onChange={(e) => set_prompt_prefix(e.target.value)}
         />
@@ -307,9 +306,8 @@ export const EditPresetForm: React.FC<Props> = (props) => {
         html_for="suffix"
         info="Text appended to prompts used with this preset"
       >
-        <input
+        <textarea
           id="suffix"
-          type="text"
           value={prompt_suffix}
           onChange={(e) => set_prompt_suffix(e.target.value)}
         />
