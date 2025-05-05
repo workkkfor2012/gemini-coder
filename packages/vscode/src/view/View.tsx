@@ -36,31 +36,20 @@ export const View = () => {
   const open_router_models_hook = use_open_router_models(vscode)
   const api_tools_configuration_hook = use_api_tools_configuration(vscode)
 
-  const save_normal_instructions_debounced = debounce((instruction: string) => {
-    vscode.postMessage({
-      command: 'SAVE_INSTRUCTIONS',
-      instruction
-    } as SaveInstructionsMessage)
-  }, 500)
-
-  const save_code_completion_suggestions_debounced = debounce(
-    (instruction: string) => {
-      vscode.postMessage({
-        command: 'SAVE_CODE_COMPLETION_SUGGESTIONS',
-        instruction
-      } as SaveCodeCompletionSuggestionsMessage)
-    },
-    500
-  )
-
   const handle_instructions_change = (value: string) => {
     set_instructions(value)
-    save_normal_instructions_debounced(value)
+    vscode.postMessage({
+      command: 'SAVE_INSTRUCTIONS',
+      instruction: value
+    } as SaveInstructionsMessage)
   }
 
   const handle_code_completion_suggestions_change = (value: string) => {
     set_code_completion_suggestions(value)
-    save_code_completion_suggestions_debounced(value)
+    vscode.postMessage({
+      command: 'SAVE_CODE_COMPLETION_SUGGESTIONS',
+      instruction: value
+    } as SaveCodeCompletionSuggestionsMessage)
   }
 
   useEffect(() => {
@@ -241,17 +230,4 @@ export const View = () => {
       <Template edit_view_slot={edit_view} tabs_slot={tabs} />
     </>
   )
-}
-
-export const debounce = <F extends (...args: any[]) => any>(
-  func: F,
-  wait: number
-) => {
-  let timeout: ReturnType<typeof setTimeout> | null = null
-  return (...args: Parameters<F>): void => {
-    if (timeout) {
-      clearTimeout(timeout)
-    }
-    timeout = setTimeout(() => func(...args), wait)
-  }
 }
