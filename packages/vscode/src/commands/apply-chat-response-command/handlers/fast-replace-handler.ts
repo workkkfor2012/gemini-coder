@@ -11,7 +11,7 @@ import { ClipboardFile } from '../utils/clipboard-parser'
 import { OriginalFileState } from '../../../types/common'
 
 export async function handle_fast_replace(
-  files: ClipboardFile[],
+  files: ClipboardFile[]
 ): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
   Logger.log({
     function_name: 'handle_fast_replace',
@@ -76,7 +76,6 @@ export async function handle_fast_replace(
       }
     }
 
-    // Rest of safety checks and user warnings...
     if (unsafe_files.length > 0) {
       const unsafe_list = unsafe_files.join('\n')
       vscode.window.showErrorMessage(
@@ -95,13 +94,11 @@ export async function handle_fast_replace(
 
     // Check existence for each file in its correct workspace
     for (const file of safe_files) {
-      // Get the correct workspace root for this file
       let workspace_root = default_workspace
       if (file.workspace_name && workspace_map.has(file.workspace_name)) {
         workspace_root = workspace_map.get(file.workspace_name)!
       }
 
-      // Create full path using the correct workspace root
       const full_path = path.normalize(
         path.join(workspace_root, file.file_path)
       )
@@ -143,200 +140,151 @@ export async function handle_fast_replace(
     // Store original file states for reversion
     const original_states: OriginalFileState[] = []
 
-    // Apply changes to all files
-    const result = await vscode.window.withProgress(
-      {
-        location: vscode.ProgressLocation.Notification,
-        title: 'Replacing files',
-        cancellable: true
-      },
-      async (progress, token) => {
-        let processed_count = 0
-        const total_count = safe_files.length
+    // Process all files without progress reporting
+    for (const file of safe_files) {
+      let workspace_root = default_workspace
+      if (file.workspace_name && workspace_map.has(file.workspace_name)) {
+        workspace_root = workspace_map.get(file.workspace_name)!
+      }
 
-        for (const file of safe_files) {
-          if (token.isCancellationRequested) {
-            vscode.window.showInformationMessage('Operation cancelled by user.')
-            Logger.log({
-              function_name: 'handle_fast_replace',
-              message: 'Operation cancelled by user during file processing.'
-            })
-            return false
-          }
+      const safe_path = create_safe_path(workspace_root, file.file_path)
 
-          // Get the correct workspace root for this file
-          let workspace_root = default_workspace
-          if (file.workspace_name && workspace_map.has(file.workspace_name)) {
-            workspace_root = workspace_map.get(file.workspace_name)!
-          }
+      if (!safe_path) {
+        Logger.error({
+          function_name: 'handle_fast_replace',
+          message: 'Path validation failed',
+          data: file.file_path
+        })
+        console.error(`Path validation failed for: ${file.file_path}`)
+        continue
+      }
 
-          // Create safe path using the correct workspace root
-          const safe_path = create_safe_path(workspace_root, file.file_path)
+      const file_exists = fs.existsSync(safe_path)
 
-          if (!safe_path) {
-            Logger.error({
-              function_name: 'handle_fast_replace',
-              message: 'Path validation failed',
-              data: file.file_path
-            })
-            console.error(`Path validation failed for: ${file.file_path}`)
-            continue // Skip this file
-          }
+      try {
+        if (file_exists) {
+          // Store original content for reversion
+          const file_uri = vscode.Uri.file(safe_path)
+          const document = await vscode.workspace.openTextDocument(file_uri)
+          original_states.push({
+            file_path: file.file_path,
+            content: document.getText(),
+            is_new: false,
+            workspace_name: file.workspace_name
+          })
 
-          const file_exists = fs.existsSync(safe_path)
+          // Replace existing file
+          const editor = await vscode.window.showTextDocument(document)
+          await editor.edit((edit) => {
+            edit.replace(
+              new vscode.Range(
+                document.positionAt(0),
+                document.positionAt(document.getText().length)
+              ),
+              file.content
+            )
+          })
 
-          try {
-            if (file_exists) {
-              // Store original content for reversion
-              const file_uri = vscode.Uri.file(safe_path)
-              const document = await vscode.workspace.openTextDocument(file_uri)
-              original_states.push({
-                file_path: file.file_path,
-                content: document.getText(),
-                is_new: false,
-                workspace_name: file.workspace_name
-              })
+          await format_document(document)
+          await document.save()
+          Logger.log({
+            function_name: 'handle_fast_replace',
+            message: 'Existing file replaced and saved',
+            data: safe_path
+          })
+        } else {
+          // Mark as new file for reversion
+          original_states.push({
+            file_path: file.file_path,
+            content: '',
+            is_new: true,
+            workspace_name: file.workspace_name
+          })
 
-              // Replace existing file
-              const editor = await vscode.window.showTextDocument(document)
-              await editor.edit((edit) => {
-                edit.replace(
-                  new vscode.Range(
-                    document.positionAt(0),
-                    document.positionAt(document.getText().length)
-                  ),
-                  file.content
-                )
-              })
-
-              await format_document(document)
-              await document.save()
+          // Create new file in correct workspace
+          const directory = path.dirname(safe_path)
+          if (!fs.existsSync(directory)) {
+            try {
+              fs.mkdirSync(directory, { recursive: true })
               Logger.log({
                 function_name: 'handle_fast_replace',
-                message: 'Existing file replaced and saved',
-                data: safe_path
+                message: 'Directory created',
+                data: directory
               })
-            } else {
-              // Mark as new file for reversion
-              original_states.push({
-                file_path: file.file_path,
-                content: '', // Original content is empty for new files
-                is_new: true,
-                workspace_name: file.workspace_name
+            } catch (error) {
+              Logger.error({
+                function_name: 'handle_fast_replace',
+                message: 'Failed to create directory',
+                data: { directory, error, file_path: file.file_path }
               })
-
-              // Create new file in correct workspace
-              // Ensure directory exists
-              const directory = path.dirname(safe_path)
-              if (!fs.existsSync(directory)) {
-                try {
-                  fs.mkdirSync(directory, { recursive: true })
-                  Logger.log({
-                    function_name: 'handle_fast_replace',
-                    message: 'Directory created',
-                    data: directory
-                  })
-                } catch (error) {
-                  Logger.error({
-                    function_name: 'handle_fast_replace',
-                    message: 'Failed to create directory',
-                    data: { directory, error, file_path: file.file_path }
-                  })
-                  vscode.window.showErrorMessage(
-                    `Failed to create directory for: ${file.file_path}`
-                  )
-                  continue // Skip this file
-                }
-              }
-
-              // Create the file
-              try {
-                fs.writeFileSync(safe_path, file.content)
-                Logger.log({
-                  function_name: 'handle_fast_replace',
-                  message: 'New file created',
-                  data: safe_path
-                })
-              } catch (error) {
-                Logger.error({
-                  function_name: 'handle_fast_replace',
-                  message: 'Failed to write new file',
-                  data: { safe_path, error, file_path: file.file_path }
-                })
-                vscode.window.showErrorMessage(
-                  `Failed to write file: ${file.file_path}`
-                )
-                continue // Skip this file
-              }
-
-              // Open and format the file
-              try {
-                const document = await vscode.workspace.openTextDocument(
-                  safe_path
-                )
-                await vscode.window.showTextDocument(document)
-                await format_document(document)
-                await document.save()
-                Logger.log({
-                  function_name: 'handle_fast_replace',
-                  message: 'New file created, formatted and saved',
-                  data: safe_path
-                })
-              } catch (error) {
-                Logger.error({
-                  function_name: 'handle_fast_replace',
-                  message: 'Failed to open/format/save new file',
-                  data: { safe_path, error, file_path: file.file_path }
-                })
-                vscode.window.showErrorMessage(
-                  `Failed to open/format/save new file: ${file.file_path}`
-                )
-                // Continue even if formatting fails, file is already created
-              }
+              vscode.window.showErrorMessage(
+                `Failed to create directory for: ${file.file_path}`
+              )
+              continue
             }
-          } catch (error: any) {
+          }
+
+          try {
+            fs.writeFileSync(safe_path, file.content)
+            Logger.log({
+              function_name: 'handle_fast_replace',
+              message: 'New file created',
+              data: safe_path
+            })
+          } catch (error) {
             Logger.error({
               function_name: 'handle_fast_replace',
-              message: 'Error processing file during replacement',
-              data: { error, file_path: file.file_path }
+              message: 'Failed to write new file',
+              data: { safe_path, error, file_path: file.file_path }
             })
             vscode.window.showErrorMessage(
-              `Error processing file ${file.file_path}: ${
-                error.message || 'Unknown error'
-              }`
+              `Failed to write file: ${file.file_path}`
             )
-            // Decide if you want to stop or continue with other files
-            // For now, let's continue
             continue
           }
 
-          processed_count++
-          progress.report({
-            message: `${processed_count}/${total_count} files processed`,
-            increment: (1 / total_count) * 100
-          })
+          try {
+            const document = await vscode.workspace.openTextDocument(safe_path)
+            await vscode.window.showTextDocument(document)
+            await format_document(document)
+            await document.save()
+            Logger.log({
+              function_name: 'handle_fast_replace',
+              message: 'New file created, formatted and saved',
+              data: safe_path
+            })
+          } catch (error) {
+            Logger.error({
+              function_name: 'handle_fast_replace',
+              message: 'Failed to open/format/save new file',
+              data: { safe_path, error, file_path: file.file_path }
+            })
+            vscode.window.showErrorMessage(
+              `Failed to open/format/save new file: ${file.file_path}`
+            )
+          }
         }
-
-        return true // Indicate success if loop completes without cancellation
+      } catch (error: any) {
+        Logger.error({
+          function_name: 'handle_fast_replace',
+          message: 'Error processing file during replacement',
+          data: { error, file_path: file.file_path }
+        })
+        vscode.window.showErrorMessage(
+          `Error processing file ${file.file_path}: ${
+            error.message || 'Unknown error'
+          }`
+        )
+        continue
       }
-    )
-
-    if (result) {
-      Logger.log({
-        function_name: 'handle_fast_replace',
-        message: 'Files replaced successfully',
-        data: { file_count: safe_files.length }
-      })
-      return { success: true, original_states }
-    } else {
-      Logger.log({
-        function_name: 'handle_fast_replace',
-        message: 'File replacement failed or cancelled'
-      })
-      // If cancelled, original_states might be partially populated.
-      // Decide if partial revert is needed or just fail. Currently just failing.
-      return { success: false }
     }
+
+    Logger.log({
+      function_name: 'handle_fast_replace',
+      message: 'Files replaced successfully',
+      data: { file_count: safe_files.length }
+    })
+    return { success: true, original_states }
   } catch (error: any) {
     Logger.error({
       function_name: 'handle_fast_replace',

@@ -104,70 +104,45 @@ export function apply_chat_response_command(params: {
       let all_original_states: OriginalFileState[] = []
       let had_failures = false
 
-      await vscode.window.withProgress(
-        {
-          location: vscode.ProgressLocation.Notification,
-          title: 'Applying patches',
-          cancellable: true
-        },
-        async (progress, token) => {
-          const total_patches = clipboard_content.patches!.length
+      // Process patches without showing progress
+      const total_patches = clipboard_content.patches.length
 
-          for (let i = 0; i < total_patches; i++) {
-            if (token.isCancellationRequested) {
-              vscode.window.showInformationMessage('Operation cancelled.')
-              // Revert any changes made so far if cancelled
-              if (all_original_states.length > 0) {
-                await revert_files(all_original_states)
-              }
-              return
-            }
+      for (let i = 0; i < total_patches; i++) {
+        const patch = clipboard_content.patches[i]
+        let workspace_path = default_workspace
 
-            const patch = clipboard_content.patches![i]
-            let workspace_path = default_workspace
-
-            if (
-              patch.workspace_name &&
-              workspace_map.has(patch.workspace_name)
-            ) {
-              workspace_path = workspace_map.get(patch.workspace_name)!
-            }
-
-            const result = await apply_git_patch(patch.content, workspace_path)
-
-            if (result.success) {
-              success_count++
-              // Collect original states for reversion
-              if (result.original_states) {
-                all_original_states = all_original_states.concat(
-                  result.original_states
-                )
-              }
-            } else {
-              failure_count++
-              had_failures = true
-              // Break out of the loop on first failure if we want to abort immediately
-              break
-            }
-
-            progress.report({
-              message: `${i + 1}/${total_patches} patches processed`,
-              increment: (1 / total_patches) * 100
-            })
-          }
-
-          // If any patch failed, revert all changes
-          if (had_failures && all_original_states.length > 0) {
-            await revert_files(all_original_states)
-            vscode.window.showWarningMessage(
-              `Patch application failed. All changes have been reverted.`
-            )
-            // Reset counters since we reverted everything
-            success_count = 0
-            all_original_states = []
-          }
+        if (patch.workspace_name && workspace_map.has(patch.workspace_name)) {
+          workspace_path = workspace_map.get(patch.workspace_name)!
         }
-      )
+
+        const result = await apply_git_patch(patch.content, workspace_path)
+
+        if (result.success) {
+          success_count++
+          // Collect original states for reversion
+          if (result.original_states) {
+            all_original_states = all_original_states.concat(
+              result.original_states
+            )
+          }
+        } else {
+          failure_count++
+          had_failures = true
+          // Break out of the loop on first failure if we want to abort immediately
+          break
+        }
+      }
+
+      // If any patch failed, revert all changes
+      if (had_failures && all_original_states.length > 0) {
+        await revert_files(all_original_states)
+        vscode.window.showWarningMessage(
+          `Patch application failed. All changes have been reverted.`
+        )
+        // Reset counters since we reverted everything
+        success_count = 0
+        all_original_states = []
+      }
 
       // Store all original states for potential reversion
       if (all_original_states.length > 0) {
@@ -406,8 +381,8 @@ export function apply_chat_response_command(params: {
             )
             vscode.window
               .showInformationMessage(
-                `Successfully updated ${file_count} ${
-                  file_count > 1 ? 'files' : 'file'
+                `Successfully updated ${final_original_states.length} ${
+                  final_original_states.length > 1 ? 'files' : 'file'
                 }.`,
                 'Revert'
               )
