@@ -142,22 +142,22 @@ export function apply_chat_response_command(params: {
       if (failure_count > 0) {
         const response = await vscode.window.showWarningMessage(
           `Applied ${success_count} patch${
-            success_count !== 1 ? 'es' : ''
+            success_count != 1 ? 'es' : ''
           } successfully, ` +
             `but ${failure_count} patch${
-              failure_count !== 1 ? 'es' : ''
+              failure_count != 1 ? 'es' : ''
             } failed.`,
-          'Try Intelligent Update for failed patches',
-          'Revert all'
+          'Fix failed with refactoring tool',
+          'Revert'
         )
 
-        if (response === 'Revert all' && all_original_states.length > 0) {
+        if (response == 'Revert' && all_original_states.length > 0) {
           await revert_files(all_original_states)
           params.context.workspaceState.update(
             LAST_APPLIED_CHANGES_STATE_KEY,
             null
           )
-        } else if (response === 'Try Intelligent Update for failed patches') {
+        } else if (response == 'Fix failed with refactoring tool') {
           const api_tool_settings_manager = new ApiToolsSettingsManager(
             params.context
           )
@@ -204,17 +204,27 @@ export function apply_chat_response_command(params: {
               LAST_APPLIED_CHANGES_STATE_KEY,
               combined_states
             )
-            vscode.window.showInformationMessage(
-              `Successfully applied intelligent update to ${
-                failed_patches.length
-              } failed patch${failed_patches.length !== 1 ? 'es' : ''}.`
+            const response = await vscode.window.showInformationMessage(
+              `Successfully applied ${failed_patches.length} failed patch${
+                failed_patches.length != 1 ? 'es' : ''
+              }.`,
+              'Revert' // Added Revert button here
             )
+
+            if (response == 'Revert') {
+              // Added Revert action here
+              await revert_files(combined_states)
+              params.context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                null
+              )
+            }
           }
         }
       } else if (success_count > 0) {
         const response = await vscode.window.showInformationMessage(
           `Successfully applied ${success_count} patch${
-            success_count !== 1 ? 'es' : ''
+            success_count != 1 ? 'es' : ''
           }.`,
           'Revert'
         )
@@ -232,7 +242,7 @@ export function apply_chat_response_command(params: {
     }
 
     // If no patches found, continue with regular file handling
-    if (!clipboard_content.files || clipboard_content.files.length === 0) {
+    if (!clipboard_content.files || clipboard_content.files.length == 0) {
       vscode.window.showErrorMessage(
         'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment. This is ensured by default system instructions for AI Studio, OpenRouter and Open WebUI.'
       )
