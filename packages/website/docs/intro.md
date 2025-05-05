@@ -66,6 +66,7 @@ As everyone have their own favourite web chat interface, each with unique featur
 
 - AI Studio
 - Gemini
+- Open WebUI (self-hosted)
 
 **Also works with:** _(Alphabetically)_
 
