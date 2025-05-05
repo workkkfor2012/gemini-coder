@@ -118,7 +118,7 @@ export const ApiToolsTab: React.FC<Props> = (props) => {
         codicon="settings-gear"
         title={configuration_title}
       >
-        Configure API Tools
+        Configure Tools
       </Button>
     </div>
   )

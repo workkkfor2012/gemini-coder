@@ -87,7 +87,7 @@ export function refactor_command(params: {
 
     if (!refactoring_settings.provider) {
       vscode.window.showErrorMessage(
-        'API provider is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
+        'API provider is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
       )
       Logger.warn({
         function_name: 'refactor_command',
@@ -96,7 +96,7 @@ export function refactor_command(params: {
       return
     } else if (!refactoring_settings.model) {
       vscode.window.showErrorMessage(
-        'Model is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure API Tools.'
+        'Model is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
       )
       Logger.warn({
         function_name: 'refactor_command',
