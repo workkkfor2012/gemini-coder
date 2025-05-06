@@ -590,19 +590,19 @@
         "geminiCoder.editFormatInstructionsTruncated": {
           "type": "string",
           "scope": "resource",
-          "description": "Style instructions for chat responses.",
+          "description": "Style instructions for chat responses when using truncated format.",
           "default": "Whenever proposing a file use the code block syntax, with its path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
         },
         "geminiCoder.editFormatInstructionsWhole": {
           "type": "string",
           "scope": "resource",
-          "description": "Style instructions for chat responses.",
+          "description": "Style instructions for chat responses when showing complete files.",
           "default": "Whenever proposing a file use the code block syntax, with its path in the first line comment. Modified files should be fully shown."
         },
         "geminiCoder.editFormatInstructionsDiff": {
           "type": "string",
           "scope": "resource",
-          "description": "Style instructions for chat responses.",
+          "description": "Style instructions for chat responses when using diff format.",
           "default": "Whenever proposing a file use the code block syntax. Each code block should be a diff patch."
         },
         "geminiCoder.chatCodeCompletionInstructions": {
