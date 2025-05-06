@@ -704,9 +704,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
               const config = vscode.workspace.getConfiguration()
               const edit_format = config.get<EditFormat>(
-                'geminiCoder.editFormat',
-                'truncated'
-              )
+                'geminiCoder.editFormat'
+              )!
               const edit_format_instructions = config.get<string>(
                 `geminiCoder.editFormatInstructions${
                   edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
@@ -806,9 +805,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
               const config = vscode.workspace.getConfiguration()
               const edit_format = config.get<EditFormat>(
-                'geminiCoder.editFormat',
-                'truncated'
-              )
+                'geminiCoder.editFormat'
+              )!
               const edit_format_instructions = config.get<string>(
                 `geminiCoder.editFormatInstructions${
                   edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
@@ -901,8 +899,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
               const config = vscode.workspace.getConfiguration()
               const edit_format = config.get<EditFormat>(
-                'geminiCoder.editFormat',
-                'truncated'
+                'geminiCoder.editFormat'
               )!
               const edit_format_instructions = config.get<string>(
                 `geminiCoder.editFormatInstructions${
@@ -1532,9 +1529,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_EDIT_FORMAT') {
             const config = vscode.workspace.getConfiguration()
             const edit_format = config.get<EditFormat>(
-              'geminiCoder.editFormat',
-              'truncated'
-            )
+              'geminiCoder.editFormat'
+            )!
             this._send_message({
               command: 'EDIT_FORMAT',
               edit_format
