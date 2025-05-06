@@ -1,6 +1,4 @@
-import { Provider } from '../types/provider'
-
-export const BUILT_IN_PROVIDERS: Provider[] = [
+export const BUILT_IN_PROVIDERS = [
   {
     name: 'Gemini 2.0 Flash (free quota)',
     endpointUrl:
