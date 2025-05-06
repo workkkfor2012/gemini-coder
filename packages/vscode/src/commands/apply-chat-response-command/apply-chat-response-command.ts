@@ -439,12 +439,15 @@ export function apply_chat_response_command(params: {
         message = `Operation completed successfully.`
       }
 
-      // Show appropriate buttons based on whether all files are new
+      // Show appropriate buttons based on whether any existing files were replaced
       if (selected_mode_label == 'Fast replace') {
-        const all_files_new = await check_if_all_files_new(parsed_files)
-        const buttons = all_files_new
-          ? ['Revert']
-          : ['Revert', 'Looks off, use intelligent mode']
+        // Check if any of the affected files were existing files
+        const has_existing_files = final_original_states.some(
+          (state) => !state.is_new
+        )
+        const buttons = has_existing_files
+          ? ['Revert', 'Looks off, use intelligent mode']
+          : ['Revert']
 
         const response = await vscode.window.showInformationMessage(
           message,
@@ -500,36 +503,36 @@ export function apply_chat_response_command(params: {
                 final_original_states
               )
               // Recalculate counts for the intelligent update result
-              const intelligentNewFilesCount = final_original_states.filter(
+              const intelligent_new_files_count = final_original_states.filter(
                 (state) => state.is_new
               ).length
-              const intelligentReplacedFilesCount =
-                final_original_states.length - intelligentNewFilesCount
+              const intelligent_replaced_files_count =
+                final_original_states.length - intelligent_new_files_count
 
-              let intelligentMessage = ''
+              let intelligent_message = ''
               if (
-                intelligentNewFilesCount > 0 &&
-                intelligentReplacedFilesCount > 0
+                intelligent_new_files_count > 0 &&
+                intelligent_replaced_files_count > 0
               ) {
-                intelligentMessage = `Successfully created ${intelligentNewFilesCount} new ${
-                  intelligentNewFilesCount === 1 ? 'file' : 'files'
-                } and updated ${intelligentReplacedFilesCount} existing ${
-                  intelligentReplacedFilesCount === 1 ? 'file' : 'files'
+                intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
+                  intelligent_new_files_count == 1 ? 'file' : 'files'
+                } and updated ${intelligent_replaced_files_count} existing ${
+                  intelligent_replaced_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
-              } else if (intelligentNewFilesCount > 0) {
-                intelligentMessage = `Successfully created ${intelligentNewFilesCount} new ${
-                  intelligentNewFilesCount === 1 ? 'file' : 'files'
+              } else if (intelligent_new_files_count > 0) {
+                intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
+                  intelligent_new_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
-              } else if (intelligentReplacedFilesCount > 0) {
-                intelligentMessage = `Successfully updated ${intelligentReplacedFilesCount} existing ${
-                  intelligentReplacedFilesCount === 1 ? 'file' : 'files'
+              } else if (intelligent_replaced_files_count > 0) {
+                intelligent_message = `Successfully updated ${intelligent_replaced_files_count} existing ${
+                  intelligent_replaced_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
               } else {
-                intelligentMessage = `Intelligent Update completed successfully.`
+                intelligent_message = `Intelligent Update completed successfully.`
               }
 
               vscode.window
-                .showInformationMessage(intelligentMessage, 'Revert')
+                .showInformationMessage(intelligent_message, 'Revert')
                 .then((response) => {
                   if (response == 'Revert') {
                     revert_files(final_original_states!)
