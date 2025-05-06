@@ -14,10 +14,24 @@ export const EditFormatSelector: React.FC<EditFormatSelector.Props> = ({
   format,
   on_change
 }) => {
-  const options: { value: EditFormat; label: string }[] = [
-    { value: 'truncated', label: 'Truncated' },
-    { value: 'whole', label: 'Whole' },
-    { value: 'diff', label: 'Diff' }
+  const options: { value: EditFormat; label: string; title: string }[] = [
+    {
+      value: 'truncated',
+      label: 'Truncated',
+      title:
+        'Readable format, perfect for iterating over prompt. Applying chat response will use the file refactoring tool.'
+    },
+    {
+      value: 'whole',
+      label: 'Whole',
+      title: 'Modified files will be sent fully and replaced in place.'
+    },
+    {
+      value: 'diff',
+      label: 'Diff',
+      title:
+        'Uses the least amount of output tokens. Applying chat reponse requires correctness of the diff and fallbacks to the file refactoring tool.'
+    }
   ]
 
   return (
@@ -31,6 +45,7 @@ export const EditFormatSelector: React.FC<EditFormatSelector.Props> = ({
           onClick={() => on_change(option.value)}
           role="button"
           aria-pressed={format == option.value}
+          title={option.title}
         >
           {option.label}
         </div>
