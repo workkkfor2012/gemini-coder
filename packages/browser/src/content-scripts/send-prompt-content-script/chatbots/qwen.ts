@@ -5,7 +5,7 @@ export const qwen: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('button#model-selector-0-button')) {
+        if (document.querySelector('body[style="overflow: unset;"]')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
@@ -13,21 +13,25 @@ export const qwen: Chatbot = {
       }
       check_for_element()
     })
-    await new Promise((r) => requestAnimationFrame(r))
+    await new Promise((r) => setTimeout(r, 500))
   },
   set_model: async (model: string) => {
     const model_selector_button = document.querySelector(
       'button#model-selector-0-button'
     ) as HTMLElement
     model_selector_button.click()
-    await new Promise((r) => requestAnimationFrame(r))
+    if (window.innerWidth >= 768) {
+      await new Promise((r) => requestAnimationFrame(r))
+    } else {
+      // Opening drawer...
+      await new Promise((r) => setTimeout(r, 500))
+    }
     const model_buttons = document.querySelectorAll(
       'div[aria-labelledby="model-selector-0-button"] button[aria-label="model-item"]'
     ) as NodeListOf<HTMLButtonElement>
     for (const button of Array.from(model_buttons)) {
-      const model_name_element = button.querySelector(
-        'div.text-sm'
-      ) as HTMLDivElement
+      const model_name_element = (button.querySelector('div.text-sm') ||
+        button.querySelector('div.text-15')) as HTMLDivElement
       if (
         model_name_element.textContent ==
         (CHATBOTS['Qwen'].models as any)[model]
