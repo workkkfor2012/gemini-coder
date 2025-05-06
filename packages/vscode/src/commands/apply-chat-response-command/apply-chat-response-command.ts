@@ -141,12 +141,15 @@ export function apply_chat_response_command(params: {
       // Handle results
       if (failure_count > 0) {
         const response = await vscode.window.showWarningMessage(
-          `Applied ${success_count} patch${
-            success_count != 1 ? 'es' : ''
-          } successfully, ` +
-            `but ${failure_count} patch${
-              failure_count != 1 ? 'es' : ''
-            } failed.`,
+          success_count > 0
+            ? `Applied ${success_count} patch${
+                success_count != 1 ? 'es' : ''
+              } successfully, but ${failure_count} patch${
+                failure_count != 1 ? 'es' : ''
+              } failed.`
+            : `Failed to apply ${failure_count} patch${
+                failure_count != 1 ? 'es' : ''
+              }.`,
           'Fix failed with refactoring tool',
           'Revert'
         )
