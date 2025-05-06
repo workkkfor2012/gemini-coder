@@ -19,18 +19,18 @@ export const EditFormatSelector: React.FC<EditFormatSelector.Props> = ({
       value: 'truncated',
       label: 'Truncated',
       title:
-        'Readable format, perfect for iterating over prompt. Applying chat response will use the file refactoring tool.'
+        'Code blocks of the chat response will be in a readable format, perfect for iterating over prompt. Applying chat response will use the file refactoring tool.'
     },
     {
       value: 'whole',
       label: 'Whole',
-      title: 'Modified files will be sent fully and replaced in place.'
+      title: 'Modified files will be generated fully and replaced in place.'
     },
     {
       value: 'diff',
       label: 'Diff',
       title:
-        'Uses the least amount of output tokens. Applying chat reponse requires correctness of the diff and fallbacks to the file refactoring tool.'
+        'The model will output changes only, consuming the least amount of output tokens. Applying chat reponse expects correctness of the diff and fallbacks to the file refactoring tool.'
     }
   ]
 
