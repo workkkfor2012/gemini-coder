@@ -414,14 +414,32 @@ export function apply_chat_response_command(params: {
         final_original_states
       )
 
-      const message =
-        selected_mode_label == 'Fast replace'
-          ? `Successfully replaced ${file_count} ${
-              file_count > 1 ? 'files' : 'file'
-            }.`
-          : `Successfully applied changes to ${file_count} ${
-              file_count > 1 ? 'files' : 'file'
-            }.`
+      // Check how many files were actually new and how many were replaced
+      const new_files_count = final_original_states.filter(
+        (state) => state.is_new
+      ).length
+      const replaced_files_count =
+        final_original_states.length - new_files_count
+
+      let message = ''
+      if (new_files_count > 0 && replaced_files_count > 0) {
+        message = `Successfully created ${new_files_count} new ${
+          new_files_count == 1 ? 'file' : 'files'
+        } and replaced ${replaced_files_count} existing ${
+          replaced_files_count == 1 ? 'file' : 'files'
+        }.`
+      } else if (new_files_count > 0) {
+        message = `Successfully created ${new_files_count} new ${
+          new_files_count == 1 ? 'file' : 'files'
+        }.`
+      } else if (replaced_files_count > 0) {
+        message = `Successfully replaced ${replaced_files_count} existing ${
+          replaced_files_count == 1 ? 'file' : 'files'
+        }.`
+      } else {
+        // Should not happen if operation_success is true and final_original_states is not empty
+        message = `Operation completed successfully.`
+      }
 
       // Show appropriate buttons based on whether all files are new
       if (selected_mode_label == 'Fast replace') {
@@ -483,13 +501,37 @@ export function apply_chat_response_command(params: {
                 LAST_APPLIED_CHANGES_STATE_KEY,
                 final_original_states
               )
+              // Recalculate counts for the intelligent update result
+              const intelligentNewFilesCount = final_original_states.filter(
+                (state) => state.is_new
+              ).length
+              const intelligentReplacedFilesCount =
+                final_original_states.length - intelligentNewFilesCount
+
+              let intelligentMessage = ''
+              if (
+                intelligentNewFilesCount > 0 &&
+                intelligentReplacedFilesCount > 0
+              ) {
+                intelligentMessage = `Successfully created ${intelligentNewFilesCount} new ${
+                  intelligentNewFilesCount === 1 ? 'file' : 'files'
+                } and updated ${intelligentReplacedFilesCount} existing ${
+                  intelligentReplacedFilesCount === 1 ? 'file' : 'files'
+                } using Intelligent Update.`
+              } else if (intelligentNewFilesCount > 0) {
+                intelligentMessage = `Successfully created ${intelligentNewFilesCount} new ${
+                  intelligentNewFilesCount === 1 ? 'file' : 'files'
+                } using Intelligent Update.`
+              } else if (intelligentReplacedFilesCount > 0) {
+                intelligentMessage = `Successfully updated ${intelligentReplacedFilesCount} existing ${
+                  intelligentReplacedFilesCount === 1 ? 'file' : 'files'
+                } using Intelligent Update.`
+              } else {
+                intelligentMessage = `Intelligent Update completed successfully.`
+              }
+
               vscode.window
-                .showInformationMessage(
-                  `Successfully updated ${final_original_states.length} ${
-                    final_original_states.length > 1 ? 'files' : 'file'
-                  }.`,
-                  'Revert'
-                )
+                .showInformationMessage(intelligentMessage, 'Revert')
                 .then((response) => {
                   if (response == 'Revert') {
                     revert_files(final_original_states!)
