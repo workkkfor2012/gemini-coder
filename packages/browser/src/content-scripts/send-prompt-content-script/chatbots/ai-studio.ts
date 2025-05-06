@@ -142,7 +142,13 @@ export const ai_studio: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(first_line_comments_of_code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_comment(first_line_text)) {
+        if (
+          first_line_text &&
+          (first_line_text.startsWith('---') ||
+            first_line_text.startsWith('+++') ||
+            first_line_text.startsWith('diff --git') ||
+            extract_path_from_comment(first_line_text))
+        ) {
           has_eligible_block = true
           break
         }
