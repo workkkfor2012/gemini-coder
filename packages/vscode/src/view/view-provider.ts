@@ -26,7 +26,8 @@ import {
   PreviewPresetMessage,
   SelectedCodeCompletionPresetsMessage,
   InstructionsMessage,
-  CodeCompletionSuggestionsMessage
+  CodeCompletionSuggestionsMessage,
+  EditFormatSelectorVisibilityMessage
 } from './types/messages'
 import { WebsitesProvider } from '../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -42,6 +43,7 @@ import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
+import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
 
 type ConfigPresetFormat = {
   name: string
@@ -161,6 +163,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           this._send_message<ExtensionMessage>({
             command: 'EDIT_FORMAT',
             edit_format
+          })
+        }
+        if (
+          event.affectsConfiguration(
+            'geminiCoder.editFormatSelectorVisibility'
+          ) &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const visibility = config.get<EditFormatSelectorVisibility>(
+            'geminiCoder.editFormatSelectorVisibility'
+          )!
+          this._send_message<EditFormatSelectorVisibilityMessage>({
+            command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
+            visibility
           })
         }
       }
@@ -346,6 +363,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | PreviewPresetMessage
       | InstructionsMessage
       | CodeCompletionSuggestionsMessage
+      | EditFormatSelectorVisibilityMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -777,10 +795,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
               // Apply affixes from the PREVIEW preset, not default selected ones
               if (message.preset.prompt_prefix) {
-                instructions = message.preset.prompt_prefix + '\n' + instructions
+                instructions =
+                  message.preset.prompt_prefix + '\n' + instructions
               }
               if (message.preset.prompt_suffix) {
-                instructions = instructions + '\n' + message.preset.prompt_suffix
+                instructions =
+                  instructions + '\n' + message.preset.prompt_suffix
               }
 
               const config = vscode.workspace.getConfiguration()
@@ -1522,6 +1542,24 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.edit_format,
               vscode.ConfigurationTarget.Global
             )
+          } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
+            const config = vscode.workspace.getConfiguration()
+            const visibility = config.get<EditFormatSelectorVisibility>(
+              'geminiCoder.editFormatSelectorVisibility'
+            )!
+            this._send_message<EditFormatSelectorVisibilityMessage>({
+              command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
+              visibility
+            })
+          } else if (
+            message.command == 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
+          ) {
+            const config = vscode.workspace.getConfiguration()
+            await config.update(
+              'geminiCoder.editFormatSelectorVisibility',
+              message.visibility,
+              vscode.ConfigurationTarget.Global
+            )
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
@@ -1559,12 +1597,22 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       value: this._code_completion_suggestions
     })
 
+    // Added initial message for edit format selector visibility
+    const config = vscode.workspace.getConfiguration()
+    const initial_visibility = config.get<'visible' | 'hidden'>(
+      'geminiCoder.editFormatSelectorVisibility',
+      'visible'
+    )
+    this._send_message<EditFormatSelectorVisibilityMessage>({
+      command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
+      visibility: initial_visibility
+    })
+
     this._update_active_file_info()
     this._send_presets_to_webview(webview_view.webview)
     this._send_custom_providers()
 
     // Send initial settings for new tools
-    const config = vscode.workspace.getConfiguration()
     this._send_message<ApiToolCodeCompletionsSettingsMessage>({
       command: 'CODE_COMPLETIONS_SETTINGS',
       settings: config.get<ApiToolSettings>(

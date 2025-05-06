@@ -2,6 +2,7 @@ import { CHATBOTS } from '@shared/constants/chatbots'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
 import { EditFormat } from '@shared/types/edit-format'
 import { Preset } from '@shared/types/preset'
+import { EditFormatSelectorVisibility } from './edit-format-selector-visibility'
 
 export interface BaseMessage {
   command: string
@@ -51,6 +52,15 @@ export interface GetEditFormat extends BaseMessage {
 export interface SaveEditFormatMessage extends BaseMessage {
   command: 'SAVE_EDIT_FORMAT'
   edit_format: EditFormat
+}
+
+export interface GetEditFormatSelectorVisibility extends BaseMessage {
+  command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY'
+}
+
+export interface SaveEditFormatSelectorVisibilityMessage extends BaseMessage {
+  command: 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
+  visibility: 'visible' | 'hidden'
 }
 
 export interface GetConnectionStatusMessage extends BaseMessage {
@@ -249,6 +259,11 @@ export interface EditFormatMessage extends BaseMessage {
   edit_format: EditFormat
 }
 
+export interface EditFormatSelectorVisibilityMessage extends BaseMessage {
+  command: 'EDIT_FORMAT_SELECTOR_VISIBILITY'
+  visibility: EditFormatSelectorVisibility
+}
+
 export interface PresetMessageFormat {
   name: string
   chatbot: keyof typeof CHATBOTS
@@ -391,6 +406,8 @@ export type WebviewMessage =
   | SaveCodeCompletionSuggestionsMessage
   | GetEditFormat
   | SaveEditFormatMessage
+  | GetEditFormatSelectorVisibility // Added
+  | SaveEditFormatSelectorVisibilityMessage // Added
   | GetConnectionStatusMessage
   | GetPresetsMessage
   | GetSelectedPresetsMessage
@@ -433,6 +450,7 @@ export type ExtensionMessage =
   | CodeCompletionSuggestionsMessage
   | ConnectionStatusMessage
   | EditFormatMessage
+  | EditFormatSelectorVisibilityMessage // Added
   | PresetsMessage
   | SelectedPresetsMessage
   | PresetsSelectedFromPickerMessage

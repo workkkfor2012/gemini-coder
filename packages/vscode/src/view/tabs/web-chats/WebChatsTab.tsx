@@ -37,6 +37,8 @@ export const WebChatsTab: React.FC<Props> = (props) => {
   const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
     useState<boolean>()
   const [edit_format, set_edit_format] = useState<EditFormat>()
+  const [edit_format_selector_visibility, set_edit_format_selector_visibility] =
+    useState<'visible' | 'hidden'>('visible')
 
   useEffect(() => {
     const initial_messages: WebviewMessage[] = [
@@ -52,7 +54,8 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       { command: 'GET_CURRENT_TOKEN_COUNT' },
       { command: 'GET_INSTRUCTIONS' },
       { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
-      { command: 'GET_EDIT_FORMAT' }
+      { command: 'GET_EDIT_FORMAT' },
+      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' }
     ]
 
     initial_messages.forEach((message) => props.vscode.postMessage(message))
@@ -117,6 +120,9 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           break
         case 'EDIT_FORMAT':
           set_edit_format(message.edit_format)
+          break
+        case 'EDIT_FORMAT_SELECTOR_VISIBILITY':
+          set_edit_format_selector_visibility(message.visibility)
           break
       }
     }
@@ -265,7 +271,8 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     is_in_code_completions_mode === undefined ||
     props.normal_instructions === undefined ||
     props.code_completion_suggestions === undefined ||
-    edit_format === undefined
+    edit_format === undefined ||
+    edit_format_selector_visibility === undefined
   ) {
     return null
   }
@@ -300,6 +307,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       set_normal_instructions={props.set_normal_instructions}
       code_completion_suggestions={props.code_completion_suggestions}
       set_code_completion_suggestions={props.set_code_completion_suggestions}
+      edit_format_selector_visibility={edit_format_selector_visibility}
     />
   )
 }

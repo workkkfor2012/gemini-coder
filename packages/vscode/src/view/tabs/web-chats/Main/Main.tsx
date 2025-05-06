@@ -6,6 +6,7 @@ import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { EditFormatSelector as UiEditFormatSelector } from '@ui/components/editor/EditFormatSelector'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
+import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
 
 type Props = {
   is_visible: boolean
@@ -25,6 +26,7 @@ type Props = {
   token_count: number
   selection_text?: string
   active_file_length?: number
+  edit_format_selector_visibility: EditFormatSelectorVisibility
   edit_format: EditFormat
   on_edit_format_change: (edit_format: EditFormat) => void
   on_presets_reorder: (reordered_presets: Preset[]) => void
@@ -155,12 +157,15 @@ export const Main: React.FC<Props> = (props) => {
         />
       </div>
 
-      <UiSeparator size="medium" />
-
-      <UiEditFormatSelector
-        format={props.edit_format}
-        on_change={props.on_edit_format_change}
-      />
+      {props.edit_format_selector_visibility == 'visible' && (
+        <>
+          <UiSeparator size="medium" />
+          <UiEditFormatSelector
+            format={props.edit_format}
+            on_change={props.on_edit_format_change}
+          />
+        </>
+      )}
 
       {!props.is_connected && (
         <>

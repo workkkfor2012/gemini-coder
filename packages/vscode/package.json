@@ -578,6 +578,15 @@
           ],
           "default": "truncated"
         },
+        "geminiCoder.editFormatSelectorVisibility": {
+          "type": "string",
+          "description": "Control visibility of the edit format selector.",
+          "enum": [
+            "visible",
+            "hidden"
+          ],
+          "default": "visible"
+        },
         "geminiCoder.editFormatInstructionsTruncated": {
           "type": "string",
           "scope": "resource",
