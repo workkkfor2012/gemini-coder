@@ -334,7 +334,6 @@ export function apply_chat_response_command(params: {
     // --- Execute Mode Handler ---
     let final_original_states: OriginalFileState[] | null = null
     let operation_success = false
-    let file_count = parsed_files.length
 
     if (selected_mode_label == 'Fast replace') {
       const result = await handle_fast_replace(parsed_files)
@@ -392,7 +391,6 @@ export function apply_chat_response_command(params: {
 
       if (final_original_states) {
         operation_success = true
-        file_count = final_original_states.length // Count based on states returned
       }
       Logger.log({
         function_name: 'apply_chat_response_command',
