@@ -4,7 +4,8 @@ import { Logger } from '../helpers/logger'
 const settings_map = {
   codeCompletionsSettings: 'apiToolCodeCompletionsSettings',
   fileRefactoringSettings: 'apiToolFileRefactoringSettings',
-  commitMessagesSettings: 'apiToolCommitMessageSettings'
+  commitMessagesSettings: 'apiToolCommitMessageSettings',
+  applyChatResponseSettings: 'apiToolFileRefactoringSettings'
 }
 
 /**
