@@ -568,11 +568,33 @@
             "description": "File extension to ignore (without the dot)"
           }
         },
-        "geminiCoder.chatStyleInstructions": {
+        "geminiCoder.editFormat": {
+          "type": "string",
+          "description": "Edit format to use in chat responses.",
+          "enum": [
+            "truncated",
+            "whole",
+            "diff"
+          ],
+          "default": "truncated"
+        },
+        "geminiCoder.editFormatInstructionsTruncated": {
           "type": "string",
           "scope": "resource",
           "description": "Style instructions for chat responses.",
           "default": "Whenever proposing a file use the code block syntax, with its path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
+        },
+        "geminiCoder.editFormatInstructionsWhole": {
+          "type": "string",
+          "scope": "resource",
+          "description": "Style instructions for chat responses.",
+          "default": "Whenever proposing a file use the code block syntax, with its path in the first line comment. Modified files should be fully shown."
+        },
+        "geminiCoder.editFormatInstructionsDiff": {
+          "type": "string",
+          "scope": "resource",
+          "description": "Style instructions for chat responses.",
+          "default": "Whenever proposing a file use the code block syntax. Each code block should be a diff patch."
         },
         "geminiCoder.chatCodeCompletionInstructions": {
           "type": "string",

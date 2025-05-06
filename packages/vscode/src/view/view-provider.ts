@@ -41,6 +41,7 @@ import { Logger } from '@/helpers/logger'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
+import { EditFormat } from '@shared/types/edit-format'
 
 type ConfigPresetFormat = {
   name: string
@@ -104,7 +105,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.apiToolCodeCompletionsSettings') &&
+          event.affectsConfiguration(
+            'geminiCoder.apiToolCodeCompletionsSettings'
+          ) &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
@@ -118,7 +121,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.apiToolFileRefactoringSettings') &&
+          event.affectsConfiguration(
+            'geminiCoder.apiToolFileRefactoringSettings'
+          ) &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
@@ -132,7 +137,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration('geminiCoder.apiToolCommitMessageSettings') &&
+          event.affectsConfiguration(
+            'geminiCoder.apiToolCommitMessageSettings'
+          ) &&
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration()
@@ -143,6 +150,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           this._send_message<ApiToolCommitMessageSettingsMessage>({
             command: 'COMMIT_MESSAGES_SETTINGS',
             settings
+          })
+        }
+        if (
+          event.affectsConfiguration('geminiCoder.editFormat') &&
+          this._webview_view
+        ) {
+          const config = vscode.workspace.getConfiguration()
+          const edit_format = config.get<EditFormat>('geminiCoder.editFormat')!
+          this._send_message<ExtensionMessage>({
+            command: 'EDIT_FORMAT',
+            edit_format
           })
         }
       }
@@ -659,28 +677,31 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              let instruction = this._instructions
-              instruction = replace_selection_placeholder(instruction)
-              instruction = apply_preset_affixes_to_instruction(
-                instruction,
+              let instructions = this._instructions
+              instructions = replace_selection_placeholder(instructions)
+              instructions = apply_preset_affixes_to_instruction(
+                instructions,
                 valid_preset_names
               )
 
               const config = vscode.workspace.getConfiguration()
-              const chat_style_instructions = config.get<string>(
-                'geminiCoder.chatStyleInstructions',
-                ''
+              const edit_format = config.get<EditFormat>(
+                'geminiCoder.editFormat'
+              )!
+              const edit_format_instructions = config.get<string>(
+                `geminiCoder.editFormatInstructions${
+                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                }`
               )
-
-              if (chat_style_instructions) {
-                instruction += `\n${chat_style_instructions}`
+              if (edit_format_instructions) {
+                instructions += `\n${edit_format_instructions}`
               }
 
               const text = `${
                 context_text
-                  ? `${instruction}\n<files>\n${context_text}</files>\n`
+                  ? `${instructions}\n<files>\n${context_text}</files>\n`
                   : ''
-              }${instruction}`
+              }${instructions}`
 
               this.websocket_server_instance.initialize_chats(
                 text,
@@ -705,7 +726,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const active_path = active_editor?.document.uri.fsPath
 
             let text_to_send: string
-            const current_instruction = !this._is_code_completions_mode
+            const current_instructions = !this._is_code_completions_mode
               ? this._instructions
               : this._code_completion_suggestions
 
@@ -740,8 +761,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               const instructions = `${chat_code_completion_instructions}${
-                current_instruction
-                  ? ` Follow suggestions: ${current_instruction}`
+                current_instructions
+                  ? ` Follow suggestions: ${current_instructions}`
                   : ''
               }`
 
@@ -751,30 +772,35 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              let instruction =
-                replace_selection_placeholder(current_instruction)
+              let instructions =
+                replace_selection_placeholder(current_instructions)
 
               // Apply affixes from the PREVIEW preset, not default selected ones
               if (message.preset.prompt_prefix) {
-                instruction = message.preset.prompt_prefix + '\n' + instruction
+                instructions = message.preset.prompt_prefix + '\n' + instructions
               }
               if (message.preset.prompt_suffix) {
-                instruction = instruction + '\n' + message.preset.prompt_suffix
+                instructions = instructions + '\n' + message.preset.prompt_suffix
               }
 
               const config = vscode.workspace.getConfiguration()
-              const chat_style_instructions = config.get<string>(
-                'geminiCoder.chatStyleInstructions'
+              const edit_format = config.get<EditFormat>(
+                'geminiCoder.editFormat'
+              )!
+              const edit_format_instructions = config.get<string>(
+                `geminiCoder.editFormatInstructions${
+                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                }`
               )
-              if (chat_style_instructions) {
-                instruction += `\n${chat_style_instructions}`
+              if (edit_format_instructions) {
+                instructions += `\n${edit_format_instructions}`
               }
 
               text_to_send = `${
                 context_text
-                  ? `${instruction}\n<files>\n${context_text}</files>\n`
+                  ? `${instructions}\n<files>\n${context_text}</files>\n`
                   : ''
-              }${instruction}`
+              }${instructions}`
             } else {
               vscode.window.showWarningMessage(
                 'Cannot preview in code completion mode without an active editor.'
@@ -848,22 +874,27 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 active_path
               })
 
-              let instruction =
+              let instructions =
                 replace_selection_placeholder(current_instruction)
 
               const config = vscode.workspace.getConfiguration()
-              const chat_style_instructions = config.get<string>(
-                'geminiCoder.chatStyleInstructions'
+              const edit_format = config.get<EditFormat>(
+                'geminiCoder.editFormat'
+              )!
+              const edit_format_instructions = config.get<string>(
+                `geminiCoder.editFormatInstructions${
+                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                }`
               )
-              if (chat_style_instructions) {
-                instruction += `\n${chat_style_instructions}`
+              if (edit_format_instructions) {
+                instructions += `\n${edit_format_instructions}`
               }
 
               const text = `${
                 context_text
-                  ? `${instruction}\n<files>\n${context_text}</files>\n`
+                  ? `${instructions}\n<files>\n${context_text}</files>\n`
                   : ''
-              }${instruction}`
+              }${instructions}`
 
               vscode.env.clipboard.writeText(text)
             } else {
@@ -1475,6 +1506,22 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 vscode.commands.executeCommand(selected_command)
               }
             }
+          } else if (message.command == 'GET_EDIT_FORMAT') {
+            const config = vscode.workspace.getConfiguration()
+            const edit_format = config.get<EditFormat>(
+              'geminiCoder.editFormat'
+            )!
+            this._send_message({
+              command: 'EDIT_FORMAT',
+              edit_format
+            })
+          } else if (message.command == 'SAVE_EDIT_FORMAT') {
+            const config = vscode.workspace.getConfiguration()
+            await config.update(
+              'geminiCoder.editFormat',
+              message.edit_format,
+              vscode.ConfigurationTarget.Global
+            )
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
