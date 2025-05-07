@@ -89,7 +89,10 @@ export const CHATBOTS = {
     supports_user_provided_model: false,
     supports_user_provided_port: false,
     default_system_instructions: '',
-    supported_options: {},
+    supported_options: {
+      reason: 'Reason',
+      search: 'Search'
+    },
     default_top_p: 0,
     models: {}
   },
