@@ -3,13 +3,11 @@
   <br/>
   <h1>Gemini Coder - free AI coding</h1>
   <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
-  Use built-in API tools for code completions, file refactoring and applying chat responses.</h4>
+  Use built-in tools for code completions, file refactoring and applying chat responses.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
-<a href="https://open-vsx.org/extension/robertpiosik/gemini-coder"><img src="https://img.shields.io/badge/Download-Open_VSX_Registry-blue" alt="Download from Open VSX Registry"></a>
-<img src="https://img.shields.io/badge/License-MIT-green.svg" alt="MIT License">
-<a href="https://x.com/intent/follow?screen_name=robertpiosik"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
+<a href="https://x.com/intent/follow?screen_name=CodeWebChat"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
 <br/>
 <br/>
 
