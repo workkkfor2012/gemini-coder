@@ -423,7 +423,7 @@ export function apply_chat_response_command(params: {
       if (new_files_count > 0 && replaced_files_count > 0) {
         message = `Successfully created ${new_files_count} new ${
           new_files_count == 1 ? 'file' : 'files'
-        } and replaced ${replaced_files_count} existing ${
+        } and replaced ${replaced_files_count} ${
           replaced_files_count == 1 ? 'file' : 'files'
         }.`
       } else if (new_files_count > 0) {
@@ -431,7 +431,7 @@ export function apply_chat_response_command(params: {
           new_files_count == 1 ? 'file' : 'files'
         }.`
       } else if (replaced_files_count > 0) {
-        message = `Successfully replaced ${replaced_files_count} existing ${
+        message = `Successfully replaced ${replaced_files_count} ${
           replaced_files_count == 1 ? 'file' : 'files'
         }.`
       } else {
@@ -516,7 +516,7 @@ export function apply_chat_response_command(params: {
               ) {
                 intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
                   intelligent_new_files_count == 1 ? 'file' : 'files'
-                } and updated ${intelligent_replaced_files_count} existing ${
+                } and updated ${intelligent_replaced_files_count} ${
                   intelligent_replaced_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
               } else if (intelligent_new_files_count > 0) {
@@ -524,7 +524,7 @@ export function apply_chat_response_command(params: {
                   intelligent_new_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
               } else if (intelligent_replaced_files_count > 0) {
-                intelligent_message = `Successfully updated ${intelligent_replaced_files_count} existing ${
+                intelligent_message = `Successfully updated ${intelligent_replaced_files_count} ${
                   intelligent_replaced_files_count == 1 ? 'file' : 'files'
                 } using Intelligent Update.`
               } else {
