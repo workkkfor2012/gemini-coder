@@ -156,7 +156,6 @@ export const ai_studio: Chatbot = {
           'Integrate changes with the codebase. You can fully revert this operation.'
         apply_chat_response_button_style(apply_response_button)
 
-        // Add event listener for Fast replace button click
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
           const chat_turn_container = apply_response_button.closest(
