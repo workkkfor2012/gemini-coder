@@ -1,10 +1,23 @@
+import { CHATBOTS } from '@shared/constants/chatbots'
 import { Chatbot } from '../types/chatbot'
+import { debounce } from '@/utils/debounce'
+import browser from 'webextension-polyfill'
+import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
+import {
+  apply_chat_response_button_style,
+  set_button_disabled_state
+} from '../utils/apply-response'
+import { Message } from '@/types/messages'
 
 export const chatgpt: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('span[data-radix-focus-guard]')) {
+        if (
+          document.querySelector(
+            'span[data-testid="blocking-initial-modals-done"]'
+          )
+        ) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
@@ -12,12 +25,100 @@ export const chatgpt: Chatbot = {
       }
       check_for_element()
     })
-    const reason_button = document.querySelector('button[aria-label="Reason"]')
-    ;(reason_button as HTMLButtonElement)?.click()
-    await new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(true)
-      }, 100)
+  },
+  set_options: async (options: string[]) => {
+    const supported_options = CHATBOTS['ChatGPT'].supported_options
+    for (const option of options) {
+      if (option == 'reason' && supported_options['reason']) {
+        const reason_button = document.querySelector(
+          'button[data-testid="composer-button-reason"]'
+        ) as HTMLButtonElement
+        reason_button.click()
+      } else if (option == 'search' && supported_options['search']) {
+        const search_button = document.querySelector(
+          'button[data-testid="composer-button-search"]'
+        ) as HTMLButtonElement
+        search_button.click()
+      }
+    }
+  },
+  inject_apply_response_button: (client_id: number) => {
+    const debounced_add_buttons = debounce((params: { footer: Element }) => {
+      const apply_response_button_text = 'Apply response'
+
+      // Check if buttons already exist by text content to avoid duplicates
+      const existing_apply_response_button = Array.from(
+        params.footer.querySelectorAll('button')
+      ).find((btn) => btn.textContent == apply_response_button_text)
+
+      if (existing_apply_response_button) return
+
+      const chat_turn = params.footer.closest('.agent-turn') as HTMLElement
+      const code_blocks = chat_turn.querySelectorAll('code')
+      let has_eligible_block = false
+      for (const code_block of Array.from(code_blocks)) {
+        const first_line_text = code_block?.textContent?.split('\n')[0]
+        if (first_line_text && extract_path_from_comment(first_line_text)) {
+          has_eligible_block = true
+          break
+        }
+      }
+      if (!has_eligible_block) return
+
+      const create_apply_response_button = () => {
+        const apply_response_button = document.createElement('button')
+        apply_response_button.textContent = apply_response_button_text
+        apply_response_button.title =
+          'Integrate changes with the codebase. You can fully revert this operation.'
+        apply_chat_response_button_style(apply_response_button)
+
+        apply_response_button.addEventListener('click', async () => {
+          set_button_disabled_state(apply_response_button)
+          const parent = apply_response_button.parentElement!
+          const copy_button = parent.querySelector(
+            'button[data-testid="copy-turn-action-button"]'
+          ) as HTMLElement
+          copy_button.click()
+          await new Promise((resolve) => setTimeout(resolve, 500))
+          browser.runtime.sendMessage<Message>({
+            action: 'apply-chat-response',
+            client_id
+          })
+        })
+
+        params.footer.insertBefore(
+          apply_response_button,
+          params.footer.children[params.footer.children.length - 1]
+        )
+      }
+
+      create_apply_response_button()
+    }, 100)
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(() => {
+        if (
+          // Stop icon of a stopping response generation button
+          document.querySelector('button[data-testid="stop-button"]')
+        ) {
+          return
+        }
+
+        const all_footers = document.querySelectorAll(
+          '.agent-turn > div > div:nth-of-type(2) > div'
+        )
+        all_footers.forEach((footer) => {
+          debounced_add_buttons({
+            footer
+          })
+        })
+      })
+    })
+
+    observer.observe(document.body, {
+      childList: true,
+      subtree: true,
+      characterData: true
     })
   }
 }
