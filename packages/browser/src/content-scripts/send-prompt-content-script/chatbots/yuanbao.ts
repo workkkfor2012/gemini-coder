@@ -92,9 +92,9 @@ export const yuanbao: Chatbot = {
       const chat_turn = params.footer.closest(
         '.agent-chat__bubble__content'
       ) as HTMLElement
-      const first_lines_of_code_blocks = chat_turn.querySelectorAll('code')
+      const code_blocks = chat_turn.querySelectorAll('code')
       let has_eligible_block = false
-      for (const code_block of Array.from(first_lines_of_code_blocks)) {
+      for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
         if (first_line_text && extract_path_from_comment(first_line_text)) {
           has_eligible_block = true
@@ -120,7 +120,7 @@ export const yuanbao: Chatbot = {
           await new Promise((resolve) => setTimeout(resolve, 500))
           browser.runtime.sendMessage<Message>({
             action: 'apply-chat-response',
-            client_id: client_id
+            client_id
           })
         })
 

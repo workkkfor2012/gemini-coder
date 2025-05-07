@@ -146,9 +146,9 @@ export const openrouter: Chatbot = {
       if (existing_apply_response_button) return
 
       const chat_turn = params.footer.closest('.duration-200') as HTMLElement
-      const first_lines_of_code_blocks = chat_turn.querySelectorAll('code')
+      const code_blocks = chat_turn.querySelectorAll('code')
       let has_eligible_block = false
-      for (const code_block of Array.from(first_lines_of_code_blocks)) {
+      for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
         if (first_line_text && is_eligible_code_block(first_line_text)) {
           has_eligible_block = true
@@ -179,7 +179,7 @@ export const openrouter: Chatbot = {
           await new Promise((resolve) => setTimeout(resolve, 500))
           browser.runtime.sendMessage<Message>({
             action: 'apply-chat-response',
-            client_id: client_id
+            client_id
           })
         })
 
