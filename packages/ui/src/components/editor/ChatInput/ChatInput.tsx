@@ -14,8 +14,6 @@ type Props = {
   is_connected: boolean
   submit_disabled_title?: string
   is_in_code_completions_mode: boolean
-  on_code_completions_mode_click: () => void
-  has_active_editor: boolean
   has_active_selection: boolean
 }
 
@@ -97,13 +95,6 @@ export const ChatInput: React.FC<Props> = (props) => {
     e.stopPropagation()
     if (!props.is_in_code_completions_mode && !props.value) return
     props.on_copy()
-  }
-
-  const handle_code_completions_mode_click = (
-    e: React.MouseEvent<HTMLButtonElement>
-  ) => {
-    e.stopPropagation()
-    props.on_code_completions_mode_click()
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -225,7 +216,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       ? props.chat_history_fim_mode
       : props.chat_history
 
-    if (props.is_in_code_completions_mode && props.has_active_editor) {
+    if (props.is_in_code_completions_mode) {
       if (active_history.length > 0 && is_history_enabled) {
         return 'Enter optional suggestions (⇅ for history)'
       } else {
@@ -238,7 +229,6 @@ export const ChatInput: React.FC<Props> = (props) => {
       : 'Ask anything'
   }, [
     props.is_in_code_completions_mode,
-    props.has_active_editor,
     props.chat_history,
     props.chat_history_fim_mode,
     is_history_enabled
@@ -262,36 +252,10 @@ export const ChatInput: React.FC<Props> = (props) => {
         onFocus={handle_focus}
         autoFocus
         className={styles.textarea}
-        minRows={2}
+        minRows={1}
       />
       <div className={styles.footer}>
         <div className={styles.footer__left}>
-          {(!props.has_active_selection ||
-            props.is_in_code_completions_mode) && (
-            <button
-              onClick={handle_code_completions_mode_click}
-              className={cn(
-                styles.footer__left__button,
-                styles['footer__left__button--fim'],
-                {
-                  [styles['footer__left__button--active']]:
-                    props.is_in_code_completions_mode &&
-                    props.has_active_editor,
-                  [styles['footer__left__button--disabled']]:
-                    !props.has_active_editor
-                }
-              )}
-              title={
-                props.has_active_editor
-                  ? 'Generate code that fits best the cursor position'
-                  : 'Open any file to generate code that fits best the cursor position'
-              }
-              disabled={!props.has_active_editor}
-            >
-              <div className={cn('codicon', 'codicon-insert')} />
-              <span>Ask for code completion</span>
-            </button>
-          )}
           {can_insert_selection_placeholder && (
             <button
               onClick={insert_selection_placeholder}

@@ -193,10 +193,10 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_code_completions_mode_click = () => {
+  const handle_code_completions_mode_click = (is_enabled: boolean) => {
     props.vscode.postMessage({
       command: 'SAVE_CODE_COMPLETIONS_MODE',
-      enabled: !is_in_code_completions_mode
+      enabled: is_enabled
     } as WebviewMessage)
   }
 

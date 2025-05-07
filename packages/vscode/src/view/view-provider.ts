@@ -234,6 +234,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
       }
+      if (has_selection && this._is_code_completions_mode) {
+        this._is_code_completions_mode = false
+        if (this._webview_view) {
+          this._send_message<ExtensionMessage>({
+            command: 'CODE_COMPLETIONS_MODE',
+            enabled: false
+          })
+        }
+      }
     })
 
     const update_selection_state = () => {

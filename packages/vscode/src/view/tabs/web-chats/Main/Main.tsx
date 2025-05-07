@@ -3,7 +3,7 @@ import styles from './Main.module.scss'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
-import { EditFormatSelector as UiEditFormatSelector } from '@ui/components/editor/EditFormatSelector'
+import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/editor/HorizontalSelector'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
@@ -17,7 +17,7 @@ type Props = {
   presets: Preset[]
   selected_presets: string[]
   selected_code_completion_presets: string[]
-  on_code_completions_mode_click: () => void
+  on_code_completions_mode_click: (is_enabled: boolean) => void
   is_in_code_completions_mode: boolean
   has_active_editor: boolean
   has_active_selection: boolean
@@ -122,9 +122,15 @@ export const Main: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_code_completion_mode_click = () => {
-    if (props.has_active_editor) {
-      props.on_code_completions_mode_click()
+  const handle_mode_click = (mode: 'general' | 'code-completion') => {
+    if (
+      mode == 'code-completion' &&
+      !props.is_in_code_completions_mode &&
+      props.has_active_editor
+    ) {
+      props.on_code_completions_mode_click(true)
+    } else if (mode == 'general' && props.is_in_code_completions_mode) {
+      props.on_code_completions_mode_click(false)
     }
   }
 
@@ -151,18 +157,71 @@ export const Main: React.FC<Props> = (props) => {
               : 'Initialize chats'
           }
           is_in_code_completions_mode={props.is_in_code_completions_mode}
-          on_code_completions_mode_click={handle_code_completion_mode_click}
-          has_active_editor={props.has_active_editor}
           has_active_selection={props.has_active_selection}
         />
       </div>
 
+      <UiSeparator size="small" />
+
+      <UiHorizontalSelector
+        heading="Mode"
+        options={[
+          {
+            value: 'general',
+            label: 'General',
+            title: 'Ask anything',
+            disabled: !props.has_active_editor || props.has_active_selection
+          },
+          {
+            value: 'code-completion',
+            label: 'Code Completion',
+            title: !props.has_active_editor
+              ? 'Unavailable, missing active editor'
+              : props.has_active_selection
+              ? 'Unavailable with text selection'
+              : 'Ask for code at cursor position',
+            disabled: !props.has_active_editor || props.has_active_selection
+          }
+        ]}
+        selected_value={
+          props.is_in_code_completions_mode ? 'code-completion' : 'general'
+        }
+        on_select={handle_mode_click}
+      />
+
       {props.edit_format_selector_visibility == 'visible' && (
         <>
-          <UiSeparator size="medium" />
-          <UiEditFormatSelector
-            format={props.edit_format}
-            on_change={props.on_edit_format_change}
+          <UiSeparator size="small" />
+
+          <UiHorizontalSelector
+            heading="Edit Format"
+            options={[
+              {
+                value: 'truncated',
+                label: 'Truncated',
+                title:
+                  'Code blocks of the chat response will proritize readability, perfect for iteration over instructions. Apply Chat Response tool will use API with file-merging instructions.',
+                disabled: props.is_in_code_completions_mode
+              },
+              {
+                value: 'whole',
+                label: 'Whole',
+                title:
+                  'Modified files will be generated fully and replaced in place.',
+                disabled: props.is_in_code_completions_mode
+              },
+              {
+                value: 'diff',
+                label: 'Diff',
+                title:
+                  'The model will output changes only. Chat response will be applied in place (assuming correctness of the generated patch).',
+                disabled: props.is_in_code_completions_mode
+              }
+            ]}
+            selected_value={
+              !props.is_in_code_completions_mode ? props.edit_format : undefined
+            }
+            on_select={props.on_edit_format_change}
           />
         </>
       )}
@@ -170,6 +229,7 @@ export const Main: React.FC<Props> = (props) => {
       {!props.is_connected && (
         <>
           <UiSeparator size="large" />
+
           <div className={styles['browser-extension-message']}>
             <span>
               Get the{' '}
@@ -189,7 +249,9 @@ export const Main: React.FC<Props> = (props) => {
           </div>
         </>
       )}
+
       <UiSeparator size="large" />
+
       <UiPresets
         presets={props.presets.map((preset) => {
           return {

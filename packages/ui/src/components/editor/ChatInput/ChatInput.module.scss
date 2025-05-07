@@ -91,16 +91,6 @@
         background-color: var(--vscode-toolbar-hoverBackground);
       }
 
-      &--fim {
-        padding-left: var(--padding-2px);
-
-        > span {
-          white-space: nowrap;
-          text-overflow: ellipsis;
-          overflow: hidden;
-        }
-      }
-
       &--selection > span {
         padding-bottom: var(--padding-2px);
       }
@@ -146,7 +136,7 @@
       border-radius: 5px;
       color: var(--vscode-icon-foreground);
 
-      &:hover {
+      &:hover:enabled {
         background-color: var(--vscode-toolbar-hoverBackground);
       }
 
