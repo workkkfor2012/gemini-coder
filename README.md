@@ -72,22 +72,20 @@ As everyone have their own favourite web chat interface, each with unique featur
 
 **_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
 
-**Supported chatbots:**
+**Supported chatbots: (alphabetically)**
 
 - AI Studio
-- Gemini
-- Open WebUI (self-hosted)
-
-**Also works with:** _(Alphabetically)_
-
 - ChatGPT
 - Claude
 - DeepSeek
+- Gemini
 - Grok
 - HuggingChat
 - Mistral
+- Open WebUI (self-hosted)
 - OpenRouter Chat
 - Qwen
+- Yuanbao
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
