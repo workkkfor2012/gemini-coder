@@ -66,6 +66,12 @@ const has_real_code = (content: string): boolean => {
   return non_comment_lines.length > 0
 }
 
+// Helper function to extract file path from XML-style file tag
+const extract_file_path_from_xml = (line: string): string | null => {
+  const match = line.match(/<file\s+path=["']([^"']+)["']/)
+  return match ? match[1] : null
+}
+
 export const parse_clipboard_multiple_files = (params: {
   clipboard_text: string
   is_single_root_folder_workspace: boolean
@@ -85,6 +91,8 @@ export const parse_clipboard_multiple_files = (params: {
   let current_content = ''
   let is_first_content_line = false
   let current_workspace_name: string | undefined = undefined
+  let xml_file_mode = false
+  let in_cdata = false
 
   // Split text into lines for easier processing
   const lines = params.clipboard_text.split('\n')
@@ -99,6 +107,8 @@ export const parse_clipboard_multiple_files = (params: {
       current_file_name = '' // Reset filename for new block
       current_content = ''
       is_first_content_line = true
+      xml_file_mode = false
+      in_cdata = false
       continue
     }
     // Collect content lines
@@ -138,9 +148,30 @@ export const parse_clipboard_multiple_files = (params: {
         current_content = ''
         is_first_content_line = false
         current_workspace_name = undefined
+        xml_file_mode = false
+        in_cdata = false
       } else {
+        // Check for XML-style file tag
+        if (is_first_content_line && line.trim().startsWith('<file')) {
+          const extracted_filename = extract_file_path_from_xml(line)
+          if (extracted_filename) {
+            const { workspace_name, relative_path } =
+              extract_workspace_and_path(
+                extracted_filename,
+                params.is_single_root_folder_workspace
+              )
+            current_file_name = relative_path
+            if (workspace_name) {
+              current_workspace_name = workspace_name
+            }
+            xml_file_mode = true
+            is_first_content_line = false
+            continue
+          }
+        }
+
         // Check if we're on the first content line and it might contain a filename in a comment
-        if (is_first_content_line) {
+        if (is_first_content_line && !xml_file_mode) {
           if (
             line.trim().startsWith('//') ||
             line.trim().startsWith('#') ||
@@ -165,6 +196,23 @@ export const parse_clipboard_multiple_files = (params: {
               continue
             }
           }
+        }
+
+        // Check for CDATA start
+        if (xml_file_mode && line.trim().startsWith('<![CDATA[')) {
+          in_cdata = true
+          continue
+        }
+
+        // Check for CDATA end
+        if (xml_file_mode && in_cdata && line.trim().includes(']]>')) {
+          in_cdata = false
+          continue
+        }
+
+        // Check for XML closing tag
+        if (xml_file_mode && !in_cdata && line.trim() == '</file>') {
+          continue
         }
 
         // We're not on first line anymore for subsequent iterations

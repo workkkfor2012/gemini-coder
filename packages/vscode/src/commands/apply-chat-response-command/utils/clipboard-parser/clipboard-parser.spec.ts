@@ -23,9 +23,33 @@ describe('clipboard-parser', () => {
 
       expect(result).toHaveLength(2)
       expect(result[0].file_path).toBe('src/index.ts')
-      expect(result[0].content).toContain('console.log("hello")')
+      expect(result[0].content).toBe('console.log("hello")')
       expect(result[1].file_path).toBe('src/utils.py')
-      expect(result[1].content).toContain('def add(a, b)')
+      expect(result[1].content).toBe(`print("hello")`)
+    })
+
+    it('should parse file-xml format', () => {
+      const text = load_clipboard_text('file-xml.txt')
+      const result = parse_clipboard_multiple_files({
+        clipboard_text: text,
+        is_single_root_folder_workspace: true
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].file_path).toBe('src/index.ts')
+      expect(result[0].content).toBe('console.log("hello")')
+    })
+
+    it('should parse file-xml format with CDATA', () => {
+      const text = load_clipboard_text('file-xml-with-cdata.txt')
+      const result = parse_clipboard_multiple_files({
+        clipboard_text: text,
+        is_single_root_folder_workspace: true
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].file_path).toBe('src/index.ts')
+      expect(result[0].content).toBe('console.log("hello")')
     })
 
     it('should handle workspace prefixes', () => {
@@ -38,7 +62,7 @@ describe('clipboard-parser', () => {
       expect(result).toHaveLength(1)
       expect(result[0].file_path).toBe('src/index.ts')
       expect(result[0].workspace_name).toBe('frontend')
-      expect(result[0].content).toContain('console.log("hello")')
+      expect(result[0].content).toBe('console.log("hello")')
     })
 
     it('should ignore workspace prefixes when has_single_root=true', () => {
@@ -62,8 +86,7 @@ describe('clipboard-parser', () => {
 
       expect(result).toHaveLength(1)
       expect(result[0].file_path).toBe('src/index.ts')
-      expect(result[0].content).toContain('First part')
-      expect(result[0].content).toContain('Second part')
+      expect(result[0].content).toBe('First part\n\nSecond part')
     })
 
     it('should ignore files without real code', () => {
@@ -76,7 +99,7 @@ describe('clipboard-parser', () => {
       // Should only include the backend file with real code
       expect(result).toHaveLength(1)
       expect(result[0].file_path).toBe('backend/src/index.ts')
-      expect(result[0].content).toContain('console.log("hello")')
+      expect(result[0].content).toBe('console.log("hello")')
 
       // Should not include the frontend file that has no real code
       const frontendFile = result.find(
@@ -97,7 +120,7 @@ describe('clipboard-parser', () => {
       expect(result).not.toBeNull()
       if (result) {
         expect(result.file_path).toBe('src/index.ts')
-        expect(result.content).toContain('console.log("hello")')
+        expect(result.content).toBe('console.log("hello")')
       }
     })
 
