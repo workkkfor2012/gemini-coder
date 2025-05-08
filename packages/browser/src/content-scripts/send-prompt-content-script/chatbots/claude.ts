@@ -1,7 +1,7 @@
 import { Chatbot } from '../types/chatbot'
 import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
-import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
+import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-line-of-code'
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
@@ -39,7 +39,7 @@ export const claude: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_comment(first_line_text)) {
+        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
           has_eligible_block = true
           break
         }

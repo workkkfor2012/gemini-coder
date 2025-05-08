@@ -1,4 +1,4 @@
-export const extract_path_from_comment = (line: string): string | null => {
+export const extract_path_from_line_of_code = (line: string): string | null => {
   // First check if the line starts with a comment marker
   if (!/^(\s*)(\/\/|#|--|\/\*|\*|<!--)/.test(line)) {
     return null

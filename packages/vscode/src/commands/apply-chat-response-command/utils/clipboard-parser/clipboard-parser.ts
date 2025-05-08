@@ -1,5 +1,5 @@
 import { cleanup_api_response } from '@/helpers/cleanup-api-response'
-import { extract_path_from_comment } from '@shared/utils/extract-path-from-comment'
+import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-line-of-code'
 import { extract_diff_patches, DiffPatch } from '../patch-handler'
 
 export interface ClipboardFile {
@@ -148,7 +148,7 @@ export const parse_clipboard_multiple_files = (params: {
             line.trim().startsWith('*') ||
             line.trim().startsWith('--')
           ) {
-            const extracted_filename = extract_path_from_comment(line)
+            const extracted_filename = extract_path_from_line_of_code(line)
             if (extracted_filename) {
               const { workspace_name, relative_path } =
                 extract_workspace_and_path(
@@ -229,7 +229,7 @@ export const parse_file_content_only = (params: {
     return null
   }
 
-  const extracted_filename = extract_path_from_comment(first_line)
+  const extracted_filename = extract_path_from_line_of_code(first_line)
   if (!extracted_filename) return null
 
   const { workspace_name, relative_path } = extract_workspace_and_path(
