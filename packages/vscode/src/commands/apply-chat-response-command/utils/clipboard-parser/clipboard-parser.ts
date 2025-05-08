@@ -59,7 +59,8 @@ const has_real_code = (content: string): boolean => {
       !trimmed.startsWith('# ...') &&
       !trimmed.startsWith('/* ...') &&
       !trimmed.startsWith('* ...') &&
-      !trimmed.startsWith('-- ...')
+      !trimmed.startsWith('-- ...') &&
+      !trimmed.startsWith('<!-- ...')
     )
   })
 
@@ -177,7 +178,8 @@ export const parse_clipboard_multiple_files = (params: {
             line.trim().startsWith('#') ||
             line.trim().startsWith('/*') ||
             line.trim().startsWith('*') ||
-            line.trim().startsWith('--')
+            line.trim().startsWith('--') ||
+            line.trim().startsWith('<!--')
           ) {
             const extracted_filename = extract_path_from_line_of_code(line)
             if (extracted_filename) {
@@ -271,7 +273,8 @@ export const parse_file_content_only = (params: {
       first_line.startsWith('#') ||
       first_line.startsWith('/*') ||
       first_line.startsWith('*') ||
-      first_line.startsWith('--')
+      first_line.startsWith('--') ||
+      first_line.startsWith('<!--')
     )
   ) {
     return null

@@ -52,6 +52,18 @@ describe('clipboard-parser', () => {
       expect(result[0].content).toBe('console.log("hello")')
     })
 
+    it('should parse html comment filename format', () => {
+      const text = load_clipboard_text('html-comment-style.txt')
+      const result = parse_clipboard_multiple_files({
+        clipboard_text: text,
+        is_single_root_folder_workspace: true
+      })
+
+      expect(result).toHaveLength(1)
+      expect(result[0].file_path).toBe('src/index.ts')
+      expect(result[0].content).toBe('console.log("hello")')
+    })
+
     it('should handle workspace prefixes', () => {
       const text = load_clipboard_text('with-workspace-prefix.txt')
       const result = parse_clipboard_multiple_files({
