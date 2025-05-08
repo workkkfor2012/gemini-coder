@@ -157,8 +157,7 @@ export const open_webui: Chatbot = {
 
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
-          const parent = apply_response_button.parentElement!
-          const copy_button = parent.querySelector(
+          const copy_button = params.footer.querySelector(
             'div[aria-label]:nth-of-type(2) > button' // aria-label could be transalted
           ) as HTMLElement
           copy_button.click()

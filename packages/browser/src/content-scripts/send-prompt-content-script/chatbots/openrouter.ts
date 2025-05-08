@@ -166,8 +166,7 @@ export const openrouter: Chatbot = {
 
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
-          const parent = apply_response_button.parentElement!
-          const actions = parent.querySelectorAll('button')
+          const actions = params.footer.querySelectorAll('button')
           const copy_button = Array.from(actions).find((button) => {
             const path = button.querySelector('path')
             return (

@@ -74,8 +74,7 @@ export const chatgpt: Chatbot = {
 
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
-          const parent = apply_response_button.parentElement!
-          const copy_button = parent.querySelector(
+          const copy_button = params.footer.querySelector(
             'button[data-testid="copy-turn-action-button"]'
           ) as HTMLElement
           copy_button.click()

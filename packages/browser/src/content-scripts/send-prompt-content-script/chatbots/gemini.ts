@@ -106,8 +106,7 @@ export const gemini: Chatbot = {
 
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
-          const parent = apply_response_button.parentElement!
-          const more_button = parent.querySelector(
+          const more_button = params.footer.querySelector(
             'button[data-test-id="more-menu-button"]'
           ) as HTMLElement
           more_button.click()
