@@ -158,15 +158,19 @@ export const qwen: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      const chat_turn = params.footer.parentElement?.querySelector(
-        '#response-content-container'
-      ) as HTMLElement
+      const chat_turn =
+        params.footer.parentElement?.parentElement?.querySelector(
+          '#response-content-container'
+        ) as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('.cm-content')
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text =
           code_block?.querySelector('.cm-line')?.textContent
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
@@ -195,7 +199,7 @@ export const qwen: Chatbot = {
 
         params.footer.insertBefore(
           apply_response_button,
-          params.footer.children[params.footer.children.length]
+          params.footer.children[0]
         )
       }
 
