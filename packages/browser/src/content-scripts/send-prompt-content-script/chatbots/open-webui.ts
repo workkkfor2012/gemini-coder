@@ -131,11 +131,10 @@ export const open_webui: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      const chat_turn = params.footer.closest(
-        'div[id^="message"]'
+      const chat_turn = params.footer.parentElement?.querySelector(
+        '#response-content-container'
       ) as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('.cm-content')
-      console.log(code_blocks)
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text =
