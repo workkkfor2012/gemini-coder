@@ -1,4 +1,10 @@
 export const extract_path_from_line_of_code = (line: string): string | null => {
+  // Check for XML-style file path declarations like <file path="...">
+  const xml_path_match = line.match(/<file\s+path=["']([^"']+)["']/)
+  if (xml_path_match) {
+    return xml_path_match[1]
+  }
+
   // First check if the line starts with a comment marker
   if (!/^(\s*)(\/\/|#|--|\/\*|\*|<!--)/.test(line)) {
     return null

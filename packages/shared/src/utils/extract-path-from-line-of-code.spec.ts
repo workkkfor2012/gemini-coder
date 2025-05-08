@@ -78,19 +78,21 @@ describe('extract_path_from_line_of_code', () => {
   })
 
   it('should extract path containing hyphens and dots', () => {
-    expect(extract_path_from_line_of_code('// src/my-component.v1.test.js')).toBe(
-      'src/my-component.v1.test.js'
-    )
+    expect(
+      extract_path_from_line_of_code('// src/my-component.v1.test.js')
+    ).toBe('src/my-component.v1.test.js')
   })
 
   it('should return null if no valid path is found', () => {
-    expect(extract_path_from_line_of_code('// This is just a comment')).toBe(null)
+    expect(extract_path_from_line_of_code('// This is just a comment')).toBe(
+      null
+    )
   })
 
   it('should return null if no extension is present', () => {
-    expect(extract_path_from_line_of_code('// path/to/file_without_extension')).toBe(
-      null
-    )
+    expect(
+      extract_path_from_line_of_code('// path/to/file_without_extension')
+    ).toBe(null)
   })
 
   it('should return null for empty comment', () => {
@@ -113,5 +115,32 @@ describe('extract_path_from_line_of_code', () => {
 
   it('should return null for just whitespace string', () => {
     expect(extract_path_from_line_of_code('   ')).toBe(null)
+  })
+
+  it('should extract path from XML-style file tag', () => {
+    expect(
+      extract_path_from_line_of_code(
+        '<file path="path/to/file.ts">'
+      )
+    ).toBe(
+      'path/to/file.ts'
+    )
+  })
+
+  it('should extract path from XML-style file tag with single quotes', () => {
+    expect(
+      extract_path_from_line_of_code(
+        "<file path='path/to/file.ts'>"
+      )
+    ).toBe('path/to/file.ts')
+  })
+
+
+  it('should extract path from XML-style file tag with attributes after path', () => {
+    expect(
+      extract_path_from_line_of_code(
+        '<file path="path/to/file.ts" active>'
+      )
+    ).toBe('path/to/file.ts')
   })
 })
