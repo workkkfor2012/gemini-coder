@@ -32,6 +32,7 @@ import {
   open_settings_command,
   open_url_command
 } from './commands'
+import { migrate_settings_prefix } from './migrations/migrate-settings-prefix'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -55,6 +56,8 @@ export async function activate(context: vscode.ExtensionContext) {
     await migrate_remove_copilot_presets()
     // Remove a few weeks after 5 May 2025
     await migrate_api_tool_settings()
+    // Remove a few weeks after 9 May 2025
+    await migrate_settings_prefix()
   }
 
   await migrations()

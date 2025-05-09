@@ -546,18 +546,18 @@
       "type": "object",
       "title": "Gemini Coder Settings",
       "properties": {
-        "geminiCoder.commitMessagePrompt": {
+        "codeWebChat.commitMessagePrompt": {
           "type": "string",
           "scope": "resource",
           "description": "The prompt text used when generating commit messages.",
           "default": "Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
         },
-        "geminiCoder.attachOpenFiles": {
+        "codeWebChat.attachOpenFiles": {
           "type": "boolean",
           "default": true,
           "description": "Attach open files to the context."
         },
-        "geminiCoder.ignoredExtensions": {
+        "codeWebChat.ignoredExtensions": {
           "type": "array",
           "description": "List of file extensions to ignore in the context.",
           "default": [
@@ -568,7 +568,7 @@
             "description": "File extension to ignore (without the dot)"
           }
         },
-        "geminiCoder.editFormat": {
+        "codeWebChat.editFormat": {
           "type": "string",
           "description": "Edit format to use in chat responses.",
           "enum": [
@@ -578,7 +578,7 @@
           ],
           "default": "truncated"
         },
-        "geminiCoder.editFormatSelectorVisibility": {
+        "codeWebChat.editFormatSelectorVisibility": {
           "type": "string",
           "description": "Control visibility of the edit format selector.",
           "enum": [
@@ -587,31 +587,31 @@
           ],
           "default": "visible"
         },
-        "geminiCoder.editFormatInstructionsTruncated": {
+        "codeWebChat.editFormatInstructionsTruncated": {
           "type": "string",
           "scope": "resource",
           "description": "Style instructions for chat responses when using truncated format.",
           "default": "Whenever proposing a file use the markdown code block syntax and always add file path in the first line comment. Use ellipsis comments, e.g. \"// ...\", when necessary."
         },
-        "geminiCoder.editFormatInstructionsWhole": {
+        "codeWebChat.editFormatInstructionsWhole": {
           "type": "string",
           "scope": "resource",
           "description": "Style instructions for chat responses when showing complete files.",
           "default": "Whenever proposing a file use the markdown code block syntax and always add file path in the first line comment. Please show me the full code of the changed files, I have a disability which means I can't type and need to be able to copy and paste the full code."
         },
-        "geminiCoder.editFormatInstructionsDiff": {
+        "codeWebChat.editFormatInstructionsDiff": {
           "type": "string",
           "scope": "resource",
           "description": "Style instructions for chat responses when using diff format.",
           "default": "Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch."
         },
-        "geminiCoder.chatCodeCompletionInstructions": {
+        "codeWebChat.chatCodeCompletionInstructions": {
           "type": "string",
           "scope": "resource",
           "description": "Instruction for code completion in chat",
           "default": "Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol \"<missing_text>\" as \"cursor position\" and \"replacement\" as \"completion\"."
         },
-        "geminiCoder.presets": {
+        "codeWebChat.presets": {
           "type": "array",
           "default": [
             {
@@ -807,7 +807,7 @@
             ]
           }
         },
-        "geminiCoder.apiToolCodeCompletionsSettings": {
+        "codeWebChat.apiToolCodeCompletionsSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for code completions API tool.",
@@ -830,7 +830,7 @@
             }
           }
         },
-        "geminiCoder.apiToolFileRefactoringSettings": {
+        "codeWebChat.apiToolFileRefactoringSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for file refactoring API tool.",
@@ -853,7 +853,7 @@
             }
           }
         },
-        "geminiCoder.apiToolCommitMessageSettings": {
+        "codeWebChat.apiToolCommitMessageSettings": {
           "type": "object",
           "scope": "resource",
           "description": "Settings for commit messages API tool.",
