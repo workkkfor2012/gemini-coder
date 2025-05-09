@@ -151,7 +151,7 @@ export function apply_chat_response_command(params: {
                 failure_count != 1 ? 'es' : ''
               }.`,
           'Fix failed with refactoring tool',
-          'Revert'
+          ...(success_count > 0 ? ['Revert'] : [])
         )
 
         if (response == 'Revert' && all_original_states.length > 0) {
