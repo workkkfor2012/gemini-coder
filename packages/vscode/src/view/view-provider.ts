@@ -65,6 +65,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _has_active_selection: boolean = false
   private _is_code_completions_mode: boolean = false
   private _api_tools_settings_manager: ApiToolsSettingsManager
+  private _caret_position: number = 0 // Caret position within the webview's chat input
   private _instructions: string = ''
   private _code_completion_suggestions: string = ''
 
@@ -1569,6 +1570,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.visibility,
               vscode.ConfigurationTarget.Global
             )
+          } else if (message.command == 'CARET_POSITION_CHANGED') {
+            this._caret_position = message.caret_position
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
@@ -1730,11 +1733,20 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
   }
 
-  public append_text_to_prompt(text: string) {
+  public add_text_at_cursor_position(text: string) {
     if (this._is_code_completions_mode) {
-      this._code_completion_suggestions =
-        this._code_completion_suggestions.trim() +
-        `${this._code_completion_suggestions ? ` ${text} ` : `${text} `}`
+      // Insert text at caret position for code completions
+      const before_caret = this._code_completion_suggestions.slice(
+        0,
+        this._caret_position
+      )
+      const after_caret = this._code_completion_suggestions.slice(
+        this._caret_position
+      )
+      this._code_completion_suggestions = before_caret + text + after_caret
+
+      // Update caret position to be after the inserted text
+      this._caret_position += text.length
 
       this._context.workspaceState.update(
         'code-completion-suggestions',
@@ -1745,9 +1757,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         value: this._code_completion_suggestions
       })
     } else {
-      this._instructions =
-        this._instructions.trim() +
-        `${this._instructions ? ` ${text} ` : `${text} `}`
+      // Insert text at caret position for instructions
+      const before_caret = this._instructions.slice(0, this._caret_position)
+      const after_caret = this._instructions.slice(this._caret_position)
+      this._instructions = before_caret + text + after_caret
+
+      // Update caret position to be after the inserted text
+      this._caret_position += text.length
+
       this._context.workspaceState.update('instructions', this._instructions)
       this._send_message<InstructionsMessage>({
         command: 'INSTRUCTIONS',

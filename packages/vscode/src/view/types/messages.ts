@@ -228,6 +228,11 @@ export interface SaveSelectedCodeCompletionPresetsMessage extends BaseMessage {
   names: string[]
 }
 
+export interface CaretPositionChangedWebviewMessage extends BaseMessage {
+  command: 'CARET_POSITION_CHANGED'
+  caret_position: number
+}
+
 // Messages from extension to webview:
 export interface GeminiApiKeyMessage extends BaseMessage {
   command: 'GEMINI_API_KEY'
@@ -442,6 +447,7 @@ export type WebviewMessage =
   | PreviewPresetMessage
   | GetSelectedCodeCompletionPresetsMessage
   | SaveSelectedCodeCompletionPresetsMessage
+  | CaretPositionChangedWebviewMessage
 
 export type ExtensionMessage =
   | GeminiApiKeyMessage
@@ -450,7 +456,7 @@ export type ExtensionMessage =
   | CodeCompletionSuggestionsMessage
   | ConnectionStatusMessage
   | EditFormatMessage
-  | EditFormatSelectorVisibilityMessage // Added
+  | EditFormatSelectorVisibilityMessage
   | PresetsMessage
   | SelectedPresetsMessage
   | PresetsSelectedFromPickerMessage

@@ -38,6 +38,7 @@ type Props = {
   set_normal_instructions: (value: string) => void
   code_completion_suggestions: string
   set_code_completion_suggestions: (value: string) => void
+  on_caret_position_change: (caret_position: number) => void
 }
 
 export const Main: React.FC<Props> = (props) => {
@@ -158,6 +159,7 @@ export const Main: React.FC<Props> = (props) => {
           }
           is_in_code_completions_mode={props.is_in_code_completions_mode}
           has_active_selection={props.has_active_selection}
+          on_caret_position_change={props.on_caret_position_change}
         />
       </div>
 

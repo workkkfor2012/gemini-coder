@@ -261,6 +261,13 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const handle_caret_position_change = (caret_position: number) => {
+    props.vscode.postMessage({
+      command: 'CARET_POSITION_CHANGED',
+      caret_position
+    } as WebviewMessage)
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -308,6 +315,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
       code_completion_suggestions={props.code_completion_suggestions}
       set_code_completion_suggestions={props.set_code_completion_suggestions}
       edit_format_selector_visibility={edit_format_selector_visibility}
+      on_caret_position_change={handle_caret_position_change}
     />
   )
 }

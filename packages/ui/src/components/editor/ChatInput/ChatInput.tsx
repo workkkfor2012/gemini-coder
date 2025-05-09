@@ -15,6 +15,7 @@ type Props = {
   submit_disabled_title?: string
   is_in_code_completions_mode: boolean
   has_active_selection: boolean
+  on_caret_position_change: (caret_position: number) => void
 }
 
 const format_token_count = (count?: number) => {
@@ -59,6 +60,12 @@ export const ChatInput: React.FC<Props> = (props) => {
       }
       return <span key={index}>{part}</span>
     })
+  }
+
+  const handle_select = (e: React.SyntheticEvent<HTMLTextAreaElement>) => {
+    const textarea = e.currentTarget
+    const caret_position = textarea.selectionStart
+    props.on_caret_position_change(caret_position)
   }
 
   useEffect(() => {
@@ -250,6 +257,7 @@ export const ChatInput: React.FC<Props> = (props) => {
         onChange={handle_input_change}
         onKeyDown={handle_key_down}
         onFocus={handle_focus}
+        onSelect={handle_select}
         autoFocus
         className={styles.textarea}
         minRows={1}

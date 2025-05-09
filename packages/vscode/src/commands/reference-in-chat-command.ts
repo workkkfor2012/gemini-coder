@@ -54,7 +54,7 @@ export function reference_in_chat_command(
       const relative_path = path.relative(workspace_root, file_path)
       const reference_text = `\`${relative_path}\``
 
-      view_provider.append_text_to_prompt(reference_text)
+      view_provider.add_text_at_cursor_position(reference_text)
     }
   )
 }
