@@ -227,8 +227,8 @@ export class WebSocketManager {
       throw new Error('Does not have connected browsers.')
     }
 
-    const config = vscode.workspace.getConfiguration()
-    const web_chat_presets = config.get<any[]>('codeWebChat.presets') ?? []
+    const config = vscode.workspace.getConfiguration('codeWebChat')
+    const web_chat_presets = config.get<any[]>('presets') ?? []
 
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',

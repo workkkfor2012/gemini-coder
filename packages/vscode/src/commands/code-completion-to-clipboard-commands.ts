@@ -57,9 +57,9 @@ async function perform_fim_completion_to_clipboard(
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const chat_code_completion_instructions = config.get<string>(
-      'codeWebChat.chatCodeCompletionInstructions'
+      'chatCodeCompletionInstructions'
     )
 
     const instructions = `${chat_code_completion_instructions}${

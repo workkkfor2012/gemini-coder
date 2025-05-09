@@ -62,10 +62,10 @@ async function handle_chat_command(
   instructions = replace_selection_placeholder(instructions)
   instructions = apply_preset_affixes_to_instruction(instructions, preset_names)
 
-  const config = vscode.workspace.getConfiguration()
-  const edit_format = config.get<EditFormat>('codeWebChat.editFormat')!
+  const config = vscode.workspace.getConfiguration('codeWebChat')
+  const edit_format = config.get<EditFormat>('editFormat')!
   const edit_format_instructions = config.get<string>(
-    `codeWebChat.editFormatInstructions${
+    `editFormatInstructions${
       edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
     }`
   )
@@ -100,8 +100,8 @@ export function web_chat_with_command(
         return
       }
 
-      const config = vscode.workspace.getConfiguration()
-      const web_chat_presets = config.get<any[]>('codeWebChat.presets', [])
+      const config = vscode.workspace.getConfiguration('codeWebChat')
+      const web_chat_presets = config.get<any[]>('presets', [])
 
       // Create quickpick items for presets
       const preset_quick_pick_items = web_chat_presets.map((preset) => ({
@@ -151,8 +151,8 @@ export function web_chat_command(
       return
     }
 
-    const config = vscode.workspace.getConfiguration()
-    const web_chat_presets = config.get<any[]>('codeWebChat.presets', [])
+    const config = vscode.workspace.getConfiguration('codeWebChat')
+    const web_chat_presets = config.get<any[]>('presets', [])
 
     // Get previously selected presets from globalState
     let selected_names = context.globalState.get<string[]>(

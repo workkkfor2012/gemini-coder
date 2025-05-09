@@ -65,7 +65,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _has_active_selection: boolean = false
   private _is_code_completions_mode: boolean = false
   private _api_tools_settings_manager: ApiToolsSettingsManager
-  private _caret_position: number = 0 // Caret position within the webview's chat input
+  private _caret_position: number = 0
   private _instructions: string = ''
   private _code_completion_suggestions: string = ''
 
@@ -89,33 +89,24 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     // Listen for changes to the new configuration keys
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        const config = vscode.workspace.getConfiguration()
-
-        if (
-          event.affectsConfiguration('codeWebChat.presets') &&
-          this._webview_view
-        ) {
+        if (event.affectsConfiguration('presets') && this._webview_view) {
           this._send_presets_to_webview(this._webview_view.webview)
         }
-        if (
-          event.affectsConfiguration('codeWebChat.providers') &&
-          this._webview_view
-        ) {
-          const providers = config.get<any[]>('codeWebChat.providers', [])
+        if (event.affectsConfiguration('providers') && this._webview_view) {
+          const config = vscode.workspace.getConfiguration('codeWebChat')
+          const providers = config.get<any[]>('providers', [])
           this._send_message<CustomProvidersUpdatedMessage>({
             command: 'CUSTOM_PROVIDERS_UPDATED',
             custom_providers: providers
           })
         }
         if (
-          event.affectsConfiguration(
-            'codeWebChat.apiToolCodeCompletionsSettings'
-          ) &&
+          event.affectsConfiguration('apiToolCodeCompletionsSettings') &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration()
+          const config = vscode.workspace.getConfiguration('codeWebChat')
           const settings = config.get<ApiToolSettings>(
-            'codeWebChat.apiToolCodeCompletionsSettings',
+            'apiToolCodeCompletionsSettings',
             {}
           )
           this._send_message<ApiToolCodeCompletionsSettingsMessage>({
@@ -124,14 +115,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration(
-            'codeWebChat.apiToolFileRefactoringSettings'
-          ) &&
+          event.affectsConfiguration('apiToolFileRefactoringSettings') &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration()
+          const config = vscode.workspace.getConfiguration('codeWebChat')
           const settings = config.get<ApiToolSettings>(
-            'codeWebChat.apiToolFileRefactoringSettings',
+            'apiToolFileRefactoringSettings',
             {}
           )
           this._send_message<ApiToolFileRefactoringSettingsMessage>({
@@ -140,14 +129,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           })
         }
         if (
-          event.affectsConfiguration(
-            'codeWebChat.apiToolCommitMessageSettings'
-          ) &&
+          event.affectsConfiguration('apiToolCommitMessageSettings') &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration()
+          const config = vscode.workspace.getConfiguration('codeWebChat')
           const settings = config.get<ApiToolSettings>(
-            'codeWebChat.apiToolCommitMessageSettings',
+            'apiToolCommitMessageSettings',
             {}
           )
           this._send_message<ApiToolCommitMessageSettingsMessage>({
@@ -155,26 +142,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             settings
           })
         }
-        if (
-          event.affectsConfiguration('codeWebChat.editFormat') &&
-          this._webview_view
-        ) {
-          const config = vscode.workspace.getConfiguration()
-          const edit_format = config.get<EditFormat>('codeWebChat.editFormat')!
+        if (event.affectsConfiguration('editFormat') && this._webview_view) {
+          const config = vscode.workspace.getConfiguration('codeWebChat')
+          const edit_format = config.get<EditFormat>('editFormat')!
           this._send_message<ExtensionMessage>({
             command: 'EDIT_FORMAT',
             edit_format
           })
         }
         if (
-          event.affectsConfiguration(
-            'codeWebChat.editFormatSelectorVisibility'
-          ) &&
+          event.affectsConfiguration('editFormatSelectorVisibility') &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration()
+          const config = vscode.workspace.getConfiguration('codeWebChat')
           const visibility = config.get<EditFormatSelectorVisibility>(
-            'codeWebChat.editFormatSelectorVisibility'
+            'editFormatSelectorVisibility'
           )!
           this._send_message<EditFormatSelectorVisibilityMessage>({
             command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
@@ -382,8 +364,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   // Inside ChatViewProvider class, add this new helper method
   private async _validate_presets(preset_names: string[]): Promise<string[]> {
-    const config = vscode.workspace.getConfiguration()
-    const presets = config.get<any[]>('codeWebChat.presets', [])
+    const config = vscode.workspace.getConfiguration('codeWebChat')
+    const presets = config.get<any[]>('presets', [])
     const available_presets = presets.filter((preset) =>
       !this._is_code_completions_mode
         ? true
@@ -676,9 +658,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const config = vscode.workspace.getConfiguration()
+              const config = vscode.workspace.getConfiguration('codeWebChat')
               const chat_code_completion_instructions = config.get<string>(
-                'codeWebChat.chatCodeCompletionInstructions'
+                'chatCodeCompletionInstructions'
               )
 
               const instructions = `${chat_code_completion_instructions}${
@@ -712,12 +694,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 valid_preset_names
               )
 
-              const config = vscode.workspace.getConfiguration()
-              const edit_format = config.get<EditFormat>(
-                'codeWebChat.editFormat'
-              )!
+              const config = vscode.workspace.getConfiguration('codeWebChat')
+              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
-                `codeWebChat.editFormatInstructions${
+                `editFormatInstructions${
                   edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
                 }`
               )
@@ -783,9 +763,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 ''
               )
 
-              const config = vscode.workspace.getConfiguration()
+              const config = vscode.workspace.getConfiguration('codeWebChat')
               const chat_code_completion_instructions = config.get<string>(
-                'codeWebChat.chatCodeCompletionInstructions'
+                'chatCodeCompletionInstructions'
               )
 
               const instructions = `${chat_code_completion_instructions}${
@@ -813,10 +793,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   instructions + '\n' + message.preset.prompt_suffix
               }
 
-              const config = vscode.workspace.getConfiguration()
-              const edit_format = config.get<EditFormat>(
-                'codeWebChat.editFormat'
-              )!
+              const config = vscode.workspace.getConfiguration('codeWebChat')
+              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
                 `codeWebChat.editFormatInstructions${
                   edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
@@ -884,9 +862,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               // Use the configurable instruction for code completions copy
-              const config = vscode.workspace.getConfiguration()
+              const config = vscode.workspace.getConfiguration('codeWebChat')
               const chatCodeCompletionInstructions = config.get<string>(
-                'codeWebChat.chatCodeCompletionInstructions'
+                'chatCodeCompletionInstructions'
               )
 
               const instructions = `${chatCodeCompletionInstructions}${
@@ -907,10 +885,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               let instructions =
                 replace_selection_placeholder(current_instruction)
 
-              const config = vscode.workspace.getConfiguration()
-              const edit_format = config.get<EditFormat>(
-                'codeWebChat.editFormat'
-              )!
+              const config = vscode.workspace.getConfiguration('codeWebChat')
+              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
                 `codeWebChat.editFormatInstructions${
                   edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
@@ -936,9 +912,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             vscode.window.showInformationMessage('Prompt copied to clipboard!')
           } else if (message.command == 'SHOW_PRESET_PICKER') {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const web_chat_presets = config.get<ConfigPresetFormat[]>(
-              'codeWebChat.presets',
+              'presets',
               []
             )
 
@@ -1051,20 +1027,20 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
             this._calculate_token_count()
           } else if (message.command == 'SAVE_PRESETS_ORDER') {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             // Convert UI format from message to config format before saving
             const config_formatted_presets = message.presets.map((preset) =>
               this._ui_preset_to_config_format(preset)
             )
             await config.update(
-              'codeWebChat.presets',
+              'presets',
               config_formatted_presets,
               vscode.ConfigurationTarget.Global
             )
           } else if (message.command == 'UPDATE_PRESET') {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const current_presets =
-              config.get<ConfigPresetFormat[]>('codeWebChat.presets', []) || []
+              config.get<ConfigPresetFormat[]>('presets', []) || []
 
             const preset_index = current_presets.findIndex(
               (p) => p.name == message.updating_preset.name
@@ -1161,7 +1137,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 this._ui_preset_to_config_format(updated_ui_preset)
 
               await config.update(
-                'codeWebChat.presets',
+                'presets',
                 updated_presets,
                 vscode.ConfigurationTarget.Global
               )
@@ -1242,9 +1218,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             }
           } else if (message.command == 'DELETE_PRESET') {
             const preset_name = message.name
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const current_presets =
-              config.get<ConfigPresetFormat[]>('codeWebChat.presets', []) || []
+              config.get<ConfigPresetFormat[]>('presets', []) || []
 
             // Show confirmation dialog with revert option
             const delete_button = 'Delete'
@@ -1272,7 +1248,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             try {
               await config.update(
-                'codeWebChat.presets',
+                'presets',
                 updated_presets,
                 vscode.ConfigurationTarget.Global
               )
@@ -1290,7 +1266,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 restored_presets.splice(preset_index, 0, deleted_preset)
 
                 await config.update(
-                  'codeWebChat.presets',
+                  'presets',
                   restored_presets,
                   vscode.ConfigurationTarget.Global
                 )
@@ -1343,9 +1319,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             }
           } else if (message.command == 'DUPLICATE_PRESET') {
             const preset_name = message.name
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const current_presets =
-              config.get<ConfigPresetFormat[]>('codeWebChat.presets', []) || []
+              config.get<ConfigPresetFormat[]>('presets', []) || []
 
             const preset_to_duplicate = current_presets.find(
               (p) => p.name == preset_name
@@ -1380,7 +1356,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             updated_presets.splice(original_index + 1, 0, duplicated_preset)
 
             try {
-              await config.update('codeWebChat.presets', updated_presets, true)
+              await config.update('presets', updated_presets, true)
               this._send_presets_to_webview(webview_view.webview)
             } catch (error) {
               vscode.window.showErrorMessage(
@@ -1389,9 +1365,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             }
           } else if (message.command == 'CREATE_PRESET') {
             // Get current presets
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const current_presets =
-              config.get<ConfigPresetFormat[]>('codeWebChat.presets', []) || []
+              config.get<ConfigPresetFormat[]>('presets', []) || []
 
             // Generate unique name
             let new_name = ''
@@ -1416,7 +1392,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 command: 'PRESET_CREATED',
                 preset: this._config_preset_to_ui_format(new_preset)
               })
-              config.update('codeWebChat.presets', updated_presets, true)
+              config.update('presets', updated_presets, true)
             } catch (error) {
               vscode.window.showErrorMessage(
                 `Failed to create preset: ${error}`
@@ -1445,8 +1421,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.api_key
             )
           } else if (message.command == 'GET_CUSTOM_PROVIDERS') {
-            const config = vscode.workspace.getConfiguration()
-            const providers = config.get<any[]>('codeWebChat.providers', [])
+            const config = vscode.workspace.getConfiguration('codeWebChat')
+            const providers = config.get<any[]>('providers', [])
             this._send_message<CustomProvidersUpdatedMessage>({
               command: 'CUSTOM_PROVIDERS_UPDATED',
               custom_providers: providers
@@ -1537,25 +1513,23 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
             }
           } else if (message.command == 'GET_EDIT_FORMAT') {
-            const config = vscode.workspace.getConfiguration()
-            const edit_format = config.get<EditFormat>(
-              'codeWebChat.editFormat'
-            )!
+            const config = vscode.workspace.getConfiguration('codeWebChat')
+            const edit_format = config.get<EditFormat>('editFormat')!
             this._send_message({
               command: 'EDIT_FORMAT',
               edit_format
             })
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             await config.update(
-              'codeWebChat.editFormat',
+              'editFormat',
               message.edit_format,
               vscode.ConfigurationTarget.Global
             )
           } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             const visibility = config.get<EditFormatSelectorVisibility>(
-              'codeWebChat.editFormatSelectorVisibility'
+              'editFormatSelectorVisibility'
             )!
             this._send_message<EditFormatSelectorVisibilityMessage>({
               command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
@@ -1564,9 +1538,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
           ) {
-            const config = vscode.workspace.getConfiguration()
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             await config.update(
-              'codeWebChat.editFormatSelectorVisibility',
+              'editFormatSelectorVisibility',
               message.visibility,
               vscode.ConfigurationTarget.Global
             )
@@ -1610,9 +1584,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
 
     // Added initial message for edit format selector visibility
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const initial_visibility = config.get<'visible' | 'hidden'>(
-      'codeWebChat.editFormatSelectorVisibility',
+      'editFormatSelectorVisibility',
       'visible'
     )
     this._send_message<EditFormatSelectorVisibilityMessage>({
@@ -1628,23 +1602,20 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._send_message<ApiToolCodeCompletionsSettingsMessage>({
       command: 'CODE_COMPLETIONS_SETTINGS',
       settings: config.get<ApiToolSettings>(
-        'codeWebChat.apiToolCodeCompletionsSettings',
+        'apiToolCodeCompletionsSettings',
         {}
       )
     })
     this._send_message<ApiToolFileRefactoringSettingsMessage>({
       command: 'FILE_REFACTORING_SETTINGS',
       settings: config.get<ApiToolSettings>(
-        'codeWebChat.apiToolFileRefactoringSettings',
+        'apiToolFileRefactoringSettings',
         {}
       )
     })
     this._send_message<ApiToolCommitMessageSettingsMessage>({
       command: 'COMMIT_MESSAGES_SETTINGS',
-      settings: config.get<ApiToolSettings>(
-        'codeWebChat.apiToolCommitMessageSettings',
-        {}
-      )
+      settings: config.get<ApiToolSettings>('apiToolCommitMessageSettings', {})
     })
     this._send_message<SelectedCodeCompletionPresetsMessage>({
       command: 'SELECTED_CODE_COMPLETION_PRESETS',
@@ -1672,9 +1643,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _send_presets_to_webview(_: vscode.Webview) {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const web_chat_presets_config =
-      config.get<ConfigPresetFormat[]>('codeWebChat.presets', []) || []
+      config.get<ConfigPresetFormat[]>('presets', []) || []
 
     // Convert from config format to UI format before sending
     const presets_for_ui: Preset[] = web_chat_presets_config.map(
@@ -1725,8 +1696,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   private _send_custom_providers() {
-    const config = vscode.workspace.getConfiguration()
-    const providers = config.get<any[]>('codeWebChat.providers', [])
+    const config = vscode.workspace.getConfiguration('codeWebChat')
+    const providers = config.get<any[]>('providers', [])
     this._send_message<CustomProvidersUpdatedMessage>({
       command: 'CUSTOM_PROVIDERS_UPDATED',
       custom_providers: providers

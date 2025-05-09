@@ -69,9 +69,9 @@ async function handle_code_completion_in_chat_command(
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const chat_code_completion_instructions = config.get<string>(
-      'codeWebChat.chatCodeCompletionInstructions',
+      'chatCodeCompletionInstructions'
     )
 
     const instructions = `${chat_code_completion_instructions}${
@@ -87,7 +87,10 @@ async function handle_code_completion_in_chat_command(
         []
       )
       const updated_history = [suggestions, ...current_history].slice(0, 100)
-      await context.workspaceState.update('code-completions-history', updated_history)
+      await context.workspaceState.update(
+        'code-completions-history',
+        updated_history
+      )
     }
 
     // Initialize chats with selected preset names in FIM mode
@@ -119,8 +122,8 @@ export function code_completion_in_chat_with_command(
   return vscode.commands.registerCommand(
     'codeWebChat.codeCompletionInChatWith',
     async () => {
-      const config = vscode.workspace.getConfiguration()
-      const all_presets = config.get<any[]>('codeWebChat.presets', [])
+      const config = vscode.workspace.getConfiguration('codeWebChat')
+      const all_presets = config.get<any[]>('presets', [])
 
       // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)
@@ -171,78 +174,81 @@ export function code_completion_in_chat_command(
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
-  return vscode.commands.registerCommand('codeWebChat.codeCompletionInChat', async () => {
-    const config = vscode.workspace.getConfiguration()
-    const allPresets = config.get<any[]>('codeWebChat.presets', [])
+  return vscode.commands.registerCommand(
+    'codeWebChat.codeCompletionInChat',
+    async () => {
+      const config = vscode.workspace.getConfiguration('codeWebChat')
+      const all_presets = config.get<any[]>('presets', [])
 
-    // Filter out presets with affixes
-    const presets = filter_presets_with_affixes(allPresets)
+      // Filter out presets with affixes
+      const presets = filter_presets_with_affixes(all_presets)
 
-    if (presets.length == 0) {
-      vscode.window.showWarningMessage(
-        'No available presets without prefixes or suffixes. Please create a preset without affixes for FIM.'
-      )
-      return
-    }
-
-    // Get previously selected presets from globalState
-    let selected_names = context.globalState.get<string[]>(
-      'selectedPresets',
-      []
-    )
-
-    // Filter out any previously selected presets that now have affixes or no longer exist
-    const valid_selected_names = selected_names.filter((name) =>
-      presets.some((preset) => preset.name == name)
-    )
-
-    // If no valid presets were previously selected, show the selection dialog
-    if (!valid_selected_names.length) {
-      // Create quickpick items for presets
-      const preset_quick_pick_items = presets.map((preset) => ({
-        label: preset.name,
-        description: `${preset.chatbot}${
-          preset.model ? ` - ${preset.model}` : ''
-        }`,
-        picked: false
-      }))
-
-      // Show quickpick with multi-select enabled
-      const selected_presets = await vscode.window.showQuickPick(
-        preset_quick_pick_items,
-        {
-          placeHolder: 'Select one or more chat presets for FIM',
-          canPickMany: true
-        }
-      )
-
-      if (!selected_presets || selected_presets.length == 0) {
-        return // User cancelled or didn't select any presets
-      }
-
-      // Save selected preset names to globalState
-      selected_names = selected_presets.map((preset) => preset.label)
-      await context.globalState.update('selectedPresets', selected_names)
-    } else {
-      // Use the filtered valid selected names
-      selected_names = valid_selected_names
-
-      // Update the stored selection with only valid presets
-      if (valid_selected_names.length !== selected_names.length) {
-        await context.globalState.update(
-          'selectedPresets',
-          valid_selected_names
+      if (presets.length == 0) {
+        vscode.window.showWarningMessage(
+          'No available presets without prefixes or suffixes. Please create a preset without affixes for FIM.'
         )
+        return
       }
-    }
 
-    // Use the shared logic with the selected presets
-    await handle_code_completion_in_chat_command(
-      context,
-      file_tree_provider,
-      open_editors_provider,
-      websocket_server_instance,
-      selected_names
-    )
-  })
+      // Get previously selected presets from globalState
+      let selected_names = context.globalState.get<string[]>(
+        'selectedPresets',
+        []
+      )
+
+      // Filter out any previously selected presets that now have affixes or no longer exist
+      const valid_selected_names = selected_names.filter((name) =>
+        presets.some((preset) => preset.name == name)
+      )
+
+      // If no valid presets were previously selected, show the selection dialog
+      if (!valid_selected_names.length) {
+        // Create quickpick items for presets
+        const preset_quick_pick_items = presets.map((preset) => ({
+          label: preset.name,
+          description: `${preset.chatbot}${
+            preset.model ? ` - ${preset.model}` : ''
+          }`,
+          picked: false
+        }))
+
+        // Show quickpick with multi-select enabled
+        const selected_presets = await vscode.window.showQuickPick(
+          preset_quick_pick_items,
+          {
+            placeHolder: 'Select one or more chat presets for FIM',
+            canPickMany: true
+          }
+        )
+
+        if (!selected_presets || selected_presets.length == 0) {
+          return // User cancelled or didn't select any presets
+        }
+
+        // Save selected preset names to globalState
+        selected_names = selected_presets.map((preset) => preset.label)
+        await context.globalState.update('selectedPresets', selected_names)
+      } else {
+        // Use the filtered valid selected names
+        selected_names = valid_selected_names
+
+        // Update the stored selection with only valid presets
+        if (valid_selected_names.length !== selected_names.length) {
+          await context.globalState.update(
+            'selectedPresets',
+            valid_selected_names
+          )
+        }
+      }
+
+      // Use the shared logic with the selected presets
+      await handle_code_completion_in_chat_command(
+        context,
+        file_tree_provider,
+        open_editors_provider,
+        websocket_server_instance,
+        selected_names
+      )
+    }
+  )
 }

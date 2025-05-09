@@ -45,9 +45,9 @@ export class ApiToolsSettingsManager {
   }
 
   get_code_completions_settings(): ApiToolSettings {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ApiToolSettings>(
-      'codeWebChat.apiToolCodeCompletionsSettings',
+      'apiToolCodeCompletionsSettings',
       {} as ApiToolSettings
     )
     return {
@@ -58,9 +58,9 @@ export class ApiToolsSettingsManager {
   }
 
   get_file_refactoring_settings(): ApiToolSettings {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ApiToolSettings>(
-      'codeWebChat.apiToolFileRefactoringSettings',
+      'apiToolFileRefactoringSettings',
       {} as ApiToolSettings
     )
     return {
@@ -71,9 +71,9 @@ export class ApiToolsSettingsManager {
   }
 
   get_commit_messages_settings(): ApiToolSettings {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ApiToolSettings>(
-      'codeWebChat.apiToolCommitMessageSettings',
+      'apiToolCommitMessageSettings',
       {} as ApiToolSettings
     )
     return {
@@ -85,27 +85,27 @@ export class ApiToolsSettingsManager {
 
   // Set settings (moving from view provider)
   async set_code_completions_settings(settings: ApiToolSettings) {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     await config.update(
-      'codeWebChat.apiToolCodeCompletionsSettings',
+      'apiToolCodeCompletionsSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
   }
 
   async set_file_refactoring_settings(settings: ApiToolSettings) {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     await config.update(
-      'codeWebChat.apiToolFileRefactoringSettings',
+      'apiToolFileRefactoringSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
   }
 
   async set_commit_messages_settings(settings: ApiToolSettings) {
-    const config = vscode.workspace.getConfiguration()
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     await config.update(
-      'codeWebChat.apiToolCommitMessageSettings',
+      'apiToolCommitMessageSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )

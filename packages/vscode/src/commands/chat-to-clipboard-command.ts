@@ -65,10 +65,10 @@ export function chat_to_clipboard_command(
 
       instructions = replace_selection_placeholder(instructions)
 
-      const config = vscode.workspace.getConfiguration()
-      const edit_format = config.get<EditFormat>('codeWebChat.editFormat')!
+      const config = vscode.workspace.getConfiguration('codeWebChat')
+      const edit_format = config.get<EditFormat>('editFormat')!
       const edit_format_instructions = config.get<string>(
-        `codeWebChat.editFormatInstructions${
+        `editFormatInstructions${
           edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
         }`
       )
