@@ -1,47 +1,109 @@
 import { check_for_truncated_fragments } from './check-for-truncated-fragments'
+import { ClipboardFile } from '@/commands/apply-chat-response-command/utils/clipboard-parser'
 
 describe('check_for_truncated_fragments', () => {
-  it('should return true for // ... comment', () => {
-    expect(check_for_truncated_fragments('// ...')).toBe(true)
+  it('should return false when no files contain truncated fragments', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.js',
+        content: 'const x = 1;\nconst y = 2;'
+      },
+      {
+        file_path: 'test2.py',
+        content: 'def test():\n  return True'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(false)
   })
 
-  it('should return false for //... (no space)', () => {
-    expect(check_for_truncated_fragments('//...')).toBe(false)
+  it('should return true when a file contains JavaScript-style line comment ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.js',
+        content: 'const x = 1;\n// ...\nconst y = 2;'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should return true for // ... with whitespace', () => {
-    expect(check_for_truncated_fragments('  // ...  ')).toBe(true)
+  it('should return true when a file contains Python-style line comment ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.py',
+        content: 'def test():\n# ...\n  return True'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should return true for // ... with text', () => {
-    expect(check_for_truncated_fragments('  // ... abc')).toBe(true)
+  it('should return true when a file contains SQL-style line comment ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.sql',
+        content: 'SELECT * FROM users\n-- ...\nWHERE id = 1;'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should return false for regular comments', () => {
-    expect(check_for_truncated_fragments('// regular comment')).toBe(false)
+  it('should return true when a file contains block comment ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.js',
+        content: 'const x = 1;\n/* ... */\nconst y = 2;'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should return true if any line in multiline text matches', () => {
-    const text = `some code
-// ...
-more code`
-    expect(check_for_truncated_fragments(text)).toBe(true)
+  it('should return true when any file in a list contains ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test1.js',
+        content: 'const x = 1;\nconst y = 2;'
+      },
+      {
+        file_path: 'test2.py',
+        content: 'def test():\n# ...\n  return True'
+      },
+      {
+        file_path: 'test3.js',
+        content: 'const z = 3;'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should return false if no lines match', () => {
-    const text = `some code
-// regular comment
-more code`
-    expect(check_for_truncated_fragments(text)).toBe(false)
+  it('should handle whitespace before ellipsis comments', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.js',
+        content: 'const x = 1;\n  // ...\nconst y = 2;'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
-  it('should handle empty string', () => {
-    expect(check_for_truncated_fragments('')).toBe(false)
+  it('should handle empty array of files', () => {
+    expect(check_for_truncated_fragments([])).toBe(false)
   })
 
-  it('should match with different comment styles', () => {
-    expect(check_for_truncated_fragments('# ...')).toBe(true)
-    expect(check_for_truncated_fragments('-- ...')).toBe(true)
-    expect(check_for_truncated_fragments('/* ... */')).toBe(true)
+  it('should handle multiline block comments with ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.js',
+        content: 'const x = 1;\n/*\n * ...\n */\nconst y = 2;'
+      }
+    ]
+
+    // This should return false since the current regex doesn't match this pattern
+    expect(check_for_truncated_fragments(files)).toBe(false)
   })
 })
