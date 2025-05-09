@@ -3,4 +3,4 @@ export const code_completion_instruction =
 export const get_refactoring_instruction = (file_path: string) =>
   `User requested refactor of a file${
     file_path ? ` ${file_path}` : ''
-  }. In your response send fully updated <file> only, without explanations or any other text.`
+  }. Please show me the full code of the updated file, without explanations or any other text, I have a disability which means I can't type and need to be able to copy and paste the full code.`
