@@ -7,10 +7,6 @@ import { promisify } from 'util'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { OriginalFileState } from '../../../types/common'
 import { format_document } from './format-document'
-import {
-  create_safe_path,
-  sanitize_file_name
-} from '../../../utils/path-sanitizer'
 
 const execAsync = promisify(exec)
 
@@ -24,7 +20,9 @@ export async function extract_diff_patches(
   clipboard_text: string
 ): Promise<DiffPatch[]> {
   const patches: DiffPatch[] = []
-  const lines = clipboard_text.split('\n')
+  // Normalize line endings to LF
+  const normalized_text = clipboard_text.replace(/\r\n/g, '\n')
+  const lines = normalized_text.split('\n')
 
   let in_diff_block = false
   let current_patch = ''
@@ -116,28 +114,23 @@ export async function extract_diff_patches(
   return patches
 }
 
-/**
- * Extract file paths from a patch content
- */
 export function extract_file_paths_from_patch(patch_content: string): string[] {
   const file_paths: string[] = []
-  const lines = patch_content.split('\n')
+  // Normalize line endings to LF
+  const normalized_content = patch_content.replace(/\r\n/g, '\n')
+  const lines = normalized_content.split('\n')
 
   for (const line of lines) {
     // Look for lines starting with +++ b/ which indicate target files in git patches
     const match = line.match(/^\+\+\+ b\/(.+)$/)
     if (match && match[1]) {
-      // Normalize path separators for cross-platform compatibility
-      file_paths.push(match[1].replace(/\//g, path.sep))
+      file_paths.push(match[1])
     }
   }
 
   return file_paths
 }
 
-/**
- * Store the original state of files that will be modified by patches
- */
 export async function store_original_file_states(
   patch_content: string,
   workspace_path: string
@@ -146,23 +139,14 @@ export async function store_original_file_states(
   const original_states: OriginalFileState[] = []
 
   for (const file_path of file_paths) {
-    const sanitized_path = sanitize_file_name(file_path)
-    const safe_path = create_safe_path(workspace_path, sanitized_path)
+    const full_path = path.join(workspace_path, file_path)
 
-    if (!safe_path) {
-      Logger.warn({
-        function_name: 'store_original_file_states',
-        message: 'Unsafe file path detected and skipped',
-        data: { file_path }
-      })
-      continue
-    }
-
-    if (fs.existsSync(safe_path)) {
+    if (fs.existsSync(full_path)) {
       try {
-        const content = fs.readFileSync(safe_path, 'utf8')
+        // Read with binary encoding to preserve line endings
+        const content = fs.readFileSync(full_path, 'utf8')
         original_states.push({
-          file_path: sanitized_path,
+          file_path,
           content,
           is_new: false,
           workspace_name: path.basename(workspace_path)
@@ -176,7 +160,7 @@ export async function store_original_file_states(
       }
     } else {
       original_states.push({
-        file_path: sanitized_path,
+        file_path,
         content: '',
         is_new: true,
         workspace_name: path.basename(workspace_path)
@@ -187,30 +171,18 @@ export async function store_original_file_states(
   return original_states
 }
 
-/**
- * Opens, formats, and saves a list of files.
- */
+// Opens, formats, and saves a list of files.
 async function process_modified_files(
   file_paths: string[],
   workspace_path: string
 ): Promise<void> {
   for (const file_path of file_paths) {
-    const sanitized_path = sanitize_file_name(file_path)
-    const safe_path = create_safe_path(workspace_path, sanitized_path)
-
-    if (!safe_path) {
-      Logger.warn({
-        function_name: 'process_modified_files',
-        message: 'Unsafe file path detected and skipped',
-        data: { file_path }
-      })
-      continue
-    }
+    const full_path = path.join(workspace_path, file_path)
 
     // Only process if the file exists after the patch application
-    if (fs.existsSync(safe_path)) {
+    if (fs.existsSync(full_path)) {
       try {
-        const uri = vscode.Uri.file(safe_path)
+        const uri = vscode.Uri.file(full_path)
         const document = await vscode.workspace.openTextDocument(uri)
         await vscode.window.showTextDocument(document)
 
@@ -248,30 +220,31 @@ export async function apply_git_patch(
   workspace_path: string
 ): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
   try {
+    // Normalize line endings to LF for git
+    const normalized_patch_content = patch_content.replace(/\r\n/g, '\n')
+
     // Store original file states before applying patch
     const original_states = await store_original_file_states(
-      patch_content,
+      normalized_patch_content,
       workspace_path
     )
 
-    // Create a temporary file for the patch with platform-appropriate extension
+    // Create a temporary file for the patch
     const temp_file = path.join(workspace_path, '.tmp_patch')
     await vscode.workspace.fs.writeFile(
       vscode.Uri.file(temp_file),
-      Buffer.from(patch_content)
+      Buffer.from(normalized_patch_content)
     )
 
-    // Apply the patch with platform-specific adjustments
+    // Apply the patch
     try {
-      // Detect platform and use appropriate git command
-      const isWindows = process.platform === 'win32'
-      const gitCommand = isWindows
-        ? `git apply --reject --whitespace=fix "${temp_file}"`
-        : `git apply --reject --whitespace=fix ${temp_file}`
-
-      await execAsync(gitCommand, {
-        cwd: workspace_path
-      })
+      // Add the --ignore-whitespace flag to handle whitespace differences on Windows
+      await execAsync(
+        'git apply --whitespace=fix --ignore-whitespace ' + temp_file,
+        {
+          cwd: workspace_path
+        }
+      )
 
       Logger.log({
         function_name: 'apply_git_patch',
@@ -280,7 +253,7 @@ export async function apply_git_patch(
       })
 
       // Extract file paths from the patch and open, format, and save them
-      const file_paths = extract_file_paths_from_patch(patch_content)
+      const file_paths = extract_file_paths_from_patch(normalized_patch_content)
       await process_modified_files(file_paths, workspace_path)
 
       // Clean up temp file
@@ -297,13 +270,10 @@ export async function apply_git_patch(
         )
 
         // Even with partial failure, try to format the files that were modified
-        const file_paths = extract_file_paths_from_patch(patch_content)
-        await process_modified_files(file_paths, workspace_path)
-      } else {
-        // If the error is not related to .rej files, show a more specific error message
-        vscode.window.showErrorMessage(
-          `Failed to apply patch: ${error.message || 'Unknown error'}`
+        const file_paths = extract_file_paths_from_patch(
+          normalized_patch_content
         )
+        await process_modified_files(file_paths, workspace_path)
       }
 
       Logger.error({
