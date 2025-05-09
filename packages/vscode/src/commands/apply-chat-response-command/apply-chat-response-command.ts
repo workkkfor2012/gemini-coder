@@ -278,322 +278,327 @@ export function apply_chat_response_command(params: {
       }
 
       return
-    }
-
-    // If no patches found, continue with regular file handling
-    if (!clipboard_content.files || clipboard_content.files.length == 0) {
-      vscode.window.showErrorMessage(
-        'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment or be a diff.'
-      )
-      return
-    }
-
-    const files = clipboard_content.files
-
-    // --- Mode Selection ---
-    let selected_mode_label: 'Fast replace' | 'Intelligent update' | undefined =
-      undefined
-    const parsed_files: ClipboardFile[] = files // Store parsed files if needed
-
-    const all_files_new = await check_if_all_files_new(parsed_files)
-
-    if (all_files_new) {
-      selected_mode_label = 'Fast replace'
-      Logger.log({
-        function_name: 'apply_chat_response_command',
-        message: 'All files are new - automatically selecting Fast replace mode'
-      })
     } else {
-      const has_truncated_fragments =
-        check_for_truncated_fragments(clipboard_text)
+      // If no patches found, continue with regular file handling
+      if (!clipboard_content.files || clipboard_content.files.length == 0) {
+        vscode.window.showErrorMessage(
+          'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path comment or be a diff.'
+        )
+        return
+      }
 
-      if (has_truncated_fragments) {
-        selected_mode_label = 'Intelligent update'
-        Logger.log({
-          function_name: 'apply_chat_response_command',
-          message:
-            'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
-        })
-      } else if (params.mode) {
-        selected_mode_label = params.mode
-        Logger.log({
-          function_name: 'apply_chat_response_command',
-          message: 'Mode forced by command parameters',
-          data: selected_mode_label
-        })
-      } else {
-        // Instead of showing dialog, default to fast replace
+      // --- Mode Selection ---
+      let selected_mode_label:
+        | 'Fast replace'
+        | 'Intelligent update'
+        | undefined = undefined
+
+      const all_files_new = await check_if_all_files_new(
+        clipboard_content.files
+      )
+
+      if (all_files_new) {
         selected_mode_label = 'Fast replace'
         Logger.log({
           function_name: 'apply_chat_response_command',
-          message: 'Defaulting to Fast replace mode'
+          message:
+            'All files are new - automatically selecting Fast replace mode'
         })
-      }
-    }
-
-    // --- Execute Mode Handler ---
-    let final_original_states: OriginalFileState[] | null = null
-    let operation_success = false
-
-    if (selected_mode_label == 'Fast replace') {
-      const result = await handle_fast_replace(parsed_files)
-      if (result.success && result.original_states) {
-        final_original_states = result.original_states
-        operation_success = true
-      }
-      Logger.log({
-        function_name: 'apply_chat_response_command',
-        message: 'Fast replace handler finished.',
-        data: { success: result.success }
-      })
-    } else if (selected_mode_label == 'Intelligent update') {
-      const api_tool_settings_manager = new ApiToolsSettingsManager(
-        params.context
-      )
-
-      const file_refactoring_settings =
-        api_tool_settings_manager.get_file_refactoring_settings()
-
-      if (!file_refactoring_settings.provider) {
-        vscode.window.showErrorMessage(
-          'API provider is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
-        )
-        Logger.warn({
-          function_name: 'apply_chat_response_command',
-          message: 'API provider is not specified for File Refactoring tool.'
-        })
-        return
-      } else if (!file_refactoring_settings.model) {
-        vscode.window.showErrorMessage(
-          'Model is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
-        )
-        Logger.warn({
-          function_name: 'apply_chat_response_command',
-          message: 'Model is not specified for File Refactoring tool.'
-        })
-        return
-      }
-
-      const connection_details =
-        api_tool_settings_manager.provider_to_connection_details(
-          file_refactoring_settings.provider
-        )
-
-      final_original_states = await handle_intelligent_update({
-        endpoint_url: connection_details.endpoint_url,
-        api_key: connection_details.api_key,
-        model: file_refactoring_settings.model,
-        temperature: file_refactoring_settings.temperature || 0,
-        clipboard_text,
-        context: params.context,
-        is_single_root_folder_workspace
-      })
-
-      if (final_original_states) {
-        operation_success = true
-      }
-      Logger.log({
-        function_name: 'apply_chat_response_command',
-        message: 'Intelligent update handler finished.',
-        data: { success: operation_success }
-      })
-    } else {
-      Logger.error({
-        function_name: 'apply_chat_response_command',
-        message: 'No valid mode selected or determined.'
-      })
-      return
-    }
-
-    // --- Handle Results ---
-    if (operation_success && final_original_states) {
-      params.context.workspaceState.update(
-        LAST_APPLIED_CHANGES_STATE_KEY,
-        final_original_states
-      )
-
-      // Check how many files were actually new and how many were replaced
-      const new_files_count = final_original_states.filter(
-        (state) => state.is_new
-      ).length
-      const replaced_files_count =
-        final_original_states.length - new_files_count
-
-      let message = ''
-      if (new_files_count > 0 && replaced_files_count > 0) {
-        message = `Successfully created ${new_files_count} new ${
-          new_files_count == 1 ? 'file' : 'files'
-        } and replaced ${replaced_files_count} ${
-          replaced_files_count == 1 ? 'file' : 'files'
-        }.`
-      } else if (new_files_count > 0) {
-        message = `Successfully created ${new_files_count} new ${
-          new_files_count == 1 ? 'file' : 'files'
-        }.`
-      } else if (replaced_files_count > 0) {
-        message = `Successfully replaced ${replaced_files_count} ${
-          replaced_files_count == 1 ? 'file' : 'files'
-        }.`
       } else {
-        // Should not happen if operation_success is true and final_original_states is not empty
-        message = `Operation completed successfully.`
+        const has_truncated_fragments = check_for_truncated_fragments(
+          clipboard_content.files
+        )
+
+        if (has_truncated_fragments) {
+          selected_mode_label = 'Intelligent update'
+          Logger.log({
+            function_name: 'apply_chat_response_command',
+            message:
+              'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
+          })
+        } else if (params.mode) {
+          selected_mode_label = params.mode
+          Logger.log({
+            function_name: 'apply_chat_response_command',
+            message: 'Mode forced by command parameters',
+            data: selected_mode_label
+          })
+        } else {
+          // Instead of showing dialog, default to fast replace
+          selected_mode_label = 'Fast replace'
+          Logger.log({
+            function_name: 'apply_chat_response_command',
+            message: 'Defaulting to Fast replace mode'
+          })
+        }
       }
 
-      // Show appropriate buttons based on whether any existing files were replaced
+      // --- Execute Mode Handler ---
+      let final_original_states: OriginalFileState[] | null = null
+      let operation_success = false
+
       if (selected_mode_label == 'Fast replace') {
-        // Check if any of the affected files were existing files
-        const has_existing_files = final_original_states.some(
-          (state) => !state.is_new
+        const result = await handle_fast_replace(clipboard_content.files)
+        if (result.success && result.original_states) {
+          final_original_states = result.original_states
+          operation_success = true
+        }
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message: 'Fast replace handler finished.',
+          data: { success: result.success }
+        })
+      } else if (selected_mode_label == 'Intelligent update') {
+        const api_tool_settings_manager = new ApiToolsSettingsManager(
+          params.context
         )
-        const buttons = has_existing_files
-          ? ['Revert', 'Looks off, use intelligent mode']
-          : ['Revert']
 
-        const response = await vscode.window.showInformationMessage(
-          message,
-          ...buttons
+        const file_refactoring_settings =
+          api_tool_settings_manager.get_file_refactoring_settings()
+
+        if (!file_refactoring_settings.provider) {
+          vscode.window.showErrorMessage(
+            'API provider is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+          )
+          Logger.warn({
+            function_name: 'apply_chat_response_command',
+            message: 'API provider is not specified for File Refactoring tool.'
+          })
+          return
+        } else if (!file_refactoring_settings.model) {
+          vscode.window.showErrorMessage(
+            'Model is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+          )
+          Logger.warn({
+            function_name: 'apply_chat_response_command',
+            message: 'Model is not specified for File Refactoring tool.'
+          })
+          return
+        }
+
+        const connection_details =
+          api_tool_settings_manager.provider_to_connection_details(
+            file_refactoring_settings.provider
+          )
+
+        final_original_states = await handle_intelligent_update({
+          endpoint_url: connection_details.endpoint_url,
+          api_key: connection_details.api_key,
+          model: file_refactoring_settings.model,
+          temperature: file_refactoring_settings.temperature || 0,
+          clipboard_text,
+          context: params.context,
+          is_single_root_folder_workspace
+        })
+
+        if (final_original_states) {
+          operation_success = true
+        }
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message: 'Intelligent update handler finished.',
+          data: { success: operation_success }
+        })
+      } else {
+        Logger.error({
+          function_name: 'apply_chat_response_command',
+          message: 'No valid mode selected or determined.'
+        })
+        return
+      }
+
+      // --- Handle Results ---
+      if (operation_success && final_original_states) {
+        params.context.workspaceState.update(
+          LAST_APPLIED_CHANGES_STATE_KEY,
+          final_original_states
         )
 
-        if (response == 'Revert') {
-          await revert_files(final_original_states)
-          params.context.workspaceState.update(
-            LAST_APPLIED_CHANGES_STATE_KEY,
-            null
+        // Check how many files were actually new and how many were replaced
+        const new_files_count = final_original_states.filter(
+          (state) => state.is_new
+        ).length
+        const replaced_files_count =
+          final_original_states.length - new_files_count
+
+        let message = ''
+        if (new_files_count > 0 && replaced_files_count > 0) {
+          message = `Successfully created ${new_files_count} new ${
+            new_files_count == 1 ? 'file' : 'files'
+          } and replaced ${replaced_files_count} ${
+            replaced_files_count == 1 ? 'file' : 'files'
+          }.`
+        } else if (new_files_count > 0) {
+          message = `Successfully created ${new_files_count} new ${
+            new_files_count == 1 ? 'file' : 'files'
+          }.`
+        } else if (replaced_files_count > 0) {
+          message = `Successfully replaced ${replaced_files_count} ${
+            replaced_files_count == 1 ? 'file' : 'files'
+          }.`
+        } else {
+          // Should not happen if operation_success is true and final_original_states is not empty
+          message = `Operation completed successfully.`
+        }
+
+        // Show appropriate buttons based on whether any existing files were replaced
+        if (selected_mode_label == 'Fast replace') {
+          // Check if any of the affected files were existing files
+          const has_existing_files = final_original_states.some(
+            (state) => !state.is_new
           )
-        } else if (response == 'Looks off, use intelligent mode') {
-          // First revert the fast replace changes
-          await revert_files(final_original_states)
+          const buttons = has_existing_files
+            ? ['Revert', 'Looks off, use intelligent mode']
+            : ['Revert']
 
-          // Then trigger intelligent update
-          const api_tool_settings_manager = new ApiToolsSettingsManager(
-            params.context
+          const response = await vscode.window.showInformationMessage(
+            message,
+            ...buttons
           )
-          const file_refactoring_settings =
-            api_tool_settings_manager.get_file_refactoring_settings()
 
-          if (
-            !file_refactoring_settings.provider ||
-            !file_refactoring_settings.model
-          ) {
-            vscode.window.showErrorMessage(
-              'API provider or model is not configured for Intelligent update. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+          if (response == 'Revert') {
+            await revert_files(final_original_states)
+            params.context.workspaceState.update(
+              LAST_APPLIED_CHANGES_STATE_KEY,
+              null
             )
-            return
-          }
+          } else if (response == 'Looks off, use intelligent mode') {
+            // First revert the fast replace changes
+            await revert_files(final_original_states)
 
-          const connection_details =
-            api_tool_settings_manager.provider_to_connection_details(
-              file_refactoring_settings.provider
+            // Then trigger intelligent update
+            const api_tool_settings_manager = new ApiToolsSettingsManager(
+              params.context
             )
+            const file_refactoring_settings =
+              api_tool_settings_manager.get_file_refactoring_settings()
 
-          try {
-            final_original_states = await handle_intelligent_update({
-              endpoint_url: connection_details.endpoint_url,
-              api_key: connection_details.api_key,
-              model: file_refactoring_settings.model,
-              temperature: file_refactoring_settings.temperature || 0,
-              clipboard_text,
-              context: params.context,
-              is_single_root_folder_workspace
-            })
-
-            if (final_original_states) {
-              params.context.workspaceState.update(
-                LAST_APPLIED_CHANGES_STATE_KEY,
-                final_original_states
+            if (
+              !file_refactoring_settings.provider ||
+              !file_refactoring_settings.model
+            ) {
+              vscode.window.showErrorMessage(
+                'API provider or model is not configured for Intelligent update. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
               )
-              // Recalculate counts for the intelligent update result
-              const intelligent_new_files_count = final_original_states.filter(
-                (state) => state.is_new
-              ).length
-              const intelligent_replaced_files_count =
-                final_original_states.length - intelligent_new_files_count
+              return
+            }
 
-              let intelligent_message = ''
-              if (
-                intelligent_new_files_count > 0 &&
-                intelligent_replaced_files_count > 0
-              ) {
-                intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
-                  intelligent_new_files_count == 1 ? 'file' : 'files'
-                } and updated ${intelligent_replaced_files_count} ${
-                  intelligent_replaced_files_count == 1 ? 'file' : 'files'
-                } using Intelligent Update.`
-              } else if (intelligent_new_files_count > 0) {
-                intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
-                  intelligent_new_files_count == 1 ? 'file' : 'files'
-                } using Intelligent Update.`
-              } else if (intelligent_replaced_files_count > 0) {
-                intelligent_message = `Successfully updated ${intelligent_replaced_files_count} ${
-                  intelligent_replaced_files_count == 1 ? 'file' : 'files'
-                } using Intelligent Update.`
+            const connection_details =
+              api_tool_settings_manager.provider_to_connection_details(
+                file_refactoring_settings.provider
+              )
+
+            try {
+              final_original_states = await handle_intelligent_update({
+                endpoint_url: connection_details.endpoint_url,
+                api_key: connection_details.api_key,
+                model: file_refactoring_settings.model,
+                temperature: file_refactoring_settings.temperature || 0,
+                clipboard_text,
+                context: params.context,
+                is_single_root_folder_workspace
+              })
+
+              if (final_original_states) {
+                params.context.workspaceState.update(
+                  LAST_APPLIED_CHANGES_STATE_KEY,
+                  final_original_states
+                )
+                // Recalculate counts for the intelligent update result
+                const intelligent_new_files_count =
+                  final_original_states.filter((state) => state.is_new).length
+                const intelligent_replaced_files_count =
+                  final_original_states.length - intelligent_new_files_count
+
+                let intelligent_message = ''
+                if (
+                  intelligent_new_files_count > 0 &&
+                  intelligent_replaced_files_count > 0
+                ) {
+                  intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
+                    intelligent_new_files_count == 1 ? 'file' : 'files'
+                  } and updated ${intelligent_replaced_files_count} ${
+                    intelligent_replaced_files_count == 1 ? 'file' : 'files'
+                  } using Intelligent Update.`
+                } else if (intelligent_new_files_count > 0) {
+                  intelligent_message = `Successfully created ${intelligent_new_files_count} new ${
+                    intelligent_new_files_count == 1 ? 'file' : 'files'
+                  } using Intelligent Update.`
+                } else if (intelligent_replaced_files_count > 0) {
+                  intelligent_message = `Successfully updated ${intelligent_replaced_files_count} ${
+                    intelligent_replaced_files_count == 1 ? 'file' : 'files'
+                  } using Intelligent Update.`
+                } else {
+                  intelligent_message = `Intelligent Update completed successfully.`
+                }
+
+                vscode.window
+                  .showInformationMessage(intelligent_message, 'Revert')
+                  .then((response) => {
+                    if (response == 'Revert') {
+                      revert_files(final_original_states!)
+                      params.context.workspaceState.update(
+                        LAST_APPLIED_CHANGES_STATE_KEY,
+                        null
+                      )
+                    }
+                  })
               } else {
-                intelligent_message = `Intelligent Update completed successfully.`
+                // Intelligent update was canceled after reverting fast replace
+                vscode.window.showInformationMessage(
+                  'Intelligent update was canceled. Fast replace changes have been reverted.'
+                )
+                // State is already cleared by the revert_files call above
               }
-
-              vscode.window
-                .showInformationMessage(intelligent_message, 'Revert')
-                .then((response) => {
-                  if (response == 'Revert') {
-                    revert_files(final_original_states!)
-                    params.context.workspaceState.update(
-                      LAST_APPLIED_CHANGES_STATE_KEY,
-                      null
-                    )
-                  }
-                })
-            } else {
-              // Intelligent update was canceled after reverting fast replace
-              vscode.window.showInformationMessage(
-                'Intelligent update was canceled. Fast replace changes have been reverted.'
+            } catch (error) {
+              // Handle errors during the second intelligent update attempt
+              Logger.error({
+                function_name: 'apply_chat_response_command',
+                message: 'Error during second intelligent update attempt'
+              })
+              vscode.window.showErrorMessage(
+                'Error during intelligent update. Fast replace changes have been reverted.'
               )
               // State is already cleared by the revert_files call above
             }
-          } catch (error) {
-            // Handle errors during the second intelligent update attempt
-            Logger.error({
-              function_name: 'apply_chat_response_command',
-              message: 'Error during second intelligent update attempt'
-            })
-            vscode.window.showErrorMessage(
-              'Error during intelligent update. Fast replace changes have been reverted.'
+          }
+        } else {
+          // For intelligent update, show only Revert button
+          const response = await vscode.window.showInformationMessage(
+            message,
+            'Revert'
+          )
+
+          if (response == 'Revert') {
+            await revert_files(final_original_states)
+            params.context.workspaceState.update(
+              LAST_APPLIED_CHANGES_STATE_KEY,
+              null
             )
-            // State is already cleared by the revert_files call above
           }
         }
       } else {
-        // For intelligent update, show only Revert button
-        const response = await vscode.window.showInformationMessage(
-          message,
-          'Revert'
+        // Handler already showed specific error messages or handled cancellation silently.
+        // Clear any potentially partially stored state from a failed operation.
+        params.context.workspaceState.update(
+          LAST_APPLIED_CHANGES_STATE_KEY,
+          null
         )
-
-        if (response == 'Revert') {
-          await revert_files(final_original_states)
-          params.context.workspaceState.update(
-            LAST_APPLIED_CHANGES_STATE_KEY,
-            null
-          )
-        }
+        Logger.log({
+          function_name: 'apply_chat_response_command',
+          message: 'Operation concluded without success.'
+        })
       }
-    } else {
-      // Handler already showed specific error messages or handled cancellation silently.
-      // Clear any potentially partially stored state from a failed operation.
-      params.context.workspaceState.update(LAST_APPLIED_CHANGES_STATE_KEY, null)
+
       Logger.log({
         function_name: 'apply_chat_response_command',
-        message: 'Operation concluded without success.'
+        message: 'end',
+        data: {
+          command: params.command,
+          mode: selected_mode_label,
+          success: operation_success
+        }
       })
     }
-
-    Logger.log({
-      function_name: 'apply_chat_response_command',
-      message: 'end',
-      data: {
-        command: params.command,
-        mode: selected_mode_label,
-        success: operation_success
-      }
-    })
   })
 }
