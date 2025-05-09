@@ -421,11 +421,14 @@ export function apply_chat_response_command(params: {
         const replaced_files_count =
           final_original_states.length - new_files_count
 
+        const replaced_or_updated =
+          selected_mode_label == 'Intelligent update' ? 'updated' : 'replaced'
+
         let message = ''
         if (new_files_count > 0 && replaced_files_count > 0) {
           message = `Successfully created ${new_files_count} new ${
             new_files_count == 1 ? 'file' : 'files'
-          } and replaced ${replaced_files_count} ${
+          } and ${replaced_or_updated} ${replaced_files_count} ${
             replaced_files_count == 1 ? 'file' : 'files'
           }.`
         } else if (new_files_count > 0) {
@@ -433,7 +436,7 @@ export function apply_chat_response_command(params: {
             new_files_count == 1 ? 'file' : 'files'
           }.`
         } else if (replaced_files_count > 0) {
-          message = `Successfully replaced ${replaced_files_count} ${
+          message = `Successfully ${replaced_or_updated} ${replaced_files_count} ${
             replaced_files_count == 1 ? 'file' : 'files'
           }.`
         } else {
