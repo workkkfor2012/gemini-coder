@@ -7,6 +7,7 @@ import { promisify } from 'util'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { OriginalFileState } from '../../../types/common'
 import { format_document } from './format-document'
+import { create_safe_path } from '@/utils/path-sanitizer'
 
 const execAsync = promisify(exec)
 
@@ -139,12 +140,21 @@ export async function store_original_file_states(
   const original_states: OriginalFileState[] = []
 
   for (const file_path of file_paths) {
-    const full_path = path.join(workspace_path, file_path)
+    // Validate the file path is safe before using it
+    const safe_path = create_safe_path(workspace_path, file_path)
+    if (!safe_path) {
+      Logger.error({
+        function_name: 'store_original_file_states',
+        message: 'Skipping file with unsafe path',
+        data: { file_path }
+      })
+      continue
+    }
 
-    if (fs.existsSync(full_path)) {
+    if (fs.existsSync(safe_path)) {
       try {
         // Read with binary encoding to preserve line endings
-        const content = fs.readFileSync(full_path, 'utf8')
+        const content = fs.readFileSync(safe_path, 'utf8')
         original_states.push({
           file_path,
           content,
@@ -177,12 +187,21 @@ async function process_modified_files(
   workspace_path: string
 ): Promise<void> {
   for (const file_path of file_paths) {
-    const full_path = path.join(workspace_path, file_path)
+    // Validate the file path is safe before using it
+    const safe_path = create_safe_path(workspace_path, file_path)
+    if (!safe_path) {
+      Logger.error({
+        function_name: 'process_modified_files',
+        message: 'Skipping file with unsafe path',
+        data: { file_path }
+      })
+      continue
+    }
 
     // Only process if the file exists after the patch application
-    if (fs.existsSync(full_path)) {
+    if (fs.existsSync(safe_path)) {
       try {
-        const uri = vscode.Uri.file(full_path)
+        const uri = vscode.Uri.file(safe_path)
         const document = await vscode.workspace.openTextDocument(uri)
         await vscode.window.showTextDocument(document)
 
