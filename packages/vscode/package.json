@@ -70,7 +70,7 @@
       "activitybar": [
         {
           "id": "geminiCoder",
-          "title": "Gemini Coder",
+          "title": "Code Web Chat",
           "icon": "resources/activity-bar-icon.svg"
         }
       ]
@@ -94,7 +94,7 @@
         },
         {
           "id": "geminiCoderView",
-          "name": "Gemini Coder",
+          "name": "Code Web Chat",
           "type": "webview",
           "icon": "resources/activity-bar-icon.svg"
         }
@@ -104,67 +104,67 @@
       {
         "command": "geminiCoder.copyContext",
         "title": "Copy Context",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(copy)"
       },
       {
         "command": "geminiCoder.selectSavedContext",
         "title": "Select Saved Context",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(checklist)"
       },
       {
         "command": "geminiCoder.saveContext",
         "title": "Save Current Context",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(save)"
       },
       {
         "command": "geminiCoder.checkAll",
         "title": "Check All",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(check-all)"
       },
       {
         "command": "geminiCoder.clearChecks",
         "title": "Clear All Checks",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(clear-all)"
       },
       {
         "command": "geminiCoder.collapseFolders",
         "title": "Collapse Folders",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(collapse-all)"
       },
       {
         "command": "geminiCoder.checkAllOpenEditors",
         "title": "Check All",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(check-all)"
       },
       {
         "command": "geminiCoder.clearChecksOpenEditors",
         "title": "Clear All Checks",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(clear-all)"
       },
       {
         "command": "geminiCoder.closeEditor",
         "title": "Close Editor",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(close)"
       },
       {
         "command": "geminiCoder.closeAllEditors",
         "title": "Close All Editors",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(close-all)"
       },
       {
         "command": "geminiCoder.saveAll",
         "title": "Save All",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(save-all)"
       },
       {
@@ -277,7 +277,7 @@
       {
         "command": "geminiCoder.generateCommitMessage",
         "title": "Generate Commit Message with Gemini Coder",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(sparkle)"
       },
       {
@@ -288,25 +288,25 @@
       {
         "command": "geminiCoder.openSettings",
         "title": "Open Settings",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(settings)"
       },
       {
         "command": "geminiCoder.openDocumentation",
         "title": "Documentation",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(book)"
       },
       {
         "command": "geminiCoder.rateExtension",
         "title": "Rate Extension",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(feedback)"
       },
       {
         "command": "geminiCoder.openRepository",
         "title": "Repository",
-        "category": "Gemini Coder",
+        "category": "Code Web Chat",
         "icon": "$(github-alt)"
       }
     ],
