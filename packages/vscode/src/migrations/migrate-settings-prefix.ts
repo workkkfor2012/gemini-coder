@@ -41,14 +41,12 @@ export async function migrate_settings_prefix(): Promise<void> {
         // Migrate global value if it exists
         if (inspection.globalValue !== undefined) {
           await new_config.update(key_suffix, inspection.globalValue, vscode.ConfigurationTarget.Global);
-          await old_config.update(key_suffix, undefined, vscode.ConfigurationTarget.Global);
           key_migrated_in_any_scope = true;
           scopes_migrated_for_key.push('Global');
         }
         // Migrate workspace value if it exists
         if (inspection.workspaceValue !== undefined) {
           await new_config.update(key_suffix, inspection.workspaceValue, vscode.ConfigurationTarget.Workspace);
-          await old_config.update(key_suffix, undefined, vscode.ConfigurationTarget.Workspace);
           key_migrated_in_any_scope = true;
           scopes_migrated_for_key.push('Workspace');
         }
