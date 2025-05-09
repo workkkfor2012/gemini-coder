@@ -19,7 +19,7 @@ export function refactor_command(params: {
 }) {
   const api_tool_settings_manager = new ApiToolsSettingsManager(params.context)
 
-  return vscode.commands.registerCommand('geminiCoder.refactor', async () => {
+  return vscode.commands.registerCommand('codeWebChat.refactor', async () => {
     const editor = vscode.window.activeTextEditor
 
     if (!editor) {

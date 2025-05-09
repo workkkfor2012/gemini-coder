@@ -205,7 +205,7 @@ export function select_saved_context_command(
   extension_context: vscode.ExtensionContext
 ): vscode.Disposable {
   return vscode.commands.registerCommand(
-    'geminiCoder.selectSavedContext',
+    'codeWebChat.selectSavedContext',
     async () => {
       if (!workspace_provider) {
         vscode.window.showErrorMessage('No workspace provider available')

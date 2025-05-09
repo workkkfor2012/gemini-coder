@@ -47,7 +47,7 @@ export class OpenEditorsProvider
     this._load_ignored_extensions()
 
     // Load user preference for automatically attaching open files
-    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     this._attach_open_files = config.get('attachOpenFiles', true)
 
     // Initialize the preview tabs map with current tabs
@@ -74,14 +74,14 @@ export class OpenEditorsProvider
     // Listen for configuration changes
     this._config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        if (event.affectsConfiguration('geminiCoder')) {
-          if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
-            const config = vscode.workspace.getConfiguration('geminiCoder')
+        if (event.affectsConfiguration('codeWebChat')) {
+          if (event.affectsConfiguration('codeWebChat.attachOpenFiles')) {
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             this.update_attach_open_files_setting(
               config.get('attachOpenFiles', true)
             )
           }
-          if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+          if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
             const old_ignored_extensions = new Set(this._ignored_extensions)
             this._load_ignored_extensions()
             this._uncheck_ignored_files(old_ignored_extensions)
@@ -144,7 +144,7 @@ export class OpenEditorsProvider
   // Load ignored extensions from configuration
   private _load_ignored_extensions() {
     // Get additional extensions from config
-    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
       .map((ext) => ext.toLowerCase().replace(/^\./, ''))

@@ -249,7 +249,7 @@ export function code_completion_commands(
   context: vscode.ExtensionContext
 ) {
   return [
-    vscode.commands.registerCommand('geminiCoder.codeCompletion', async () =>
+    vscode.commands.registerCommand('codeWebChat.codeCompletion', async () =>
       perform_code_completion({
         file_tree_provider,
         open_editors_provider,
@@ -259,7 +259,7 @@ export function code_completion_commands(
       })
     ),
     vscode.commands.registerCommand(
-      'geminiCoder.codeCompletionAutoAccept',
+      'codeWebChat.codeCompletionAutoAccept',
       async () =>
         perform_code_completion({
           file_tree_provider,
@@ -270,7 +270,7 @@ export function code_completion_commands(
         })
     ),
     vscode.commands.registerCommand(
-      'geminiCoder.codeCompletionWithSuggestions',
+      'codeWebChat.codeCompletionWithSuggestions',
       async () =>
         perform_code_completion({
           file_tree_provider,
@@ -281,7 +281,7 @@ export function code_completion_commands(
         })
     ),
     vscode.commands.registerCommand(
-      'geminiCoder.codeCompletionWithSuggestionsAutoAccept',
+      'codeWebChat.codeCompletionWithSuggestionsAutoAccept',
       async () =>
         perform_code_completion({
           file_tree_provider,

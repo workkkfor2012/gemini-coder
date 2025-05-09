@@ -63,9 +63,9 @@ async function handle_chat_command(
   instructions = apply_preset_affixes_to_instruction(instructions, preset_names)
 
   const config = vscode.workspace.getConfiguration()
-  const edit_format = config.get<EditFormat>('geminiCoder.editFormat')!
+  const edit_format = config.get<EditFormat>('codeWebChat.editFormat')!
   const edit_format_instructions = config.get<string>(
-    `geminiCoder.editFormatInstructions${
+    `codeWebChat.editFormatInstructions${
       edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
     }`
   )
@@ -90,7 +90,7 @@ export function web_chat_with_command(
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.webChatWith',
+    'codeWebChat.webChatWith',
     async () => {
       // Check connection status immediately
       if (!websocket_server_instance.is_connected_with_browser()) {
@@ -101,7 +101,7 @@ export function web_chat_with_command(
       }
 
       const config = vscode.workspace.getConfiguration()
-      const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
+      const web_chat_presets = config.get<any[]>('codeWebChat.presets', [])
 
       // Create quickpick items for presets
       const preset_quick_pick_items = web_chat_presets.map((preset) => ({
@@ -142,7 +142,7 @@ export function web_chat_command(
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
-  return vscode.commands.registerCommand('geminiCoder.webChat', async () => {
+  return vscode.commands.registerCommand('codeWebChat.webChat', async () => {
     // Check connection status immediately
     if (!websocket_server_instance.is_connected_with_browser()) {
       vscode.window.showInformationMessage(
@@ -152,7 +152,7 @@ export function web_chat_command(
     }
 
     const config = vscode.workspace.getConfiguration()
-    const web_chat_presets = config.get<any[]>('geminiCoder.presets', [])
+    const web_chat_presets = config.get<any[]>('codeWebChat.presets', [])
 
     // Get previously selected presets from globalState
     let selected_names = context.globalState.get<string[]>(

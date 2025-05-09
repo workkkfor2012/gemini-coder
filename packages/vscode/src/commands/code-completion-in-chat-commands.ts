@@ -71,7 +71,7 @@ async function handle_code_completion_in_chat_command(
 
     const config = vscode.workspace.getConfiguration()
     const chat_code_completion_instructions = config.get<string>(
-      'geminiCoder.chatCodeCompletionInstructions',
+      'codeWebChat.chatCodeCompletionInstructions',
     )
 
     const instructions = `${chat_code_completion_instructions}${
@@ -117,10 +117,10 @@ export function code_completion_in_chat_with_command(
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionInChatWith',
+    'codeWebChat.codeCompletionInChatWith',
     async () => {
       const config = vscode.workspace.getConfiguration()
-      const all_presets = config.get<any[]>('geminiCoder.presets', [])
+      const all_presets = config.get<any[]>('codeWebChat.presets', [])
 
       // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)
@@ -171,9 +171,9 @@ export function code_completion_in_chat_command(
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
-  return vscode.commands.registerCommand('geminiCoder.codeCompletionInChat', async () => {
+  return vscode.commands.registerCommand('codeWebChat.codeCompletionInChat', async () => {
     const config = vscode.workspace.getConfiguration()
-    const allPresets = config.get<any[]>('geminiCoder.presets', [])
+    const allPresets = config.get<any[]>('codeWebChat.presets', [])
 
     // Filter out presets with affixes
     const presets = filter_presets_with_affixes(allPresets)

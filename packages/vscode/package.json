@@ -69,31 +69,31 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "geminiCoder",
+          "id": "codeWebChat",
           "title": "Code Web Chat",
           "icon": "resources/activity-bar-icon.svg"
         }
       ]
     },
     "views": {
-      "geminiCoder": [
+      "codeWebChat": [
         {
-          "id": "geminiCoderViewOpenEditors",
+          "id": "codeWebChatViewOpenEditors",
           "name": "Context: Open Editors",
           "icon": "resources/activity-bar-icon.svg"
         },
         {
-          "id": "geminiCoderViewWorkspace",
+          "id": "codeWebChatViewWorkspace",
           "name": "Context: Workspace",
           "icon": "resources/activity-bar-icon.svg"
         },
         {
-          "id": "geminiCoderViewWebsites",
+          "id": "codeWebChatViewWebsites",
           "name": "Context: Websites",
           "icon": "resources/activity-bar-icon.svg"
         },
         {
-          "id": "geminiCoderView",
+          "id": "codeWebChatView",
           "name": "Code Web Chat",
           "type": "webview",
           "icon": "resources/activity-bar-icon.svg"
@@ -102,209 +102,209 @@
     },
     "commands": [
       {
-        "command": "geminiCoder.copyContext",
+        "command": "codeWebChat.copyContext",
         "title": "Copy Context",
         "category": "Code Web Chat",
         "icon": "$(copy)"
       },
       {
-        "command": "geminiCoder.selectSavedContext",
+        "command": "codeWebChat.selectSavedContext",
         "title": "Select Saved Context",
         "category": "Code Web Chat",
         "icon": "$(checklist)"
       },
       {
-        "command": "geminiCoder.saveContext",
+        "command": "codeWebChat.saveContext",
         "title": "Save Current Context",
         "category": "Code Web Chat",
         "icon": "$(save)"
       },
       {
-        "command": "geminiCoder.checkAll",
+        "command": "codeWebChat.checkAll",
         "title": "Check All",
         "category": "Code Web Chat",
         "icon": "$(check-all)"
       },
       {
-        "command": "geminiCoder.clearChecks",
+        "command": "codeWebChat.clearChecks",
         "title": "Clear All Checks",
         "category": "Code Web Chat",
         "icon": "$(clear-all)"
       },
       {
-        "command": "geminiCoder.collapseFolders",
+        "command": "codeWebChat.collapseFolders",
         "title": "Collapse Folders",
         "category": "Code Web Chat",
         "icon": "$(collapse-all)"
       },
       {
-        "command": "geminiCoder.checkAllOpenEditors",
+        "command": "codeWebChat.checkAllOpenEditors",
         "title": "Check All",
         "category": "Code Web Chat",
         "icon": "$(check-all)"
       },
       {
-        "command": "geminiCoder.clearChecksOpenEditors",
+        "command": "codeWebChat.clearChecksOpenEditors",
         "title": "Clear All Checks",
         "category": "Code Web Chat",
         "icon": "$(clear-all)"
       },
       {
-        "command": "geminiCoder.closeEditor",
+        "command": "codeWebChat.closeEditor",
         "title": "Close Editor",
         "category": "Code Web Chat",
         "icon": "$(close)"
       },
       {
-        "command": "geminiCoder.closeAllEditors",
+        "command": "codeWebChat.closeAllEditors",
         "title": "Close All Editors",
         "category": "Code Web Chat",
         "icon": "$(close-all)"
       },
       {
-        "command": "geminiCoder.saveAll",
+        "command": "codeWebChat.saveAll",
         "title": "Save All",
         "category": "Code Web Chat",
         "icon": "$(save-all)"
       },
       {
-        "command": "geminiCoder.codeCompletion",
+        "command": "codeWebChat.codeCompletion",
         "title": "Code Completion",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionAutoAccept",
+        "command": "codeWebChat.codeCompletionAutoAccept",
         "title": "Code Completion",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionWithSuggestions",
+        "command": "codeWebChat.codeCompletionWithSuggestions",
         "title": "Code Completion with Suggestions",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionWithSuggestionsAutoAccept",
+        "command": "codeWebChat.codeCompletionWithSuggestionsAutoAccept",
         "title": "Code Completion with Suggestions",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionToClipboard",
+        "command": "codeWebChat.codeCompletionToClipboard",
         "title": "Code Completion Prompt to Clipboard",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionWithSuggestionsToClipboard",
+        "command": "codeWebChat.codeCompletionWithSuggestionsToClipboard",
         "title": "Code Completion with Suggestions to Clipboard",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionInChat",
+        "command": "codeWebChat.codeCompletionInChat",
         "title": "Code Completion in Chat",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.codeCompletionInChatWith",
+        "command": "codeWebChat.codeCompletionInChatWith",
         "title": "Code Completion in Chat with...",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.applyChatResponse",
+        "command": "codeWebChat.applyChatResponse",
         "title": "Apply Chat Response",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.webChat",
+        "command": "codeWebChat.webChat",
         "title": "Web Chat",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.webChatWith",
+        "command": "codeWebChat.webChatWith",
         "title": "Web Chat with...",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.chatToClipboard",
+        "command": "codeWebChat.chatToClipboard",
         "title": "Chat to Clipboard",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.refactor",
+        "command": "codeWebChat.refactor",
         "title": "Refactor",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.refactorToClipboard",
+        "command": "codeWebChat.refactorToClipboard",
         "title": "Refactor to Clipboard",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.newFolder",
+        "command": "codeWebChat.newFolder",
         "title": "New Folder...",
         "icon": "$(new-folder)"
       },
       {
-        "command": "geminiCoder.newFile",
+        "command": "codeWebChat.newFile",
         "title": "New File...",
         "icon": "$(new-file)"
       },
       {
-        "command": "geminiCoder.rename",
+        "command": "codeWebChat.rename",
         "title": "Rename..."
       },
       {
-        "command": "geminiCoder.previewWebsite",
+        "command": "codeWebChat.previewWebsite",
         "title": "Preview Website Content"
       },
       {
-        "command": "geminiCoder.delete",
+        "command": "codeWebChat.delete",
         "title": "Delete"
       },
       {
-        "command": "geminiCoder.applyChatResponseFastReplace",
+        "command": "codeWebChat.applyChatResponseFastReplace",
         "title": "Apply Chat Response (Fast replace)",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.applyChatResponseIntelligentUpdate",
+        "command": "codeWebChat.applyChatResponseIntelligentUpdate",
         "title": "Apply Chat Response (Intelligent update)",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.revert",
+        "command": "codeWebChat.revert",
         "title": "Revert Last Applied Chat Response",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.generateCommitMessage",
+        "command": "codeWebChat.generateCommitMessage",
         "title": "Generate Commit Message with Gemini Coder",
         "category": "Code Web Chat",
         "icon": "$(sparkle)"
       },
       {
-        "command": "geminiCoder.referenceInChat",
+        "command": "codeWebChat.referenceInChat",
         "title": "Reference in Chat",
         "category": "Gemini Coder"
       },
       {
-        "command": "geminiCoder.openSettings",
+        "command": "codeWebChat.openSettings",
         "title": "Open Settings",
         "category": "Code Web Chat",
         "icon": "$(settings)"
       },
       {
-        "command": "geminiCoder.openDocumentation",
+        "command": "codeWebChat.openDocumentation",
         "title": "Documentation",
         "category": "Code Web Chat",
         "icon": "$(book)"
       },
       {
-        "command": "geminiCoder.rateExtension",
+        "command": "codeWebChat.rateExtension",
         "title": "Rate Extension",
         "category": "Code Web Chat",
         "icon": "$(feedback)"
       },
       {
-        "command": "geminiCoder.openRepository",
+        "command": "codeWebChat.openRepository",
         "title": "Repository",
         "category": "Code Web Chat",
         "icon": "$(github-alt)"
@@ -313,230 +313,230 @@
     "menus": {
       "commandPalette": [
         {
-          "command": "geminiCoder.clearChecks",
+          "command": "codeWebChat.clearChecks",
           "when": "false"
         },
         {
-          "command": "geminiCoder.clearChecksOpenEditors",
+          "command": "codeWebChat.clearChecksOpenEditors",
           "when": "false"
         },
         {
-          "command": "geminiCoder.checkAll",
+          "command": "codeWebChat.checkAll",
           "when": "false"
         },
         {
-          "command": "geminiCoder.checkAllOpenEditors",
+          "command": "codeWebChat.checkAllOpenEditors",
           "when": "false"
         },
         {
-          "command": "geminiCoder.collapseFolders",
+          "command": "codeWebChat.collapseFolders",
           "when": "false"
         },
         {
-          "command": "geminiCoder.closeEditor",
+          "command": "codeWebChat.closeEditor",
           "when": "false"
         },
         {
-          "command": "geminiCoder.closeAllEditors",
+          "command": "codeWebChat.closeAllEditors",
           "when": "false"
         },
         {
-          "command": "geminiCoder.saveAll",
+          "command": "codeWebChat.saveAll",
           "when": "false"
         },
         {
-          "command": "geminiCoder.newFile",
+          "command": "codeWebChat.newFile",
           "when": "false"
         },
         {
-          "command": "geminiCoder.newFolder",
+          "command": "codeWebChat.newFolder",
           "when": "false"
         },
         {
-          "command": "geminiCoder.rename",
+          "command": "codeWebChat.rename",
           "when": "false"
         },
         {
-          "command": "geminiCoder.delete",
+          "command": "codeWebChat.delete",
           "when": "false"
         },
         {
-          "command": "geminiCoder.previewWebsite",
+          "command": "codeWebChat.previewWebsite",
           "when": "false"
         },
         {
-          "command": "geminiCoder.selectSavedContext",
+          "command": "codeWebChat.selectSavedContext",
           "when": "false"
         },
         {
-          "command": "geminiCoder.saveContext",
+          "command": "codeWebChat.saveContext",
           "when": "false"
         },
         {
-          "command": "geminiCoder.generateCommitMessage",
+          "command": "codeWebChat.generateCommitMessage",
           "when": "false"
         },
         {
-          "command": "geminiCoder.codeCompletionAutoAccept",
+          "command": "codeWebChat.codeCompletionAutoAccept",
           "when": "false"
         },
         {
-          "command": "geminiCoder.codeCompletionWithSuggestionsAutoAccept",
+          "command": "codeWebChat.codeCompletionWithSuggestionsAutoAccept",
           "when": "false"
         },
         {
-          "command": "geminiCoder.referenceInChat",
+          "command": "codeWebChat.referenceInChat",
           "when": "false"
         },
         {
-          "command": "geminiCoder.openSettings",
+          "command": "codeWebChat.openSettings",
           "when": "false"
         },
         {
-          "command": "geminiCoder.openDocumentation",
+          "command": "codeWebChat.openDocumentation",
           "when": "false"
         },
         {
-          "command": "geminiCoder.rateExtension",
+          "command": "codeWebChat.rateExtension",
           "when": "false"
         },
         {
-          "command": "geminiCoder.openRepository",
+          "command": "codeWebChat.openRepository",
           "when": "false"
         }
       ],
       "view/title": [
         {
-          "command": "geminiCoder.selectSavedContext",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.selectSavedContext",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@1"
         },
         {
-          "command": "geminiCoder.saveContext",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.saveContext",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.copyContext",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.copyContext",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@3"
         },
         {
-          "command": "geminiCoder.checkAll",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.checkAll",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@4"
         },
         {
-          "command": "geminiCoder.clearChecks",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.clearChecks",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@5"
         },
         {
-          "command": "geminiCoder.newFile",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.newFile",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@6"
         },
         {
-          "command": "geminiCoder.newFolder",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.newFolder",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@7"
         },
         {
-          "command": "geminiCoder.collapseFolders",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.collapseFolders",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@8"
         },
         {
-          "command": "geminiCoder.checkAllOpenEditors",
-          "when": "view == geminiCoderViewOpenEditors",
+          "command": "codeWebChat.checkAllOpenEditors",
+          "when": "view == codeWebChatViewOpenEditors",
           "group": "navigation@1"
         },
         {
-          "command": "geminiCoder.clearChecksOpenEditors",
-          "when": "view == geminiCoderViewOpenEditors",
+          "command": "codeWebChat.clearChecksOpenEditors",
+          "when": "view == codeWebChatViewOpenEditors",
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.saveAll",
-          "when": "view == geminiCoderViewOpenEditors",
+          "command": "codeWebChat.saveAll",
+          "when": "view == codeWebChatViewOpenEditors",
           "group": "navigation@3"
         },
         {
-          "command": "geminiCoder.closeAllEditors",
-          "when": "view == geminiCoderViewOpenEditors",
+          "command": "codeWebChat.closeAllEditors",
+          "when": "view == codeWebChatViewOpenEditors",
           "group": "navigation@4"
         },
         {
-          "command": "geminiCoder.openDocumentation",
-          "when": "view == geminiCoderView",
+          "command": "codeWebChat.openDocumentation",
+          "when": "view == codeWebChatView",
           "group": "navigation@1"
         },
         {
-          "command": "geminiCoder.openRepository",
-          "when": "view == geminiCoderView",
+          "command": "codeWebChat.openRepository",
+          "when": "view == codeWebChatView",
           "group": "navigation@2"
         },
         {
-          "command": "geminiCoder.rateExtension",
-          "when": "view == geminiCoderView",
+          "command": "codeWebChat.rateExtension",
+          "when": "view == codeWebChatView",
           "group": "navigation@3"
         },
         {
-          "command": "geminiCoder.openSettings",
-          "when": "view == geminiCoderView",
+          "command": "codeWebChat.openSettings",
+          "when": "view == codeWebChatView",
           "group": "navigation@4"
         }
       ],
       "view/item/context": [
         {
-          "command": "geminiCoder.closeEditor",
-          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "command": "codeWebChat.closeEditor",
+          "when": "view == codeWebChatViewOpenEditors && viewItem == openEditor",
           "group": "inline"
         },
         {
-          "command": "geminiCoder.rename",
-          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "command": "codeWebChat.rename",
+          "when": "view == codeWebChatViewOpenEditors && viewItem == openEditor",
           "group": "1_modification@1"
         },
         {
-          "command": "geminiCoder.delete",
-          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "command": "codeWebChat.delete",
+          "when": "view == codeWebChatViewOpenEditors && viewItem == openEditor",
           "group": "1_modification@2"
         },
         {
-          "command": "geminiCoder.referenceInChat",
-          "when": "view == geminiCoderViewOpenEditors && viewItem == openEditor",
+          "command": "codeWebChat.referenceInChat",
+          "when": "view == codeWebChatViewOpenEditors && viewItem == openEditor",
           "group": "1_modification@3"
         },
         {
-          "command": "geminiCoder.newFile",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "command": "codeWebChat.newFile",
+          "when": "view == codeWebChatViewWorkspace && viewItem == directory",
           "group": "1_creation@1"
         },
         {
-          "command": "geminiCoder.newFolder",
-          "when": "view == geminiCoderViewWorkspace && viewItem == directory",
+          "command": "codeWebChat.newFolder",
+          "when": "view == codeWebChatViewWorkspace && viewItem == directory",
           "group": "1_creation@2"
         },
         {
-          "command": "geminiCoder.rename",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.rename",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "1_modification@1"
         },
         {
-          "command": "geminiCoder.delete",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.delete",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "1_modification@2"
         },
         {
-          "command": "geminiCoder.referenceInChat",
-          "when": "view == geminiCoderViewWorkspace",
+          "command": "codeWebChat.referenceInChat",
+          "when": "view == codeWebChatViewWorkspace",
           "group": "1_modification@3"
         }
       ],
       "scm/title": [
         {
-          "command": "geminiCoder.generateCommitMessage",
+          "command": "codeWebChat.generateCommitMessage",
           "group": "navigation",
           "when": "scmProvider == git"
         }

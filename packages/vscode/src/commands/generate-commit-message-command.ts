@@ -13,7 +13,7 @@ export function generate_commit_message_command(
   context: vscode.ExtensionContext
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.generateCommitMessage',
+    'codeWebChat.generateCommitMessage',
     async (source_control: vscode.SourceControl) => {
       const git_extension = vscode.extensions.getExtension('vscode.git')
       if (!git_extension) {
@@ -61,7 +61,7 @@ export function generate_commit_message_command(
         // Get configuration
         const config = vscode.workspace.getConfiguration()
         const commit_message_prompt = config.get<string>(
-          'geminiCoder.commitMessagePrompt'
+          'codeWebChat.commitMessagePrompt'
         )
         const ignored_extensions = new Set(
           config

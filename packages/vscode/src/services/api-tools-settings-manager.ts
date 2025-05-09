@@ -47,7 +47,7 @@ export class ApiToolsSettingsManager {
   get_code_completions_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.apiToolCodeCompletionsSettings',
+      'codeWebChat.apiToolCodeCompletionsSettings',
       {} as ApiToolSettings
     )
     return {
@@ -60,7 +60,7 @@ export class ApiToolsSettingsManager {
   get_file_refactoring_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.apiToolFileRefactoringSettings',
+      'codeWebChat.apiToolFileRefactoringSettings',
       {} as ApiToolSettings
     )
     return {
@@ -73,7 +73,7 @@ export class ApiToolsSettingsManager {
   get_commit_messages_settings(): ApiToolSettings {
     const config = vscode.workspace.getConfiguration()
     const settings = config.get<ApiToolSettings>(
-      'geminiCoder.apiToolCommitMessageSettings',
+      'codeWebChat.apiToolCommitMessageSettings',
       {} as ApiToolSettings
     )
     return {
@@ -87,7 +87,7 @@ export class ApiToolsSettingsManager {
   async set_code_completions_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.apiToolCodeCompletionsSettings',
+      'codeWebChat.apiToolCodeCompletionsSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
@@ -96,7 +96,7 @@ export class ApiToolsSettingsManager {
   async set_file_refactoring_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.apiToolFileRefactoringSettings',
+      'codeWebChat.apiToolFileRefactoringSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )
@@ -105,7 +105,7 @@ export class ApiToolsSettingsManager {
   async set_commit_messages_settings(settings: ApiToolSettings) {
     const config = vscode.workspace.getConfiguration()
     await config.update(
-      'geminiCoder.apiToolCommitMessageSettings',
+      'codeWebChat.apiToolCommitMessageSettings',
       settings,
       vscode.ConfigurationTarget.Global
     )

@@ -9,7 +9,7 @@ export function get_presets_by_names(preset_names: string[]): Array<{
   prompt_suffix?: string
 }> {
   const config = vscode.workspace.getConfiguration()
-  const all_presets = config.get<any[]>('geminiCoder.presets', [])
+  const all_presets = config.get<any[]>('codeWebChat.presets', [])
 
   return all_presets
     .filter((preset) => preset_names.includes(preset.name))

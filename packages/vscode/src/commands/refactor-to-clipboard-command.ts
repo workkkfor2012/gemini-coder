@@ -8,7 +8,7 @@ export function refactor_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.refactorToClipboard',
+    'codeWebChat.refactorToClipboard',
     async () => {
       const editor = vscode.window.activeTextEditor
       if (!editor) {

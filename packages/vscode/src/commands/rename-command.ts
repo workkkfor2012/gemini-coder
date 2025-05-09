@@ -4,7 +4,7 @@ import { create_safe_path } from '../utils/path-sanitizer'
 
 export function rename_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.rename',
+    'codeWebChat.rename',
     async (item?: vscode.TreeItem) => {
       // If item is not provided, we can't rename
       if (!item?.resourceUri) {

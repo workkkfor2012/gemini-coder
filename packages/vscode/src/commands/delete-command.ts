@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 
 export function delete_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.delete',
+    'codeWebChat.delete',
     async (item?: vscode.TreeItem) => {
       // If item is not provided, we can't delete
       if (!item?.resourceUri) {

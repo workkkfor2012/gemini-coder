@@ -9,7 +9,7 @@ export function chat_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.chatToClipboard',
+    'codeWebChat.chatToClipboard',
     async () => {
       const last_chat_prompt =
         context.workspaceState.get<string>('last-chat-prompt') || ''
@@ -66,9 +66,9 @@ export function chat_to_clipboard_command(
       instructions = replace_selection_placeholder(instructions)
 
       const config = vscode.workspace.getConfiguration()
-      const edit_format = config.get<EditFormat>('geminiCoder.editFormat')!
+      const edit_format = config.get<EditFormat>('codeWebChat.editFormat')!
       const edit_format_instructions = config.get<string>(
-        `geminiCoder.editFormatInstructions${
+        `codeWebChat.editFormatInstructions${
           edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
         }`
       )

@@ -5,7 +5,7 @@ import { create_safe_path } from '../utils/path-sanitizer'
 
 export function new_file_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.newFile',
+    'codeWebChat.newFile',
     async (item?: vscode.TreeItem | vscode.Uri) => {
       let parent_path: string | undefined
 

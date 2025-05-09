@@ -39,7 +39,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   // Create websites tree view
   const websites_view = vscode.window.createTreeView(
-    'geminiCoderViewWebsites',
+    'codeWebChatViewWebsites',
     {
       treeDataProvider: websites_provider,
       manageCheckboxStateManually: true
@@ -111,7 +111,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   }
 
   // Create two separate tree views
-  workspace_view = vscode.window.createTreeView('geminiCoderViewWorkspace', {
+  workspace_view = vscode.window.createTreeView('codeWebChatViewWorkspace', {
     treeDataProvider: workspace_provider,
     manageCheckboxStateManually: true
   })
@@ -120,7 +120,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
   register_workspace_view_handlers(workspace_view)
 
   const open_editors_view = vscode.window.createTreeView(
-    'geminiCoderViewOpenEditors',
+    'codeWebChatViewOpenEditors',
     {
       treeDataProvider: open_editors_provider,
       manageCheckboxStateManually: true
@@ -137,7 +137,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   // Register the commands
   context.subscriptions.push(
-    vscode.commands.registerCommand('geminiCoder.copyContext', async () => {
+    vscode.commands.registerCommand('codeWebChat.copyContext', async () => {
       let context_text = ''
 
       try {
@@ -161,13 +161,13 @@ export function context_initialization(context: vscode.ExtensionContext): {
       await vscode.env.clipboard.writeText(context_text)
       vscode.window.showInformationMessage(`Context copied to clipboard.`)
     }),
-    vscode.commands.registerCommand('geminiCoder.collapseFolders', async () => {
+    vscode.commands.registerCommand('codeWebChat.collapseFolders', async () => {
       workspace_view.dispose()
       await new Promise((resolve) => setTimeout(resolve, 0))
 
       // Recreate the tree view
       workspace_view = vscode.window.createTreeView(
-        'geminiCoderViewWorkspace',
+        'codeWebChatViewWorkspace',
         {
           treeDataProvider: workspace_provider!,
           manageCheckboxStateManually: true
@@ -180,26 +180,26 @@ export function context_initialization(context: vscode.ExtensionContext): {
       // Add the new view to subscriptions
       context.subscriptions.push(workspace_view)
     }),
-    vscode.commands.registerCommand('geminiCoder.clearChecks', () => {
+    vscode.commands.registerCommand('codeWebChat.clearChecks', () => {
       workspace_provider!.clear_checks()
     }),
-    vscode.commands.registerCommand('geminiCoder.checkAll', async () => {
+    vscode.commands.registerCommand('codeWebChat.checkAll', async () => {
       await workspace_provider!.check_all()
     }),
     vscode.commands.registerCommand(
-      'geminiCoder.clearChecksOpenEditors',
+      'codeWebChat.clearChecksOpenEditors',
       () => {
         open_editors_provider!.clear_checks()
       }
     ),
     vscode.commands.registerCommand(
-      'geminiCoder.checkAllOpenEditors',
+      'codeWebChat.checkAllOpenEditors',
       async () => {
         await open_editors_provider!.check_all()
       }
     ),
     vscode.commands.registerCommand(
-      'geminiCoder.previewWebsite',
+      'codeWebChat.previewWebsite',
       async (website: WebsiteItem) => {
         const panel = vscode.window.createWebviewPanel(
           'websitePreview',
@@ -274,10 +274,10 @@ export function context_initialization(context: vscode.ExtensionContext): {
   // Update badge when configuration changes
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('geminiCoder')) {
+      if (event.affectsConfiguration('codeWebChat')) {
         // If attachOpenFiles setting changed, refresh the tree views
-        if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
-          const config = vscode.workspace.getConfiguration('geminiCoder')
+        if (event.affectsConfiguration('codeWebChat.attachOpenFiles')) {
+          const config = vscode.workspace.getConfiguration('codeWebChat')
           const attachOpenFiles = config.get('attachOpenFiles', true)
 
           // Update the OpenEditorsProvider with the new setting value
@@ -343,7 +343,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
         // Create a new tree view with the updated provider
         workspace_view = vscode.window.createTreeView(
-          'geminiCoderViewWorkspace',
+          'codeWebChatViewWorkspace',
           {
             treeDataProvider: workspace_provider,
             manageCheckboxStateManually: true

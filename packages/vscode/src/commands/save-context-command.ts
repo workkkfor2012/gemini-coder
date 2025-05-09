@@ -31,7 +31,7 @@ function condense_paths(
   }
 
   const config_ignored_extensions = vscode.workspace
-    .getConfiguration('geminiCoder')
+    .getConfiguration('codeWebChat')
     .get('ignoredExtensions', [])
   const all_ignored_extensions = new Set([
     ...ignored_extensions,
@@ -255,7 +255,7 @@ export function save_context_command(
   extContext: vscode.ExtensionContext
 ): vscode.Disposable {
   return vscode.commands.registerCommand(
-    'geminiCoder.saveContext',
+    'codeWebChat.saveContext',
     async () => {
       if (!workspace_provider) {
         vscode.window.showErrorMessage(

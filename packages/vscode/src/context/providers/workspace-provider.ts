@@ -50,7 +50,7 @@ export class WorkspaceProvider
     this.update_file_workspace_mapping()
 
     // Load user preference for automatically attaching open files
-    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     this.attach_open_files = config.get('attachOpenFiles', true)
 
     // Create a file system watcher for general file changes
@@ -69,14 +69,14 @@ export class WorkspaceProvider
     // Listen for configuration changes
     this.config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        if (event.affectsConfiguration('geminiCoder')) {
-          if (event.affectsConfiguration('geminiCoder.attachOpenFiles')) {
-            const config = vscode.workspace.getConfiguration('geminiCoder')
+        if (event.affectsConfiguration('codeWebChat')) {
+          if (event.affectsConfiguration('codeWebChat.attachOpenFiles')) {
+            const config = vscode.workspace.getConfiguration('codeWebChat')
             this.update_attach_open_files_setting(
               config.get('attachOpenFiles', true)
             )
           }
-          if (event.affectsConfiguration('geminiCoder.ignoredExtensions')) {
+          if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
             const old_ignored_extensions = new Set(this.ignored_extensions)
             this.load_ignored_extensions()
             this.uncheck_ignored_files(old_ignored_extensions)
@@ -578,7 +578,7 @@ export class WorkspaceProvider
         )
         .then((selection) => {
           if (selection == 'Clear open editors') {
-            vscode.commands.executeCommand('geminiCoder.clearChecksOpenEditors')
+            vscode.commands.executeCommand('codeWebChat.clearChecksOpenEditors')
           }
         })
     }
@@ -1226,7 +1226,7 @@ export class WorkspaceProvider
 
   private load_ignored_extensions() {
     // Get additional extensions from config
-    const config = vscode.workspace.getConfiguration('geminiCoder')
+    const config = vscode.workspace.getConfiguration('codeWebChat')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
       .map((ext) => ext.toLowerCase().replace(/^\./, ''))
@@ -1341,7 +1341,7 @@ export class FileItem extends vscode.TreeItem {
       this.iconPath = new vscode.ThemeIcon('file')
       // Use custom command instead of vscode.open
       this.command = {
-        command: 'geminiCoder.openFileFromWorkspace',
+        command: 'codeWebChat.openFileFromWorkspace',
         title: 'Open File',
         arguments: [this.resourceUri]
       }

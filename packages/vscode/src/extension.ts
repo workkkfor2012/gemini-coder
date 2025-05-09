@@ -76,7 +76,7 @@ export async function activate(context: vscode.ExtensionContext) {
     )
     context.subscriptions.push(
       vscode.window.registerWebviewViewProvider(
-        'geminiCoderView',
+        'codeWebChatView',
         view_provider,
         {
           webviewOptions: {
@@ -95,16 +95,16 @@ export async function activate(context: vscode.ExtensionContext) {
 
   context.subscriptions.push(
     apply_chat_response_command({
-      command: 'geminiCoder.applyChatResponse',
+      command: 'codeWebChat.applyChatResponse',
       context
     }),
     apply_chat_response_command({
-      command: 'geminiCoder.applyChatResponseFastReplace',
+      command: 'codeWebChat.applyChatResponseFastReplace',
       context,
       mode: 'Fast replace'
     }),
     apply_chat_response_command({
-      command: 'geminiCoder.applyChatResponseIntelligentUpdate',
+      command: 'codeWebChat.applyChatResponseIntelligentUpdate',
       context,
       mode: 'Intelligent update'
     }),
@@ -172,15 +172,15 @@ export async function activate(context: vscode.ExtensionContext) {
     revert_command(context),
     generate_commit_message_command(context),
     open_url_command({
-      command: 'geminiCoder.openDocumentation',
+      command: 'codeWebChat.openDocumentation',
       url: 'https://gemini-coder.netlify.app/'
     }),
     open_url_command({
-      command: 'geminiCoder.openRepository',
+      command: 'codeWebChat.openRepository',
       url: 'https://github.com/robertpiosik/CodeWebChat'
     }),
     open_url_command({
-      command: 'geminiCoder.rateExtension',
+      command: 'codeWebChat.rateExtension',
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
     }),
     open_settings_command(),

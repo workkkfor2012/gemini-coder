@@ -66,21 +66,13 @@ export async function migrate_keybindings(): Promise<void> {
     }
 
     if (migratedCount > 0) {
-      // Backup existing keybindings
-      const backupPath = `${userConfigPath}.backup-${Date.now()}`
-      fs.copyFileSync(userConfigPath, backupPath)
-
       // Write updated keybindings
       fs.writeFileSync(userConfigPath, JSON.stringify(keybindings, null, 2))
 
       Logger.log({
         function_name: 'migrate_keybindings',
-        message: `Successfully migrated ${migratedCount} keybindings from '${OLD_PREFIX}.*' to '${NEW_PREFIX}.*' prefix. Backup created at ${backupPath}`
+        message: `Successfully migrated ${migratedCount} keybindings from '${OLD_PREFIX}.*' to '${NEW_PREFIX}.*' prefix.`
       })
-
-      vscode.window.showInformationMessage(
-        `Code Web Chat: ${migratedCount} keybindings were migrated from 'geminiCoder.*' to 'codeWebChat.*'. A backup of your original keybindings was created.`
-      )
     } else {
       Logger.log({
         function_name: 'migrate_keybindings',

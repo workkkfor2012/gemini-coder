@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 
 export function close_editor_command() {
   return vscode.commands.registerCommand(
-    'geminiCoder.closeEditor',
+    'codeWebChat.closeEditor',
     async (item: any) => {
       if (item && item.resourceUri) {
         // Find all tabs that match this URI

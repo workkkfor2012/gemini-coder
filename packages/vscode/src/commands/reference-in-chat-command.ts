@@ -10,7 +10,7 @@ export function reference_in_chat_command(
   workspace_provider: WorkspaceProvider | undefined
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.referenceInChat',
+    'codeWebChat.referenceInChat',
     async (uri: FileItem) => {
       if (!view_provider || !workspace_provider) {
         return

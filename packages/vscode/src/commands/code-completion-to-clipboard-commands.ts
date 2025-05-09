@@ -59,7 +59,7 @@ async function perform_fim_completion_to_clipboard(
 
     const config = vscode.workspace.getConfiguration()
     const chat_code_completion_instructions = config.get<string>(
-      'geminiCoder.chatCodeCompletionInstructions'
+      'codeWebChat.chatCodeCompletionInstructions'
     )
 
     const instructions = `${chat_code_completion_instructions}${
@@ -82,7 +82,7 @@ export function code_completion_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionToClipboard',
+    'codeWebChat.codeCompletionToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
         file_tree_provider,
@@ -98,7 +98,7 @@ export function code_completion_with_suggestions_to_clipboard_command(
   open_editors_provider?: any
 ) {
   return vscode.commands.registerCommand(
-    'geminiCoder.codeCompletionWithSuggestionsToClipboard',
+    'codeWebChat.codeCompletionWithSuggestionsToClipboard',
     async () => {
       await perform_fim_completion_to_clipboard(
         file_tree_provider,

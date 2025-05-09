@@ -31,15 +31,15 @@ export const ToolsTab: React.FC<Props> = (props) => {
     const items = [
       {
         label: 'Enter suggestions',
-        command: 'geminiCoder.codeCompletionWithSuggestionsAutoAccept'
+        command: 'codeWebChat.codeCompletionWithSuggestionsAutoAccept'
       },
       {
         label: 'Copy prompt to clipboard',
-        command: 'geminiCoder.codeCompletionToClipboard'
+        command: 'codeWebChat.codeCompletionToClipboard'
       },
       {
         label: 'Enter suggestions & copy',
-        command: 'geminiCoder.codeCompletionWithSuggestionsToClipboard'
+        command: 'codeWebChat.codeCompletionWithSuggestionsToClipboard'
       }
     ]
 
@@ -54,7 +54,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
     const items = [
       {
         label: 'Copy prompt to clipboard',
-        command: 'geminiCoder.refactorToClipboard'
+        command: 'codeWebChat.refactorToClipboard'
       }
     ]
 
@@ -85,7 +85,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
       <div className={styles.button_group}>
         <Button
           on_click={() => {
-            handle_execute_command('geminiCoder.codeCompletionAutoAccept')
+            handle_execute_command('codeWebChat.codeCompletionAutoAccept')
           }}
           on_quick_pick_trigger_click={handle_code_completions_more_actions}
           disabled={!has_active_editor}
@@ -94,7 +94,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
           Insert Code Completion
         </Button>
         <Button
-          on_click={() => handle_execute_command('geminiCoder.refactor')}
+          on_click={() => handle_execute_command('codeWebChat.refactor')}
           on_quick_pick_trigger_click={handle_file_refactoring_more_actions}
           disabled={!has_active_editor}
           title={refactor_title}
@@ -103,7 +103,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
         </Button>
         <Button
           on_click={() =>
-            handle_execute_command('geminiCoder.applyChatResponse')
+            handle_execute_command('codeWebChat.applyChatResponse')
           }
           title={apply_chat_response_title}
         >

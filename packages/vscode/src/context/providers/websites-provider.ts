@@ -35,7 +35,7 @@ export class WebsiteItem extends vscode.TreeItem {
 
     // Add command to preview website content
     this.command = {
-      command: 'geminiCoder.previewWebsite',
+      command: 'codeWebChat.previewWebsite',
       title: 'Preview Website Content',
       arguments: [this]
     }

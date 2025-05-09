@@ -119,7 +119,7 @@ async function revert_last_applied_changes(
 }
 
 export function revert_command(context: vscode.ExtensionContext) {
-  return vscode.commands.registerCommand('geminiCoder.revert', async () => {
+  return vscode.commands.registerCommand('codeWebChat.revert', async () => {
     await revert_last_applied_changes(context)
   })
 }

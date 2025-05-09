@@ -166,7 +166,7 @@ export class WebSocketManager {
             (message as UpdateSavedWebsitesMessage).websites
           )
         } else if (message.action == 'apply-chat-response') {
-          vscode.commands.executeCommand('geminiCoder.applyChatResponse')
+          vscode.commands.executeCommand('codeWebChat.applyChatResponse')
         }
       } catch (error) {
         Logger.error({
@@ -228,7 +228,7 @@ export class WebSocketManager {
     }
 
     const config = vscode.workspace.getConfiguration()
-    const web_chat_presets = config.get<any[]>('geminiCoder.presets') ?? []
+    const web_chat_presets = config.get<any[]>('codeWebChat.presets') ?? []
 
     const message: InitializeChatsMessage = {
       action: 'initialize-chats',
