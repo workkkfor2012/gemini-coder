@@ -1,13 +1,16 @@
 <div >
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
-  <h1>Code Web Chat (prev. Gemini Coder)</h1>
-  <h4>★Copy selected folders and files for chatbots or initialize them hands-free!<br/><br/>
-  ★Use the same context with your favorite models for quality code completions and file refactorings.</h4>
+  <h1>Code Web Chat</h1>
+  <h4 style="line-height: 1.8">
+  ★ Copy selected folders and files for chatbots or initialize them hands-free!
+  <br/>
+  ★ Use the same context for quality code completions and file refactorings
+  </h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
-<a href="https://x.com/intent/follow?screen_name=CodeWebChat"><img src="https://img.shields.io/badge/Follow-black?logo=x&amp;logoColor=white" alt="X"></a>
+<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/@CodeWebChat-black?logo=x&amp;logoColor=white" alt="X"></a>
 <br/>
 <br/>
 
