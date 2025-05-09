@@ -8,6 +8,7 @@ import { Logger } from '@/helpers/logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
 import { ApiToolsSettingsManager } from '../services/api-tools-settings-manager'
+import { ignored_extensions } from '@/context/constants/ignored-extensions'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -59,15 +60,17 @@ export function generate_commit_message_command(
         }
 
         // Get configuration
-        const config = vscode.workspace.getConfiguration()
-        const commit_message_prompt = config.get<string>(
-          'codeWebChat.commitMessagePrompt'
-        )
-        const ignored_extensions = new Set(
+        const config = vscode.workspace.getConfiguration('codeWebChat')
+        const commit_message_prompt = config.get<string>('commitMessagePrompt')
+        const config_ignored_extensions = new Set(
           config
             .get<string[]>('ignoredExtensions', [])
             .map((ext) => ext.toLowerCase().replace(/^\./, ''))
         )
+        const all_ignored_extensions = new Set([
+          ...ignored_extensions,
+          ...config_ignored_extensions
+        ])
 
         const api_tool_settings_manager = new ApiToolsSettingsManager(context)
         const commit_message_settings =
@@ -108,7 +111,7 @@ export function generate_commit_message_command(
         // Collect the changed files with their original, unmodified content
         const affected_files = await collect_affected_files(
           repository,
-          ignored_extensions
+          all_ignored_extensions
         )
 
         const message = `${affected_files}\n${commit_message_prompt}\n${diff}`
