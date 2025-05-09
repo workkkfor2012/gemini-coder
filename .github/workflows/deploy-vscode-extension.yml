@@ -7,6 +7,11 @@ on:
     paths:
       - 'packages/vscode/package.json'
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Reason for manual deployment'
+        required: false
+        default: 'Manual deployment'
 
 jobs:
   deploy:
