@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat (prev. Gemini Coder)",
   "description": "Copy selected folders and files for chatbots or initialize them hands-free! Use the same context with your favorite models for quality code completions and file refactorings.",
-  "version": "1.0.447",
+  "version": "1.0.448",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
