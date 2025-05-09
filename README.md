@@ -7,11 +7,9 @@
   <br/>
   ★ Use the same context for quality code completions and file refactorings
   </h4>
-  <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
-<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/@CodeWebChat-black?logo=x&amp;logoColor=white" alt="X"></a>
-<br/>
+<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x&amp;logoColor=white" alt="X"></a>
 <br/>
 
 </div>
