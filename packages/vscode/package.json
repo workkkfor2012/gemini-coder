@@ -12,7 +12,7 @@
     "test": "jest"
   },
   "publisher": "robertpiosik",
-  "homepage": "https://gemini-coder.netlify.app/",
+  "homepage": "https://codeweb.chat/",
   "repository": {
     "type": "git",
     "url": "https://github.com/robertpiosik/CodeWebChat"

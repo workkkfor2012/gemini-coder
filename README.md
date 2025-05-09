@@ -1,9 +1,9 @@
 <div >
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
-  <h1>Gemini Coder - free AI coding</h1>
-  <h4>Copy selected folders and files for chatbots or initialize them hands-free!<br/>
-  Use the same context with your favorite models for quality code completions and file refactorings.</h4>
+  <h1>Code Web Chat (prev. Gemini Coder)</h1>
+  <h4>★Copy selected folders and files for chatbots or initialize them hands-free!<br/><br/>
+  ★Use the same context with your favorite models for quality code completions and file refactorings.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
@@ -13,7 +13,7 @@
 
 </div>
 
-<a href="https://gemini-coder.netlify.app/">Documentation</a>
+<a href="https://codeweb.chat/">Documentation</a>
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
