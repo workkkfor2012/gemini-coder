@@ -123,9 +123,9 @@ export const Main: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_mode_click = (mode: 'general' | 'code-completion') => {
+  const handle_mode_click = (mode: 'general' | 'code-completions') => {
     if (
-      mode == 'code-completion' &&
+      mode == 'code-completions' &&
       !props.is_in_code_completions_mode &&
       props.has_active_editor
     ) {
@@ -175,10 +175,10 @@ export const Main: React.FC<Props> = (props) => {
             disabled: !props.has_active_editor || props.has_active_selection
           },
           {
-            value: 'code-completion',
-            label: 'Code Completion',
+            value: 'code-completions',
+            label: 'Code Completions',
             title: !props.has_active_editor
-              ? 'Unavailable, missing active editor'
+              ? 'Unavailable when missing active editor'
               : props.has_active_selection
               ? 'Unavailable with text selection'
               : 'Ask for code at cursor position',
@@ -186,7 +186,7 @@ export const Main: React.FC<Props> = (props) => {
           }
         ]}
         selected_value={
-          props.is_in_code_completions_mode ? 'code-completion' : 'general'
+          props.is_in_code_completions_mode ? 'code-completions' : 'general'
         }
         on_select={handle_mode_click}
       />
