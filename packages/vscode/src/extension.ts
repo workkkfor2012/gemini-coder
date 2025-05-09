@@ -172,7 +172,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
     open_url_command({
       command: 'geminiCoder.openRepository',
-      url: 'https://github.com/robertpiosik/gemini-coder'
+      url: 'https://github.com/robertpiosik/CodeWebChat'
     }),
     open_url_command({
       command: 'geminiCoder.rateExtension',

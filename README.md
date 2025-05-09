@@ -1,9 +1,9 @@
 <div >
-  <img src="https://raw.githubusercontent.com/robertpiosik/gemini-coder/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
+  <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
   <h1>Gemini Coder - free AI coding</h1>
-  <h4>Copy folders and files for chatbots or initialize them hands-free!<br/>
-  Use built-in tools for code completions, file refactoring and applying chat responses.</h4>
+  <h4>Copy selected folders and files for chatbots or initialize them hands-free!<br/>
+  Use the same context with your favorite models for quality code completions and file refactorings.</h4>
   <br/>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
@@ -29,7 +29,7 @@ Not affiliated with Google.
 
 <br/>
 
-<img src="https://github.com/robertpiosik/gemini-coder/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
+<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 
 <br/>
 
@@ -180,4 +180,4 @@ If you find Gemini Coder helpful, please consider a [donation](https://buymeacof
 
 Copyright ©️ 2025 [Robert Piosik](https://x.com/robertpiosik).
 </br>📨 `robertpiosik[at]gmail.com`
-</br>📃 [MIT License](https://github.com/robertpiosik/gemini-coder/blob/master/LICENSE)
+</br>📃 [MIT License](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)

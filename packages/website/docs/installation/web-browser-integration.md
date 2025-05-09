@@ -6,7 +6,7 @@ hide_table_of_contents: true
 
 For the hands-free chat initialization and enhancing context with selected websites, you'll need to install the **Gemini Coder Connector**.
 
-The connector extension is [open source](https://github.com/robertpiosik/gemini-coder/tree/master/packages/browser).
+The connector extension is [open source](https://github.com/robertpiosik/CodeWebChat/tree/master/packages/browser).
 
 - [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
 - [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
@@ -91,7 +91,7 @@ The extension needs only these basic permissions:
 
 ### Selected URLs
 
-The extension uses a [content script](https://github.com/robertpiosik/gemini-coder/blob/master/packages/browser/src/content-scripts/send-prompt-content-script.ts) for chat initializations in supported chatbots:
+The extension uses a [content script](https://github.com/robertpiosik/CodeWebChat/blob/master/packages/browser/src/content-scripts/send-prompt-content-script.ts) for chat initializations in supported chatbots:
 
 - `https://gemini.google.com/app`
 - `https://aistudio.google.com/prompts/new_chat`

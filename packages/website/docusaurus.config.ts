@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic'
 const config: Config = {
   title: 'Gemini Coder - free AI coding',
   tagline:
-    'Copy folders and files for chatbots or initialize them hands-free! Use built-in tools for code completions, file refactoring and applying chat responses.',
+    'Copy selected folders and files for chatbots or initialize them hands-free! Use the same context with your favorite models for quality code completions and file refactorings.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
@@ -34,7 +34,7 @@ const config: Config = {
         docs: {
           sidebarPath: './sidebars.ts',
           editUrl:
-            'https://github.com/robertpiosik/gemini-coder/tree/master/packages/website/'
+            'https://github.com/robertpiosik/CodeWebChat/tree/master/packages/website/'
         },
         blog: {
           feedOptions: {
@@ -72,7 +72,7 @@ const config: Config = {
         },
         // {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/robertpiosik/gemini-coder',
+          href: 'https://github.com/robertpiosik/CodeWebChat',
           label: 'GitHub',
           position: 'right'
         },
