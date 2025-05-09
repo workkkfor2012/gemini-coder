@@ -5,13 +5,26 @@ import { Logger } from '../helpers/logger'
 
 const OLD_PREFIX = 'geminiCoder'
 const NEW_PREFIX = 'codeWebChat'
+const MIGRATION_ID = 'keybindings-migration-090525'
 
 /**
  * Migration to rename all keybindings from 'geminiCoder.*' to 'codeWebChat.*'
  * in the user's keybindings.json file.
+ * This migration runs only once per extension installation.
  */
-export async function migrate_keybindings(): Promise<void> {
+export async function migrate_keybindings(
+  context: vscode.ExtensionContext
+): Promise<void> {
   try {
+    // Check if migration has already run
+    if (context.globalState.get(MIGRATION_ID)) {
+      Logger.log({
+        function_name: 'migrate_keybindings',
+        message: 'Keybindings migration already completed. Skipping.'
+      })
+      return
+    }
+
     // Get keybindings file path
     const userConfigPath = path.join(
       process.env.APPDATA || process.env.HOME || '',
@@ -28,6 +41,8 @@ export async function migrate_keybindings(): Promise<void> {
         function_name: 'migrate_keybindings',
         message: 'No keybindings.json file found. No migration needed.'
       })
+      // Mark as completed since there's nothing to migrate
+      await context.globalState.update(MIGRATION_ID, true)
       return
     }
 
@@ -43,6 +58,7 @@ export async function migrate_keybindings(): Promise<void> {
         message: 'Error parsing keybindings.json',
         data: error instanceof Error ? error.message : String(error)
       })
+      // Do NOT mark as completed here, as parsing failed.
       return
     }
 
@@ -51,6 +67,7 @@ export async function migrate_keybindings(): Promise<void> {
         function_name: 'migrate_keybindings',
         message: 'Invalid keybindings.json format. Expected an array.'
       })
+      // Do NOT mark as completed here, as format is invalid.
       return
     }
 
@@ -80,6 +97,9 @@ export async function migrate_keybindings(): Promise<void> {
           'No keybindings found with geminiCoder prefix. No migration needed.'
       })
     }
+
+    // Mark migration as completed after successful processing (even if no bindings were found)
+    await context.globalState.update(MIGRATION_ID, true)
   } catch (error) {
     Logger.error({
       function_name: 'migrate_keybindings',
@@ -89,5 +109,6 @@ export async function migrate_keybindings(): Promise<void> {
     vscode.window.showErrorMessage(
       `Code Web Chat: An error occurred while migrating keybindings. Please check the logs.`
     )
+    // Do NOT mark as completed if an error occurred during the process
   }
 }
