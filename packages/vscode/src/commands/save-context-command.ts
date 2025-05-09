@@ -30,9 +30,11 @@ function condense_paths(
     dir_to_children.get(parent_dir)!.push(rel_path)
   }
 
-  const config_ignored_extensions = vscode.workspace
-    .getConfiguration('codeWebChat')
-    .get('ignoredExtensions', [])
+  const config = vscode.workspace.getConfiguration('codeWebChat')
+  const config_ignored_extensions = config.get<string[]>(
+    'ignoredExtensions',
+    []
+  )
   const all_ignored_extensions = new Set([
     ...ignored_extensions,
     ...config_ignored_extensions
