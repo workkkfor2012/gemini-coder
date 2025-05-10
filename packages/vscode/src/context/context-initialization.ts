@@ -68,7 +68,9 @@ export function context_initialization(context: vscode.ExtensionContext): {
     if (workspace_view) {
       workspace_view.badge = {
         value: total_token_count,
-        tooltip: `About ${total_token_count} tokens in the context`
+        tooltip: total_token_count
+          ? `About ${total_token_count} tokens in context`
+          : ''
       }
     }
 
