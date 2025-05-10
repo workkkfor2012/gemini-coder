@@ -18,9 +18,9 @@
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are fully attached with chats, code completions and file refactorings. Code Web Chat initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+All manually selected folders and files are fully attached with chats, code completions and file refactorings. _Code Web Chat_ initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
-Code Web Chat is for you if:
+_Code Web Chat_ is for you if:
 
 - you're an experienced developer working on a large codebase
 - coding agents failed you too many times
@@ -173,7 +173,7 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 ## Donations
 
-If you find Code Web Chat helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
+If you find _Code Web Chat_ helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
 
 XMR: 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
 
