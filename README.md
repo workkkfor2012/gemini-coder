@@ -175,6 +175,8 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 If you find Code Web Chat helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
 
+XMR: 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
+
 ## License
 
 Copyright ©️ 2025 [Robert Piosik](https://x.com/robertpiosik).
