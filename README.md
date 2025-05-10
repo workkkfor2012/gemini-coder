@@ -3,7 +3,7 @@
   <br/>
   <h1>Code Web Chat</h1>
   <h4 style="line-height: 1.8">
-  ★ Copy selected folders and files for chatbots or initialize them hands-free!
+  ★ Copy selected folders and files for web chats or initialize them hands-free!
   <br/>
   ★ Use the same context for quality code completions and file refactorings
   </h4>

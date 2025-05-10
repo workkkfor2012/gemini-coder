@@ -7,7 +7,7 @@ import type * as Preset from '@docusaurus/preset-classic'
 const config: Config = {
   title: 'Gemini Coder - free AI coding',
   tagline:
-    'Copy selected folders and files for chatbots or initialize them hands-free! Use the same context with your favorite models for quality code completions and file refactorings.',
+    'Copy selected folders and files for web chats or initialize them hands-free! Use the same context with your favorite models for quality code completions and file refactorings.',
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
