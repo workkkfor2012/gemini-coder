@@ -31,8 +31,8 @@ export async function extract_diff_patches(
   let current_file_path: string | undefined
 
   for (const line of lines) {
-    // Check for diff block start
-    if (line.trim() == '```diff') {
+    // Check for diff or patch block start
+    if (line.trim() == '```diff' || line.trim() == '```patch') {
       in_diff_block = true
       current_patch = ''
       current_workspace = undefined
