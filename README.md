@@ -175,6 +175,8 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 If you find _Code Web Chat_ helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
 
+BTC: bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
+ETH: 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
 XMR: 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
 
 ## License
