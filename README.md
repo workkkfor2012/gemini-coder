@@ -5,7 +5,7 @@
   <h4 style="line-height: 1.8">
   👉 Copy selected folders and files for web chats or initialize them hands-free!
   <br/>
-  👉 Apply chat responses with multi-file updates using truncated, whole or diff edit formats
+  👉 Apply chat responses with multi-file updates using truncated, whole or diff edit format
   <br/>
   👉 Use the same context for quality code completions and file refactorings
   <br/>
