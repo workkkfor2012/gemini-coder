@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
-  "displayName": "Code Web Chat (prev. Gemini Coder)",
-  "description": "Copy selected folders and files for web chats or initialize them hands-free! Use the same context with your favorite models for quality code completions and file refactorings.",
-  "version": "1.0.463",
+  "displayName": "Code Web Chat (CWC, prev. Gemini Coder)",
+  "description": "Non-agentic 100% free & open source coding tool for AI-assisted programming.",
+  "version": "1.0.464",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
