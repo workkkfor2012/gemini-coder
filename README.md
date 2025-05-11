@@ -26,9 +26,9 @@ Non-agentic 100% free & open source coding tool for AI-assisted programming.
 Guiding Principles:
 
 - initialize all popular chatbots
-- do not track usage
-- monetize only through donations
-- stay robust, simple and lightweight (~1 MB)
+- don't overengineer AI-assistance
+- stay free and do not track usage
+- be robust and lightweight (~1 MB)
 
 CWC is for you if:
 
@@ -83,8 +83,6 @@ Additional texts for model's guidance are fully adjustable in settings.
 - OpenRouter Chat
 - Qwen
 - Yuanbao
-
-
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
