@@ -1,15 +1,20 @@
 <div >
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
-  <h1>Code Web Chat</h1>
+  <h1>Code Web Chat <sup>(CWC)</sup></h1>
   <h4 style="line-height: 1.8">
-  ★ Copy selected folders and files for web chats or initialize them hands-free!
+  👉 Copy selected folders and files for web chats or initialize them hands-free!
   <br/>
-  ★ Use the same context for quality code completions and file refactorings
+  👉 Apply chat responses with multi-file updates using truncated, whole or diff edit formats.
+  <br/>
+  👉 Use the same context for quality code completions and file refactorings
+  <br/>
+  👉 Generate meaningful commit messages
   </h4>
 
 <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
-<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x&amp;logoColor=white" alt="X"></a>
+<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x" alt="X"></a>
+<a href="https://www.reddit.com/r/CodeWebChat"><img src="https://img.shields.io/badge/Join_subreddit-r%2FCodeWebChat-orange?logo=reddit&logoColor=white" alt="Join subreddit r/CodeWebChat on Reddit"></a>
 <br/>
 
 </div>
@@ -18,12 +23,17 @@
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are fully attached with chats, code completions and file refactorings. _Code Web Chat_ initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+Guiding Principles:
 
-_Code Web Chat_ is for you if:
+- initialize all popular chatbots
+- do not track usage
+- monetize only through donations
+- stay robust, simple and lightweight (~1 MB)
+
+CWC is for you if:
 
 - you're an experienced developer working on a large codebase
-- coding agents failed you too many times
+- coding agents are too autonomous for your liking
 - student or hobbyist on a budget
 
 <br/>
@@ -32,25 +42,11 @@ _Code Web Chat_ is for you if:
 
 <br/>
 
-## Overview
-
-- Intuitive context selection
-- Web chat initialization
-- Chat response integration
-- Code completions with any model
-- Effective file refactoring
-- Not limited to Gemini
-- Any website in context
-- Commit message generation
-- Totally free
-- Does not track usage
-- Lightweight ~1.3MB
-
 ## You own the context
 
 Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this problem by overloading context with excessive information, hurting model's performance and your wallet.
 
-Code Web Chat works differently:
+CWC works differently:
 
 - **You select** which folders and files are relevant to the task
 - **You decide** what examples of coding conventions will work best
@@ -62,14 +58,16 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Code Web Chat have you covered by initializing Gemini, AI Studio and many other popular chatbots with your context, instructions and settings, hands-free!
+As everyone have their own favorite chatbot, each with unique features, feel and associated costs (with some being completely free!) CWC's core feature is prompt preparation (special context formatting using XML tags and instructions placement) for copy & paste and their hands-free initialization.
 
-**You can start chats in one of two modes:**
+**The feature has two modes:**
 
-- Ask anything
-- Ask for code completion
+- General - context and your instructions
+- Code Completions - context, open editor with marked cursor position
 
-**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either replacing original files ("whole" code blocks) or refactoring with API (truncated code blocks).
+Additional texts for model's guidance are fully adjustable in settings.
+
+**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either refactoring with API ("Truncated" edit format), replacing original files in place ("Whole" edit format) or patching with diffs ("Diff" edit format).
 
 **Supported chatbots: (alphabetically)**
 
@@ -85,6 +83,8 @@ As everyone have their own favourite web chat interface, each with unique featur
 - OpenRouter Chat
 - Qwen
 - Yuanbao
+
+
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
@@ -173,14 +173,20 @@ All contributions are welcome. Feel free to submit pull requests or create issue
 
 ## Donations
 
-If you find _Code Web Chat_ helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
+If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you 🙏
 
-BTC: bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
-ETH: 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
-XMR: 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
+**BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
+
+**ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
+
+**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
+
+## Community
+
+Participate in [discussions](https://github.com/robertpiosik/CodeWebChat/discussions) and join [/r/CodeWebChat](https://www.reddit.com/r/CodeWebChat).
 
 ## License
 
-Copyright ©️ 2025 [Robert Piosik](https://x.com/robertpiosik).
-</br>📨 `robertpiosik[at]gmail.com`
-</br>📃 [MIT License](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
+Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
+</br>📨 `robertpiosik@gmail.com`
+</br>📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
