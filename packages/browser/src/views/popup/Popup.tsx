@@ -22,10 +22,10 @@ export const Popup: React.FC = () => {
       browser.tabs
         .query({ active: true, currentWindow: true })
         .then(async (tabs) => {
-          const url = tabs[0].url!
+          const url = tabs[0].url
           const title = tabs[0]?.title
 
-          if (url.startsWith('http')) {
+          if (url && url.startsWith('http')) {
             set_url(url)
             const stored = await websites_store_hook.get_website(url)
 
