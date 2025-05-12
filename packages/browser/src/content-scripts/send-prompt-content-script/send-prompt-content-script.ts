@@ -1,18 +1,20 @@
 import browser from 'webextension-polyfill'
 import { Chat } from '@shared/types/websocket-message'
-import { openrouter } from './chatbots/openrouter'
-import { open_webui } from './chatbots/open-webui'
-import { deepseek } from './chatbots/deepseek'
-import { grok } from './chatbots/grok'
-import { mistral } from './chatbots/mistral'
-import { claude } from './chatbots/claude'
-import { chatgpt } from './chatbots/chatgpt'
-import { gemini } from './chatbots/gemini'
-import { ai_studio } from './chatbots/ai-studio'
-import { qwen } from './chatbots/qwen'
-import { yuanbao } from './chatbots/yuanbao'
 import { Chatbot } from './types/chatbot'
 import { Message } from '@/types/messages'
+import {
+  ai_studio,
+  gemini,
+  chatgpt,
+  claude,
+  mistral,
+  open_webui,
+  deepseek,
+  grok,
+  openrouter,
+  qwen,
+  yuanbao
+} from './chatbots'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
@@ -26,36 +28,34 @@ const batch_id = is_gemini_coder_hash
   : ''
 
 const ai_studio_url = 'https://aistudio.google.com/prompts/new_chat'
-const is_ai_studio = current_url.startsWith(
-  'https://aistudio.google.com/prompts/new_chat'
-)
+const is_ai_studio = current_url.startsWith(ai_studio_url)
 
 const gemini_url = 'https://gemini.google.com/app'
-const is_gemini = current_url.startsWith('https://gemini.google.com/app')
+const is_gemini = current_url.startsWith(gemini_url)
 
 const openrouter_url = 'https://openrouter.ai/chat'
-const is_openrouter = current_url.startsWith('https://openrouter.ai/chat')
+const is_openrouter = current_url.startsWith(openrouter_url)
 
 const chatgpt_url = 'https://chatgpt.com/'
-const is_chatgpt = current_url.startsWith('https://chatgpt.com/')
+const is_chatgpt = current_url.startsWith(chatgpt_url)
 
 const claude_url = 'https://claude.ai/new'
-const is_claude = current_url.startsWith('https://claude.ai/new')
+const is_claude = current_url.startsWith(claude_url)
 
 const deepseek_url = 'https://chat.deepseek.com/'
-const is_deepseek = current_url.startsWith('https://chat.deepseek.com/')
+const is_deepseek = current_url.startsWith(deepseek_url)
 
 const mistral_url = 'https://chat.mistral.ai/chat'
-const is_mistral = current_url.startsWith('https://chat.mistral.ai/chat')
+const is_mistral = current_url.startsWith(mistral_url)
 
 const qwen_url = 'https://chat.qwen.ai/'
-const is_qwen = current_url.startsWith('https://chat.qwen.ai/')
+const is_qwen = current_url.startsWith(qwen_url)
 
 const yuanbao_url = 'https://yuanbao.tencent.com/chat'
-const is_yuanbao = current_url.startsWith('https://yuanbao.tencent.com/chat')
+const is_yuanbao = current_url.startsWith(yuanbao_url)
 
-// const grok_url = 'https://grok.com/'
-const is_grok = current_url.startsWith('https://grok.com/')
+const grok_url = 'https://grok.com/'
+const is_grok = current_url.startsWith(grok_url)
 
 // No need for special handling
 // const huggingchat_url = 'https://huggingface.co/chat/'
@@ -98,7 +98,6 @@ export const get_textarea_element = () => {
     [claude_url]: 'div[contenteditable=true]',
     [deepseek_url]: 'textarea',
     [mistral_url]: 'textarea',
-    [qwen_url]: 'textarea',
     [yuanbao_url]: 'div[contenteditable="true"]'
   } as any
 
