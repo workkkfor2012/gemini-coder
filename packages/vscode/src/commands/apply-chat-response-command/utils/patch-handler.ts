@@ -42,18 +42,17 @@ export async function extract_diff_patches(
 
     // Check for diff block end
     if (in_diff_block && line.trim() == '```') {
-      // Only add if patch is valid (starts with --- or +++) and we have a file path
-      const cleaned_content = cleanup_api_response({ content: current_patch })
-      if (cleaned_content.trim().match(/^(---|\+\+\+)/m) && current_file_path) {
+      // Only add if patch is valid (starts with ---) and we have a file path
+      if (current_patch.startsWith('---') && current_file_path) {
         // Ensure patch ends with a newline
-        let patchContent = cleaned_content
-        if (!patchContent.endsWith('\n')) {
-          patchContent += '\n'
+        let patch_content = current_patch
+        if (!patch_content.endsWith('\n')) {
+          patch_content += '\n'
         }
 
         patches.push({
           file_path: current_file_path,
-          content: patchContent,
+          content: patch_content,
           workspace_name: current_workspace
         })
       }
