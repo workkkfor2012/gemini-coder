@@ -16,6 +16,7 @@ export const Empty = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
   />
 )
 
@@ -31,6 +32,7 @@ export const WithText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
   />
 )
 
@@ -47,6 +49,7 @@ export const DisabledSubmit = () => (
     submit_disabled_title="Cannot submit at this time"
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
   />
 )
 
@@ -62,6 +65,7 @@ export const MultilineText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
   />
 )
 
@@ -77,5 +81,104 @@ export const LongText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// With token count
+export const WithTokenCount = () => (
+  <ChatInput
+    value="This message has a token count."
+    chat_history={[]}
+    chat_history_fim_mode={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    token_count={15}
+    is_in_code_completions_mode={false}
+    has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// With large token count
+export const WithLargeTokenCount = () => (
+  <ChatInput
+    value="This message has a large token count."
+    chat_history={[]}
+    chat_history_fim_mode={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    token_count={12345}
+    is_in_code_completions_mode={false}
+    has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// In code completions mode
+export const CodeCompletionsMode = () => (
+  <ChatInput
+    value="Suggest some code..."
+    chat_history={['Previous suggestion 1', 'Previous suggestion 2']}
+    chat_history_fim_mode={['FIM history 1', 'FIM history 2']}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    is_in_code_completions_mode={true}
+    has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// With active selection
+export const WithActiveSelection = () => (
+  <ChatInput
+    value="Ask about the "
+    chat_history={[]}
+    chat_history_fim_mode={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    is_in_code_completions_mode={false}
+    has_active_selection={true}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// With active selection and @selection already present
+export const WithActiveSelectionAndPlaceholder = () => (
+  <ChatInput
+    value="Ask about the @selection"
+    chat_history={[]}
+    chat_history_fim_mode={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    is_in_code_completions_mode={false}
+    has_active_selection={true}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+  />
+)
+
+// With @selection placeholder but no active selection
+export const WithPlaceholderNoSelection = () => (
+  <ChatInput
+    value="Ask about the @selection"
+    chat_history={[]}
+    chat_history_fim_mode={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    is_in_code_completions_mode={false}
+    has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
   />
 )
