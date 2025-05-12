@@ -4,7 +4,6 @@ import * as fs from 'fs'
 import { exec } from 'child_process'
 import { Logger } from '../../../helpers/logger'
 import { promisify } from 'util'
-import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { OriginalFileState } from '../../../types/common'
 import { format_document } from './format-document'
 import { create_safe_path } from '@/utils/path-sanitizer'
@@ -23,8 +22,45 @@ export async function extract_diff_patches(
   const patches: DiffPatch[] = []
   // Normalize line endings to LF
   const normalized_text = clipboard_text.replace(/\r\n/g, '\n')
-  const lines = normalized_text.split('\n')
 
+  // Check if the text starts directly with patch content (---) and lacks markdown fences
+  if (clipboard_text.startsWith('---')) {
+    // Treat the entire text as a single patch
+    const lines = normalized_text.split('\n')
+    let current_file_path: string | undefined
+
+    // Try to extract file path from +++ b/ line
+    for (const line of lines) {
+      const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
+      if (file_path_match) {
+        current_file_path = file_path_match[1]
+        break // Use the first file path found
+      }
+    }
+
+    if (current_file_path) {
+      let patch_content = normalized_text
+      // Ensure patch ends with a newline
+      if (!patch_content.endsWith('\n')) {
+        patch_content += '\n'
+      }
+      patches.push({
+        file_path: current_file_path,
+        content: patch_content
+      })
+    } else {
+      Logger.log({
+        function_name: 'extract_diff_patches',
+        message:
+          'Direct patch detected but no file path found (+++ b/ line missing).',
+        data: { clipboard_start: normalized_text.substring(0, 100) }
+      })
+    }
+    return patches
+  }
+
+  // --- Original logic for markdown blocks ---
+  const lines = normalized_text.split('\n')
   let in_diff_block = false
   let current_patch = ''
   let current_workspace: string | undefined
@@ -90,24 +126,6 @@ export async function extract_diff_patches(
       }
 
       current_patch += line + '\n'
-    }
-  }
-
-  // Handle last patch if block wasn't closed
-  if (in_diff_block && current_file_path) {
-    const cleaned_content = cleanup_api_response({ content: current_patch })
-    if (cleaned_content.trim().match(/^(---|\+\+\+)/m)) {
-      // Ensure patch ends with a newline
-      let patchContent = cleaned_content
-      if (!patchContent.endsWith('\n')) {
-        patchContent += '\n'
-      }
-
-      patches.push({
-        file_path: current_file_path,
-        content: patchContent,
-        workspace_name: current_workspace
-      })
     }
   }
 
