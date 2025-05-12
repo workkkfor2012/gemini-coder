@@ -23,7 +23,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
   if (!workspace_folders) {
     vscode.window.showInformationMessage(
-      'Please open a project to use Gemini Coder.'
+      'Please open a project to use CWC.'
     )
     return {}
   }

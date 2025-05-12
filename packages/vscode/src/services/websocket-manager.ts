@@ -34,7 +34,7 @@ export class WebSocketManager {
   ) {
     this.context = context
     this.websites_provider = websites_provider || null
-    this.initialize_server()
+    this._initialize_server()
 
     // Add subscription for cleanup
     context.subscriptions.push({
@@ -46,7 +46,7 @@ export class WebSocketManager {
     this.websites_provider = provider
   }
 
-  private async is_port_in_use(port: number): Promise<boolean> {
+  private async _is_port_in_use(port: number): Promise<boolean> {
     return new Promise((resolve) => {
       const tester = net
         .createServer()
@@ -63,18 +63,15 @@ export class WebSocketManager {
     })
   }
 
-  private async initialize_server() {
+  private async _initialize_server() {
     try {
-      // Check if the port is already in use (server might be running)
-      const port_in_use = await this.is_port_in_use(this.port)
+      const port_in_use = await this._is_port_in_use(this.port)
 
       if (!port_in_use) {
-        // Start server process
-        await this.start_server_process()
+        await this._start_server_process()
       }
 
-      // Connect as a client
-      this.connect_to_server()
+      this._connect_as_client()
     } catch (error) {
       Logger.error({
         function_name: 'initialize_server',
@@ -87,8 +84,7 @@ export class WebSocketManager {
     }
   }
 
-  private async start_server_process() {
-    // Get path to server script
+  private async _start_server_process() {
     const server_script_path = path.join(
       this.context.extensionPath,
       'out',
@@ -96,19 +92,18 @@ export class WebSocketManager {
     )
 
     try {
-      // Start server in child process
       const process = child_process.fork(server_script_path, [], {
         detached: true,
         stdio: 'ignore'
       })
 
-      // Unref to allow the parent process to exit independently
+      // Allow the parent process to exit independently
       if (process.pid) {
         process.unref()
       }
 
       Logger.log({
-        function_name: 'start_server_process',
+        function_name: '_start_server_process',
         message: `Started WebSocket server process with PID: ${process.pid}`
       })
 
@@ -116,7 +111,7 @@ export class WebSocketManager {
       return new Promise<void>((resolve) => setTimeout(resolve, 1000))
     } catch (error) {
       Logger.error({
-        function_name: 'start_server_process',
+        function_name: '_start_server_process',
         message: 'Failed to start WebSocket server process',
         data: error
       })
@@ -124,7 +119,7 @@ export class WebSocketManager {
     }
   }
 
-  private connect_to_server() {
+  private _connect_as_client() {
     // Close existing connection if any
     if (this.client) {
       this.client.close()
@@ -187,7 +182,7 @@ export class WebSocketManager {
       this._on_connection_status_change.fire(false)
 
       // Schedule reconnect
-      this.schedule_reconnect()
+      this._schedule_reconnect()
     })
 
     this.client.on('close', () => {
@@ -199,11 +194,11 @@ export class WebSocketManager {
       this._on_connection_status_change.fire(false)
 
       // Schedule reconnect
-      this.schedule_reconnect()
+      this._schedule_reconnect()
     })
   }
 
-  private schedule_reconnect() {
+  private _schedule_reconnect() {
     // Clear existing reconnect timer
     if (this.reconnect_timer) {
       clearTimeout(this.reconnect_timer)
@@ -211,7 +206,7 @@ export class WebSocketManager {
 
     // Try to reconnect after 3 seconds
     this.reconnect_timer = setTimeout(() => {
-      this.connect_to_server()
+      this._connect_as_client()
     }, 3000)
   }
 
@@ -334,6 +329,6 @@ export class WebSocketManager {
     this._on_connection_status_change.dispose()
 
     // We don't terminate the server process here, as we want it to continue
-    // running independently of the VS Code extension
+    // running independently of any of the vscode processes
   }
 }

@@ -169,7 +169,7 @@ export async function activate(context: vscode.ExtensionContext) {
     generate_commit_message_command(context),
     open_url_command({
       command: 'codeWebChat.openDocumentation',
-      url: 'https://gemini-coder.netlify.app/'
+      url: 'https://codeweb.chat/'
     }),
     open_url_command({
       command: 'codeWebChat.openRepository',

@@ -96,6 +96,14 @@ function ping_clients(): void {
   }
 }
 
+// Check if server should shut down due to no VSCode clients
+function check_server_shutdown(): void {
+  if (vscode_clients.size == 0) {
+    console.log('All VS Code clients disconnected, shutting down server...')
+    shutdown()
+  }
+}
+
 // Start periodic ping
 setInterval(ping_clients, 10000) // Every 10 seconds
 
@@ -223,6 +231,10 @@ wss.on('connection', (ws: any, request: any) => {
         if (client.ws === ws) {
           vscode_clients.delete(client_id)
           console.log(`VS Code client disconnected: ${client_id}`)
+
+          // Check if server should shut down after VSCode client disconnects
+          check_server_shutdown()
+
           break
         }
       }
@@ -247,6 +259,10 @@ wss.on('connection', (ws: any, request: any) => {
         if (client.ws === ws) {
           vscode_clients.delete(client_id)
           console.log(`VS Code client error disconnect: ${client_id}`)
+
+          // Check if server should shut down after VSCode client disconnects with error
+          check_server_shutdown()
+
           break
         }
       }

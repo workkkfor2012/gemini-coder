@@ -1,5 +1,5 @@
 export namespace Logger {
-  const LOG_PREFIX = '[Gemini Coder]'
+  const LOG_PREFIX = '[CWC]'
 
   export function log(params: {
     function_name?: string
@@ -9,7 +9,10 @@ export namespace Logger {
     const function_name = params.function_name
       ? `[${params.function_name}] `
       : ''
-    console.log(`${LOG_PREFIX}${function_name}${params.message}`, params.data)
+    console.log(
+      `${LOG_PREFIX}${function_name}${params.message}`,
+      params.data ? params.data : undefined
+    )
   }
 
   export function warn(params: {
