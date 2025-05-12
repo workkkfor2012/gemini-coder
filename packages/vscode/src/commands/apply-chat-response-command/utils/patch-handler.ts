@@ -58,16 +58,17 @@ export async function extract_diff_patches(
     }
     return patches
   } else {
-    // --- Original logic for markdown blocks ---
     const lines = normalized_text.split('\n')
     let in_diff_block = false
+    // Diffs sometimes start with "diff --git ...", we skip all lines until "--- [PATH]"
+    let diff_header_detected = false
     let current_patch = ''
     let current_workspace: string | undefined
     let current_file_path: string | undefined
 
     for (const line of lines) {
       // Check for diff or patch block start
-      if (line.trim() == '```diff' || line.trim() == '```patch') {
+      if (line == '```diff' || line == '```patch') {
         in_diff_block = true
         current_patch = ''
         current_workspace = undefined
@@ -75,8 +76,16 @@ export async function extract_diff_patches(
         continue
       }
 
+      if (line.startsWith('---')) {
+        diff_header_detected = true
+      }
+
+      if (!diff_header_detected) {
+        continue
+      }
+
       // Check for diff block end
-      if (in_diff_block && line.trim() == '```') {
+      if (in_diff_block && line == '```') {
         // Only add if patch is valid (starts with ---) and we have a file path
         if (current_patch.startsWith('---') && current_file_path) {
           // Ensure patch ends with a newline
@@ -97,26 +106,7 @@ export async function extract_diff_patches(
 
       // Inside diff block
       if (in_diff_block) {
-        // Check for file path comment on first line of patch
-        if (!current_patch) {
-          if (line.trim().startsWith('//')) {
-            // Check for workspace comment
-            const workspace_match = line.match(/\/\/\s*workspace:\s*(\w+)/)
-            if (workspace_match) {
-              current_workspace = workspace_match[1]
-              continue
-            }
-
-            // Check for file path comment
-            const file_path_match = line.match(/\/\/\s*file_path:\s*(.+)/)
-            if (file_path_match) {
-              current_file_path = file_path_match[1].trim()
-              continue
-            }
-          }
-        }
-
-        // Also extract file path from the patch content itself
+        // Extract file path from the +++ line
         if (!current_file_path) {
           const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
           if (file_path_match) {
