@@ -102,7 +102,7 @@ export const qwen: Chatbot = {
   enter_message_and_send: async (message: string) => {
     let instructions = message
     if (message.includes('<files>')) {
-      instructions = message.split('<files>')[0]
+      instructions = message.split('<files>')[0].trim()
       const context = message.split('<files>')[1].split('</files>')[0].trim()
 
       // Upload file
@@ -110,7 +110,7 @@ export const qwen: Chatbot = {
         'input#filesUpload'
       ) as HTMLInputElement
       const blob = new Blob([context], { type: 'text/plain' })
-      const file = new File([blob], 'message.txt', { type: 'text/plain' })
+      const file = new File([blob], 'context.txt', { type: 'text/plain' })
       const data_transfer = new DataTransfer()
       data_transfer.items.add(file)
       file_input.files = data_transfer.files
