@@ -24,6 +24,8 @@ export class WebSocketManager {
   private has_connected_browsers: boolean = false
   private websites_provider: WebsitesProvider | null = null
   private client_id: number | null = null
+  private current_extension_version: string
+  private should_reconnect: boolean = true
 
   public readonly on_connection_status_change: vscode.Event<boolean> =
     this._on_connection_status_change.event
@@ -34,6 +36,7 @@ export class WebSocketManager {
   ) {
     this.context = context
     this.websites_provider = websites_provider || null
+    this.current_extension_version = context.extension.packageJSON.version
     this._initialize_server()
   }
 
@@ -136,15 +139,16 @@ export class WebSocketManager {
           data: error
         })
         // If server fails to start, don't attempt to connect immediately
-        this._schedule_reconnect() // Schedule a reconnect attempt later
+        if (this.should_reconnect) {
+          // Only schedule reconnect if allowed
+          this._schedule_reconnect()
+        }
         return // Exit the function
       }
     }
 
-    const extension_version = this.context.extension.packageJSON.version
-
     // Connect to the WebSocket server
-    const wsUrl = `ws://localhost:${this.port}?token=${this.security_token}&vscode_extension_version=${extension_version}`
+    const wsUrl = `ws://localhost:${this.port}?token=${this.security_token}&vscode_extension_version=${this.current_extension_version}`
     this.client = new WebSocket.WebSocket(wsUrl)
 
     this.client.on('open', () => {
@@ -175,6 +179,20 @@ export class WebSocketManager {
           )
         } else if (message.action == 'apply-chat-response') {
           vscode.commands.executeCommand('codeWebChat.applyChatResponse')
+        } else if (message.action == 'ping') {
+          if (message.vscode_extension_version) {
+            const is_newer = this._is_version_newer(
+              message.vscode_extension_version,
+              this.current_extension_version
+            )
+            if (is_newer) {
+              this.should_reconnect = false
+              this.client?.close()
+              vscode.window.showErrorMessage(
+                'A newer version of the Code Web Chat extension is running in some other window, please open command palette and run: Restart Extension Host.'
+              )
+            }
+          }
         }
       } catch (error) {
         Logger.error({
@@ -195,7 +213,10 @@ export class WebSocketManager {
       this._on_connection_status_change.fire(false)
 
       // Schedule reconnect
-      this._schedule_reconnect()
+      if (this.should_reconnect) {
+        // Only schedule reconnect if allowed
+        this._schedule_reconnect()
+      }
     })
 
     this.client.on('close', () => {
@@ -207,7 +228,10 @@ export class WebSocketManager {
       this._on_connection_status_change.fire(false)
 
       // Schedule reconnect
-      this._schedule_reconnect()
+      if (this.should_reconnect) {
+        // Only schedule reconnect if allowed
+        this._schedule_reconnect()
+      }
     })
   }
 
@@ -221,6 +245,19 @@ export class WebSocketManager {
     this.reconnect_timer = setTimeout(() => {
       this._connect_as_client()
     }, 3000)
+  }
+
+  private _is_version_newer(v1: string, v2: string): boolean {
+    const parts1 = v1.split('.').map(Number)
+    const parts2 = v2.split('.').map(Number)
+
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+      const p1 = parts1[i] || 0
+      const p2 = parts2[i] || 0
+      if (p1 > p2) return true
+      if (p1 < p2) return false
+    }
+    return false // Versions are equal or v1 is not newer
   }
 
   is_connected_with_browser(): boolean {

@@ -1,7 +1,7 @@
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const WebSocket = require('ws') // ws works only with requrie
 import * as http from 'http'
 import * as process from 'process'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const WebSocket = require('ws') // ws works only with requrie
 
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
 import { Website } from '@shared/types/websocket-message'
@@ -295,7 +295,12 @@ class WebSocketServer {
 
     for (const client of this.vscode_clients.values()) {
       if (client.ws.readyState == WebSocket.OPEN) {
-        client.ws.send(JSON.stringify({ action: 'ping' }))
+        client.ws.send(
+          JSON.stringify({
+            action: 'ping',
+            vscode_extension_version: this.vscode_extension_version
+          })
+        )
       }
     }
   }
