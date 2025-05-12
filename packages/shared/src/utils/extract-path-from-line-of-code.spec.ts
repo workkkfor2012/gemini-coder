@@ -119,28 +119,19 @@ describe('extract_path_from_line_of_code', () => {
 
   it('should extract path from XML-style file tag', () => {
     expect(
-      extract_path_from_line_of_code(
-        '<file path="path/to/file.ts">'
-      )
-    ).toBe(
-      'path/to/file.ts'
-    )
+      extract_path_from_line_of_code('<file path="path/to/file.ts">')
+    ).toBe('path/to/file.ts')
   })
 
   it('should extract path from XML-style file tag with single quotes', () => {
     expect(
-      extract_path_from_line_of_code(
-        "<file path='path/to/file.ts'>"
-      )
+      extract_path_from_line_of_code("<file path='path/to/file.ts'>")
     ).toBe('path/to/file.ts')
   })
 
-
   it('should extract path from XML-style file tag with attributes after path', () => {
     expect(
-      extract_path_from_line_of_code(
-        '<file path="path/to/file.ts" active>'
-      )
+      extract_path_from_line_of_code('<file path="path/to/file.ts" active>')
     ).toBe('path/to/file.ts')
   })
 })
