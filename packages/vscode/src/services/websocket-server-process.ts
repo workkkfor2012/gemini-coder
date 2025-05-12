@@ -16,130 +16,129 @@ interface VSCodeClient {
   client_id: number
 }
 
-// Use Map to store VS Code clients with their IDs
-const vscode_clients: Map<number, VSCodeClient> = new Map()
-let vscode_client_counter = 0
-let current_browser_client: BrowserClient | null = null
-const connections: Set<WebSocket> = new Set()
+class WebSocketServer {
+  private vscode_clients: Map<number, VSCodeClient> = new Map()
+  private vscode_client_counter: number = 0
+  private current_browser_client: BrowserClient | null = null
+  private connections: Set<WebSocket> = new Set()
+  private vscode_extension_version: string | null = null
+  private saved_websites: Website[] = []
+  private server: http.Server
+  private wss: any
 
-let saved_websites: Website[] = []
+  constructor() {
+    this.server = this._create_http_server()
+    this.wss = new WebSocket.Server({ server: this.server })
+    this._setup_websocket_server()
 
-// Function to generate a unique client ID using a counter
-function generate_client_id(): number {
-  vscode_client_counter += 1
-  return vscode_client_counter
-}
+    setInterval(() => this._ping_clients(), 10 * 1000)
 
-// Create HTTP server
-const server = http.createServer((req: any, res: any) => {
-  res.setHeader('Access-Control-Allow-Origin', '*')
-  res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
-
-  if (req.method == 'OPTIONS') {
-    res.writeHead(204)
-    res.end()
-    return
+    console.log(`Starting WebSocket server process (PID: ${process.pid})`)
   }
 
-  if (req.url == '/health') {
-    res.writeHead(200, { 'Content-Type': 'application/json' })
-    res.end(
-      JSON.stringify({
-        status: 'ok'
-      })
+  private _create_http_server(): http.Server {
+    return http.createServer((req: any, res: any) => {
+      res.setHeader('Access-Control-Allow-Origin', '*')
+      res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS')
+      res.setHeader('Access-Control-Allow-Headers', 'Content-Type')
+
+      if (req.method == 'OPTIONS') {
+        res.writeHead(204)
+        res.end()
+        return
+      }
+
+      if (req.url == '/health') {
+        res.writeHead(200, { 'Content-Type': 'application/json' })
+        res.end(
+          JSON.stringify({
+            status: 'ok'
+          })
+        )
+        return
+      }
+
+      res.writeHead(404)
+      res.end()
+    })
+  }
+
+  private _setup_websocket_server(): void {
+    this.wss.on('connection', (ws: any, request: any) =>
+      this._handle_connection(ws, request)
     )
-    return
   }
 
-  res.writeHead(404)
-  res.end()
-})
+  private _handle_connection(ws: any, request: any): void {
+    // Verify security token
+    const url = new URL(request.url || '', `http://localhost:${DEFAULT_PORT}`)
+    const token = url.searchParams.get('token')
 
-// Create WebSocket server
-const wss = new WebSocket.Server({ server })
-
-// Notify VS Code clients about browser connection status
-function notify_vscode_clients(): void {
-  const has_connected_browser = current_browser_client !== null
-  const message = JSON.stringify({
-    action: 'browser-connection-status',
-    has_connected_browsers: has_connected_browser
-  })
-
-  for (const client of vscode_clients.values()) {
-    if (client.ws.readyState == WebSocket.OPEN) {
-      client.ws.send(message)
+    if (token != SECURITY_TOKENS.BROWSERS && token != SECURITY_TOKENS.VSCODE) {
+      ws.close(1008, 'Invalid security token')
+      return
     }
-  }
-}
 
-// Send saved websites to a client
-function send_saved_websites_to_client(client: WebSocket): void {
-  if (saved_websites.length > 0 && client.readyState == WebSocket.OPEN) {
-    client.send(
-      JSON.stringify({
-        action: 'update-saved-websites',
-        websites: saved_websites
-      })
-    )
-  }
-}
+    // Track if this is a browser connection
+    const is_browser_client = token == SECURITY_TOKENS.BROWSERS
 
-// Send ping to browser client
-function ping_clients(): void {
-  if (
-    current_browser_client &&
-    current_browser_client.ws.readyState == WebSocket.OPEN
-  ) {
-    current_browser_client.ws.send(JSON.stringify({ action: 'ping' }))
-  }
-}
+    if (is_browser_client) {
+      this._handle_browser_connection(ws, url)
+    } else {
+      this._handle_vscode_connection(ws, url)
+    }
 
-// Start periodic ping
-setInterval(ping_clients, 10000) // Every 10 seconds
+    this.connections.add(ws)
 
-// Log server start information
-console.log(`Starting WebSocket server process (PID: ${process.pid})`)
+    // Handle messages from clients
+    ws.on('message', (message: any) => this._handle_message(message))
 
-// Handle WebSocket connections
-wss.on('connection', (ws: any, request: any) => {
-  // Verify security token
-  const url = new URL(request.url || '', `http://localhost:${DEFAULT_PORT}`)
-  const token = url.searchParams.get('token')
-
-  if (token != SECURITY_TOKENS.BROWSERS && token != SECURITY_TOKENS.VSCODE) {
-    ws.close(1008, 'Invalid security token')
-    return
+    // Handle client disconnection
+    ws.on('close', () => this._handle_disconnection(ws, is_browser_client))
   }
 
-  // Track if this is a browser connection
-  const is_browser_client = token == SECURITY_TOKENS.BROWSERS
-
-  if (is_browser_client) {
+  private _handle_browser_connection(ws: WebSocket, url: URL): void {
     // Extract version from URL parameters
     const version = url.searchParams.get('version') || 'unknown'
 
     // Check if there is already a connected browser client
     if (
-      current_browser_client &&
-      current_browser_client.ws.readyState == WebSocket.OPEN
+      this.current_browser_client &&
+      this.current_browser_client.ws.readyState == WebSocket.OPEN
     ) {
-      console.log(
-        `Rejecting new browser client (version: ${version}) - another browser is already connected`
-      )
       ws.close(1000, 'Another browser client is already connected')
       return
     }
 
     // Store the new browser client
-    current_browser_client = { ws, version }
-    console.log(`Browser client connected (version: ${version})`)
-    notify_vscode_clients() // Notify when a browser connects
-  } else {
-    const client_id = generate_client_id()
-    vscode_clients.set(client_id, { ws, client_id })
-    console.log(`VS Code client connected with ID: ${client_id}`)
+    this.current_browser_client = { ws, version }
+    this._notify_vscode_clients() // Notify when a browser connects
+  }
+
+  private _handle_vscode_connection(ws: WebSocket, url: URL): void {
+    const incoming_vscode_extension_version = url.searchParams.get(
+      'vscode_extension_version'
+    )
+
+    if (incoming_vscode_extension_version) {
+      if (this.vscode_extension_version == null) {
+        this.vscode_extension_version = incoming_vscode_extension_version
+      } else {
+        if (
+          this.is_version_newer(
+            incoming_vscode_extension_version,
+            this.vscode_extension_version
+          )
+        ) {
+          ws.close(1000, 'Server shutting down due to newer client version.')
+          this._shutdown()
+          return
+        }
+      }
+    }
+
+    const client_id = this._generate_client_id()
+    this.vscode_clients.set(client_id, { ws, client_id })
 
     // Send the client ID to the VS Code client
     ws.send(
@@ -153,36 +152,47 @@ wss.on('connection', (ws: any, request: any) => {
     ws.send(
       JSON.stringify({
         action: 'browser-connection-status',
-        has_connected_browsers: current_browser_client !== null
+        has_connected_browsers: this.current_browser_client !== null
       })
     )
 
     // Send saved websites to new VS Code client
-    send_saved_websites_to_client(ws)
+    this._send_saved_websites_to_client(ws)
+
+    // Notify browser when a new VSCode client connects (if browser is connected)
+    if (
+      this.current_browser_client &&
+      this.current_browser_client.ws.readyState === WebSocket.OPEN
+    ) {
+      this.current_browser_client.ws.send(
+        JSON.stringify({
+          action: 'vscode-client-connected',
+          client_id,
+          vscode_extension_version: this.vscode_extension_version
+        })
+      )
+    }
   }
 
-  connections.add(ws)
-
-  // Handle messages from clients
-  ws.on('message', (message: any) => {
+  private _handle_message(message: any): void {
     const msg_string = message.toString()
     const msg_data = JSON.parse(msg_string)
 
     // Handle different message types
     if (msg_data.action == 'initialize-chats') {
       if (
-        current_browser_client &&
-        current_browser_client.ws.readyState === WebSocket.OPEN
+        this.current_browser_client &&
+        this.current_browser_client.ws.readyState === WebSocket.OPEN
       ) {
         // Forward the message with client ID to browser client
-        current_browser_client.ws.send(msg_string)
+        this.current_browser_client.ws.send(msg_string)
       }
     } else if (msg_data.action == 'update-saved-websites') {
       // Store the updated websites
-      saved_websites = msg_data.websites
+      this.saved_websites = msg_data.websites
 
       // Forward to VS Code clients
-      for (const client of vscode_clients.values()) {
+      for (const client of this.vscode_clients.values()) {
         if (client.ws.readyState == WebSocket.OPEN) {
           client.ws.send(msg_string)
         }
@@ -193,7 +203,7 @@ wss.on('connection', (ws: any, request: any) => {
     ) {
       // Forward the message to the specific VS Code client based on client_id
       const target_client_id = msg_data.client_id
-      const target_client = vscode_clients.get(target_client_id)
+      const target_client = this.vscode_clients.get(target_client_id)
       if (target_client && target_client.ws.readyState == WebSocket.OPEN) {
         // target_client.ws.send(msg_string) <-- bring back after removing "invoke-fast-replace"
         target_client.ws.send(
@@ -204,54 +214,123 @@ wss.on('connection', (ws: any, request: any) => {
         )
       }
     }
-  })
+  }
 
-  // Handle browser client disconnection
-  ws.on('close', () => {
+  private _handle_disconnection(
+    ws: WebSocket,
+    is_browser_client: boolean
+  ): void {
     if (
       is_browser_client &&
-      current_browser_client &&
-      current_browser_client.ws === ws
+      this.current_browser_client &&
+      this.current_browser_client.ws === ws
     ) {
-      const version = current_browser_client.version
-      current_browser_client = null
-      console.log(`Browser client disconnected (version: ${version})`)
-      notify_vscode_clients() // Notify when the browser disconnects
+      this.current_browser_client = null
+      this._notify_vscode_clients() // Notify when the browser disconnects
+    } else {
+      // Find and remove the disconnected VS Code client
+      let disconnected_client_id: number | null = null
+      for (const [client_id, client] of this.vscode_clients.entries()) {
+        if (client.ws === ws) {
+          disconnected_client_id = client_id
+          this.vscode_clients.delete(client_id)
+          break
+        }
+      }
+
+      // Notify browser when a VSCode client disconnects (if browser is connected)
+      if (
+        disconnected_client_id !== null &&
+        this.current_browser_client &&
+        this.current_browser_client.ws.readyState === WebSocket.OPEN
+      ) {
+        this.current_browser_client.ws.send(
+          JSON.stringify({
+            action: 'vscode-client-disconnected',
+            client_id: disconnected_client_id
+          })
+        )
+      }
     }
-    connections.delete(ws)
-  })
-})
+    this.connections.delete(ws)
+  }
 
-// Start server
-server.listen(DEFAULT_PORT, () => {
-  console.log(`WebSocket server is running on ws://localhost:${DEFAULT_PORT}`)
-})
+  private _generate_client_id(): number {
+    this.vscode_client_counter += 1
+    return this.vscode_client_counter
+  }
 
-// Handle process signals for graceful shutdown
-process.on('SIGINT', () => {
-  shutdown()
-})
+  private _notify_vscode_clients(): void {
+    const has_connected_browser = this.current_browser_client !== null
+    const message = JSON.stringify({
+      action: 'browser-connection-status',
+      has_connected_browsers: has_connected_browser
+    })
 
-process.on('SIGTERM', () => {
-  shutdown()
-})
+    for (const client of this.vscode_clients.values()) {
+      if (client.ws.readyState == WebSocket.OPEN) {
+        client.ws.send(message)
+      }
+    }
+  }
 
-function shutdown(): void {
-  console.log('Shutting down WebSocket server...')
+  private _send_saved_websites_to_client(client: WebSocket): void {
+    if (this.saved_websites.length > 0 && client.readyState == WebSocket.OPEN) {
+      client.send(
+        JSON.stringify({
+          action: 'update-saved-websites',
+          websites: this.saved_websites
+        })
+      )
+    }
+  }
 
-  // Close all connections
-  connections.forEach((ws) => {
-    ws.close()
-  })
-  connections.clear()
-  vscode_clients.clear()
-  current_browser_client = null
-  saved_websites = []
+  private _ping_clients(): void {
+    if (
+      this.current_browser_client &&
+      this.current_browser_client.ws.readyState == WebSocket.OPEN
+    ) {
+      this.current_browser_client.ws.send(JSON.stringify({ action: 'ping' }))
+    }
 
-  // Close server
-  wss.close()
-  server.close(() => {
-    console.log('WebSocket server stopped')
-    process.exit(0)
-  })
+    for (const client of this.vscode_clients.values()) {
+      if (client.ws.readyState == WebSocket.OPEN) {
+        client.ws.send(JSON.stringify({ action: 'ping' }))
+      }
+    }
+  }
+
+  public start(): void {
+    this.server.listen(DEFAULT_PORT, () => {
+      console.log(
+        `WebSocket server is running on ws://localhost:${DEFAULT_PORT}`
+      )
+    })
+  }
+
+  private _shutdown(): void {
+    this.connections.forEach((ws) => {
+      ws.close(1001, 'Server is shutting down') // 1001: Going Away
+    })
+    this.wss.close()
+    this.server.close(() => {
+      process.exit(0)
+    })
+  }
+
+  private is_version_newer(v1: string, v2: string): boolean {
+    const parts1 = v1.split('.').map(Number)
+    const parts2 = v2.split('.').map(Number)
+
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+      const p1 = parts1[i] || 0
+      const p2 = parts2[i] || 0
+      if (p1 > p2) return true
+      if (p1 < p2) return false
+    }
+    return false // Versions are equal or v1 is not newer
+  }
 }
+
+const server = new WebSocketServer()
+server.start()

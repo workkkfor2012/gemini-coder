@@ -114,7 +114,7 @@ export class WebSocketManager {
     }
   }
 
-  private _connect_as_client() {
+  private async _connect_as_client() {
     // Close existing connection if any
     if (this.client) {
       this.client.close()
@@ -124,10 +124,28 @@ export class WebSocketManager {
     // Reset client ID when reconnecting
     this.client_id = null
 
+    // Check if server is running, restart if not
+    const port_in_use = await this._is_port_in_use(this.port)
+    if (!port_in_use) {
+      try {
+        await this._start_server_process()
+      } catch (error) {
+        Logger.error({
+          function_name: '_connect_as_client',
+          message: 'Failed to restart WebSocket server',
+          data: error
+        })
+        // If server fails to start, don't attempt to connect immediately
+        this._schedule_reconnect() // Schedule a reconnect attempt later
+        return // Exit the function
+      }
+    }
+
+    const extension_version = this.context.extension.packageJSON.version
+
     // Connect to the WebSocket server
-    this.client = new WebSocket.WebSocket(
-      `ws://localhost:${this.port}?token=${this.security_token}`
-    )
+    const wsUrl = `ws://localhost:${this.port}?token=${this.security_token}&vscode_extension_version=${extension_version}`
+    this.client = new WebSocket.WebSocket(wsUrl)
 
     this.client.on('open', () => {
       Logger.log({
