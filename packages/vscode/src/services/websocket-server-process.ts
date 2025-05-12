@@ -96,14 +96,6 @@ function ping_clients(): void {
   }
 }
 
-// Check if server should shut down due to no VSCode clients
-function check_server_shutdown(): void {
-  if (vscode_clients.size == 0) {
-    console.log('All VS Code clients disconnected, shutting down server...')
-    shutdown()
-  }
-}
-
 // Start periodic ping
 setInterval(ping_clients, 10000) // Every 10 seconds
 
@@ -214,7 +206,7 @@ wss.on('connection', (ws: any, request: any) => {
     }
   })
 
-  // Handle client disconnection
+  // Handle browser client disconnection
   ws.on('close', () => {
     if (
       is_browser_client &&
@@ -225,47 +217,6 @@ wss.on('connection', (ws: any, request: any) => {
       current_browser_client = null
       console.log(`Browser client disconnected (version: ${version})`)
       notify_vscode_clients() // Notify when the browser disconnects
-    } else if (!is_browser_client) {
-      // Find and remove the VS Code client by its websocket instance
-      for (const [client_id, client] of vscode_clients.entries()) {
-        if (client.ws === ws) {
-          vscode_clients.delete(client_id)
-          console.log(`VS Code client disconnected: ${client_id}`)
-
-          // Check if server should shut down after VSCode client disconnects
-          check_server_shutdown()
-
-          break
-        }
-      }
-    }
-    connections.delete(ws)
-  })
-
-  ws.on('error', (error: Error) => {
-    console.error('WebSocket error:', error)
-    if (
-      is_browser_client &&
-      current_browser_client &&
-      current_browser_client.ws === ws
-    ) {
-      const version = current_browser_client.version
-      current_browser_client = null
-      console.log(`Browser client error disconnect (version: ${version})`)
-      notify_vscode_clients() // Notify when the browser disconnects due to error
-    } else if (!is_browser_client) {
-      // Find and remove the VS Code client by its websocket instance
-      for (const [client_id, client] of vscode_clients.entries()) {
-        if (client.ws === ws) {
-          vscode_clients.delete(client_id)
-          console.log(`VS Code client error disconnect: ${client_id}`)
-
-          // Check if server should shut down after VSCode client disconnects with error
-          check_server_shutdown()
-
-          break
-        }
-      }
     }
     connections.delete(ws)
   })

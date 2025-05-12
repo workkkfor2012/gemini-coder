@@ -35,11 +35,6 @@ export class WebSocketManager {
     this.context = context
     this.websites_provider = websites_provider || null
     this._initialize_server()
-
-    // Add subscription for cleanup
-    context.subscriptions.push({
-      dispose: () => this.dispose()
-    })
   }
 
   set_websites_provider(provider: WebsitesProvider): void {
@@ -311,24 +306,5 @@ export class WebSocketManager {
     })
 
     this.client?.send(JSON.stringify(message))
-  }
-
-  public dispose() {
-    if (this.reconnect_timer) {
-      clearTimeout(this.reconnect_timer)
-      this.reconnect_timer = null
-    }
-
-    // Close WebSocket client
-    if (this.client) {
-      this.client.close()
-      this.client = null
-    }
-
-    // Clean up event emitter
-    this._on_connection_status_change.dispose()
-
-    // We don't terminate the server process here, as we want it to continue
-    // running independently of any of the vscode processes
   }
 }

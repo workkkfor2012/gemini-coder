@@ -179,21 +179,6 @@ export async function activate(context: vscode.ExtensionContext) {
       command: 'codeWebChat.rateExtension',
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
     }),
-    open_settings_command(),
-    {
-      dispose: () => {
-        if (websocket_server_instance) {
-          websocket_server_instance.dispose()
-          websocket_server_instance = null
-        }
-      }
-    }
+    open_settings_command()
   )
-}
-
-export function deactivate() {
-  if (websocket_server_instance) {
-    websocket_server_instance.dispose()
-    websocket_server_instance = null
-  }
 }
