@@ -175,6 +175,8 @@ If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/r
 
 **BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
 
+**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
+
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
 
 **XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
