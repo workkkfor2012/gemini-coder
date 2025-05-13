@@ -44,6 +44,7 @@ import { ApiToolSettings } from '@shared/types/api-tool-settings'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
+import { handle_open_router_model_picker } from './provider/message-handlers/handle-open-router-model-picker'
 
 type ConfigPresetFormat = {
   name: string
@@ -79,7 +80,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   ) {
     this.websocket_server_instance.on_connection_status_change((connected) => {
       if (this._webview_view) {
-        this._send_message<ExtensionMessage>({
+        this.send_message<ExtensionMessage>({
           command: 'CONNECTION_STATUS',
           connected
         })
@@ -100,7 +101,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
           const providers = config.get<any[]>('providers', [])
-          this._send_message<CustomProvidersUpdatedMessage>({
+          this.send_message<CustomProvidersUpdatedMessage>({
             command: 'CUSTOM_PROVIDERS_UPDATED',
             custom_providers: providers
           })
@@ -115,7 +116,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             'apiToolCodeCompletionsSettings',
             {}
           )
-          this._send_message<ApiToolCodeCompletionsSettingsMessage>({
+          this.send_message<ApiToolCodeCompletionsSettingsMessage>({
             command: 'CODE_COMPLETIONS_SETTINGS',
             settings
           })
@@ -130,7 +131,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             'apiToolFileRefactoringSettings',
             {}
           )
-          this._send_message<ApiToolFileRefactoringSettingsMessage>({
+          this.send_message<ApiToolFileRefactoringSettingsMessage>({
             command: 'FILE_REFACTORING_SETTINGS',
             settings
           })
@@ -145,7 +146,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             'apiToolCommitMessageSettings',
             {}
           )
-          this._send_message<ApiToolCommitMessageSettingsMessage>({
+          this.send_message<ApiToolCommitMessageSettingsMessage>({
             command: 'COMMIT_MESSAGES_SETTINGS',
             settings
           })
@@ -155,7 +156,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
           const edit_format = config.get<EditFormat>('editFormat')!
-          this._send_message<ExtensionMessage>({
+          this.send_message<ExtensionMessage>({
             command: 'EDIT_FORMAT',
             edit_format
           })
@@ -169,7 +170,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           const visibility = config.get<EditFormatSelectorVisibility>(
             'editFormatSelectorVisibility'
           )!
-          this._send_message<EditFormatSelectorVisibilityMessage>({
+          this.send_message<EditFormatSelectorVisibilityMessage>({
             command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
             visibility
           })
@@ -203,7 +204,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       if (has_active_editor != this._has_active_editor) {
         this._has_active_editor = has_active_editor
         if (this._webview_view) {
-          this._send_message<ExtensionMessage>({
+          this.send_message<ExtensionMessage>({
             command: 'EDITOR_STATE_CHANGED',
             has_active_editor: has_active_editor
           })
@@ -222,7 +223,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       if (has_selection != this._has_active_selection) {
         this._has_active_selection = has_selection
         if (this._webview_view) {
-          this._send_message<ExtensionMessage>({
+          this.send_message<ExtensionMessage>({
             command: 'EDITOR_SELECTION_CHANGED',
             has_selection: has_selection
           })
@@ -231,7 +232,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       if (has_selection && this._is_code_completions_mode) {
         this._is_code_completions_mode = false
         if (this._webview_view) {
-          this._send_message<ExtensionMessage>({
+          this.send_message<ExtensionMessage>({
             command: 'CODE_COMPLETIONS_MODE',
             enabled: false
           })
@@ -246,7 +247,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         : false
       this._has_active_selection = has_selection
       if (this._webview_view) {
-        this._send_message<ExtensionMessage>({
+        this.send_message<ExtensionMessage>({
           command: 'EDITOR_SELECTION_CHANGED',
           has_selection: has_selection
         })
@@ -261,7 +262,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         )
 
         if (this._webview_view) {
-          this._send_message<SelectionTextMessage>({
+          this.send_message<SelectionTextMessage>({
             command: 'SELECTION_TEXT_UPDATED',
             text: selected_text
           })
@@ -327,21 +328,21 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           current_token_count += file_token_count
         }
 
-        this._send_message<TokenCountMessage>({
+        this.send_message<TokenCountMessage>({
           command: 'TOKEN_COUNT_UPDATED',
           tokenCount: current_token_count
         })
       })
       .catch((error) => {
         console.error('Error calculating token count:', error)
-        this._send_message<TokenCountMessage>({
+        this.send_message<TokenCountMessage>({
           command: 'TOKEN_COUNT_UPDATED',
           tokenCount: 0
         })
       })
   }
 
-  private _send_message<
+  public send_message<
     T extends
       | ExtensionMessage
       | PresetsMessage
@@ -425,12 +426,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
         // Send the appropriate message back to the webview
         if (this._is_code_completions_mode) {
-          this._send_message<SelectedCodeCompletionPresetsMessage>({
+          this.send_message<SelectedCodeCompletionPresetsMessage>({
             command: 'SELECTED_CODE_COMPLETION_PRESETS',
             names: selected_names
           })
         } else {
-          this._send_message<SelectedPresetsMessage>({
+          this.send_message<SelectedPresetsMessage>({
             command: 'SELECTED_PRESETS',
             names: selected_names
           })
@@ -539,7 +540,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'history',
               []
             )
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'CHAT_HISTORY',
               messages: history
             })
@@ -548,7 +549,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'code-completions-history',
               []
             )
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'FIM_CHAT_HISTORY',
               messages: history
             })
@@ -558,7 +559,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               : 'code-completions-history'
             this._context.workspaceState.update(key, message.messages)
           } else if (message.command == 'GET_INSTRUCTIONS') {
-            this._send_message<InstructionsMessage>({
+            this.send_message<InstructionsMessage>({
               command: 'INSTRUCTIONS',
               value: this._instructions
             })
@@ -569,7 +570,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.instruction
             )
           } else if (message.command == 'GET_CODE_COMPLETION_SUGGESTIONS') {
-            this._send_message<CodeCompletionSuggestionsMessage>({
+            this.send_message<CodeCompletionSuggestionsMessage>({
               command: 'CODE_COMPLETION_SUGGESTIONS',
               value: this._code_completion_suggestions
             })
@@ -580,7 +581,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.instruction
             )
           } else if (message.command == 'GET_CONNECTION_STATUS') {
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'CONNECTION_STATUS',
               connected:
                 this.websocket_server_instance.is_connected_with_browser()
@@ -592,7 +593,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'selectedPresets',
               []
             )
-            this._send_message<SelectedPresetsMessage>({
+            this.send_message<SelectedPresetsMessage>({
               command: 'SELECTED_PRESETS',
               names: selected_names
             })
@@ -608,7 +609,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               'selectedCodeCompletionPresets',
               []
             )
-            this._send_message<SelectedCodeCompletionPresetsMessage>({
+            this.send_message<SelectedCodeCompletionPresetsMessage>({
               command: 'SELECTED_CODE_COMPLETION_PRESETS',
               names: selected_names
             })
@@ -992,12 +993,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               if (this._is_code_completions_mode) {
-                this._send_message<SelectedCodeCompletionPresetsMessage>({
+                this.send_message<SelectedCodeCompletionPresetsMessage>({
                   command: 'SELECTED_CODE_COMPLETION_PRESETS',
                   names: selected_names
                 })
               } else {
-                this._send_message<SelectedPresetsMessage>({
+                this.send_message<SelectedPresetsMessage>({
                   command: 'SELECTED_PRESETS',
                   names: selected_names
                 })
@@ -1008,12 +1009,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             if (this._is_code_completions_mode && !has_active_editor) {
               this._is_code_completions_mode = false
-              this._send_message<ExtensionMessage>({
+              this.send_message<ExtensionMessage>({
                 command: 'CODE_COMPLETIONS_MODE',
                 enabled: false
               })
             } else {
-              this._send_message<ExtensionMessage>({
+              this.send_message<ExtensionMessage>({
                 command: 'CODE_COMPLETIONS_MODE',
                 enabled: this._is_code_completions_mode
               })
@@ -1021,17 +1022,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'SAVE_CODE_COMPLETIONS_MODE') {
             this._is_code_completions_mode = message.enabled
             this._calculate_token_count()
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'CODE_COMPLETIONS_MODE',
               enabled: message.enabled
             })
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'EDITOR_STATE_CHANGED',
               has_active_editor: this._has_active_editor
             })
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
-            this._send_message<ExtensionMessage>({
+            this.send_message<ExtensionMessage>({
               command: 'EDITOR_SELECTION_CHANGED',
               has_selection: this._has_active_selection
             })
@@ -1079,7 +1080,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               if (!has_changes) {
-                this._send_message<ExtensionMessage>({
+                this.send_message<ExtensionMessage>({
                   command: 'PRESET_UPDATED'
                 })
                 return
@@ -1099,7 +1100,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               if (result == discard_changes) {
-                this._send_message<ExtensionMessage>({
+                this.send_message<ExtensionMessage>({
                   command: 'PRESET_UPDATED'
                 })
                 return
@@ -1166,7 +1167,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   updated_selected_names
                 )
                 // Send updated selected presets to webview
-                this._send_message<SelectedPresetsMessage>({
+                this.send_message<SelectedPresetsMessage>({
                   command: 'SELECTED_PRESETS',
                   names: updated_selected_names
                 })
@@ -1195,7 +1196,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                     'selectedCodeCompletionPresets',
                     updated_selected_fim
                   )
-                  this._send_message<SelectedCodeCompletionPresetsMessage>({
+                  this.send_message<SelectedCodeCompletionPresetsMessage>({
                     command: 'SELECTED_CODE_COMPLETION_PRESETS',
                     names: updated_selected_fim
                   })
@@ -1208,7 +1209,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                     'selectedCodeCompletionPresets',
                     updated_selected_fim
                   )
-                  this._send_message<SelectedCodeCompletionPresetsMessage>({
+                  this.send_message<SelectedCodeCompletionPresetsMessage>({
                     command: 'SELECTED_CODE_COMPLETION_PRESETS',
                     names: updated_selected_fim
                   })
@@ -1216,7 +1217,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
 
               this._send_presets_to_webview(webview_view.webview)
-              this._send_message<ExtensionMessage>({
+              this.send_message<ExtensionMessage>({
                 command: 'PRESET_UPDATED'
               })
             } else {
@@ -1301,7 +1302,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   'selectedPresets',
                   updated_selected
                 )
-                this._send_message<SelectedPresetsMessage>({
+                this.send_message<SelectedPresetsMessage>({
                   command: 'SELECTED_PRESETS',
                   names: updated_selected
                 })
@@ -1318,7 +1319,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   'selectedCodeCompletionPresets',
                   updated_selected
                 )
-                this._send_message<SelectedCodeCompletionPresetsMessage>({
+                this.send_message<SelectedCodeCompletionPresetsMessage>({
                   command: 'SELECTED_CODE_COMPLETION_PRESETS',
                   names: updated_selected
                 })
@@ -1399,7 +1400,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const updated_presets = [...current_presets, new_preset]
 
             try {
-              this._send_message<ExtensionMessage>({
+              this.send_message<ExtensionMessage>({
                 command: 'PRESET_CREATED',
                 preset: this._config_preset_to_ui_format(new_preset)
               })
@@ -1412,14 +1413,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_GEMINI_API_KEY') {
             const api_key =
               this._api_tools_settings_manager.get_gemini_api_key()
-            this._send_message<GeminiApiKeyMessage>({
+            this.send_message<GeminiApiKeyMessage>({
               command: 'GEMINI_API_KEY',
               api_key
             })
           } else if (message.command == 'GET_OPEN_ROUTER_API_KEY') {
             const api_key =
               this._api_tools_settings_manager.get_open_router_api_key()
-            this._send_message<OpenRouterApiKeyMessage>({
+            this.send_message<OpenRouterApiKeyMessage>({
               command: 'OPEN_ROUTER_API_KEY',
               api_key
             })
@@ -1434,45 +1435,25 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_CUSTOM_PROVIDERS') {
             const config = vscode.workspace.getConfiguration('codeWebChat')
             const providers = config.get<any[]>('providers', [])
-            this._send_message<CustomProvidersUpdatedMessage>({
+            this.send_message<CustomProvidersUpdatedMessage>({
               command: 'CUSTOM_PROVIDERS_UPDATED',
               custom_providers: providers
             })
           } else if (message.command == 'GET_OPEN_ROUTER_MODELS') {
             const models = await this._fetch_open_router_models()
-            this._send_message<OpenRouterModelsMessage>({
+            this.send_message<OpenRouterModelsMessage>({
               command: 'OPEN_ROUTER_MODELS',
               models
             })
           } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
-            const model_items = message.models.map((model) => ({
-              label: model.name,
-              description: model.id,
-              detail: model.description
-            }))
-
-            const selected_model = await vscode.window.showQuickPick(
-              model_items,
-              {
-                placeHolder: 'Select an OpenRouter model'
-              }
-            )
-
-            if (selected_model) {
-              this._send_message<OpenRouterModelSelectedMessage>({
-                command: 'OPEN_ROUTER_MODEL_SELECTED',
-                model_id: selected_model.description
-              })
-            } else {
-              this._send_message<OpenRouterModelSelectedMessage>({
-                command: 'OPEN_ROUTER_MODEL_SELECTED',
-                model_id: undefined
-              })
-            }
+            await handle_open_router_model_picker({
+              provider: this,
+              models: message.models
+            })
           } else if (message.command == 'GET_CODE_COMPLETIONS_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_code_completions_settings()
-            this._send_message<ApiToolCodeCompletionsSettingsMessage>({
+            this.send_message<ApiToolCodeCompletionsSettingsMessage>({
               command: 'CODE_COMPLETIONS_SETTINGS',
               settings
             })
@@ -1483,7 +1464,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_FILE_REFACTORING_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_file_refactoring_settings()
-            this._send_message<ApiToolFileRefactoringSettingsMessage>({
+            this.send_message<ApiToolFileRefactoringSettingsMessage>({
               command: 'FILE_REFACTORING_SETTINGS',
               settings
             })
@@ -1494,7 +1475,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
             const settings =
               this._api_tools_settings_manager.get_commit_messages_settings()
-            this._send_message<ApiToolCommitMessageSettingsMessage>({
+            this.send_message<ApiToolCommitMessageSettingsMessage>({
               command: 'COMMIT_MESSAGES_SETTINGS',
               settings
             })
@@ -1526,7 +1507,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_EDIT_FORMAT') {
             const config = vscode.workspace.getConfiguration('codeWebChat')
             const edit_format = config.get<EditFormat>('editFormat')!
-            this._send_message({
+            this.send_message({
               command: 'EDIT_FORMAT',
               edit_format
             })
@@ -1542,7 +1523,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const visibility = config.get<EditFormatSelectorVisibility>(
               'editFormatSelectorVisibility'
             )!
-            this._send_message<EditFormatSelectorVisibilityMessage>({
+            this.send_message<EditFormatSelectorVisibilityMessage>({
               command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
               visibility
             })
@@ -1573,7 +1554,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       'editFormatSelectorVisibility',
       'visible'
     )
-    this._send_message<EditFormatSelectorVisibilityMessage>({
+    this.send_message<EditFormatSelectorVisibilityMessage>({
       command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
       visibility: initial_visibility
     })
@@ -1583,25 +1564,25 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._send_custom_providers()
 
     // Send initial settings for new tools
-    this._send_message<ApiToolCodeCompletionsSettingsMessage>({
+    this.send_message<ApiToolCodeCompletionsSettingsMessage>({
       command: 'CODE_COMPLETIONS_SETTINGS',
       settings: config.get<ApiToolSettings>(
         'apiToolCodeCompletionsSettings',
         {}
       )
     })
-    this._send_message<ApiToolFileRefactoringSettingsMessage>({
+    this.send_message<ApiToolFileRefactoringSettingsMessage>({
       command: 'FILE_REFACTORING_SETTINGS',
       settings: config.get<ApiToolSettings>(
         'apiToolFileRefactoringSettings',
         {}
       )
     })
-    this._send_message<ApiToolCommitMessageSettingsMessage>({
+    this.send_message<ApiToolCommitMessageSettingsMessage>({
       command: 'COMMIT_MESSAGES_SETTINGS',
       settings: config.get<ApiToolSettings>('apiToolCommitMessageSettings', {})
     })
-    this._send_message<SelectedCodeCompletionPresetsMessage>({
+    this.send_message<SelectedCodeCompletionPresetsMessage>({
       command: 'SELECTED_CODE_COMPLETION_PRESETS',
       names: this._context.globalState.get<string[]>(
         'selectedCodeCompletionPresets',
@@ -1619,7 +1600,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       const document = active_editor.document
       const text_length = document.getText().length
 
-      this._send_message<ActiveFileInfoMessage>({
+      this.send_message<ActiveFileInfoMessage>({
         command: 'ACTIVE_FILE_INFO_UPDATED',
         fileLength: text_length
       })
@@ -1636,7 +1617,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       (preset_config) => this._config_preset_to_ui_format(preset_config)
     )
 
-    this._send_message<PresetsMessage>({
+    this.send_message<PresetsMessage>({
       command: 'PRESETS',
       presets: presets_for_ui
     })
@@ -1682,7 +1663,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _send_custom_providers() {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const providers = config.get<any[]>('providers', [])
-    this._send_message<CustomProvidersUpdatedMessage>({
+    this.send_message<CustomProvidersUpdatedMessage>({
       command: 'CUSTOM_PROVIDERS_UPDATED',
       custom_providers: providers
     })
@@ -1707,7 +1688,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         'code-completion-suggestions',
         this._code_completion_suggestions
       )
-      this._send_message<CodeCompletionSuggestionsMessage>({
+      this.send_message<CodeCompletionSuggestionsMessage>({
         command: 'CODE_COMPLETION_SUGGESTIONS',
         value: this._code_completion_suggestions
       })
@@ -1721,7 +1702,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       this._caret_position += text.length
 
       this._context.workspaceState.update('instructions', this._instructions)
-      this._send_message<InstructionsMessage>({
+      this.send_message<InstructionsMessage>({
         command: 'INSTRUCTIONS',
         value: this._instructions
       })
