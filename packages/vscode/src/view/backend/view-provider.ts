@@ -50,7 +50,8 @@ import {
   handle_delete_preset,
   handle_duplicate_preset,
   handle_create_preset,
-  handle_preview_preset // Added this import
+  handle_preview_preset,
+  handle_show_quick_pick
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -577,24 +578,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'EXECUTE_COMMAND') {
             vscode.commands.executeCommand(message.command_id)
           } else if (message.command == 'SHOW_QUICK_PICK') {
-            const items = message.items.map((item) => ({
-              label: item.label,
-              description: item.description
-            }))
-
-            const selected_item = await vscode.window.showQuickPick(items, {
-              placeHolder: message.title
-            })
-
-            if (selected_item) {
-              const selected_command = message.items.find(
-                (item) => item.label == selected_item.label
-              )?.command
-
-              if (selected_command) {
-                vscode.commands.executeCommand(selected_command)
-              }
-            }
+            await handle_show_quick_pick(this, message.items, message.title)
           } else if (message.command == 'GET_EDIT_FORMAT') {
             this.send_message({
               command: 'EDIT_FORMAT',
