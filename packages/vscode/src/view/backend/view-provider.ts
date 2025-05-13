@@ -40,8 +40,9 @@ import { ToolSettings } from '@shared/types/tool-settings'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '../types/edit-format-selector-visibility'
 import {
-  handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS,
-  handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS,
+  handle_get_api_tool_code_completions_settings,
+  handle_get_api_tool_file_refactoring_settings,
+  handle_get_api_tool_commit_messages_settings,
   handle_get_open_router_models,
   handle_show_open_router_model_picker,
   handle_show_preset_picker,
@@ -55,6 +56,7 @@ import {
   handle_show_quick_pick,
   handle_save_edit_format,
   handle_get_edit_format_selector_visibility,
+  handle_save_edit_format_selector_visibility
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -121,14 +123,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           ) &&
           this._webview_view
         ) {
-          handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS(this)
+          handle_get_api_tool_code_completions_settings(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolFileRefactoringSettings'
           ) &&
           this._webview_view
         ) {
-          handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS(this)
+          handle_get_api_tool_file_refactoring_settings(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolCommitMessageSettings'
@@ -518,7 +520,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'DUPLICATE_PRESET') {
             await handle_duplicate_preset(this, message, webview_view)
           } else if (message.command == 'CREATE_PRESET') {
-            await handle_create_preset(this) // Call the new handler
+            await handle_create_preset(this)
           } else if (message.command == 'GET_GEMINI_API_KEY') {
             const api_key = this.api_tools_settings_manager.get_gemini_api_key()
             this.send_message<GeminiApiKeyMessage>({
@@ -547,7 +549,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'GET_API_TOOL_CODE_COMPLETIONS_SETTINGS'
           ) {
-            handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS(this)
+            handle_get_api_tool_code_completions_settings(this)
           } else if (
             message.command == 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
           ) {
@@ -557,7 +559,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'GET_API_TOOL_FILE_REFACTORING_SETTINGS'
           ) {
-            handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS(this)
+            handle_get_api_tool_file_refactoring_settings(this)
           } else if (
             message.command == 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS'
           ) {
@@ -567,12 +569,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'GET_API_TOOL_COMMIT_MESSAGES_SETTINGS'
           ) {
-            const settings =
-              this.api_tools_settings_manager.GET_API_TOOL_COMMIT_MESSAGES_SETTINGS()
-            this.send_message<ApiToolCommitMessageSettingsMessage>({
-              command: 'API_TOOL_COMMIT_MESSAGES_SETTINGS',
-              settings
-            })
+            handle_get_api_tool_commit_messages_settings(this)
           } else if (
             message.command == 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS'
           ) {
@@ -595,12 +592,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
           ) {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            await config.update(
-              'editFormatSelectorVisibility',
-              message.visibility,
-              vscode.ConfigurationTarget.Global
-            )
+            await handle_save_edit_format_selector_visibility(this, message)
           } else if (message.command == 'CARET_POSITION_CHANGED') {
             this.caret_position = message.caret_position
           }

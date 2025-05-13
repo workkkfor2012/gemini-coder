@@ -83,7 +83,7 @@ export function refactor_command(params: {
     }
 
     const refactoring_settings =
-      api_tool_settings_manager.GET_API_TOOL_FILE_REFACTORING_SETTINGS()
+      api_tool_settings_manager.get_api_tool_file_refactoring_settings()
 
     if (!refactoring_settings.provider) {
       vscode.window.showErrorMessage(
