@@ -27,7 +27,8 @@ import {
   SelectedCodeCompletionPresetsMessage,
   InstructionsMessage,
   CodeCompletionSuggestionsMessage,
-  EditFormatSelectorVisibilityMessage
+  EditFormatSelectorVisibilityMessage,
+  EditFormatMessage
 } from '../types/messages'
 import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -52,7 +53,8 @@ import {
   handle_create_preset,
   handle_preview_preset,
   handle_show_quick_pick,
-  handle_save_edit_format
+  handle_save_edit_format,
+  handle_get_edit_format_selector_visibility,
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -347,6 +349,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | InstructionsMessage
       | CodeCompletionSuggestionsMessage
       | EditFormatSelectorVisibilityMessage
+      | EditFormatMessage
   >(message: T) {
     if (this._webview_view) {
       this._webview_view.webview.postMessage(message)
@@ -581,21 +584,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'SHOW_QUICK_PICK') {
             await handle_show_quick_pick(this, message.items, message.title)
           } else if (message.command == 'GET_EDIT_FORMAT') {
-            this.send_message({
+            this.send_message<EditFormatMessage>({
               command: 'EDIT_FORMAT',
               edit_format: this.edit_format
             })
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
             await handle_save_edit_format(this, message.edit_format)
           } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const visibility = config.get<EditFormatSelectorVisibility>(
-              'editFormatSelectorVisibility'
-            )!
-            this.send_message<EditFormatSelectorVisibilityMessage>({
-              command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
-              visibility
-            })
+            handle_get_edit_format_selector_visibility(this)
           } else if (
             message.command == 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
           ) {
