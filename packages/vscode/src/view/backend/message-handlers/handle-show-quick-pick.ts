@@ -1,6 +1,6 @@
 import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
-import { ExecuteCommandMessage } from '@/view/types/messages'
+import { ExtensionMessage } from '@/view/types/messages'
 
 export const handle_show_quick_pick = async (
   provider: ViewProvider,
@@ -22,7 +22,7 @@ export const handle_show_quick_pick = async (
     )?.command
 
     if (selectedCommand) {
-      provider.send_message<ExecuteCommandMessage>({
+      provider.send_message<ExtensionMessage>({
         command: 'EXECUTE_COMMAND',
         command_id: selectedCommand
       })

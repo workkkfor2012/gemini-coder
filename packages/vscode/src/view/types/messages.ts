@@ -82,7 +82,7 @@ export interface SaveSelectedPresetsMessage extends BaseMessage {
 
 export interface SavePresetsOrderMessage extends BaseMessage {
   command: 'SAVE_PRESETS_ORDER'
-  presets: PresetMessageFormat[]
+  presets: Preset[]
 }
 
 export interface SendPromptMessage extends BaseMessage {
@@ -170,7 +170,8 @@ export interface GetApiToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'GET_API_TOOL_CODE_COMPLETIONS_SETTINGS'
 }
 
-export interface UpdateApiToolCodeCompletionsSettingsMessage extends BaseMessage {
+export interface UpdateApiToolCodeCompletionsSettingsMessage
+  extends BaseMessage {
   command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
   settings: ToolSettings
 }
@@ -464,10 +465,10 @@ export type ExtensionMessage =
   | ActiveFileInfoMessage
   | PresetCreatedMessage
   | PresetUpdatedMessage
-  | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
   | ApiToolCodeCompletionsSettingsMessage
   | ApiToolFileRefactoringSettingsMessage
   | ApiToolCommitMessageSettingsMessage
   | SelectedCodeCompletionPresetsMessage
+  | ExecuteCommandMessage

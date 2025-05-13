@@ -1,6 +1,6 @@
 import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
-import { EditFormatSelectorVisibilityMessage } from '@/view/types/messages'
+import { ExtensionMessage } from '@/view/types/messages'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
 
 export const handle_get_edit_format_selector_visibility = (
@@ -10,7 +10,7 @@ export const handle_get_edit_format_selector_visibility = (
   const visibility = config.get<EditFormatSelectorVisibility>(
     'editFormatSelectorVisibility'
   )!
-  provider.send_message<EditFormatSelectorVisibilityMessage>({
+  provider.send_message<ExtensionMessage>({
     command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
     visibility
   })

@@ -1,6 +1,6 @@
 import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
-import { OpenRouterModelSelectedMessage } from '@/view/types/messages'
+import { ExtensionMessage } from '@/view/types/messages'
 
 export const handle_show_open_router_model_picker = async (
   provider: ViewProvider,
@@ -17,12 +17,12 @@ export const handle_show_open_router_model_picker = async (
   })
 
   if (selected_model) {
-    provider.send_message<OpenRouterModelSelectedMessage>({
+    provider.send_message<ExtensionMessage>({
       command: 'OPEN_ROUTER_MODEL_SELECTED',
       model_id: selected_model.description
     })
   } else {
-    provider.send_message<OpenRouterModelSelectedMessage>({
+    provider.send_message<ExtensionMessage>({
       command: 'OPEN_ROUTER_MODEL_SELECTED',
       model_id: undefined
     })

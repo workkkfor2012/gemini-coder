@@ -1,10 +1,6 @@
 import * as vscode from 'vscode'
 import { ViewProvider } from '@/view/backend/view-provider'
-import {
-  SelectedPresetsMessage,
-  SelectedCodeCompletionPresetsMessage,
-  DeletePresetMessage
-} from '@/view/types/messages'
+import { DeletePresetMessage, ExtensionMessage } from '@/view/types/messages'
 import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
 
 export const handle_delete_preset = async (
@@ -79,7 +75,7 @@ export const handle_delete_preset = async (
         'selectedPresets',
         updated_selected
       )
-      provider.send_message<SelectedPresetsMessage>({
+      provider.send_message<ExtensionMessage>({
         command: 'SELECTED_PRESETS',
         names: updated_selected
       })
@@ -97,7 +93,7 @@ export const handle_delete_preset = async (
         'selectedCodeCompletionPresets',
         updated_selected
       )
-      provider.send_message<SelectedCodeCompletionPresetsMessage>({
+      provider.send_message<ExtensionMessage>({
         command: 'SELECTED_CODE_COMPLETION_PRESETS',
         names: updated_selected
       })

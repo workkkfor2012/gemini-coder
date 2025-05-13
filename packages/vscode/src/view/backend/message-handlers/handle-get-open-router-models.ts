@@ -1,5 +1,5 @@
 import { ViewProvider } from '@/view/backend/view-provider'
-import { OpenRouterModelsMessage } from '@/view/types/messages'
+import { ExtensionMessage } from '@/view/types/messages'
 import { Logger } from '@/helpers/logger'
 import axios from 'axios'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
@@ -29,7 +29,7 @@ export const handle_get_open_router_models = async (
       }
     }
 
-    provider.send_message<OpenRouterModelsMessage>({
+    provider.send_message<ExtensionMessage>({
       command: 'OPEN_ROUTER_MODELS',
       models
     })
@@ -40,7 +40,7 @@ export const handle_get_open_router_models = async (
       data: error
     })
     vscode.window.showErrorMessage('Failed to fetch OpenRouter models.')
-    provider.send_message<OpenRouterModelsMessage>({
+    provider.send_message<ExtensionMessage>({
       command: 'OPEN_ROUTER_MODELS',
       models: {}
     })

@@ -1,9 +1,6 @@
 import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
-import {
-  SelectedPresetsMessage,
-  SelectedCodeCompletionPresetsMessage
-} from '@/view/types/messages'
+import { ExtensionMessage } from '@/view/types/messages'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
 
 export const handle_show_preset_picker = async (
@@ -73,12 +70,12 @@ export const handle_show_preset_picker = async (
     )
 
     if (is_code_completions_mode) {
-      provider.send_message<SelectedCodeCompletionPresetsMessage>({
+      provider.send_message<ExtensionMessage>({
         command: 'SELECTED_CODE_COMPLETION_PRESETS',
         names: selected_names
       })
     } else {
-      provider.send_message<SelectedPresetsMessage>({
+      provider.send_message<ExtensionMessage>({
         command: 'SELECTED_PRESETS',
         names: selected_names
       })
