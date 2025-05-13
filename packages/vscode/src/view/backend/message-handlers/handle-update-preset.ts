@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { ConfigPresetFormat, ViewProvider } from '@/view/backend/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import {
   ExtensionMessage,
   SelectedPresetsMessage,
@@ -7,6 +7,10 @@ import {
   UpdatePresetMessage
 } from '@/view/types/messages'
 import { Preset } from '@shared/types/preset'
+import {
+  ConfigPresetFormat,
+  ui_preset_to_config_format
+} from '@/view/backend/helpers/preset-format-converters'
 
 export const handle_update_preset = async (
   provider: ViewProvider,
@@ -113,8 +117,7 @@ export const handle_update_preset = async (
 
   const updated_presets = [...current_presets]
   // Convert the updated preset (with potentially modified name) from UI format to config format
-  updated_presets[preset_index] =
-    provider.ui_preset_to_config_format(updated_ui_preset)
+  updated_presets[preset_index] = ui_preset_to_config_format(updated_ui_preset)
 
   await config.update(
     'presets',

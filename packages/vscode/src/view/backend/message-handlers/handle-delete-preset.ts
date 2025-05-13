@@ -1,10 +1,11 @@
 import * as vscode from 'vscode'
-import { ConfigPresetFormat, ViewProvider } from '@/view/backend/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import {
   SelectedPresetsMessage,
   SelectedCodeCompletionPresetsMessage,
   DeletePresetMessage
 } from '@/view/types/messages'
+import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
 
 export const handle_delete_preset = async (
   provider: ViewProvider,

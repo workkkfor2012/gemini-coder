@@ -1,7 +1,11 @@
 import * as vscode from 'vscode'
-import { ConfigPresetFormat, ViewProvider } from '@/view/backend/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import { ExtensionMessage } from '@/view/types/messages'
 import { CHATBOTS } from '@shared/constants/chatbots'
+import {
+  config_preset_to_ui_format,
+  ConfigPresetFormat
+} from '@/view/backend/helpers/preset-format-converters'
 
 export const handle_create_preset = async (
   provider: ViewProvider
@@ -30,7 +34,7 @@ export const handle_create_preset = async (
   try {
     provider.send_message<ExtensionMessage>({
       command: 'PRESET_CREATED',
-      preset: provider.config_preset_to_ui_format(new_preset)
+      preset: config_preset_to_ui_format(new_preset)
     })
     await config.update('presets', updated_presets, true)
   } catch (error) {

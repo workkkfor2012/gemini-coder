@@ -34,7 +34,6 @@ import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
 import { WorkspaceProvider } from '@/context/providers/workspace-provider'
 import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
-import { CHATBOTS } from '@shared/constants/chatbots'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
 import { ToolSettings } from '@shared/types/tool-settings'
 import { replace_selection_placeholder } from '../../utils/replace-selection-placeholder'
@@ -51,21 +50,13 @@ import {
   handle_update_preset,
   handle_delete_preset,
   handle_duplicate_preset,
-  handle_create_preset // Added new handler import
+  handle_create_preset
 } from './message-handlers'
-
-export type ConfigPresetFormat = {
-  name: string
-  chatbot: keyof typeof CHATBOTS
-  promptPrefix?: string
-  promptSuffix?: string
-  model?: string
-  temperature?: number
-  topP?: number
-  systemInstructions?: string
-  options?: string[]
-  port?: number
-}
+import {
+  config_preset_to_ui_format,
+  ui_preset_to_config_format,
+  ConfigPresetFormat
+} from '@/view/backend/helpers/preset-format-converters'
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
@@ -360,40 +351,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  // Helper function to convert UI Preset format to Config format
-  public ui_preset_to_config_format(preset: Preset): ConfigPresetFormat {
-    return {
-      name: preset.name,
-      chatbot: preset.chatbot,
-      promptPrefix: preset.prompt_prefix,
-      promptSuffix: preset.prompt_suffix,
-      model: preset.model,
-      temperature: preset.temperature,
-      topP: preset.top_p,
-      systemInstructions: preset.system_instructions,
-      options: preset.options,
-      port: preset.port
-    }
-  }
-
-  // Helper function to convert Config Preset format to UI format (already used in _send_presets_to_webview)
-  public config_preset_to_ui_format(
-    config_preset: ConfigPresetFormat
-  ): Preset {
-    return {
-      name: config_preset.name,
-      chatbot: config_preset.chatbot,
-      prompt_prefix: config_preset.promptPrefix,
-      prompt_suffix: config_preset.promptSuffix,
-      model: config_preset.model,
-      temperature: config_preset.temperature,
-      top_p: config_preset.topP,
-      system_instructions: config_preset.systemInstructions,
-      options: config_preset.options,
-      port: config_preset.port
-    }
-  }
-
   async resolveWebviewView(
     webview_view: vscode.WebviewView,
     _: vscode.WebviewViewResolveContext,
@@ -643,7 +600,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const config = vscode.workspace.getConfiguration('codeWebChat')
             // Convert UI format from message to config format before saving
             const config_formatted_presets = message.presets.map((preset) =>
-              this.ui_preset_to_config_format(preset)
+              ui_preset_to_config_format(preset)
             )
             await config.update(
               'presets',
@@ -819,7 +776,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     // Convert from config format to UI format before sending
     const presets_for_ui: Preset[] = web_chat_presets_config.map(
-      (preset_config) => this.config_preset_to_ui_format(preset_config)
+      (preset_config) => config_preset_to_ui_format(preset_config)
     )
 
     this.send_message<PresetsMessage>({
