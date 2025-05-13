@@ -1,31 +1,25 @@
-import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
-import { ExtensionMessage } from '@/view/types/messages'
+import { ShowQuickPickMessage } from '@/view/types/messages'
 
 export const handle_show_quick_pick = async (
-  provider: ViewProvider,
-  items: Array<{ label: string; description: string; command: string }>,
-  title: string
+  message: ShowQuickPickMessage
 ): Promise<void> => {
-  const quick_pick_items = items.map((item) => ({
+  const quick_pick_items = message.items.map((item) => ({
     label: item.label,
     description: item.description
   }))
 
   const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
-    placeHolder: title
+    placeHolder: message.title
   })
 
   if (selected_item) {
-    const selectedCommand = items.find(
+    const selected_command = message.items.find(
       (item) => item.label == selected_item.label
     )?.command
 
-    if (selectedCommand) {
-      provider.send_message<ExtensionMessage>({
-        command: 'EXECUTE_COMMAND',
-        command_id: selectedCommand
-      })
+    if (selected_command) {
+      vscode.commands.executeCommand(selected_command)
     }
   }
 }

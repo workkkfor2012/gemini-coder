@@ -453,7 +453,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'EXECUTE_COMMAND') {
             vscode.commands.executeCommand(message.command_id)
           } else if (message.command == 'SHOW_QUICK_PICK') {
-            await handle_show_quick_pick(this, message.items, message.title)
+            await handle_show_quick_pick(message)
           } else if (message.command == 'GET_EDIT_FORMAT') {
             this.send_message<ExtensionMessage>({
               command: 'EDIT_FORMAT',

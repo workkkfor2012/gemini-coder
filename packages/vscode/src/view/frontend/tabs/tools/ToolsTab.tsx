@@ -68,18 +68,15 @@ export const ToolsTab: React.FC<Props> = (props) => {
     })
   }
 
-  const code_completion_title = has_active_editor
-    ? 'Insert code completion at the caret position'
-    : 'Requires an active editor'
+  const code_completion_title =
+    has_active_editor && !has_active_selection
+      ? undefined
+      : has_active_selection
+      ? 'Unavailable with text selection'
+      : 'Requires an active editor'
 
   const refactor_title = has_active_editor
-    ? 'Refactor the content of the active file'
-    : 'Requires an active editor'
-
-  const apply_chat_response_title = has_active_editor
-    ? has_active_selection
-      ? 'Replace selection or insert at caret with chat response from clipboard'
-      : 'Insert at caret with chat response from clipboard'
+    ? undefined
     : 'Requires an active editor'
 
   const configuration_title = 'Configure API tool settings'
@@ -95,10 +92,10 @@ export const ToolsTab: React.FC<Props> = (props) => {
             handle_execute_command('codeWebChat.codeCompletionAutoAccept')
           }}
           on_quick_pick_trigger_click={handle_code_completions_more_actions}
-          disabled={!has_active_editor}
+          disabled={!has_active_editor || has_active_selection}
           title={code_completion_title}
         >
-          Insert Code Completion
+          Code Completion at Cursor
         </Button>
         <Button
           on_click={() => handle_execute_command('codeWebChat.refactor')}
@@ -106,16 +103,14 @@ export const ToolsTab: React.FC<Props> = (props) => {
           disabled={!has_active_editor}
           title={refactor_title}
         >
-          Refactor Active File
+          Refactor File with Instructions
         </Button>
         <Button
           on_click={() =>
             handle_execute_command('codeWebChat.applyChatResponse')
           }
-          disabled={!has_active_editor}
-          title={apply_chat_response_title}
         >
-          Apply Chat Response
+          Apply Copied Chat Response
         </Button>
       </div>
 
