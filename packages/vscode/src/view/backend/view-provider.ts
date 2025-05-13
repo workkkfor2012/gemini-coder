@@ -36,7 +36,6 @@ import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
 import { ToolSettings } from '@shared/types/tool-settings'
-import { replace_selection_placeholder } from '../../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '../types/edit-format-selector-visibility'
 import {
@@ -50,7 +49,8 @@ import {
   handle_update_preset,
   handle_delete_preset,
   handle_duplicate_preset,
-  handle_create_preset
+  handle_create_preset,
+  handle_preview_preset // Added this import
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -456,108 +456,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'SEND_PROMPT') {
             await handle_send_prompt(this, message.preset_names)
           } else if (message.command == 'PREVIEW_PRESET') {
-            await vscode.workspace.saveAll()
-
-            const files_collector = new FilesCollector(
-              this.workspace_provider,
-              this.open_editors_provider,
-              this.websites_provider
-            )
-
-            const active_editor = vscode.window.activeTextEditor
-            const active_path = active_editor?.document.uri.fsPath
-
-            let text_to_send: string
-            const current_instructions = !this.is_code_completions_mode
-              ? this.instructions
-              : this.code_completion_suggestions
-
-            if (this.is_code_completions_mode && active_editor) {
-              const document = active_editor.document
-              const position = active_editor.selection.active
-
-              const text_before_cursor = document.getText(
-                new vscode.Range(new vscode.Position(0, 0), position)
-              )
-              const text_after_cursor = document.getText(
-                new vscode.Range(
-                  position,
-                  document.positionAt(document.getText().length)
-                )
-              )
-
-              const context_text = await files_collector.collect_files({
-                exclude_path: active_path
-              })
-
-              const workspace_folder =
-                vscode.workspace.workspaceFolders?.[0].uri.fsPath
-              const relative_path = active_path!.replace(
-                workspace_folder + '/',
-                ''
-              )
-
-              const config = vscode.workspace.getConfiguration('codeWebChat')
-              const chat_code_completion_instructions = config.get<string>(
-                'chatCodeCompletionInstructions'
-              )
-
-              const instructions = `${chat_code_completion_instructions}${
-                current_instructions
-                  ? ` Follow suggestions: ${current_instructions}`
-                  : ''
-              }`
-
-              text_to_send = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
-            } else if (!this.is_code_completions_mode) {
-              const context_text = await files_collector.collect_files({
-                active_path
-              })
-
-              let instructions =
-                replace_selection_placeholder(current_instructions)
-
-              // Apply affixes from the PREVIEW preset, not default selected ones
-              if (message.preset.prompt_prefix) {
-                instructions =
-                  message.preset.prompt_prefix + '\n' + instructions
-              }
-              if (message.preset.prompt_suffix) {
-                instructions =
-                  instructions + '\n' + message.preset.prompt_suffix
-              }
-
-              // Use the stored _edit_format property
-              const config = vscode.workspace.getConfiguration('codeWebChat')
-              const edit_format_instructions = config.get<string>(
-                `codeWebChat.editFormatInstructions${
-                  this.edit_format.charAt(0).toUpperCase() +
-                  this.edit_format.slice(1)
-                }`
-              )
-              if (edit_format_instructions) {
-                instructions += `\n${edit_format_instructions}`
-              }
-
-              text_to_send = `${
-                context_text
-                  ? `${instructions}\n<files>\n${context_text}</files>\n`
-                  : ''
-              }${instructions}`
-            } else {
-              vscode.window.showWarningMessage(
-                'Cannot preview in code completion mode without an active editor.'
-              )
-              return
-            }
-
-            this.websocket_server_instance.preview_preset(
-              text_to_send,
-              message.preset
-            )
-            vscode.window.showInformationMessage(
-              'Preset preview sent to the connected browser.'
-            )
+            await handle_preview_preset(this, message)
           } else if (message.command == 'COPY_PROMPT') {
             await handle_copy_prompt(this)
           } else if (message.command == 'SHOW_PRESET_PICKER') {
