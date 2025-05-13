@@ -32,9 +32,10 @@ Guiding Principles:
 
 CWC is for you if:
 
-- you're an experienced developer working on a large codebase
+- you're a craftsman working on a large codebase
+- you're a student or hobbyist on a budget
 - coding agents are too autonomous for your liking
-- student or hobbyist on a budget
+- you love open source software! 🫶
 
 <br/>
 
