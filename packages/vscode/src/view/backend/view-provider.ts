@@ -50,7 +50,8 @@ import {
   handle_send_prompt,
   handle_update_preset,
   handle_delete_preset,
-  handle_duplicate_preset
+  handle_duplicate_preset,
+  handle_create_preset // Added new handler import
 } from './message-handlers'
 
 export type ConfigPresetFormat = {
@@ -376,7 +377,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   // Helper function to convert Config Preset format to UI format (already used in _send_presets_to_webview)
-  private _config_preset_to_ui_format(
+  public config_preset_to_ui_format(
     config_preset: ConfigPresetFormat
   ): Preset {
     return {
@@ -656,40 +657,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'DUPLICATE_PRESET') {
             await handle_duplicate_preset(this, message, webview_view)
           } else if (message.command == 'CREATE_PRESET') {
-            // Get current presets
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const current_presets =
-              config.get<ConfigPresetFormat[]>('presets', []) || []
-
-            // Generate unique name
-            let new_name = ''
-            let copy_number = 0
-            while (current_presets.some((p) => p.name == new_name)) {
-              new_name = `(${copy_number++})`
-            }
-
-            const new_preset: ConfigPresetFormat = {
-              name: new_name,
-              chatbot: 'AI Studio',
-              model: Object.keys(CHATBOTS['AI Studio'].models)[0],
-              temperature: 0.5,
-              systemInstructions:
-                CHATBOTS['AI Studio'].default_system_instructions
-            }
-
-            const updated_presets = [...current_presets, new_preset]
-
-            try {
-              this.send_message<ExtensionMessage>({
-                command: 'PRESET_CREATED',
-                preset: this._config_preset_to_ui_format(new_preset)
-              })
-              config.update('presets', updated_presets, true)
-            } catch (error) {
-              vscode.window.showErrorMessage(
-                `Failed to create preset: ${error}`
-              )
-            }
+            await handle_create_preset(this) // Call the new handler
           } else if (message.command == 'GET_GEMINI_API_KEY') {
             const api_key = this.api_tools_settings_manager.get_gemini_api_key()
             this.send_message<GeminiApiKeyMessage>({
@@ -851,7 +819,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     // Convert from config format to UI format before sending
     const presets_for_ui: Preset[] = web_chat_presets_config.map(
-      (preset_config) => this._config_preset_to_ui_format(preset_config)
+      (preset_config) => this.config_preset_to_ui_format(preset_config)
     )
 
     this.send_message<PresetsMessage>({
