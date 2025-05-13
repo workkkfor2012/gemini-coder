@@ -201,22 +201,19 @@ export const Main: React.FC<Props> = (props) => {
               {
                 value: 'truncated',
                 label: 'Truncated',
-                title:
-                  'Code blocks of the chat response will proritize readability, perfect for iteration over instructions. Apply Chat Response tool will use API with file-merging instructions.',
+                title: 'The model will skip unchanged fragments.',
                 disabled: props.is_in_code_completions_mode
               },
               {
                 value: 'whole',
                 label: 'Whole',
-                title:
-                  'Modified files will be generated fully and replaced in place.',
+                title: 'The model will output complete files.',
                 disabled: props.is_in_code_completions_mode
               },
               {
                 value: 'diff',
                 label: 'Diff',
-                title:
-                  'The model will output changes only. Chat response will be applied in place (assuming correctness of the generated patch).',
+                title: 'The model will output diffs.',
                 disabled: props.is_in_code_completions_mode
               }
             ]}
