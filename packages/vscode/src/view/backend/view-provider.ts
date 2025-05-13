@@ -51,7 +51,8 @@ import {
   handle_duplicate_preset,
   handle_create_preset,
   handle_preview_preset,
-  handle_show_quick_pick
+  handle_show_quick_pick,
+  handle_save_edit_format
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -585,11 +586,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               edit_format: this.edit_format
             })
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
-            this.edit_format = message.edit_format
-            await this.context.workspaceState.update(
-              'editFormat',
-              message.edit_format
-            )
+            await handle_save_edit_format(this, message.edit_format)
           } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
             const config = vscode.workspace.getConfiguration('codeWebChat')
             const visibility = config.get<EditFormatSelectorVisibility>(
