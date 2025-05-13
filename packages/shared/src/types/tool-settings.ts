@@ -1,6 +1,6 @@
 export type Provider = 'Gemini API' | 'OpenRouter'
 
-export type ApiToolSettings = {
+export type ToolSettings = {
   provider?: Provider
   model?: string
   temperature?: number

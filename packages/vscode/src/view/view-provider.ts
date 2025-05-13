@@ -17,9 +17,9 @@ import {
   CustomProvidersUpdatedMessage,
   OpenRouterModelsMessage,
   OpenRouterModelSelectedMessage,
-  ApiToolCodeCompletionsSettingsMessage,
-  ApiToolFileRefactoringSettingsMessage,
-  ApiToolCommitMessageSettingsMessage,
+  ToolCodeCompletionsSettingsMessage,
+  ToolFileRefactoringSettingsMessage,
+  ToolCommitMessageSettingsMessage,
   OpenRouterApiKeyMessage,
   ExecuteCommandMessage,
   ShowQuickPickMessage,
@@ -40,12 +40,12 @@ import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
 import axios from 'axios'
 import { Logger } from '@/helpers/logger'
 import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
-import { ApiToolSettings } from '@shared/types/api-tool-settings'
+import { ToolSettings } from '@shared/types/tool-settings'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
-import { handle_open_router_model_picker } from './provider/message-handlers/handle-open-router-model-picker'
-import { handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS } from './provider/message-handlers/handle-get-code-completions-settings'
+import { handle_show_open_router_model_picker } from './provider/message-handlers/handle-show-open-router-model-picker'
+import { handle_get_tool_code_completions_settings } from './provider/message-handlers/handle-get-code-completions-settings'
 
 type ConfigPresetFormat = {
   name: string
@@ -112,7 +112,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           ) &&
           this._webview_view
         ) {
-          handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
+          handle_get_tool_code_completions_settings(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolFileRefactoringSettings'
@@ -120,12 +120,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
-          const settings = config.get<ApiToolSettings>(
+          const settings = config.get<ToolSettings>(
             'apiToolFileRefactoringSettings',
             {}
           )
-          this.send_message<ApiToolFileRefactoringSettingsMessage>({
-            command: 'FILE_REFACTORING_SETTINGS',
+          this.send_message<ToolFileRefactoringSettingsMessage>({
+            command: 'TOOL_FILE_REFACTORING_SETTINGS',
             settings
           })
         } else if (
@@ -135,11 +135,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           this._webview_view
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
-          const settings = config.get<ApiToolSettings>(
+          const settings = config.get<ToolSettings>(
             'apiToolCommitMessageSettings',
             {}
           )
-          this.send_message<ApiToolCommitMessageSettingsMessage>({
+          this.send_message<ToolCommitMessageSettingsMessage>({
             command: 'COMMIT_MESSAGES_SETTINGS',
             settings
           })
@@ -350,9 +350,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | CustomProvidersUpdatedMessage
       | OpenRouterModelsMessage
       | OpenRouterModelSelectedMessage
-      | ApiToolCodeCompletionsSettingsMessage
-      | ApiToolFileRefactoringSettingsMessage
-      | ApiToolCommitMessageSettingsMessage
+      | ToolCodeCompletionsSettingsMessage
+      | ToolFileRefactoringSettingsMessage
+      | ToolCommitMessageSettingsMessage
       | ExecuteCommandMessage
       | ShowQuickPickMessage
       | PreviewPresetMessage
@@ -1436,32 +1436,38 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               models
             })
           } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
-            await handle_open_router_model_picker(this, message.models)
+            await handle_show_open_router_model_picker(this, message.models)
           } else if (message.command == 'GET_TOOL_CODE_COMPLETIONS_SETTINGS') {
-            handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
-          } else if (message.command == 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS') {
+            handle_get_tool_code_completions_settings(this)
+          } else if (
+            message.command == 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
+          ) {
             this.api_tools_settings_manager.set_code_completions_settings(
               message.settings
             )
           } else if (message.command == 'GET_TOOL_FILE_REFACTORING_SETTINGS') {
             const settings =
               this.api_tools_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
-            this.send_message<ApiToolFileRefactoringSettingsMessage>({
-              command: 'FILE_REFACTORING_SETTINGS',
+            this.send_message<ToolFileRefactoringSettingsMessage>({
+              command: 'TOOL_FILE_REFACTORING_SETTINGS',
               settings
             })
-          } else if (message.command == 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS') {
+          } else if (
+            message.command == 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS'
+          ) {
             this.api_tools_settings_manager.set_file_refactoring_settings(
               message.settings
             )
           } else if (message.command == 'GET_TOOL_COMMIT_MESSAGES_SETTINGS') {
             const settings =
               this.api_tools_settings_manager.GET_TOOL_COMMIT_MESSAGES_SETTINGS()
-            this.send_message<ApiToolCommitMessageSettingsMessage>({
+            this.send_message<ToolCommitMessageSettingsMessage>({
               command: 'COMMIT_MESSAGES_SETTINGS',
               settings
             })
-          } else if (message.command == 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS') {
+          } else if (
+            message.command == 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS'
+          ) {
             this.api_tools_settings_manager.set_commit_messages_settings(
               message.settings
             )
@@ -1544,27 +1550,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._update_active_file_info()
     this._send_presets_to_webview(webview_view.webview)
     this._send_custom_providers()
-
-    // Send initial settings for new tools
-    handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
-    this.send_message<ApiToolFileRefactoringSettingsMessage>({
-      command: 'FILE_REFACTORING_SETTINGS',
-      settings: config.get<ApiToolSettings>(
-        'apiToolFileRefactoringSettings',
-        {}
-      )
-    })
-    this.send_message<ApiToolCommitMessageSettingsMessage>({
-      command: 'COMMIT_MESSAGES_SETTINGS',
-      settings: config.get<ApiToolSettings>('apiToolCommitMessageSettings', {})
-    })
-    this.send_message<SelectedCodeCompletionPresetsMessage>({
-      command: 'SELECTED_CODE_COMPLETION_PRESETS',
-      names: this._context.globalState.get<string[]>(
-        'selectedCodeCompletionPresets',
-        []
-      )
-    })
   }
 
   // Add this method to the ChatViewProvider class

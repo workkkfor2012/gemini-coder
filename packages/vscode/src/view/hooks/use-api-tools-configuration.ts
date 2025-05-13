@@ -1,41 +1,18 @@
 import { useEffect, useState } from 'react'
-import {
-  ExtensionMessage,
-  GetGeminiApiKeyMessage,
-  GetOpenRouterApiKeyMessage,
-  GetToolCodeCompletionsSettingsMessage,
-  GetToolFileRefactoringSettingsMessage,
-  GetToolCommitMessageSettingsMessage
-} from '../types/messages'
-import { ApiToolSettings } from '@shared/types/api-tool-settings'
+import { ExtensionMessage, WebviewMessage } from '../types/messages'
+import { ToolSettings } from '@shared/types/tool-settings'
 
 export const use_api_tools_configuration = (vscode: any) => {
   const [gemini_api_key, set_gemini_api_key] = useState('')
   const [open_router_api_key, set_open_router_api_key] = useState('')
   const [code_completions_settings, set_code_completions_settings] =
-    useState<ApiToolSettings>()
+    useState<ToolSettings>()
   const [file_refactoring_settings, set_file_refactoring_settings] =
-    useState<ApiToolSettings>()
+    useState<ToolSettings>()
   const [commit_message_settings, set_commit_message_settings] =
-    useState<ApiToolSettings>()
+    useState<ToolSettings>()
 
   useEffect(() => {
-    vscode.postMessage({
-      command: 'GET_GEMINI_API_KEY'
-    } as GetGeminiApiKeyMessage)
-    vscode.postMessage({
-      command: 'GET_OPEN_ROUTER_API_KEY'
-    } as GetOpenRouterApiKeyMessage)
-    vscode.postMessage({
-      command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
-    } as GetToolCodeCompletionsSettingsMessage)
-    vscode.postMessage({
-      command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
-    } as GetToolFileRefactoringSettingsMessage)
-    vscode.postMessage({
-      command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
-    } as GetToolCommitMessageSettingsMessage)
-
     const handle_message = (event: MessageEvent<ExtensionMessage>) => {
       const message = event.data
       if (message.command == 'GEMINI_API_KEY') {
@@ -44,13 +21,29 @@ export const use_api_tools_configuration = (vscode: any) => {
         set_open_router_api_key(message.api_key || '')
       } else if (message.command == 'CODE_COMPLETIONS_SETTINGS') {
         set_code_completions_settings(message.settings)
-      } else if (message.command == 'FILE_REFACTORING_SETTINGS') {
+      } else if (message.command == 'TOOL_FILE_REFACTORING_SETTINGS') {
         set_file_refactoring_settings(message.settings)
       } else if (message.command == 'COMMIT_MESSAGES_SETTINGS') {
         set_commit_message_settings(message.settings)
       }
     }
     window.addEventListener('message', handle_message)
+
+    const initial_messages = [
+      { command: 'GET_GEMINI_API_KEY' } as WebviewMessage,
+      { command: 'GET_OPEN_ROUTER_API_KEY' } as WebviewMessage,
+      {
+        command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
+      } as WebviewMessage,
+      {
+        command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
+      } as WebviewMessage,
+      {
+        command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
+      } as WebviewMessage
+    ]
+    initial_messages.forEach((message) => vscode.postMessage(message))
+
     return () => window.removeEventListener('message', handle_message)
   }, [])
 
@@ -70,9 +63,7 @@ export const use_api_tools_configuration = (vscode: any) => {
     })
   }
 
-  const handle_code_completions_settings_change = (
-    settings: ApiToolSettings
-  ) => {
+  const handle_code_completions_settings_change = (settings: ToolSettings) => {
     set_code_completions_settings(settings)
     vscode.postMessage({
       command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS',
@@ -80,9 +71,7 @@ export const use_api_tools_configuration = (vscode: any) => {
     })
   }
 
-  const handle_file_refactoring_settings_change = (
-    settings: ApiToolSettings
-  ) => {
+  const handle_file_refactoring_settings_change = (settings: ToolSettings) => {
     set_file_refactoring_settings(settings)
     vscode.postMessage({
       command: 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS',
@@ -90,7 +79,7 @@ export const use_api_tools_configuration = (vscode: any) => {
     })
   }
 
-  const handle_commit_message_settings_change = (settings: ApiToolSettings) => {
+  const handle_commit_message_settings_change = (settings: ToolSettings) => {
     set_commit_message_settings(settings)
     vscode.postMessage({
       command: 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS',

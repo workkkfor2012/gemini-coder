@@ -1,7 +1,7 @@
 import { ViewProvider } from '@/view/view-provider'
 import { ExtensionMessage } from '@/view/types/messages'
 
-export const handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS = (
+export const handle_get_tool_code_completions_settings = (
   provider: ViewProvider
 ): void => {
   const settings =

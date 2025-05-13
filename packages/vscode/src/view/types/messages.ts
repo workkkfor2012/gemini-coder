@@ -1,5 +1,5 @@
 import { CHATBOTS } from '@shared/constants/chatbots'
-import { ApiToolSettings } from '@shared/types/api-tool-settings'
+import { ToolSettings } from '@shared/types/tool-settings'
 import { EditFormat } from '@shared/types/edit-format'
 import { Preset } from '@shared/types/preset'
 import { EditFormatSelectorVisibility } from './edit-format-selector-visibility'
@@ -174,29 +174,27 @@ export interface GetToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
 }
 
-export interface UpdateApiToolCodeCompletionsSettingsMessage
-  extends BaseMessage {
+export interface UpdateToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
-  settings: ApiToolSettings
+  settings: ToolSettings
 }
 
 export interface GetToolFileRefactoringSettingsMessage extends BaseMessage {
   command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
 }
 
-export interface UpdateApiToolFileRefactoringSettingsMessage
-  extends BaseMessage {
+export interface UpdateToolFileRefactoringSettingsMessage extends BaseMessage {
   command: 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS'
-  settings: ApiToolSettings
+  settings: ToolSettings
 }
 
 export interface GetToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
 }
 
-export interface UpdateApiToolCommitMessageSettingsMessage extends BaseMessage {
+export interface UpdateToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS'
-  settings: ApiToolSettings
+  settings: ToolSettings
 }
 
 export interface ExecuteCommandMessage extends BaseMessage {
@@ -379,19 +377,19 @@ export interface OpenRouterModelSelectedMessage extends BaseMessage {
   model_id: string | undefined
 }
 
-export interface ApiToolCodeCompletionsSettingsMessage extends BaseMessage {
+export interface ToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'CODE_COMPLETIONS_SETTINGS'
-  settings: ApiToolSettings
+  settings: ToolSettings
 }
 
-export interface ApiToolFileRefactoringSettingsMessage extends BaseMessage {
-  command: 'FILE_REFACTORING_SETTINGS'
-  settings: ApiToolSettings
+export interface ToolFileRefactoringSettingsMessage extends BaseMessage {
+  command: 'TOOL_FILE_REFACTORING_SETTINGS'
+  settings: ToolSettings
 }
 
-export interface ApiToolCommitMessageSettingsMessage extends BaseMessage {
+export interface ToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'COMMIT_MESSAGES_SETTINGS'
-  settings: ApiToolSettings
+  settings: ToolSettings
 }
 
 export interface SelectedCodeCompletionPresetsMessage extends BaseMessage {
@@ -411,8 +409,8 @@ export type WebviewMessage =
   | SaveCodeCompletionSuggestionsMessage
   | GetEditFormat
   | SaveEditFormatMessage
-  | GetEditFormatSelectorVisibility // Added
-  | SaveEditFormatSelectorVisibilityMessage // Added
+  | GetEditFormatSelectorVisibility
+  | SaveEditFormatSelectorVisibilityMessage
   | GetConnectionStatusMessage
   | GetPresetsMessage
   | GetSelectedPresetsMessage
@@ -437,11 +435,11 @@ export type WebviewMessage =
   | GetOpenRouterModelsMessage
   | ShowOpenRouterModelPickerMessage
   | GetToolCodeCompletionsSettingsMessage
-  | UpdateApiToolCodeCompletionsSettingsMessage
+  | UpdateToolCodeCompletionsSettingsMessage
   | GetToolFileRefactoringSettingsMessage
-  | UpdateApiToolFileRefactoringSettingsMessage
+  | UpdateToolFileRefactoringSettingsMessage
   | GetToolCommitMessageSettingsMessage
-  | UpdateApiToolCommitMessageSettingsMessage
+  | UpdateToolCommitMessageSettingsMessage
   | ExecuteCommandMessage
   | ShowQuickPickMessage
   | PreviewPresetMessage
@@ -474,7 +472,7 @@ export type ExtensionMessage =
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
-  | ApiToolCodeCompletionsSettingsMessage
-  | ApiToolFileRefactoringSettingsMessage
-  | ApiToolCommitMessageSettingsMessage
+  | ToolCodeCompletionsSettingsMessage
+  | ToolFileRefactoringSettingsMessage
+  | ToolCommitMessageSettingsMessage
   | SelectedCodeCompletionPresetsMessage

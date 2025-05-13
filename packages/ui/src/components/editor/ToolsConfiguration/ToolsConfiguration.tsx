@@ -4,7 +4,7 @@ import { Field } from '../Field'
 import { IconButton } from '../IconButton/IconButton'
 import { Slider } from '../Slider'
 import { ConfigurationHeader } from '../ConfigurationHeader'
-import { ApiToolSettings, Provider } from '@shared/types/api-tool-settings'
+import { ToolSettings, Provider } from '@shared/types/tool-settings'
 
 type Props = {
   gemini_api_models: {
@@ -20,13 +20,13 @@ type Props = {
   gemini_api_key?: string
   open_router_api_key?: string
 
-  code_completions_settings: ApiToolSettings
-  file_refactoring_settings: ApiToolSettings
-  commit_messages_settings: ApiToolSettings
+  code_completions_settings: ToolSettings
+  file_refactoring_settings: ToolSettings
+  commit_messages_settings: ToolSettings
 
-  on_code_completions_settings_update: (settings: ApiToolSettings) => void
-  on_file_refactoring_settings_update: (settings: ApiToolSettings) => void
-  on_commit_messages_settings_update: (settings: ApiToolSettings) => void
+  on_code_completions_settings_update: (settings: ToolSettings) => void
+  on_file_refactoring_settings_update: (settings: ToolSettings) => void
+  on_commit_messages_settings_update: (settings: ToolSettings) => void
 
   on_gemini_api_key_change: (api_key: string) => void
   on_open_router_api_key_change: (api_key: string) => void
@@ -79,8 +79,8 @@ export const ToolsConfiguration: React.FC<Props> = (props) => {
   const render_api_tool_settings = (params: {
     title: string
     description: string
-    settings: ApiToolSettings
-    on_update: (settings: ApiToolSettings) => void
+    settings: ToolSettings
+    on_update: (settings: ToolSettings) => void
   }) => (
     <>
       <ConfigurationHeader

@@ -2,7 +2,7 @@ import { ViewProvider } from '@/view/view-provider'
 import * as vscode from 'vscode'
 import { OpenRouterModelSelectedMessage } from '@/view/types/messages'
 
-export const handle_open_router_model_picker = async (
+export const handle_show_open_router_model_picker = async (
   provider: ViewProvider,
   models: Array<{ id: string; name: string; description: string }>
 ): Promise<void> => {
