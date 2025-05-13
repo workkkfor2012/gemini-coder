@@ -65,7 +65,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _has_active_editor: boolean = false
   private _has_active_selection: boolean = false
   private _is_code_completions_mode: boolean = false
-  private _api_tools_settings_manager: ApiToolsSettingsManager
+  public api_tools_settings_manager: ApiToolsSettingsManager
   private _caret_position: number = 0
   private _instructions: string = ''
   private _code_completion_suggestions: string = ''
@@ -185,9 +185,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
 
     this._context.subscriptions.push(this._config_listener)
-    this._api_tools_settings_manager = new ApiToolsSettingsManager(
-      this._context
-    )
+    this.api_tools_settings_manager = new ApiToolsSettingsManager(this._context)
 
     this._instructions = this._context.workspaceState.get<string>(
       'instructions',
@@ -1411,25 +1409,24 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
             }
           } else if (message.command == 'GET_GEMINI_API_KEY') {
-            const api_key =
-              this._api_tools_settings_manager.get_gemini_api_key()
+            const api_key = this.api_tools_settings_manager.get_gemini_api_key()
             this.send_message<GeminiApiKeyMessage>({
               command: 'GEMINI_API_KEY',
               api_key
             })
           } else if (message.command == 'GET_OPEN_ROUTER_API_KEY') {
             const api_key =
-              this._api_tools_settings_manager.get_open_router_api_key()
+              this.api_tools_settings_manager.get_open_router_api_key()
             this.send_message<OpenRouterApiKeyMessage>({
               command: 'OPEN_ROUTER_API_KEY',
               api_key
             })
           } else if (message.command == 'UPDATE_GEMINI_API_KEY') {
-            await this._api_tools_settings_manager.set_gemini_api_key(
+            await this.api_tools_settings_manager.set_gemini_api_key(
               message.api_key
             )
           } else if (message.command == 'UPDATE_OPEN_ROUTER_API_KEY') {
-            await this._api_tools_settings_manager.set_open_router_api_key(
+            await this.api_tools_settings_manager.set_open_router_api_key(
               message.api_key
             )
           } else if (message.command == 'GET_CUSTOM_PROVIDERS') {
@@ -1446,41 +1443,38 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               models
             })
           } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
-            await handle_open_router_model_picker({
-              provider: this,
-              models: message.models
-            })
+            await handle_open_router_model_picker(this, message.models)
           } else if (message.command == 'GET_CODE_COMPLETIONS_SETTINGS') {
             const settings =
-              this._api_tools_settings_manager.get_code_completions_settings()
+              this.api_tools_settings_manager.get_code_completions_settings()
             this.send_message<ApiToolCodeCompletionsSettingsMessage>({
               command: 'CODE_COMPLETIONS_SETTINGS',
               settings
             })
           } else if (message.command == 'UPDATE_CODE_COMPLETIONS_SETTINGS') {
-            this._api_tools_settings_manager.set_code_completions_settings(
+            this.api_tools_settings_manager.set_code_completions_settings(
               message.settings
             )
           } else if (message.command == 'GET_FILE_REFACTORING_SETTINGS') {
             const settings =
-              this._api_tools_settings_manager.get_file_refactoring_settings()
+              this.api_tools_settings_manager.get_file_refactoring_settings()
             this.send_message<ApiToolFileRefactoringSettingsMessage>({
               command: 'FILE_REFACTORING_SETTINGS',
               settings
             })
           } else if (message.command == 'UPDATE_FILE_REFACTORING_SETTINGS') {
-            this._api_tools_settings_manager.set_file_refactoring_settings(
+            this.api_tools_settings_manager.set_file_refactoring_settings(
               message.settings
             )
           } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
             const settings =
-              this._api_tools_settings_manager.get_commit_messages_settings()
+              this.api_tools_settings_manager.get_commit_messages_settings()
             this.send_message<ApiToolCommitMessageSettingsMessage>({
               command: 'COMMIT_MESSAGES_SETTINGS',
               settings
             })
           } else if (message.command == 'UPDATE_COMMIT_MESSAGES_SETTINGS') {
-            this._api_tools_settings_manager.set_commit_messages_settings(
+            this.api_tools_settings_manager.set_commit_messages_settings(
               message.settings
             )
           } else if (message.command == 'EXECUTE_COMMAND') {

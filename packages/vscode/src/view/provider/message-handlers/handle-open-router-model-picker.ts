@@ -2,11 +2,11 @@ import { ViewProvider } from '@/view/view-provider'
 import * as vscode from 'vscode'
 import { OpenRouterModelSelectedMessage } from '@/view/types/messages'
 
-export const handle_open_router_model_picker = async (params: {
-  provider: ViewProvider
+export const handle_open_router_model_picker = async (
+  provider: ViewProvider,
   models: Array<{ id: string; name: string; description: string }>
-}): Promise<void> => {
-  const model_items = params.models.map((model) => ({
+): Promise<void> => {
+  const model_items = models.map((model) => ({
     label: model.name,
     description: model.id,
     detail: model.description
@@ -17,12 +17,12 @@ export const handle_open_router_model_picker = async (params: {
   })
 
   if (selected_model) {
-    params.provider.send_message<OpenRouterModelSelectedMessage>({
+    provider.send_message<OpenRouterModelSelectedMessage>({
       command: 'OPEN_ROUTER_MODEL_SELECTED',
       model_id: selected_model.description
     })
   } else {
-    params.provider.send_message<OpenRouterModelSelectedMessage>({
+    provider.send_message<OpenRouterModelSelectedMessage>({
       command: 'OPEN_ROUTER_MODEL_SELECTED',
       model_id: undefined
     })
