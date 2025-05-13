@@ -20,6 +20,9 @@
   "engines": {
     "vscode": "^1.92.0"
   },
+  "sponsor": {
+    "url": "https://buymeacoffee.com/robertpiosik"
+  },
   "categories": [
     "Programming Languages",
     "Machine Learning",
