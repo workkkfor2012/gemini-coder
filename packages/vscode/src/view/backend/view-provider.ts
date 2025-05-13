@@ -43,7 +43,19 @@ import {
   handle_save_presets_order,
   handle_get_selected_presets,
   handle_get_selected_code_completion_presets,
-  handle_get_connection_status // Added import for the new handler
+  handle_get_connection_status,
+  handle_get_code_completions_history,
+  handle_get_history,
+  handle_save_history,
+  handle_save_code_completion_suggestions,
+  handle_get_code_completion_suggestions,
+  handle_save_instructions,
+  handle_get_instructions,
+  handle_get_code_completions_mode,
+  handle_save_code_completions_mode,
+  handle_request_editor_state,
+  handle_request_editor_selection_state,
+  handle_get_open_router_api_key
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -142,7 +154,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     token_count_emitter.on('token-count-updated', () => {
       if (this._webview_view) {
-        this._calculate_token_count()
+        this.calculate_token_count()
       }
     })
 
@@ -252,13 +264,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
         // Also recalculate token count when active file changes in FIM mode
         if (this.is_code_completions_mode && this._webview_view) {
-          this._calculate_token_count()
+          this.calculate_token_count()
         }
       }
     })
   }
 
-  private _calculate_token_count() {
+  public calculate_token_count() {
     const files_collector = new FilesCollector(
       this.workspace_provider,
       this.open_editors_provider,
@@ -325,50 +337,19 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       async (message: WebviewMessage) => {
         try {
           if (message.command == 'GET_HISTORY') {
-            const history = this.context.workspaceState.get<string[]>(
-              'history',
-              []
-            )
-            this.send_message<ExtensionMessage>({
-              command: 'CHAT_HISTORY',
-              messages: history
-            })
+            handle_get_history(this)
           } else if (message.command == 'GET_CODE_COMPLETIONS_HISTORY') {
-            const history = this.context.workspaceState.get<string[]>(
-              'code-completions-history',
-              []
-            )
-            this.send_message<ExtensionMessage>({
-              command: 'FIM_CHAT_HISTORY',
-              messages: history
-            })
+            handle_get_code_completions_history(this)
           } else if (message.command == 'SAVE_HISTORY') {
-            const key = !this.is_code_completions_mode
-              ? 'history'
-              : 'code-completions-history'
-            this.context.workspaceState.update(key, message.messages)
+            await handle_save_history(this, message)
           } else if (message.command == 'GET_INSTRUCTIONS') {
-            this.send_message<ExtensionMessage>({
-              command: 'INSTRUCTIONS',
-              value: this.instructions
-            })
+            handle_get_instructions(this)
           } else if (message.command == 'SAVE_INSTRUCTIONS') {
-            this.instructions = message.instruction
-            this.context.workspaceState.update(
-              'instructions',
-              message.instruction
-            )
+            await handle_save_instructions(this, message)
           } else if (message.command == 'GET_CODE_COMPLETION_SUGGESTIONS') {
-            this.send_message<ExtensionMessage>({
-              command: 'CODE_COMPLETION_SUGGESTIONS',
-              value: this.code_completion_suggestions
-            })
+            handle_get_code_completion_suggestions(this)
           } else if (message.command == 'SAVE_CODE_COMPLETION_SUGGESTIONS') {
-            this.code_completion_suggestions = message.instruction
-            this.context.workspaceState.update(
-              'code-completion-suggestions',
-              message.instruction
-            )
+            await handle_save_code_completion_suggestions(this, message)
           } else if (message.command == 'GET_CONNECTION_STATUS') {
             handle_get_connection_status(this)
           } else if (message.command == 'GET_PRESETS') {
@@ -400,39 +381,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'SHOW_PRESET_PICKER') {
             await handle_show_preset_picker(this, this.is_code_completions_mode)
           } else if (message.command == 'GET_CODE_COMPLETIONS_MODE') {
-            const has_active_editor = !!vscode.window.activeTextEditor
-
-            if (this.is_code_completions_mode && !has_active_editor) {
-              this.is_code_completions_mode = false
-              this.send_message<ExtensionMessage>({
-                command: 'CODE_COMPLETIONS_MODE',
-                enabled: false
-              })
-            } else {
-              this.send_message<ExtensionMessage>({
-                command: 'CODE_COMPLETIONS_MODE',
-                enabled: this.is_code_completions_mode
-              })
-            }
+            handle_get_code_completions_mode(this)
           } else if (message.command == 'SAVE_CODE_COMPLETIONS_MODE') {
-            this.is_code_completions_mode = message.enabled
-            this._calculate_token_count()
-            this.send_message<ExtensionMessage>({
-              command: 'CODE_COMPLETIONS_MODE',
-              enabled: message.enabled
-            })
+            await handle_save_code_completions_mode(this, message)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
-            this.send_message<ExtensionMessage>({
-              command: 'EDITOR_STATE_CHANGED',
-              has_active_editor: this.has_active_editor
-            })
+            handle_request_editor_state(this)
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
-            this.send_message<ExtensionMessage>({
-              command: 'EDITOR_SELECTION_CHANGED',
-              has_selection: this.has_active_selection
-            })
+            handle_request_editor_selection_state(this)
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
-            this._calculate_token_count()
+            this.calculate_token_count()
           } else if (message.command == 'SAVE_PRESETS_ORDER') {
             await handle_save_presets_order(this, message)
           } else if (message.command == 'UPDATE_PRESET') {
@@ -450,12 +407,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               api_key
             })
           } else if (message.command == 'GET_OPEN_ROUTER_API_KEY') {
-            const api_key =
-              this.api_tools_settings_manager.get_open_router_api_key()
-            this.send_message<ExtensionMessage>({
-              command: 'OPEN_ROUTER_API_KEY',
-              api_key
-            })
+            handle_get_open_router_api_key(this)
           } else if (message.command == 'UPDATE_GEMINI_API_KEY') {
             await this.api_tools_settings_manager.set_gemini_api_key(
               message.api_key
