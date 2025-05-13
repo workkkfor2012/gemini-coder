@@ -314,7 +314,7 @@ export interface EditorStateChangedMessage extends BaseMessage {
 
 export interface EditorSelectionChangedMessage extends BaseMessage {
   command: 'EDITOR_SELECTION_CHANGED'
-  hasSelection: boolean
+  has_selection: boolean
 }
 
 export interface ChatHistoryMessage extends BaseMessage {

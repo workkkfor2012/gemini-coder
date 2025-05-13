@@ -18,7 +18,7 @@ type Props = {
   set_code_completion_suggestions: (value: string) => void
 }
 
-export const WebChatsTab: React.FC<Props> = (props) => {
+export const ChatTab: React.FC<Props> = (props) => {
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
@@ -41,25 +41,6 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     useState<'visible' | 'hidden'>('visible')
 
   useEffect(() => {
-    const initial_messages: WebviewMessage[] = [
-      { command: 'GET_CONNECTION_STATUS' },
-      { command: 'GET_PRESETS' },
-      { command: 'GET_SELECTED_PRESETS' },
-      { command: 'GET_SELECTED_CODE_COMPLETION_PRESETS' },
-      { command: 'GET_CODE_COMPLETIONS_MODE' },
-      { command: 'REQUEST_EDITOR_STATE' },
-      { command: 'REQUEST_EDITOR_SELECTION_STATE' },
-      { command: 'GET_HISTORY' },
-      { command: 'GET_CODE_COMPLETIONS_HISTORY' },
-      { command: 'GET_CURRENT_TOKEN_COUNT' },
-      { command: 'GET_INSTRUCTIONS' },
-      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
-      { command: 'GET_EDIT_FORMAT' },
-      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' }
-    ]
-
-    initial_messages.forEach((message) => props.vscode.postMessage(message))
-
     const handle_message = async (event: MessageEvent) => {
       const message = event.data as ExtensionMessage
       switch (message.command) {
@@ -92,7 +73,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
           }
           break
         case 'EDITOR_SELECTION_CHANGED':
-          set_has_active_selection(message.hasSelection)
+          set_has_active_selection(message.has_selection)
           break
         case 'CHAT_HISTORY':
           set_chat_history(message.messages || [])
@@ -128,6 +109,25 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     }
 
     window.addEventListener('message', handle_message)
+
+    const initial_messages: WebviewMessage[] = [
+      { command: 'GET_CONNECTION_STATUS' },
+      { command: 'GET_PRESETS' },
+      { command: 'GET_SELECTED_PRESETS' },
+      { command: 'GET_SELECTED_CODE_COMPLETION_PRESETS' },
+      { command: 'GET_CODE_COMPLETIONS_MODE' },
+      { command: 'REQUEST_EDITOR_STATE' },
+      { command: 'REQUEST_EDITOR_SELECTION_STATE' },
+      { command: 'GET_HISTORY' },
+      { command: 'GET_CODE_COMPLETIONS_HISTORY' },
+      { command: 'GET_CURRENT_TOKEN_COUNT' },
+      { command: 'GET_INSTRUCTIONS' },
+      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
+      { command: 'GET_EDIT_FORMAT' },
+      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' }
+    ]
+    initial_messages.forEach((message) => props.vscode.postMessage(message))
+
     return () => window.removeEventListener('message', handle_message)
   }, [])
 
@@ -281,7 +281,7 @@ export const WebChatsTab: React.FC<Props> = (props) => {
     edit_format === undefined ||
     edit_format_selector_visibility === undefined
   ) {
-    return null
+    return <></>
   }
 
   return (

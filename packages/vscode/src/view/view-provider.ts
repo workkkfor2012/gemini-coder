@@ -224,7 +224,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         if (this._webview_view) {
           this._send_message<ExtensionMessage>({
             command: 'EDITOR_SELECTION_CHANGED',
-            hasSelection: has_selection
+            has_selection: has_selection
           })
         }
       }
@@ -248,7 +248,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       if (this._webview_view) {
         this._send_message<ExtensionMessage>({
           command: 'EDITOR_SELECTION_CHANGED',
-          hasSelection: has_selection
+          has_selection: has_selection
         })
       }
     }
@@ -1033,7 +1033,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
             this._send_message<ExtensionMessage>({
               command: 'EDITOR_SELECTION_CHANGED',
-              hasSelection: this._has_active_selection
+              has_selection: this._has_active_selection
             })
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
             this._calculate_token_count()
@@ -1566,33 +1566,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         }
       }
     )
-
-    // Send initial states
-    this._send_message<ExtensionMessage>({
-      command: 'CONNECTION_STATUS',
-      connected: this.websocket_server_instance.is_connected_with_browser()
-    })
-
-    this._send_message<ExtensionMessage>({
-      command: 'EDITOR_STATE_CHANGED',
-      has_active_editor: this._has_active_editor
-    })
-    this._send_message<ExtensionMessage>({
-      command: 'EDITOR_SELECTION_CHANGED',
-      hasSelection: this._has_active_selection
-    })
-    this._send_message<ExtensionMessage>({
-      command: 'CODE_COMPLETIONS_MODE',
-      enabled: this._is_code_completions_mode
-    })
-    this._send_message<ExtensionMessage>({
-      command: 'INSTRUCTIONS',
-      value: this._instructions
-    })
-    this._send_message<CodeCompletionSuggestionsMessage>({
-      command: 'CODE_COMPLETION_SUGGESTIONS',
-      value: this._code_completion_suggestions
-    })
 
     // Added initial message for edit format selector visibility
     const config = vscode.workspace.getConfiguration('codeWebChat')

@@ -1,4 +1,4 @@
-import { WebChatsTab } from './tabs/web-chats/WebChatsTab'
+import { ChatTab } from './tabs/chat/ChatTab'
 import { ToolsTab } from './tabs/tools/ToolsTab'
 import { Header as UiHeader } from '@ui/components/editor/Header'
 import { useEffect, useState } from 'react'
@@ -9,7 +9,8 @@ import { Preset } from '@shared/types/preset'
 import {
   ExtensionMessage,
   SaveInstructionsMessage,
-  SaveCodeCompletionSuggestionsMessage
+  SaveCodeCompletionSuggestionsMessage,
+  WebviewMessage
 } from './types/messages'
 import { use_open_router_models } from './hooks/use-open-router-models'
 import { ToolsConfiguration as UiToolsConfiguration } from '@ui/components/editor/ToolsConfiguration'
@@ -67,9 +68,12 @@ export const View = () => {
       }
     }
     window.addEventListener('message', handle_message)
-    vscode.postMessage({ command: 'GET_CODE_COMPLETIONS_MODE' })
-    vscode.postMessage({ command: 'GET_INSTRUCTIONS' })
-    vscode.postMessage({ command: 'GET_CODE_COMPLETION_SUGGESTIONS' })
+
+    const initial_messages: WebviewMessage[] = [
+      { command: 'GET_INSTRUCTIONS' },
+      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' }
+    ]
+    initial_messages.forEach((message) => vscode.postMessage(message))
 
     return () => window.removeEventListener('message', handle_message)
   }, [])
@@ -115,7 +119,7 @@ export const View = () => {
           set_active_tab('tools')
         }}
       />
-      <WebChatsTab
+      <ChatTab
         vscode={vscode}
         is_visible={active_tab == 'chat'}
         on_preset_edit={(preset) => {

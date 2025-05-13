@@ -11,12 +11,15 @@ type Props = {
 
 export const ToolsTab: React.FC<Props> = (props) => {
   const [has_active_editor, set_has_active_editor] = useState(false)
+  const [has_active_selection, set_has_active_selection] = useState(false)
 
   useEffect(() => {
     const handle_message = (event: MessageEvent<ExtensionMessage>) => {
       const message = event.data
       if (message.command == 'EDITOR_STATE_CHANGED') {
         set_has_active_editor(message.has_active_editor)
+      } else if (message.command == 'EDITOR_SELECTION_CHANGED') {
+        set_has_active_selection(message.has_selection)
       }
     }
     window.addEventListener('message', handle_message)
@@ -73,7 +76,11 @@ export const ToolsTab: React.FC<Props> = (props) => {
     ? 'Refactor the content of the active file'
     : 'Requires an active editor'
 
-  const apply_chat_response_title = 'Apply chat response from clipboard'
+  const apply_chat_response_title = has_active_editor
+    ? has_active_selection
+      ? 'Replace selection or insert at caret with chat response from clipboard'
+      : 'Insert at caret with chat response from clipboard'
+    : 'Requires an active editor'
 
   const configuration_title = 'Configure API tool settings'
 
@@ -105,6 +112,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
           on_click={() =>
             handle_execute_command('codeWebChat.applyChatResponse')
           }
+          disabled={!has_active_editor}
           title={apply_chat_response_title}
         >
           Apply Chat Response
