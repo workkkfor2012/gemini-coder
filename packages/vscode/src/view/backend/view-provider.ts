@@ -47,7 +47,8 @@ import {
   handle_show_open_router_model_picker,
   handle_show_preset_picker,
   handle_copy_prompt,
-  handle_send_prompt
+  handle_send_prompt,
+  handle_update_preset
 } from './message-handlers'
 
 export type ConfigPresetFormat = {
@@ -105,7 +106,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           event.affectsConfiguration('codeWebChat.presets') &&
           this._webview_view
         ) {
-          this._send_presets_to_webview(this._webview_view.webview)
+          this.send_presets_to_webview(this._webview_view.webview)
         } else if (
           event.affectsConfiguration('codeWebChat.providers') &&
           this._webview_view
@@ -459,7 +460,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 this.websocket_server_instance.is_connected_with_browser()
             })
           } else if (message.command == 'GET_PRESETS') {
-            this._send_presets_to_webview(webview_view.webview)
+            this.send_presets_to_webview(webview_view.webview)
           } else if (message.command == 'GET_SELECTED_PRESETS') {
             const selected_names = this.context.globalState.get<string[]>(
               'selectedPresets',
@@ -647,185 +648,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               vscode.ConfigurationTarget.Global
             )
           } else if (message.command == 'UPDATE_PRESET') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const current_presets =
-              config.get<ConfigPresetFormat[]>('presets', []) || []
-
-            const preset_index = current_presets.findIndex(
-              (p) => p.name == message.updating_preset.name
-            )
-
-            if (preset_index != -1) {
-              const are_presets_equal = (a: Preset, b: Preset): boolean => {
-                return (
-                  a.name == b.name &&
-                  a.chatbot == b.chatbot &&
-                  a.prompt_prefix == b.prompt_prefix &&
-                  a.prompt_suffix == b.prompt_suffix &&
-                  a.model == b.model &&
-                  a.temperature === b.temperature && // can be undefined and 0
-                  a.top_p === b.top_p && // same
-                  a.system_instructions == b.system_instructions &&
-                  JSON.stringify(a.options) == JSON.stringify(b.options) &&
-                  a.port == b.port
-                )
-              }
-
-              const has_changes = !are_presets_equal(
-                message.updating_preset,
-                message.updated_preset
-              )
-
-              if (!has_changes) {
-                this.send_message<ExtensionMessage>({
-                  command: 'PRESET_UPDATED'
-                })
-                return
-              }
-
-              const save_changes_button = 'Save'
-              const discard_changes = 'Discard Changes'
-              const result = await vscode.window.showInformationMessage(
-                'Save changes to the preset?',
-                {
-                  modal: true,
-                  detail:
-                    "If you don't save, updates to the preset will be lost."
-                },
-                save_changes_button,
-                discard_changes
-              )
-
-              if (result == discard_changes) {
-                this.send_message<ExtensionMessage>({
-                  command: 'PRESET_UPDATED'
-                })
-                return
-              }
-
-              if (result != save_changes_button) {
-                return
-              }
-
-              const updated_ui_preset = { ...message.updated_preset }
-              let final_name = updated_ui_preset.name.trim()
-
-              // --- Start uniqueness check ---
-              let is_unique = false
-              let copy_number = 0
-              const base_name = final_name
-
-              while (!is_unique) {
-                const name_to_check =
-                  copy_number == 0
-                    ? base_name
-                    : `${base_name} (${copy_number})`.trim()
-
-                // Check if this name exists in *other* presets
-                const conflict = current_presets.some(
-                  (p, index) => index != preset_index && p.name == name_to_check
-                )
-
-                if (!conflict) {
-                  final_name = name_to_check
-                  is_unique = true
-                } else {
-                  copy_number++
-                }
-              }
-              // --- End uniqueness check ---
-
-              // If the name had to be changed, update the preset object
-              if (final_name != updated_ui_preset.name) {
-                updated_ui_preset.name = final_name
-              }
-
-              const updated_presets = [...current_presets]
-              // Convert the updated preset (with potentially modified name) from UI format to config format
-              updated_presets[preset_index] =
-                this.ui_preset_to_config_format(updated_ui_preset)
-
-              await config.update(
-                'presets',
-                updated_presets,
-                vscode.ConfigurationTarget.Global
-              )
-
-              // Update selected (default) presets for both modes
-              const selected_chat_names = this.context.globalState.get<
-                string[]
-              >('selectedPresets', [])
-              if (selected_chat_names.includes(message.updating_preset.name)) {
-                const updated_selected_names = selected_chat_names.map((name) =>
-                  name == message.updating_preset.name ? final_name : name
-                )
-                await this.context.globalState.update(
-                  'selectedPresets',
-                  updated_selected_names
-                )
-                // Send updated selected presets to webview
-                this.send_message<SelectedPresetsMessage>({
-                  command: 'SELECTED_PRESETS',
-                  names: updated_selected_names
-                })
-              }
-
-              // Handle selected code completion presets
-              const selected_fim_names = this.context.globalState.get<string[]>(
-                'selectedCodeCompletionPresets',
-                []
-              )
-              const was_in_selected_fim = selected_fim_names.includes(
-                message.updating_preset.name
-              )
-
-              if (was_in_selected_fim) {
-                // Check if preset now has prefix or suffix (making it ineligible for FIM)
-                const has_affixes =
-                  updated_ui_preset.prompt_prefix ||
-                  updated_ui_preset.prompt_suffix
-
-                if (has_affixes) {
-                  // Remove from selected FIM presets
-                  const updated_selected_fim = selected_fim_names.filter(
-                    (name) => name !== message.updating_preset.name
-                  )
-                  await this.context.globalState.update(
-                    'selectedCodeCompletionPresets',
-                    updated_selected_fim
-                  )
-                  this.send_message<SelectedCodeCompletionPresetsMessage>({
-                    command: 'SELECTED_CODE_COMPLETION_PRESETS',
-                    names: updated_selected_fim
-                  })
-                } else if (final_name != message.updating_preset.name) {
-                  // Just update the name if it changed but still no affixes
-                  const updated_selected_fim = selected_fim_names.map((name) =>
-                    name == message.updating_preset.name ? final_name : name
-                  )
-                  await this.context.globalState.update(
-                    'selectedCodeCompletionPresets',
-                    updated_selected_fim
-                  )
-                  this.send_message<SelectedCodeCompletionPresetsMessage>({
-                    command: 'SELECTED_CODE_COMPLETION_PRESETS',
-                    names: updated_selected_fim
-                  })
-                }
-              }
-
-              this._send_presets_to_webview(webview_view.webview)
-              this.send_message<ExtensionMessage>({
-                command: 'PRESET_UPDATED'
-              })
-            } else {
-              console.error(
-                `Preset with original name "${message.updating_preset.name}" not found.`
-              )
-              vscode.window.showErrorMessage(
-                `Could not update preset: Original preset "${message.updating_preset.name}" not found.`
-              )
-            }
+            await handle_update_preset(this, message, webview_view)
           } else if (message.command == 'DELETE_PRESET') {
             const preset_name = message.name
             const config = vscode.workspace.getConfiguration('codeWebChat')
@@ -886,7 +709,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
 
               // Send updated list back to webview
-              this._send_presets_to_webview(webview_view.webview)
+              this.send_presets_to_webview(webview_view.webview)
 
               // Also update selected presets for both modes if needed
               const selected_chat_names = this.context.globalState.get<
@@ -968,7 +791,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             try {
               await config.update('presets', updated_presets, true)
-              this._send_presets_to_webview(webview_view.webview)
+              this.send_presets_to_webview(webview_view.webview)
             } catch (error) {
               vscode.window.showErrorMessage(
                 `Failed to duplicate preset: ${error}`
@@ -1143,7 +966,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
 
     this._update_active_file_info()
-    this._send_presets_to_webview(webview_view.webview)
+    this.send_presets_to_webview(webview_view.webview)
     this._send_custom_providers()
   }
 
@@ -1163,7 +986,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  private _send_presets_to_webview(_: vscode.Webview) {
+  public send_presets_to_webview(_: vscode.Webview) {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const web_chat_presets_config =
       config.get<ConfigPresetFormat[]>('presets', []) || []
