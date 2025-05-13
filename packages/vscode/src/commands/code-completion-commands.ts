@@ -104,7 +104,7 @@ async function perform_code_completion(params: {
   const api_tool_settings_manager = new ApiToolsSettingsManager(params.context)
 
   const code_completions_settings =
-    api_tool_settings_manager.GET_TOOL_CODE_COMPLETIONS_SETTINGS()
+    api_tool_settings_manager.GET_API_TOOL_CODE_COMPLETIONS_SETTINGS()
 
   if (!code_completions_settings.provider) {
     vscode.window.showErrorMessage(

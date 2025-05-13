@@ -17,9 +17,9 @@ import {
   CustomProvidersUpdatedMessage,
   OpenRouterModelsMessage,
   OpenRouterModelSelectedMessage,
-  ToolCodeCompletionsSettingsMessage,
-  ToolFileRefactoringSettingsMessage,
-  ToolCommitMessageSettingsMessage,
+  ApiToolCodeCompletionsSettingsMessage,
+  ApiToolFileRefactoringSettingsMessage,
+  ApiToolCommitMessageSettingsMessage,
   OpenRouterApiKeyMessage,
   ExecuteCommandMessage,
   ShowQuickPickMessage,
@@ -37,15 +37,14 @@ import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
-import axios from 'axios'
-import { Logger } from '@/helpers/logger'
-import { OpenRouterModelsResponse } from '@/types/open-router-models-response'
 import { ToolSettings } from '@shared/types/tool-settings'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
 import { handle_show_open_router_model_picker } from './provider/message-handlers/handle-show-open-router-model-picker'
-import { handle_get_tool_code_completions_settings } from './provider/message-handlers/handle-get-code-completions-settings'
+import { handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS } from './provider/message-handlers/handle-get-code-completions-settings'
+import { handle_get_open_router_models } from './provider/message-handlers/handle-get-open-router-models'
+import { handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS } from './provider/message-handlers/handle-get-tool-file-refactoring-settings'
 
 type ConfigPresetFormat = {
   name: string
@@ -70,6 +69,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _caret_position: number = 0
   private _instructions: string = ''
   private _code_completion_suggestions: string = ''
+  private _edit_format: EditFormat
 
   constructor(
     private readonly _extension_uri: vscode.Uri,
@@ -87,6 +87,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         })
       }
     })
+
+    // Initialize edit format from workspace state
+    this._edit_format = this._context.workspaceState.get<EditFormat>(
+      'editFormat',
+      'truncated'
+    )
 
     // Listen for changes to the new configuration keys
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
@@ -112,22 +118,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           ) &&
           this._webview_view
         ) {
-          handle_get_tool_code_completions_settings(this)
+          handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolFileRefactoringSettings'
           ) &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration('codeWebChat')
-          const settings = config.get<ToolSettings>(
-            'apiToolFileRefactoringSettings',
-            {}
-          )
-          this.send_message<ToolFileRefactoringSettingsMessage>({
-            command: 'TOOL_FILE_REFACTORING_SETTINGS',
-            settings
-          })
+          handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolCommitMessageSettings'
@@ -139,19 +137,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             'apiToolCommitMessageSettings',
             {}
           )
-          this.send_message<ToolCommitMessageSettingsMessage>({
-            command: 'COMMIT_MESSAGES_SETTINGS',
+          this.send_message<ApiToolCommitMessageSettingsMessage>({
+            command: 'API_TOOL_COMMIT_MESSAGES_SETTINGS',
             settings
-          })
-        } else if (
-          event.affectsConfiguration('codeWebChat.editFormat') &&
-          this._webview_view
-        ) {
-          const config = vscode.workspace.getConfiguration('codeWebChat')
-          const edit_format = config.get<EditFormat>('editFormat')!
-          this.send_message<ExtensionMessage>({
-            command: 'EDIT_FORMAT',
-            edit_format
           })
         } else if (
           event.affectsConfiguration(
@@ -350,9 +338,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       | CustomProvidersUpdatedMessage
       | OpenRouterModelsMessage
       | OpenRouterModelSelectedMessage
-      | ToolCodeCompletionsSettingsMessage
-      | ToolFileRefactoringSettingsMessage
-      | ToolCommitMessageSettingsMessage
+      | ApiToolCodeCompletionsSettingsMessage
+      | ApiToolFileRefactoringSettingsMessage
+      | ApiToolCommitMessageSettingsMessage
       | ExecuteCommandMessage
       | ShowQuickPickMessage
       | PreviewPresetMessage
@@ -467,45 +455,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       system_instructions: config_preset.systemInstructions,
       options: config_preset.options,
       port: config_preset.port
-    }
-  }
-
-  private async _fetch_open_router_models(): Promise<{
-    [model_id: string]: {
-      name: string
-      description: string
-    }
-  }> {
-    try {
-      const response = await axios.get<OpenRouterModelsResponse>(
-        'https://openrouter.ai/api/v1/models'
-      )
-
-      const models: {
-        [model_id: string]: {
-          name: string
-          description: string
-        }
-      } = {}
-
-      for (const model of response.data.data
-        .filter((m) => m.created >= 1725148800) // skip older models created before Sep 2024
-        .sort((a, b) => a.id.localeCompare(b.id))) {
-        models[model.id] = {
-          name: model.name,
-          description: model.description
-        }
-      }
-
-      return models
-    } catch (error) {
-      Logger.error({
-        function_name: '_fetch_open_router_models',
-        message: 'Error fetching OpenRouter models',
-        data: error
-      })
-      vscode.window.showErrorMessage('Failed to fetch OpenRouter models.')
-      return {}
     }
   }
 
@@ -697,11 +646,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 valid_preset_names
               )
 
+              // Use the stored _edit_format property
               const config = vscode.workspace.getConfiguration('codeWebChat')
-              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
                 `editFormatInstructions${
-                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                  this._edit_format.charAt(0).toUpperCase() +
+                  this._edit_format.slice(1)
                 }`
               )
               if (edit_format_instructions) {
@@ -796,11 +746,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   instructions + '\n' + message.preset.prompt_suffix
               }
 
+              // Use the stored _edit_format property
               const config = vscode.workspace.getConfiguration('codeWebChat')
-              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
                 `codeWebChat.editFormatInstructions${
-                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                  this._edit_format.charAt(0).toUpperCase() +
+                  this._edit_format.slice(1)
                 }`
               )
               if (edit_format_instructions) {
@@ -888,11 +839,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               let instructions =
                 replace_selection_placeholder(current_instruction)
 
+              // Use the stored _edit_format property
               const config = vscode.workspace.getConfiguration('codeWebChat')
-              const edit_format = config.get<EditFormat>('editFormat')!
               const edit_format_instructions = config.get<string>(
                 `codeWebChat.editFormatInstructions${
-                  edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+                  this._edit_format.charAt(0).toUpperCase() +
+                  this._edit_format.slice(1)
                 }`
               )
               if (edit_format_instructions) {
@@ -1422,47 +1374,37 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await this.api_tools_settings_manager.set_open_router_api_key(
               message.api_key
             )
-          } else if (message.command == 'GET_CUSTOM_PROVIDERS') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const providers = config.get<any[]>('providers', [])
-            this.send_message<CustomProvidersUpdatedMessage>({
-              command: 'CUSTOM_PROVIDERS_UPDATED',
-              custom_providers: providers
-            })
           } else if (message.command == 'GET_OPEN_ROUTER_MODELS') {
-            const models = await this._fetch_open_router_models()
-            this.send_message<OpenRouterModelsMessage>({
-              command: 'OPEN_ROUTER_MODELS',
-              models
-            })
+            await handle_get_open_router_models(this)
           } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
             await handle_show_open_router_model_picker(this, message.models)
-          } else if (message.command == 'GET_TOOL_CODE_COMPLETIONS_SETTINGS') {
-            handle_get_tool_code_completions_settings(this)
+          } else if (
+            message.command == 'GET_API_TOOL_CODE_COMPLETIONS_SETTINGS'
+          ) {
+            handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS(this)
           } else if (
             message.command == 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
           ) {
             this.api_tools_settings_manager.set_code_completions_settings(
               message.settings
             )
-          } else if (message.command == 'GET_TOOL_FILE_REFACTORING_SETTINGS') {
-            const settings =
-              this.api_tools_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
-            this.send_message<ToolFileRefactoringSettingsMessage>({
-              command: 'TOOL_FILE_REFACTORING_SETTINGS',
-              settings
-            })
+          } else if (
+            message.command == 'GET_API_TOOL_FILE_REFACTORING_SETTINGS'
+          ) {
+            handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS(this)
           } else if (
             message.command == 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS'
           ) {
             this.api_tools_settings_manager.set_file_refactoring_settings(
               message.settings
             )
-          } else if (message.command == 'GET_TOOL_COMMIT_MESSAGES_SETTINGS') {
+          } else if (
+            message.command == 'GET_API_TOOL_COMMIT_MESSAGES_SETTINGS'
+          ) {
             const settings =
-              this.api_tools_settings_manager.GET_TOOL_COMMIT_MESSAGES_SETTINGS()
-            this.send_message<ToolCommitMessageSettingsMessage>({
-              command: 'COMMIT_MESSAGES_SETTINGS',
+              this.api_tools_settings_manager.GET_API_TOOL_COMMIT_MESSAGES_SETTINGS()
+            this.send_message<ApiToolCommitMessageSettingsMessage>({
+              command: 'API_TOOL_COMMIT_MESSAGES_SETTINGS',
               settings
             })
           } else if (
@@ -1493,18 +1435,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
             }
           } else if (message.command == 'GET_EDIT_FORMAT') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const edit_format = config.get<EditFormat>('editFormat')!
             this.send_message({
               command: 'EDIT_FORMAT',
-              edit_format
+              edit_format: this._edit_format
             })
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            await config.update(
+            this._edit_format = message.edit_format
+            await this._context.workspaceState.update(
               'editFormat',
-              message.edit_format,
-              vscode.ConfigurationTarget.Global
+              message.edit_format
             )
           } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
             const config = vscode.workspace.getConfiguration('codeWebChat')

@@ -44,7 +44,7 @@ export class ApiToolsSettingsManager {
     await this.context.globalState.update(OPEN_ROUTER_API_KEY_STATE_KEY, apiKey)
   }
 
-  GET_TOOL_CODE_COMPLETIONS_SETTINGS(): ToolSettings {
+  GET_API_TOOL_CODE_COMPLETIONS_SETTINGS(): ToolSettings {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ToolSettings>(
       'apiToolCodeCompletionsSettings',
@@ -57,7 +57,7 @@ export class ApiToolsSettingsManager {
     }
   }
 
-  GET_TOOL_FILE_REFACTORING_SETTINGS(): ToolSettings {
+  GET_API_TOOL_FILE_REFACTORING_SETTINGS(): ToolSettings {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ToolSettings>(
       'apiToolFileRefactoringSettings',
@@ -70,7 +70,7 @@ export class ApiToolsSettingsManager {
     }
   }
 
-  GET_TOOL_COMMIT_MESSAGES_SETTINGS(): ToolSettings {
+  GET_API_TOOL_COMMIT_MESSAGES_SETTINGS(): ToolSettings {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const settings = config.get<ToolSettings>(
       'apiToolCommitMessageSettings',

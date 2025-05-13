@@ -153,10 +153,6 @@ export interface CreatePresetMessage extends BaseMessage {
   command: 'CREATE_PRESET'
 }
 
-export interface GetCustomProvidersMessage extends BaseMessage {
-  command: 'GET_CUSTOM_PROVIDERS'
-}
-
 export interface GetOpenRouterModelsMessage extends BaseMessage {
   command: 'GET_OPEN_ROUTER_MODELS'
 }
@@ -170,17 +166,17 @@ export interface ShowOpenRouterModelPickerMessage extends BaseMessage {
   }[]
 }
 
-export interface GetToolCodeCompletionsSettingsMessage extends BaseMessage {
-  command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
+export interface GetApiToolCodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'GET_API_TOOL_CODE_COMPLETIONS_SETTINGS'
 }
 
-export interface UpdateToolCodeCompletionsSettingsMessage extends BaseMessage {
+export interface UpdateApiToolCodeCompletionsSettingsMessage extends BaseMessage {
   command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
   settings: ToolSettings
 }
 
 export interface GetToolFileRefactoringSettingsMessage extends BaseMessage {
-  command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
+  command: 'GET_API_TOOL_FILE_REFACTORING_SETTINGS'
 }
 
 export interface UpdateToolFileRefactoringSettingsMessage extends BaseMessage {
@@ -188,11 +184,11 @@ export interface UpdateToolFileRefactoringSettingsMessage extends BaseMessage {
   settings: ToolSettings
 }
 
-export interface GetToolCommitMessageSettingsMessage extends BaseMessage {
-  command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
+export interface GetApiToolCommitMessageSettingsMessage extends BaseMessage {
+  command: 'GET_API_TOOL_COMMIT_MESSAGES_SETTINGS'
 }
 
-export interface UpdateToolCommitMessageSettingsMessage extends BaseMessage {
+export interface UpdateApiToolCommitMessageSettingsMessage extends BaseMessage {
   command: 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS'
   settings: ToolSettings
 }
@@ -377,18 +373,18 @@ export interface OpenRouterModelSelectedMessage extends BaseMessage {
   model_id: string | undefined
 }
 
-export interface ToolCodeCompletionsSettingsMessage extends BaseMessage {
-  command: 'CODE_COMPLETIONS_SETTINGS'
+export interface ApiToolCodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'API_TOOL_CODE_COMPLETIONS_SETTINGS'
   settings: ToolSettings
 }
 
-export interface ToolFileRefactoringSettingsMessage extends BaseMessage {
-  command: 'TOOL_FILE_REFACTORING_SETTINGS'
+export interface ApiToolFileRefactoringSettingsMessage extends BaseMessage {
+  command: 'API_TOOL_FILE_REFACTORING_SETTINGS'
   settings: ToolSettings
 }
 
-export interface ToolCommitMessageSettingsMessage extends BaseMessage {
-  command: 'COMMIT_MESSAGES_SETTINGS'
+export interface ApiToolCommitMessageSettingsMessage extends BaseMessage {
+  command: 'API_TOOL_COMMIT_MESSAGES_SETTINGS'
   settings: ToolSettings
 }
 
@@ -431,15 +427,14 @@ export type WebviewMessage =
   | DeletePresetMessage
   | DuplicatePresetMessage
   | CreatePresetMessage
-  | GetCustomProvidersMessage
   | GetOpenRouterModelsMessage
   | ShowOpenRouterModelPickerMessage
-  | GetToolCodeCompletionsSettingsMessage
-  | UpdateToolCodeCompletionsSettingsMessage
+  | GetApiToolCodeCompletionsSettingsMessage
+  | UpdateApiToolCodeCompletionsSettingsMessage
   | GetToolFileRefactoringSettingsMessage
   | UpdateToolFileRefactoringSettingsMessage
-  | GetToolCommitMessageSettingsMessage
-  | UpdateToolCommitMessageSettingsMessage
+  | GetApiToolCommitMessageSettingsMessage
+  | UpdateApiToolCommitMessageSettingsMessage
   | ExecuteCommandMessage
   | ShowQuickPickMessage
   | PreviewPresetMessage
@@ -472,7 +467,7 @@ export type ExtensionMessage =
   | CustomProvidersUpdatedMessage
   | OpenRouterModelsMessage
   | OpenRouterModelSelectedMessage
-  | ToolCodeCompletionsSettingsMessage
-  | ToolFileRefactoringSettingsMessage
-  | ToolCommitMessageSettingsMessage
+  | ApiToolCodeCompletionsSettingsMessage
+  | ApiToolFileRefactoringSettingsMessage
+  | ApiToolCommitMessageSettingsMessage
   | SelectedCodeCompletionPresetsMessage

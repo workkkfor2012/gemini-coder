@@ -19,11 +19,11 @@ export const use_api_tools_configuration = (vscode: any) => {
         set_gemini_api_key(message.api_key || '')
       } else if (message.command == 'OPEN_ROUTER_API_KEY') {
         set_open_router_api_key(message.api_key || '')
-      } else if (message.command == 'CODE_COMPLETIONS_SETTINGS') {
+      } else if (message.command == 'API_TOOL_CODE_COMPLETIONS_SETTINGS') {
         set_code_completions_settings(message.settings)
-      } else if (message.command == 'TOOL_FILE_REFACTORING_SETTINGS') {
+      } else if (message.command == 'API_TOOL_FILE_REFACTORING_SETTINGS') {
         set_file_refactoring_settings(message.settings)
-      } else if (message.command == 'COMMIT_MESSAGES_SETTINGS') {
+      } else if (message.command == 'API_TOOL_COMMIT_MESSAGES_SETTINGS') {
         set_commit_message_settings(message.settings)
       }
     }
@@ -33,13 +33,13 @@ export const use_api_tools_configuration = (vscode: any) => {
       { command: 'GET_GEMINI_API_KEY' } as WebviewMessage,
       { command: 'GET_OPEN_ROUTER_API_KEY' } as WebviewMessage,
       {
-        command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
+        command: 'GET_API_TOOL_CODE_COMPLETIONS_SETTINGS'
       } as WebviewMessage,
       {
-        command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
+        command: 'GET_API_TOOL_FILE_REFACTORING_SETTINGS'
       } as WebviewMessage,
       {
-        command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
+        command: 'GET_API_TOOL_COMMIT_MESSAGES_SETTINGS'
       } as WebviewMessage
     ]
     initial_messages.forEach((message) => vscode.postMessage(message))
