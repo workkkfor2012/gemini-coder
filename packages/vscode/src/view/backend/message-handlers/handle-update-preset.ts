@@ -3,16 +3,14 @@ import { ConfigPresetFormat, ViewProvider } from '@/view/backend/view-provider'
 import {
   ExtensionMessage,
   SelectedPresetsMessage,
-  SelectedCodeCompletionPresetsMessage
+  SelectedCodeCompletionPresetsMessage,
+  UpdatePresetMessage
 } from '@/view/types/messages'
 import { Preset } from '@shared/types/preset'
 
 export const handle_update_preset = async (
   provider: ViewProvider,
-  message: {
-    updating_preset: Preset
-    updated_preset: Preset
-  },
+  message: UpdatePresetMessage,
   webview_view: vscode.WebviewView
 ): Promise<void> => {
   const config = vscode.workspace.getConfiguration('codeWebChat')

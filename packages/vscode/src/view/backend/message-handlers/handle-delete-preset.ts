@@ -2,12 +2,13 @@ import * as vscode from 'vscode'
 import { ConfigPresetFormat, ViewProvider } from '@/view/backend/view-provider'
 import {
   SelectedPresetsMessage,
-  SelectedCodeCompletionPresetsMessage
+  SelectedCodeCompletionPresetsMessage,
+  DeletePresetMessage
 } from '@/view/types/messages'
 
 export const handle_delete_preset = async (
   provider: ViewProvider,
-  message: { name: string },
+  message: DeletePresetMessage,
   webview_view: vscode.WebviewView
 ): Promise<void> => {
   const preset_name = message.name

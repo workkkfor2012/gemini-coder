@@ -49,7 +49,8 @@ import {
   handle_copy_prompt,
   handle_send_prompt,
   handle_update_preset,
-  handle_delete_preset
+  handle_delete_preset,
+  handle_duplicate_preset
 } from './message-handlers'
 
 export type ConfigPresetFormat = {
@@ -653,51 +654,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'DELETE_PRESET') {
             await handle_delete_preset(this, message, webview_view)
           } else if (message.command == 'DUPLICATE_PRESET') {
-            const preset_name = message.name
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const current_presets =
-              config.get<ConfigPresetFormat[]>('presets', []) || []
-
-            const preset_to_duplicate = current_presets.find(
-              (p) => p.name == preset_name
-            )
-            if (!preset_to_duplicate) {
-              vscode.window.showErrorMessage(
-                `Preset "${preset_name}" not found`
-              )
-              return
-            }
-
-            // Find the index of the original preset
-            const original_index = current_presets.findIndex(
-              (p) => p.name == preset_name
-            )
-
-            // Generate unique name
-            let new_name = `${preset_name} (1)`
-            let copy_number = 1
-            while (current_presets.some((p) => p.name == new_name)) {
-              new_name = `${preset_name} (${copy_number++})`
-            }
-
-            // Create duplicate with new name
-            const duplicated_preset = {
-              ...preset_to_duplicate,
-              name: new_name
-            }
-
-            // Add to presets right after the original
-            const updated_presets = [...current_presets]
-            updated_presets.splice(original_index + 1, 0, duplicated_preset)
-
-            try {
-              await config.update('presets', updated_presets, true)
-              this.send_presets_to_webview(webview_view.webview)
-            } catch (error) {
-              vscode.window.showErrorMessage(
-                `Failed to duplicate preset: ${error}`
-              )
-            }
+            await handle_duplicate_preset(this, message, webview_view)
           } else if (message.command == 'CREATE_PRESET') {
             // Get current presets
             const config = vscode.workspace.getConfiguration('codeWebChat')
