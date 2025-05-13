@@ -45,6 +45,7 @@ import { replace_selection_placeholder } from '../utils/replace-selection-placeh
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
 import { handle_open_router_model_picker } from './provider/message-handlers/handle-open-router-model-picker'
+import { handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS } from './provider/message-handlers/handle-get-code-completions-settings'
 
 type ConfigPresetFormat = {
   name: string
@@ -111,15 +112,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           ) &&
           this._webview_view
         ) {
-          const config = vscode.workspace.getConfiguration('codeWebChat')
-          const settings = config.get<ApiToolSettings>(
-            'apiToolCodeCompletionsSettings',
-            {}
-          )
-          this.send_message<ApiToolCodeCompletionsSettingsMessage>({
-            command: 'CODE_COMPLETIONS_SETTINGS',
-            settings
-          })
+          handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolFileRefactoringSettings'
@@ -1444,36 +1437,31 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'SHOW_OPEN_ROUTER_MODEL_PICKER') {
             await handle_open_router_model_picker(this, message.models)
-          } else if (message.command == 'GET_CODE_COMPLETIONS_SETTINGS') {
-            const settings =
-              this.api_tools_settings_manager.get_code_completions_settings()
-            this.send_message<ApiToolCodeCompletionsSettingsMessage>({
-              command: 'CODE_COMPLETIONS_SETTINGS',
-              settings
-            })
-          } else if (message.command == 'UPDATE_CODE_COMPLETIONS_SETTINGS') {
+          } else if (message.command == 'GET_TOOL_CODE_COMPLETIONS_SETTINGS') {
+            handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
+          } else if (message.command == 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS') {
             this.api_tools_settings_manager.set_code_completions_settings(
               message.settings
             )
-          } else if (message.command == 'GET_FILE_REFACTORING_SETTINGS') {
+          } else if (message.command == 'GET_TOOL_FILE_REFACTORING_SETTINGS') {
             const settings =
-              this.api_tools_settings_manager.get_file_refactoring_settings()
+              this.api_tools_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
             this.send_message<ApiToolFileRefactoringSettingsMessage>({
               command: 'FILE_REFACTORING_SETTINGS',
               settings
             })
-          } else if (message.command == 'UPDATE_FILE_REFACTORING_SETTINGS') {
+          } else if (message.command == 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS') {
             this.api_tools_settings_manager.set_file_refactoring_settings(
               message.settings
             )
-          } else if (message.command == 'GET_COMMIT_MESSAGES_SETTINGS') {
+          } else if (message.command == 'GET_TOOL_COMMIT_MESSAGES_SETTINGS') {
             const settings =
-              this.api_tools_settings_manager.get_commit_messages_settings()
+              this.api_tools_settings_manager.GET_TOOL_COMMIT_MESSAGES_SETTINGS()
             this.send_message<ApiToolCommitMessageSettingsMessage>({
               command: 'COMMIT_MESSAGES_SETTINGS',
               settings
             })
-          } else if (message.command == 'UPDATE_COMMIT_MESSAGES_SETTINGS') {
+          } else if (message.command == 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS') {
             this.api_tools_settings_manager.set_commit_messages_settings(
               message.settings
             )
@@ -1558,13 +1546,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this._send_custom_providers()
 
     // Send initial settings for new tools
-    this.send_message<ApiToolCodeCompletionsSettingsMessage>({
-      command: 'CODE_COMPLETIONS_SETTINGS',
-      settings: config.get<ApiToolSettings>(
-        'apiToolCodeCompletionsSettings',
-        {}
-      )
-    })
+    handle_GET_TOOL_CODE_COMPLETIONS_SETTINGS(this)
     this.send_message<ApiToolFileRefactoringSettingsMessage>({
       command: 'FILE_REFACTORING_SETTINGS',
       settings: config.get<ApiToolSettings>(

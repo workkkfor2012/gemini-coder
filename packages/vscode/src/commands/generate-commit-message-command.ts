@@ -74,7 +74,7 @@ export function generate_commit_message_command(
 
         const api_tool_settings_manager = new ApiToolsSettingsManager(context)
         const commit_message_settings =
-          api_tool_settings_manager.get_commit_messages_settings()
+          api_tool_settings_manager.GET_TOOL_COMMIT_MESSAGES_SETTINGS()
 
         if (!commit_message_settings.provider) {
           vscode.window.showErrorMessage(

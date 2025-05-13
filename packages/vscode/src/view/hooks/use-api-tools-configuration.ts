@@ -3,9 +3,9 @@ import {
   ExtensionMessage,
   GetGeminiApiKeyMessage,
   GetOpenRouterApiKeyMessage,
-  GetApiToolCodeCompletionsSettingsMessage,
-  GetApiToolFileRefactoringSettingsMessage,
-  GetApiToolCommitMessageSettingsMessage
+  GetToolCodeCompletionsSettingsMessage,
+  GetToolFileRefactoringSettingsMessage,
+  GetToolCommitMessageSettingsMessage
 } from '../types/messages'
 import { ApiToolSettings } from '@shared/types/api-tool-settings'
 
@@ -27,14 +27,14 @@ export const use_api_tools_configuration = (vscode: any) => {
       command: 'GET_OPEN_ROUTER_API_KEY'
     } as GetOpenRouterApiKeyMessage)
     vscode.postMessage({
-      command: 'GET_CODE_COMPLETIONS_SETTINGS'
-    } as GetApiToolCodeCompletionsSettingsMessage)
+      command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
+    } as GetToolCodeCompletionsSettingsMessage)
     vscode.postMessage({
-      command: 'GET_FILE_REFACTORING_SETTINGS'
-    } as GetApiToolFileRefactoringSettingsMessage)
+      command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
+    } as GetToolFileRefactoringSettingsMessage)
     vscode.postMessage({
-      command: 'GET_COMMIT_MESSAGES_SETTINGS'
-    } as GetApiToolCommitMessageSettingsMessage)
+      command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
+    } as GetToolCommitMessageSettingsMessage)
 
     const handle_message = (event: MessageEvent<ExtensionMessage>) => {
       const message = event.data
@@ -75,7 +75,7 @@ export const use_api_tools_configuration = (vscode: any) => {
   ) => {
     set_code_completions_settings(settings)
     vscode.postMessage({
-      command: 'UPDATE_CODE_COMPLETIONS_SETTINGS',
+      command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS',
       settings
     })
   }
@@ -85,7 +85,7 @@ export const use_api_tools_configuration = (vscode: any) => {
   ) => {
     set_file_refactoring_settings(settings)
     vscode.postMessage({
-      command: 'UPDATE_FILE_REFACTORING_SETTINGS',
+      command: 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS',
       settings
     })
   }
@@ -93,7 +93,7 @@ export const use_api_tools_configuration = (vscode: any) => {
   const handle_commit_message_settings_change = (settings: ApiToolSettings) => {
     set_commit_message_settings(settings)
     vscode.postMessage({
-      command: 'UPDATE_COMMIT_MESSAGES_SETTINGS',
+      command: 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS',
       settings
     })
   }

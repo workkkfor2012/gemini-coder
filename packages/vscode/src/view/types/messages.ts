@@ -170,32 +170,32 @@ export interface ShowOpenRouterModelPickerMessage extends BaseMessage {
   }[]
 }
 
-export interface GetApiToolCodeCompletionsSettingsMessage extends BaseMessage {
-  command: 'GET_CODE_COMPLETIONS_SETTINGS'
+export interface GetToolCodeCompletionsSettingsMessage extends BaseMessage {
+  command: 'GET_TOOL_CODE_COMPLETIONS_SETTINGS'
 }
 
 export interface UpdateApiToolCodeCompletionsSettingsMessage
   extends BaseMessage {
-  command: 'UPDATE_CODE_COMPLETIONS_SETTINGS'
+  command: 'UPDATE_TOOL_CODE_COMPLETIONS_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface GetApiToolFileRefactoringSettingsMessage extends BaseMessage {
-  command: 'GET_FILE_REFACTORING_SETTINGS'
+export interface GetToolFileRefactoringSettingsMessage extends BaseMessage {
+  command: 'GET_TOOL_FILE_REFACTORING_SETTINGS'
 }
 
 export interface UpdateApiToolFileRefactoringSettingsMessage
   extends BaseMessage {
-  command: 'UPDATE_FILE_REFACTORING_SETTINGS'
+  command: 'UPDATE_TOOL_FILE_REFACTORING_SETTINGS'
   settings: ApiToolSettings
 }
 
-export interface GetApiToolCommitMessageSettingsMessage extends BaseMessage {
-  command: 'GET_COMMIT_MESSAGES_SETTINGS'
+export interface GetToolCommitMessageSettingsMessage extends BaseMessage {
+  command: 'GET_TOOL_COMMIT_MESSAGES_SETTINGS'
 }
 
 export interface UpdateApiToolCommitMessageSettingsMessage extends BaseMessage {
-  command: 'UPDATE_COMMIT_MESSAGES_SETTINGS'
+  command: 'UPDATE_TOOL_COMMIT_MESSAGES_SETTINGS'
   settings: ApiToolSettings
 }
 
@@ -436,11 +436,11 @@ export type WebviewMessage =
   | GetCustomProvidersMessage
   | GetOpenRouterModelsMessage
   | ShowOpenRouterModelPickerMessage
-  | GetApiToolCodeCompletionsSettingsMessage
+  | GetToolCodeCompletionsSettingsMessage
   | UpdateApiToolCodeCompletionsSettingsMessage
-  | GetApiToolFileRefactoringSettingsMessage
+  | GetToolFileRefactoringSettingsMessage
   | UpdateApiToolFileRefactoringSettingsMessage
-  | GetApiToolCommitMessageSettingsMessage
+  | GetToolCommitMessageSettingsMessage
   | UpdateApiToolCommitMessageSettingsMessage
   | ExecuteCommandMessage
   | ShowQuickPickMessage

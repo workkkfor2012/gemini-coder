@@ -165,7 +165,7 @@ export function apply_chat_response_command(params: {
             params.context
           )
           const file_refactoring_settings =
-            api_tool_settings_manager.get_file_refactoring_settings()
+            api_tool_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
 
           if (
             !file_refactoring_settings.provider ||
@@ -347,7 +347,7 @@ export function apply_chat_response_command(params: {
         )
 
         const file_refactoring_settings =
-          api_tool_settings_manager.get_file_refactoring_settings()
+          api_tool_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
 
         if (!file_refactoring_settings.provider) {
           vscode.window.showErrorMessage(
@@ -467,7 +467,7 @@ export function apply_chat_response_command(params: {
               params.context
             )
             const file_refactoring_settings =
-              api_tool_settings_manager.get_file_refactoring_settings()
+              api_tool_settings_manager.GET_TOOL_FILE_REFACTORING_SETTINGS()
 
             if (
               !file_refactoring_settings.provider ||
