@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../../helpers/files-collector'
 import { WebSocketManager } from '@/services/websocket-manager'
 import {
   WebviewMessage,
@@ -28,25 +28,28 @@ import {
   InstructionsMessage,
   CodeCompletionSuggestionsMessage,
   EditFormatSelectorVisibilityMessage
-} from './types/messages'
-import { WebsitesProvider } from '../context/providers/websites-provider'
+} from '../types/messages'
+import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
 import { WorkspaceProvider } from '@/context/providers/workspace-provider'
-import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
+import { apply_preset_affixes_to_instruction } from '../../helpers/apply-preset-affixes'
 import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { ApiToolsSettingsManager } from '@/services/api-tools-settings-manager'
 import { ToolSettings } from '@shared/types/tool-settings'
-import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
+import { replace_selection_placeholder } from '../../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
-import { EditFormatSelectorVisibility } from './types/edit-format-selector-visibility'
-import { handle_show_open_router_model_picker } from './provider/message-handlers/handle-show-open-router-model-picker'
-import { handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS } from './provider/message-handlers/handle-get-code-completions-settings'
-import { handle_get_open_router_models } from './provider/message-handlers/handle-get-open-router-models'
-import { handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS } from './provider/message-handlers/handle-get-tool-file-refactoring-settings'
+import { EditFormatSelectorVisibility } from '../types/edit-format-selector-visibility'
+import {
+  handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS,
+  handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS,
+  handle_get_open_router_models,
+  handle_show_open_router_model_picker,
+  handle_show_preset_picker
+} from './message-handlers'
 
-type ConfigPresetFormat = {
+export type ConfigPresetFormat = {
   name: string
   chatbot: keyof typeof CHATBOTS
   promptPrefix?: string
@@ -76,7 +79,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private readonly _workspace_provider: WorkspaceProvider,
     private readonly _open_editors_provider: OpenEditorsProvider,
     private readonly _websites_provider: WebsitesProvider,
-    private readonly _context: vscode.ExtensionContext,
+    public readonly context: vscode.ExtensionContext,
     private readonly websocket_server_instance: WebSocketManager
   ) {
     this.websocket_server_instance.on_connection_status_change((connected) => {
@@ -89,7 +92,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     })
 
     // Initialize edit format from workspace state
-    this._edit_format = this._context.workspaceState.get<EditFormat>(
+    this._edit_format = this.context.workspaceState.get<EditFormat>(
       'editFormat',
       'truncated'
     )
@@ -165,18 +168,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       }
     })
 
-    this._context.subscriptions.push(this._config_listener)
-    this.api_tools_settings_manager = new ApiToolsSettingsManager(this._context)
+    this.context.subscriptions.push(this._config_listener)
+    this.api_tools_settings_manager = new ApiToolsSettingsManager(this.context)
 
-    this._instructions = this._context.workspaceState.get<string>(
+    this._instructions = this.context.workspaceState.get<string>(
       'instructions',
       ''
     )
-    this._code_completion_suggestions =
-      this._context.workspaceState.get<string>(
-        'code-completion-suggestions',
-        ''
-      )
+    this._code_completion_suggestions = this.context.workspaceState.get<string>(
+      'code-completion-suggestions',
+      ''
+    )
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -398,7 +400,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         const selected_names_key = this._is_code_completions_mode
           ? 'selectedCodeCompletionPresets'
           : 'selectedPresets'
-        await this._context.globalState.update(
+        await this.context.globalState.update(
           selected_names_key,
           selected_names
         )
@@ -476,7 +478,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       async (message: WebviewMessage) => {
         try {
           if (message.command == 'GET_HISTORY') {
-            const history = this._context.workspaceState.get<string[]>(
+            const history = this.context.workspaceState.get<string[]>(
               'history',
               []
             )
@@ -485,7 +487,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               messages: history
             })
           } else if (message.command == 'GET_CODE_COMPLETIONS_HISTORY') {
-            const history = this._context.workspaceState.get<string[]>(
+            const history = this.context.workspaceState.get<string[]>(
               'code-completions-history',
               []
             )
@@ -497,7 +499,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             const key = !this._is_code_completions_mode
               ? 'history'
               : 'code-completions-history'
-            this._context.workspaceState.update(key, message.messages)
+            this.context.workspaceState.update(key, message.messages)
           } else if (message.command == 'GET_INSTRUCTIONS') {
             this.send_message<InstructionsMessage>({
               command: 'INSTRUCTIONS',
@@ -505,7 +507,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'SAVE_INSTRUCTIONS') {
             this._instructions = message.instruction
-            this._context.workspaceState.update(
+            this.context.workspaceState.update(
               'instructions',
               message.instruction
             )
@@ -516,7 +518,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'SAVE_CODE_COMPLETION_SUGGESTIONS') {
             this._code_completion_suggestions = message.instruction
-            this._context.workspaceState.update(
+            this.context.workspaceState.update(
               'code-completion-suggestions',
               message.instruction
             )
@@ -529,7 +531,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_PRESETS') {
             this._send_presets_to_webview(webview_view.webview)
           } else if (message.command == 'GET_SELECTED_PRESETS') {
-            const selected_names = this._context.globalState.get<string[]>(
+            const selected_names = this.context.globalState.get<string[]>(
               'selectedPresets',
               []
             )
@@ -538,14 +540,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               names: selected_names
             })
           } else if (message.command == 'SAVE_SELECTED_PRESETS') {
-            await this._context.globalState.update(
+            await this.context.globalState.update(
               'selectedPresets',
               message.names
             )
           } else if (
             message.command == 'GET_SELECTED_CODE_COMPLETION_PRESETS'
           ) {
-            const selected_names = this._context.globalState.get<string[]>(
+            const selected_names = this.context.globalState.get<string[]>(
               'selectedCodeCompletionPresets',
               []
             )
@@ -556,7 +558,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (
             message.command == 'SAVE_SELECTED_CODE_COMPLETION_PRESETS'
           ) {
-            await this._context.globalState.update(
+            await this.context.globalState.update(
               'selectedCodeCompletionPresets',
               message.names
             )
@@ -867,86 +869,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
             vscode.window.showInformationMessage('Prompt copied to clipboard!')
           } else if (message.command == 'SHOW_PRESET_PICKER') {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            const web_chat_presets = config.get<ConfigPresetFormat[]>(
-              'presets',
-              []
+            await handle_show_preset_picker(
+              this,
+              this._is_code_completions_mode
             )
-
-            // Determine which global state key to use based on mode
-            const selected_preset_names_state_key = this
-              ._is_code_completions_mode
-              ? 'selectedCodeCompletionPresets'
-              : 'selectedPresets'
-
-            const available_preset_names = web_chat_presets
-              .filter((preset) =>
-                !this._is_code_completions_mode
-                  ? preset
-                  : !preset.promptPrefix && !preset.promptSuffix
-              )
-              .map((preset) => preset.name)
-            let selected_preset_names = this._context.globalState.get<string[]>(
-              selected_preset_names_state_key,
-              []
-            )
-            selected_preset_names = selected_preset_names.filter((name) =>
-              available_preset_names.includes(name)
-            )
-
-            // Update the global state with validated selection
-            await this._context.globalState.update(
-              selected_preset_names_state_key,
-              selected_preset_names
-            )
-
-            const preset_quick_pick_items = web_chat_presets
-              .filter((preset) =>
-                !this._is_code_completions_mode
-                  ? preset
-                  : !preset.promptPrefix && !preset.promptSuffix
-              )
-              .map((preset) => ({
-                label: preset.name,
-                description: `${preset.chatbot}${
-                  preset.model ? ` - ${preset.model}` : ''
-                }`,
-                picked: selected_preset_names.includes(preset.name) // Set picked state directly
-              }))
-
-            const placeholder = this._is_code_completions_mode
-              ? 'Select one or more code completion presets'
-              : 'Select one or more chat presets'
-
-            const selected_presets = await vscode.window.showQuickPick(
-              preset_quick_pick_items,
-              {
-                placeHolder: placeholder,
-                canPickMany: true
-              }
-            )
-
-            if (selected_presets) {
-              const selected_names = selected_presets.map(
-                (preset) => preset.label
-              )
-              await this._context.globalState.update(
-                selected_preset_names_state_key,
-                selected_names
-              )
-
-              if (this._is_code_completions_mode) {
-                this.send_message<SelectedCodeCompletionPresetsMessage>({
-                  command: 'SELECTED_CODE_COMPLETION_PRESETS',
-                  names: selected_names
-                })
-              } else {
-                this.send_message<SelectedPresetsMessage>({
-                  command: 'SELECTED_PRESETS',
-                  names: selected_names
-                })
-              }
-            }
           } else if (message.command == 'GET_CODE_COMPLETIONS_MODE') {
             const has_active_editor = !!vscode.window.activeTextEditor
 
@@ -1098,14 +1024,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               )
 
               // Update selected (default) presets for both modes
-              const selected_chat_names = this._context.globalState.get<
+              const selected_chat_names = this.context.globalState.get<
                 string[]
               >('selectedPresets', [])
               if (selected_chat_names.includes(message.updating_preset.name)) {
                 const updated_selected_names = selected_chat_names.map((name) =>
                   name == message.updating_preset.name ? final_name : name
                 )
-                await this._context.globalState.update(
+                await this.context.globalState.update(
                   'selectedPresets',
                   updated_selected_names
                 )
@@ -1117,9 +1043,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               }
 
               // Handle selected code completion presets
-              const selected_fim_names = this._context.globalState.get<
-                string[]
-              >('selectedCodeCompletionPresets', [])
+              const selected_fim_names = this.context.globalState.get<string[]>(
+                'selectedCodeCompletionPresets',
+                []
+              )
               const was_in_selected_fim = selected_fim_names.includes(
                 message.updating_preset.name
               )
@@ -1135,7 +1062,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   const updated_selected_fim = selected_fim_names.filter(
                     (name) => name !== message.updating_preset.name
                   )
-                  await this._context.globalState.update(
+                  await this.context.globalState.update(
                     'selectedCodeCompletionPresets',
                     updated_selected_fim
                   )
@@ -1148,7 +1075,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                   const updated_selected_fim = selected_fim_names.map((name) =>
                     name == message.updating_preset.name ? final_name : name
                   )
-                  await this._context.globalState.update(
+                  await this.context.globalState.update(
                     'selectedCodeCompletionPresets',
                     updated_selected_fim
                   )
@@ -1234,14 +1161,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               this._send_presets_to_webview(webview_view.webview)
 
               // Also update selected presets for both modes if needed
-              const selected_chat_names = this._context.globalState.get<
+              const selected_chat_names = this.context.globalState.get<
                 string[]
               >('selectedPresets', [])
               if (selected_chat_names.includes(preset_name)) {
                 const updated_selected = selected_chat_names.filter(
                   (n) => n != preset_name
                 )
-                await this._context.globalState.update(
+                await this.context.globalState.update(
                   'selectedPresets',
                   updated_selected
                 )
@@ -1251,14 +1178,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
                 })
               }
 
-              const selected_fim_names = this._context.globalState.get<
-                string[]
-              >('selectedCodeCompletionPresets', [])
+              const selected_fim_names = this.context.globalState.get<string[]>(
+                'selectedCodeCompletionPresets',
+                []
+              )
               if (selected_fim_names.includes(preset_name)) {
                 const updated_selected = selected_fim_names.filter(
                   (n) => n != preset_name
                 )
-                await this._context.globalState.update(
+                await this.context.globalState.update(
                   'selectedCodeCompletionPresets',
                   updated_selected
                 )
@@ -1441,7 +1369,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
             this._edit_format = message.edit_format
-            await this._context.workspaceState.update(
+            await this.context.workspaceState.update(
               'editFormat',
               message.edit_format
             )
@@ -1584,7 +1512,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       // Update caret position to be after the inserted text
       this._caret_position += text.length
 
-      this._context.workspaceState.update(
+      this.context.workspaceState.update(
         'code-completion-suggestions',
         this._code_completion_suggestions
       )
@@ -1601,7 +1529,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       // Update caret position to be after the inserted text
       this._caret_position += text.length
 
-      this._context.workspaceState.update('instructions', this._instructions)
+      this.context.workspaceState.update('instructions', this._instructions)
       this.send_message<InstructionsMessage>({
         command: 'INSTRUCTIONS',
         value: this._instructions

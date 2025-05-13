@@ -4,7 +4,7 @@ import {
   WebviewMessage,
   ExtensionMessage,
   PresetsMessage
-} from '../../types/messages'
+} from '../../../types/messages'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 

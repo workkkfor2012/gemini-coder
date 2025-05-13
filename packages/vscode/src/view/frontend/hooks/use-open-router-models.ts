@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { ExtensionMessage } from '../types/messages'
+import { ExtensionMessage } from '../../types/messages'
 
 export const use_open_router_models = (vscode: any) => {
   const [open_router_models, set_open_router_models] = useState<{

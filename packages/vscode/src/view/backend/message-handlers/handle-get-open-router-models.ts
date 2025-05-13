@@ -1,4 +1,4 @@
-import { ViewProvider } from '@/view/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import { OpenRouterModelsMessage } from '@/view/types/messages'
 import { Logger } from '@/helpers/logger'
 import axios from 'axios'

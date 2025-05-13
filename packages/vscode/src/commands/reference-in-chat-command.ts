@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
-import { ViewProvider } from '../view/view-provider'
+import { ViewProvider } from '../view/backend/view-provider'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
 import { FileItem } from '../context/providers/workspace-provider'
 import { SharedFileState } from '../context/shared-file-state'

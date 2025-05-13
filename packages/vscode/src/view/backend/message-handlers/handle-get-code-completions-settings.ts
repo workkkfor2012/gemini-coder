@@ -1,4 +1,4 @@
-import { ViewProvider } from '@/view/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import { ExtensionMessage } from '@/view/types/messages'
 
 export const handle_GET_API_TOOL_CODE_COMPLETIONS_SETTINGS = (

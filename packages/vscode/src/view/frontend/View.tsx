@@ -11,7 +11,7 @@ import {
   SaveInstructionsMessage,
   SaveCodeCompletionSuggestionsMessage,
   WebviewMessage
-} from './types/messages'
+} from '../types/messages'
 import { use_open_router_models } from './hooks/use-open-router-models'
 import { ToolsConfiguration as UiToolsConfiguration } from '@ui/components/editor/ToolsConfiguration'
 import { BUILT_IN_PROVIDERS } from '@/constants/built-in-providers'

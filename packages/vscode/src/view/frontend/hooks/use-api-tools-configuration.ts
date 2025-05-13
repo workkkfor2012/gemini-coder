@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ExtensionMessage, WebviewMessage } from '../types/messages'
+import { ExtensionMessage, WebviewMessage } from '../../types/messages'
 import { ToolSettings } from '@shared/types/tool-settings'
 
 export const use_api_tools_configuration = (vscode: any) => {

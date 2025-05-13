@@ -1,4 +1,4 @@
-import { ViewProvider } from '@/view/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
 import { OpenRouterModelSelectedMessage } from '@/view/types/messages'
 

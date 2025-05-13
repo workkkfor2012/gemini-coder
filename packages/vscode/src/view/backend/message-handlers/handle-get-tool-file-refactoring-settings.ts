@@ -1,4 +1,4 @@
-import { ViewProvider } from '@/view/view-provider'
+import { ViewProvider } from '@/view/backend/view-provider'
 import { ApiToolFileRefactoringSettingsMessage } from '@/view/types/messages'
 
 export const handle_GET_API_TOOL_FILE_REFACTORING_SETTINGS = (

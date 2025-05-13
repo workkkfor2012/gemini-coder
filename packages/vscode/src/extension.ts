@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
-import { ViewProvider } from './view/view-provider'
+import { ViewProvider } from './view/backend/view-provider'
 import { WebSocketManager } from './services/websocket-manager'
-import { migrate_remove_copilot_presets } from './migrations/migrate-remove-copilot-presets' // Added import
+import { migrate_remove_copilot_presets } from './migrations/migrate-remove-copilot-presets'
 import { migrate_api_tool_settings } from './migrations/migrate-api-tool-settings'
 import {
   apply_chat_response_command,
