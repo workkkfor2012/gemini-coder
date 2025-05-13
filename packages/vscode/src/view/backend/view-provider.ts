@@ -32,7 +32,6 @@ import {
 import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
 import { WorkspaceProvider } from '@/context/providers/workspace-provider'
-import { apply_preset_affixes_to_instruction } from '../../helpers/apply-preset-affixes'
 import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { CHATBOTS } from '@shared/constants/chatbots'
@@ -47,7 +46,8 @@ import {
   handle_get_open_router_models,
   handle_show_open_router_model_picker,
   handle_show_preset_picker,
-  handle_copy_prompt
+  handle_copy_prompt,
+  handle_send_prompt
 } from './message-handlers'
 
 export type ConfigPresetFormat = {
@@ -81,9 +81,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     private readonly _open_editors_provider: OpenEditorsProvider,
     private readonly _websites_provider: WebsitesProvider,
     private readonly _context: vscode.ExtensionContext,
-    private readonly websocket_server_instance: WebSocketManager
+    private readonly _websocket_server_instance: WebSocketManager
   ) {
-    this.websocket_server_instance.on_connection_status_change((connected) => {
+    this._websocket_server_instance.on_connection_status_change((connected) => {
       if (this._webview_view) {
         this.send_message<ExtensionMessage>({
           command: 'CONNECTION_STATUS',
@@ -359,77 +359,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     }
   }
 
-  // Inside ChatViewProvider class, add this new helper method
-  private async _validate_presets(preset_names: string[]): Promise<string[]> {
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const presets = config.get<any[]>('presets', [])
-    const available_presets = presets.filter((preset) =>
-      !this._is_code_completions_mode
-        ? true
-        : !preset.promptPrefix && !preset.promptSuffix
-    )
-    const available_preset_names = available_presets.map(
-      (preset) => preset.name
-    )
-
-    // Filter out any presets that no longer exist
-    const valid_presets = preset_names.filter((name) =>
-      available_preset_names.includes(name)
-    )
-
-    // If no valid presets, show the picker
-    if (valid_presets.length == 0) {
-      const preset_quick_pick_items = available_presets.map((preset) => ({
-        label: preset.name,
-        description: `${preset.chatbot}${
-          preset.model ? ` - ${preset.model}` : ''
-        }`,
-        picked: false
-      }))
-
-      const placeholder = !this._is_code_completions_mode
-        ? 'Select one or more presets'
-        : 'Select one or more presets to use when asking for code completions'
-
-      const selected_presets = await vscode.window.showQuickPick(
-        preset_quick_pick_items,
-        {
-          placeHolder: placeholder,
-          canPickMany: true
-        }
-      )
-
-      if (selected_presets) {
-        const selected_names = selected_presets.map((preset) => preset.label)
-        const selected_names_key = this._is_code_completions_mode
-          ? 'selectedCodeCompletionPresets'
-          : 'selectedPresets'
-        await this._context.globalState.update(
-          selected_names_key,
-          selected_names
-        )
-
-        // Send the appropriate message back to the webview
-        if (this._is_code_completions_mode) {
-          this.send_message<SelectedCodeCompletionPresetsMessage>({
-            command: 'SELECTED_CODE_COMPLETION_PRESETS',
-            names: selected_names
-          })
-        } else {
-          this.send_message<SelectedPresetsMessage>({
-            command: 'SELECTED_PRESETS',
-            names: selected_names
-          })
-        }
-
-        return selected_names
-      }
-      return []
-    }
-
-    return valid_presets
-  }
-
   // Helper function to convert UI Preset format to Config format
   private _ui_preset_to_config_format(preset: Preset): ConfigPresetFormat {
     return {
@@ -530,7 +459,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             this.send_message<ExtensionMessage>({
               command: 'CONNECTION_STATUS',
               connected:
-                this.websocket_server_instance.is_connected_with_browser()
+                this._websocket_server_instance.is_connected_with_browser()
             })
           } else if (message.command == 'GET_PRESETS') {
             this._send_presets_to_webview(webview_view.webview)
@@ -567,119 +496,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.names
             )
           } else if (message.command == 'SEND_PROMPT') {
-            // Validate presets first
-            const valid_preset_names = await this._validate_presets(
-              message.preset_names
-            )
-
-            // If no presets were selected in the picker
-            if (valid_preset_names.length == 0) {
-              vscode.window.showInformationMessage(
-                'Please select at least one preset to continue.'
-              )
-              return
-            }
-
-            await vscode.workspace.saveAll()
-
-            const files_collector = new FilesCollector(
-              this._workspace_provider,
-              this._open_editors_provider,
-              this._websites_provider
-            )
-
-            const active_editor = vscode.window.activeTextEditor
-            const active_path = active_editor?.document.uri.fsPath
-
-            if (this._is_code_completions_mode && active_editor) {
-              const document = active_editor.document
-              const position = active_editor.selection.active
-
-              const text_before_cursor = document.getText(
-                new vscode.Range(new vscode.Position(0, 0), position)
-              )
-              const text_after_cursor = document.getText(
-                new vscode.Range(
-                  position,
-                  document.positionAt(document.getText().length)
-                )
-              )
-
-              const context_text = await files_collector.collect_files({
-                exclude_path: active_path
-              })
-
-              const workspace_folder =
-                vscode.workspace.workspaceFolders?.[0].uri.fsPath
-              const relative_path = active_path!.replace(
-                workspace_folder + '/',
-                ''
-              )
-
-              const config = vscode.workspace.getConfiguration('codeWebChat')
-              const chat_code_completion_instructions = config.get<string>(
-                'chatCodeCompletionInstructions'
-              )
-
-              const instructions = `${chat_code_completion_instructions}${
-                this._code_completion_suggestions
-                  ? ` Follow suggestions: ${this._code_completion_suggestions}`
-                  : ''
-              }`
-
-              const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
-
-              this.websocket_server_instance.initialize_chats(
-                text,
-                valid_preset_names
-              )
-            } else if (!this._is_code_completions_mode) {
-              if (!this._instructions) {
-                vscode.window.showInformationMessage(
-                  'Please enter instructions to use the preset.'
-                )
-                return
-              }
-
-              const context_text = await files_collector.collect_files({
-                active_path
-              })
-
-              let instructions = this._instructions
-              instructions = replace_selection_placeholder(instructions)
-              instructions = apply_preset_affixes_to_instruction(
-                instructions,
-                valid_preset_names
-              )
-
-              // Use the stored _edit_format property
-              const config = vscode.workspace.getConfiguration('codeWebChat')
-              const edit_format_instructions = config.get<string>(
-                `editFormatInstructions${
-                  this._edit_format.charAt(0).toUpperCase() +
-                  this._edit_format.slice(1)
-                }`
-              )
-              if (edit_format_instructions) {
-                instructions += `\n${edit_format_instructions}`
-              }
-
-              const text = `${
-                context_text
-                  ? `${instructions}\n<files>\n${context_text}</files>\n`
-                  : ''
-              }${instructions}`
-
-              this.websocket_server_instance.initialize_chats(
-                text,
-                valid_preset_names
-              )
-            }
-            vscode.window.showInformationMessage(
-              valid_preset_names.length > 1
-                ? 'Chats have been initialized in the connected browser.'
-                : 'Chat has been initialized in the connected browser.'
-            )
+            await handle_send_prompt(this, message.preset_names)
           } else if (message.command == 'PREVIEW_PRESET') {
             await vscode.workspace.saveAll()
 
@@ -776,7 +593,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               return
             }
 
-            this.websocket_server_instance.preview_preset(
+            this._websocket_server_instance.preview_preset(
               text_to_send,
               message.preset
             )
@@ -1480,5 +1297,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
   public get context(): vscode.ExtensionContext {
     return this._context
+  }
+  public get websocket_server_instance(): WebSocketManager {
+    return this._websocket_server_instance
   }
 }
