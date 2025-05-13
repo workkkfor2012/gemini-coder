@@ -41,7 +41,9 @@ import {
   handle_get_edit_format_selector_visibility,
   handle_save_edit_format_selector_visibility,
   handle_save_presets_order,
-  handle_get_selected_code_completion_presets
+  handle_get_selected_presets,
+  handle_get_selected_code_completion_presets,
+  handle_get_connection_status // Added import for the new handler
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -368,22 +370,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               message.instruction
             )
           } else if (message.command == 'GET_CONNECTION_STATUS') {
-            this.send_message<ExtensionMessage>({
-              command: 'CONNECTION_STATUS',
-              connected:
-                this.websocket_server_instance.is_connected_with_browser()
-            })
+            handle_get_connection_status(this)
           } else if (message.command == 'GET_PRESETS') {
             this.send_presets_to_webview(webview_view.webview)
           } else if (message.command == 'GET_SELECTED_PRESETS') {
-            const selected_names = this.context.globalState.get<string[]>(
-              'selectedPresets',
-              []
-            )
-            this.send_message<ExtensionMessage>({
-              command: 'SELECTED_PRESETS',
-              names: selected_names
-            })
+            handle_get_selected_presets(this)
           } else if (message.command == 'SAVE_SELECTED_PRESETS') {
             await this.context.globalState.update(
               'selectedPresets',
