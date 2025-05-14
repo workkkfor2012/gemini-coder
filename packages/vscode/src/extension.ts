@@ -176,6 +176,14 @@ export async function activate(context: vscode.ExtensionContext) {
       url: 'https://github.com/robertpiosik/CodeWebChat'
     }),
     open_url_command({
+      command: 'codeWebChat.openX',
+      url: 'https://x.com/CodeWebChat'
+    }),
+    open_url_command({
+      command: 'codeWebChat.openReddit',
+      url: 'https://www.reddit.com/r/CodeWebChat/'
+    }),
+    open_url_command({
       command: 'codeWebChat.rateExtension',
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
     }),
