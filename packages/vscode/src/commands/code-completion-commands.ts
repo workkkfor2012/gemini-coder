@@ -108,7 +108,7 @@ async function perform_code_completion(params: {
 
   if (!code_completions_settings.provider) {
     vscode.window.showErrorMessage(
-      'API provider is not specified for Code Completions tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+      'API provider is not specified for Code Completions tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
     )
     Logger.warn({
       function_name: 'perform_code_completion',
@@ -117,7 +117,7 @@ async function perform_code_completion(params: {
     return
   } else if (!code_completions_settings.model) {
     vscode.window.showErrorMessage(
-      'Model is not specified for Code Completions tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+      'Model is not specified for Code Completions tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
     )
     Logger.warn({
       function_name: 'perform_code_completion',
