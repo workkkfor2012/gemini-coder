@@ -100,30 +100,23 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     // Listen for changes to the new configuration keys
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        if (
-          event.affectsConfiguration('codeWebChat.presets') &&
-          this._webview_view
-        ) {
+        if (!this._webview_view) return
+        if (event.affectsConfiguration('codeWebChat.presets')) {
           this.send_presets_to_webview(this._webview_view.webview)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolCodeCompletionsSettings'
-          ) &&
-          this._webview_view
+          )
         ) {
           handle_get_api_tool_code_completions_settings(this)
         } else if (
           event.affectsConfiguration(
             'codeWebChat.apiToolFileRefactoringSettings'
-          ) &&
-          this._webview_view
+          )
         ) {
           handle_get_api_tool_file_refactoring_settings(this)
         } else if (
-          event.affectsConfiguration(
-            'codeWebChat.apiToolCommitMessageSettings'
-          ) &&
-          this._webview_view
+          event.affectsConfiguration('codeWebChat.apiToolCommitMessageSettings')
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
           const settings = config.get<ToolSettings>(
@@ -135,10 +128,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             settings
           })
         } else if (
-          event.affectsConfiguration(
-            'codeWebChat.editFormatSelectorVisibility'
-          ) &&
-          this._webview_view
+          event.affectsConfiguration('codeWebChat.editFormatSelectorVisibility')
         ) {
           const config = vscode.workspace.getConfiguration('codeWebChat')
           const visibility = config.get<EditFormatSelectorVisibility>(

@@ -591,11 +591,6 @@
           "description": "The prompt text used when generating commit messages.",
           "default": "Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
         },
-        "codeWebChat.attachOpenFiles": {
-          "type": "boolean",
-          "default": true,
-          "description": "Attach open files to the context."
-        },
         "codeWebChat.ignoredExtensions": {
           "type": "array",
           "description": "List of file extensions to ignore in the context.",

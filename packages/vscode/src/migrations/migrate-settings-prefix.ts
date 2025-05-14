@@ -8,7 +8,6 @@ const MIGRATION_ID = 'settings-prefix-migration-090525'
 const SETTING_KEY_SUFFIXES_TO_MIGRATE = [
   // Current settings from package.json
   'commitMessagePrompt',
-  'attachOpenFiles',
   'ignoredExtensions',
   'editFormat',
   'editFormatSelectorVisibility',

@@ -23,7 +23,6 @@ export class OpenEditorsProvider
   private _tab_change_handler: vscode.Disposable
   private _file_change_watcher: vscode.Disposable
   private _ignored_extensions: Set<string> = new Set()
-  private _attach_open_files: boolean = true
   private _initialized: boolean = false
   // Track files opened from workspace view
   private _opened_from_workspace_view: Set<string> = new Set()
@@ -45,10 +44,6 @@ export class OpenEditorsProvider
 
     // Load ignored extensions
     this._load_ignored_extensions()
-
-    // Load user preference for automatically attaching open files
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    this._attach_open_files = config.get('attachOpenFiles', true)
 
     // Initialize the preview tabs map with current tabs
     this._update_preview_tabs_state()
@@ -74,19 +69,11 @@ export class OpenEditorsProvider
     // Listen for configuration changes
     this._config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
-        if (event.affectsConfiguration('codeWebChat')) {
-          if (event.affectsConfiguration('codeWebChat.attachOpenFiles')) {
-            const config = vscode.workspace.getConfiguration('codeWebChat')
-            this.update_attach_open_files_setting(
-              config.get('attachOpenFiles', true)
-            )
-          }
-          if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
-            const old_ignored_extensions = new Set(this._ignored_extensions)
-            this._load_ignored_extensions()
-            this._uncheck_ignored_files(old_ignored_extensions)
-            this.refresh()
-          }
+        if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
+          const old_ignored_extensions = new Set(this._ignored_extensions)
+          this._load_ignored_extensions()
+          this._uncheck_ignored_files(old_ignored_extensions)
+          this.refresh()
         }
       }
     )
@@ -94,7 +81,6 @@ export class OpenEditorsProvider
     // Initial auto-check of all open editors
     // We'll use setTimeout to ensure VS Code has fully loaded editors
     setTimeout(() => {
-      this._auto_check_open_editors()
       this._initialized = true
       this._on_did_change_tree_data.fire() // Fire event to refresh view
     }, 500) // Small delay to ensure VS Code has loaded all editors
@@ -181,13 +167,7 @@ export class OpenEditorsProvider
       // Only track text tabs
       if (tab.input instanceof vscode.TabInputText) {
         const file_path = tab.input.uri.fsPath
-        const was_preview = this._preview_tabs.get(file_path)
         const is_now_preview = !!tab.isPreview
-
-        // If the file was in preview mode and now is not
-        if (was_preview && !is_now_preview) {
-          this._handle_file_out_of_preview_state(file_path)
-        }
 
         // Update preview state
         this._preview_tabs.set(file_path, is_now_preview)
@@ -209,38 +189,6 @@ export class OpenEditorsProvider
     }
   }
 
-  private _handle_file_out_of_preview_state(file_path: string): void {
-    // Only proceed if the setting is enabled
-    if (!this._attach_open_files) return
-
-    // Skip files not in any workspace
-    if (!this._is_file_in_any_workspace(file_path)) return
-
-    if (should_ignore_file(file_path, this._ignored_extensions)) return
-
-    // Skip if already checked
-    if (
-      this._checked_items.get(file_path) ===
-      vscode.TreeItemCheckboxState.Checked
-    )
-      return
-
-    // Check if this file was opened from workspace view
-    const was_opened_from_workspace_view =
-      this._opened_from_workspace_view.has(file_path)
-
-    // Remove from tracking set - we'll process it now regardless
-    if (was_opened_from_workspace_view) {
-      this._opened_from_workspace_view.delete(file_path)
-    }
-
-    // Mark as checked when file is unpinned - even if it was opened from workspace view
-    this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
-
-    // Clear token count to recalculate
-    this._file_token_counts.delete(file_path)
-  }
-
   // Mark files opened from workspace view
   mark_opened_from_workspace_view(file_path: string): void {
     this._opened_from_workspace_view.add(file_path)
@@ -257,68 +205,7 @@ export class OpenEditorsProvider
     // Clean up closed files from checked_items
     this._clean_up_closed_files()
 
-    // Handle newly opened files (this is the new part)
-    this._handle_newly_opened_files()
-
     // Trigger view update
-    this._on_did_change_tree_data.fire()
-  }
-
-  // Modified method to handle newly opened files
-  private _handle_newly_opened_files(): void {
-    // Only auto-check new files if the setting is enabled
-    if (!this._attach_open_files) return
-
-    const open_file_paths = this._get_open_editors()
-
-    for (const uri of open_file_paths) {
-      const file_path = uri.fsPath
-
-      // Skip files not in any workspace
-      if (!this._is_file_in_any_workspace(file_path)) continue
-
-      if (should_ignore_file(file_path, this._ignored_extensions)) continue
-
-      // Check if this is a new file that isn't in our map yet
-      if (!this._checked_items.has(file_path)) {
-        // First, check if this file is already checked in the workspace view
-        const is_checked_in_workspace =
-          this._is_file_checked_in_workspace(file_path)
-
-        if (is_checked_in_workspace) {
-          // If checked in workspace view, use that state
-          this._checked_items.set(
-            file_path,
-            vscode.TreeItemCheckboxState.Checked
-          )
-        } else if (
-          this._opened_from_workspace_view.has(file_path) ||
-          this._preview_tabs.get(file_path)
-        ) {
-          // Don't auto-check if the file was opened from workspace view or is in preview mode
-          this._checked_items.set(
-            file_path,
-            vscode.TreeItemCheckboxState.Unchecked
-          )
-
-          // Only remove from set if not in preview mode - keep tracking preview files
-          if (!this._preview_tabs.get(file_path)) {
-            this._opened_from_workspace_view.delete(file_path)
-          }
-        } else {
-          // Auto-check new files opened through other means and not in preview mode
-          this._checked_items.set(
-            file_path,
-            vscode.TreeItemCheckboxState.Checked
-          )
-        }
-
-        // Clear token count for this file to force recalculation
-        this._file_token_counts.delete(file_path)
-      }
-    }
-
-    // Force a complete tree refresh
     this._on_did_change_tree_data.fire()
   }
 
@@ -486,12 +373,7 @@ export class OpenEditorsProvider
           // If it's checked in workspace view, use that state
           checkbox_state = vscode.TreeItemCheckboxState.Checked
         } else {
-          const is_preview = this._preview_tabs.get(file_path)
-          // Only auto-check if attach_open_files is enabled and file is not in preview mode
-          checkbox_state =
-            this._attach_open_files && !is_preview
-              ? vscode.TreeItemCheckboxState.Checked
-              : vscode.TreeItemCheckboxState.Unchecked
+          checkbox_state = vscode.TreeItemCheckboxState.Unchecked
         }
 
         this._checked_items.set(file_path, checkbox_state)
@@ -666,46 +548,6 @@ export class OpenEditorsProvider
     }
 
     this.refresh()
-
-    // Fire the checked files change event to trigger synchronization
-    this._on_did_change_checked_files.fire()
-  }
-
-  update_attach_open_files_setting(value: boolean): void {
-    if (this._attach_open_files == value) {
-      return
-    }
-    this._attach_open_files = value
-    this.refresh()
-  }
-
-  private async _auto_check_open_editors(): Promise<void> {
-    if (!this._attach_open_files) return
-
-    const open_files = this._get_open_editors()
-    // Get checked workspace files for reference
-    const workspace_checked_files = this._shared_state.get_checked_files()
-
-    for (const uri of open_files) {
-      const file_path = uri.fsPath
-
-      // Skip files not in any workspace
-      if (!this._is_file_in_any_workspace(file_path)) continue
-
-      if (should_ignore_file(file_path, this._ignored_extensions)) continue
-
-      // Check if the file is in preview mode
-      const is_preview = this._preview_tabs.get(file_path)
-
-      // If the file is checked in workspace view, reflect that state
-      if (workspace_checked_files.includes(file_path)) {
-        this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
-      }
-      // Only auto-check if not already set by user, not in preview mode, and not checked in workspace
-      else if (!this._checked_items.has(file_path) && !is_preview) {
-        this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
-      }
-    }
 
     // Fire the checked files change event to trigger synchronization
     this._on_did_change_checked_files.fire()

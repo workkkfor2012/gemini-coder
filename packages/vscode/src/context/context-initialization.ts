@@ -273,28 +273,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
     })
   )
 
-  // Update badge when configuration changes
-  context.subscriptions.push(
-    vscode.workspace.onDidChangeConfiguration((event) => {
-      if (event.affectsConfiguration('codeWebChat')) {
-        // If attachOpenFiles setting changed, refresh the tree views
-        if (event.affectsConfiguration('codeWebChat.attachOpenFiles')) {
-          const config = vscode.workspace.getConfiguration('codeWebChat')
-          const attachOpenFiles = config.get('attachOpenFiles', true)
-
-          // Update the OpenEditorsProvider with the new setting value
-          if (open_editors_provider) {
-            open_editors_provider.update_attach_open_files_setting(
-              attachOpenFiles
-            )
-          }
-        }
-
-        update_activity_bar_badge_token_count()
-      }
-    })
-  )
-
   // Update badge when tabs change with debouncing to avoid multiple updates
   let tab_change_timeout: NodeJS.Timeout | null = null
   context.subscriptions.push(
