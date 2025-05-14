@@ -102,9 +102,8 @@ export async function make_api_request(
           ['Content-Type']: 'application/json',
           ...(endpoint_url == 'https://openrouter.ai/api/v1'
             ? {
-                'HTTP-Referer':
-                  'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder',
-                'X-Title': 'Gemini Coder'
+                'HTTP-Referer': 'https://codeweb.chat/',
+                'X-Title': 'Code Web Chat (CWC)'
               }
             : {})
         },

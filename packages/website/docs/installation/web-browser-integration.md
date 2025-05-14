@@ -4,7 +4,7 @@ hide_table_of_contents: true
 
 # Web browser integration
 
-For the hands-free chat initialization and enhancing context with selected websites, you'll need to install the **Gemini Coder Connector**.
+For the hands-free chat initialization and enhancing context with selected websites, you'll need to install the **Code Web Chat Connector**.
 
 The connector extension is [open source](https://github.com/robertpiosik/CodeWebChat/tree/master/packages/browser).
 

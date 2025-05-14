@@ -351,7 +351,7 @@ export function apply_chat_response_command(params: {
 
         if (!file_refactoring_settings.provider) {
           vscode.window.showErrorMessage(
-            'API provider is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+            'API provider is not specified for File Refactoring tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
           )
           Logger.warn({
             function_name: 'apply_chat_response_command',
@@ -360,7 +360,7 @@ export function apply_chat_response_command(params: {
           return
         } else if (!file_refactoring_settings.model) {
           vscode.window.showErrorMessage(
-            'Model is not specified for File Refactoring tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+            'Model is not specified for File Refactoring tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
           )
           Logger.warn({
             function_name: 'apply_chat_response_command',
@@ -474,7 +474,7 @@ export function apply_chat_response_command(params: {
               !file_refactoring_settings.model
             ) {
               vscode.window.showErrorMessage(
-                'API provider or model is not configured for Intelligent update. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+                'API provider or model is not configured for Intelligent update. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
               )
               return
             }

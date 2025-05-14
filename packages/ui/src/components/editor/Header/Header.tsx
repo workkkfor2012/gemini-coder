@@ -35,7 +35,7 @@ export const Header: React.FC<Props> = (props) => {
         <a
           href="https://buymeacoffee.com/robertpiosik"
           className={styles.right__button}
-          title="Thank you for choosing to support Gemini Coder"
+          title="Thank you for choosing to support Code Web Chat"
         >
           <Icon variant="BUY_ME_A_COFFEE" />
         </a>

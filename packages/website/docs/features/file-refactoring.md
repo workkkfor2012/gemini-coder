@@ -67,18 +67,18 @@ Here are some effective refactoring instructions:
 
 ## Available commands
 
-##### `Gemini Coder: Refactor this File`
+##### `Code Web Chat: Refactor this File`
 
 Refactors the current file using the default model.
 
-##### `Gemini Coder: Refactor this File with...`
+##### `Code Web Chat: Refactor this File with...`
 
 Lets you select which model to use for refactoring.
 
-##### `Gemini Coder: Refactor to Clipboard`
+##### `Code Web Chat: Refactor to Clipboard`
 
 Instead of applying changes directly, copies the refactoring prompt to your clipboard for use in other tools.
 
-##### `Gemini Coder: Change Default Refactoring Model`
+##### `Code Web Chat: Change Default Refactoring Model`
 
 Configure which model should be used as the default for refactoring.

@@ -233,7 +233,7 @@ export const Main: React.FC<Props> = (props) => {
             <span>
               Get the{' '}
               <a href="https://gemini-coder.netlify.app/docs/installation/web-browser-integration">
-                Gemini Coder Connector
+                Code Web Chat Connector
               </a>{' '}
               for hands-free chat inititalizations.
             </span>

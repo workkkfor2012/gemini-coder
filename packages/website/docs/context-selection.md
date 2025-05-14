@@ -5,11 +5,11 @@ sidebar_position: 3
 
 # Context selection
 
-What sets Gemini Coder apart from other AI coding assistants is its focus on manual context selection.
+What sets Code Web Chat apart from other AI coding assistants is its focus on manual context selection.
 
 The extension gives you full control over which files are attached to chats, FIM, or refactoring requests. Our design choice supports traditional, thoughtful programming, allowing you to maximize AI capabilities while minimizing spending.
 
-Gemini Coder provides three context-related views:
+Code Web Chat provides three context-related views:
 
 - open editors
 - workspace tree
@@ -36,7 +36,7 @@ _The structure of context:_
 
 ### Open editors
 
-Your currently open files. Configuration option `Gemini Coder: Attach Open Files` determines if newly opened files are automatically included in the context.
+Your currently open files. Configuration option `Code Web Chat: Attach Open Files` determines if newly opened files are automatically included in the context.
 
 ### Workspace
 
@@ -48,6 +48,6 @@ Websites selected in the popup of the [web browser integration](/docs/installati
 
 ## Available commands
 
-##### `Gemini Coder: Copy Context`
+##### `Code Web Chat: Copy Context`
 
 Use the command to copy the current context to the clipboard. This is useful for grabbing context for use in other tools.

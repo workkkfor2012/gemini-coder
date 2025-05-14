@@ -59,14 +59,14 @@ Each preset can include:
 
 ## Available commands
 
-##### `Gemini Coder: Web Chat`
+##### `Code Web Chat: Web Chat`
 
 Opens a chat session in your browser with the current context and prompt.
 
-##### `Gemini Coder: Web Chat with...`
+##### `Code Web Chat: Web Chat with...`
 
 Lets you select which AI platform to use for your chat session.
 
-##### `Gemini Coder: Chat to Clipboard`
+##### `Code Web Chat: Chat to Clipboard`
 
 Instead of opening a chat directly, copies the context and prompt to your clipboard for manual pasting.

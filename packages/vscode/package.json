@@ -173,72 +173,72 @@
       {
         "command": "codeWebChat.codeCompletion",
         "title": "Code Completion",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionAutoAccept",
         "title": "Code Completion",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionWithSuggestions",
         "title": "Code Completion with Suggestions",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionWithSuggestionsAutoAccept",
         "title": "Code Completion with Suggestions",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionToClipboard",
         "title": "Code Completion Prompt to Clipboard",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionWithSuggestionsToClipboard",
         "title": "Code Completion with Suggestions to Clipboard",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionInChat",
         "title": "Code Completion in Chat",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.codeCompletionInChatWith",
         "title": "Code Completion in Chat with...",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.applyChatResponse",
         "title": "Apply Chat Response",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.webChat",
         "title": "Web Chat",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.webChatWith",
         "title": "Web Chat with...",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.chatToClipboard",
         "title": "Chat to Clipboard",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.refactor",
         "title": "Refactor",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.refactorToClipboard",
         "title": "Refactor to Clipboard",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.newFolder",
@@ -265,28 +265,28 @@
       {
         "command": "codeWebChat.applyChatResponseFastReplace",
         "title": "Apply Chat Response (Fast replace)",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.applyChatResponseIntelligentUpdate",
         "title": "Apply Chat Response (Intelligent update)",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.revert",
         "title": "Revert Last Applied Chat Response",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.generateCommitMessage",
-        "title": "Generate Commit Message with Gemini Coder",
+        "title": "Generate Commit Message with Code Web Chat",
         "category": "Code Web Chat",
         "icon": "$(sparkle)"
       },
       {
         "command": "codeWebChat.referenceInChat",
         "title": "Reference in Chat",
-        "category": "Gemini Coder"
+        "category": "Code Web Chat"
       },
       {
         "command": "codeWebChat.openSettings",
@@ -583,7 +583,7 @@
     },
     "configuration": {
       "type": "object",
-      "title": "Gemini Coder Settings",
+      "title": "Code Web Chat Settings",
       "properties": {
         "codeWebChat.commitMessagePrompt": {
           "type": "string",

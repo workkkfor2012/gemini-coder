@@ -5,7 +5,7 @@ hide_table_of_contents: true
 
 # Features
 
-Gemini Coder offers a suite of AI-driven features designed to aid your software development workflow in VS Code. These tools empower you to write, refactor, and comprehend code with greater efficiency.
+Code Web Chat offers a suite of AI-driven features designed to aid your software development workflow in VS Code. These tools empower you to write, refactor, and comprehend code with greater efficiency.
 
 ### [Chat](./chat)
 

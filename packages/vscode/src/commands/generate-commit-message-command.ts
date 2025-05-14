@@ -78,7 +78,7 @@ export function generate_commit_message_command(
 
         if (!commit_message_settings.provider) {
           vscode.window.showErrorMessage(
-            'API provider is not specified for Commit Messages tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+            'API provider is not specified for Commit Messages tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
           )
           Logger.warn({
             function_name: 'generate_commit_message_command',
@@ -87,7 +87,7 @@ export function generate_commit_message_command(
           return
         } else if (!commit_message_settings.model) {
           vscode.window.showErrorMessage(
-            'Model is not specified for Commit Messages tool. Go to Gemini Coder panel -> API Tools tab -> Configure Tools.'
+            'Model is not specified for Commit Messages tool. Go to Code Web Chat panel -> API Tools tab -> Configure Tools.'
           )
           Logger.warn({
             function_name: 'generate_commit_message_command',

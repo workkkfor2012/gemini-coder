@@ -2,7 +2,7 @@
   "name": "shared",
   "version": "1.0.0",
   "private": true,
-  "description": "Shared utilities for Gemini Coder",
+  "description": "Shared utilities for CWC",
   "scripts": {
     "test": "jest"
   },

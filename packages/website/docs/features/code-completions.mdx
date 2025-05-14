@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem'
 
 # Code completions
 
-This feature enables you inserting code completions directly at cursor's position while using the selected context. Code completions in Gemini Coder use big and capable models which have latency too high for automatic invocation on each keystroke but the results are of much greater quality.
+This feature enables you inserting code completions directly at cursor's position while using the selected context. Code completions in Code Web Chat use big and capable models which have latency too high for automatic invocation on each keystroke but the results are of much greater quality.
 
 _Structure of the generated API request:_
 
@@ -61,50 +61,50 @@ Place your cursor where you want to generate completion.
 
 ### Run FIM
 
-Execute `Gemini Coder: Code Completion` from the Command Palette to use the default model or use `Gemini Coder: Code Completion with...` to select any other model. You can also enter "FIM mode" in the chat which is convenient for follow-ups.
+Execute `Code Web Chat: Code Completion` from the Command Palette to use the default model or use `Code Web Chat: Code Completion with...` to select any other model. You can also enter "FIM mode" in the chat which is convenient for follow-ups.
 
 ### Completion
 
 AI generated completion is inserted.
 
 :::info
-Bind `Gemini Coder: Code Completion` to a keyboard shortcut for fastest access.
+Bind `Code Web Chat: Code Completion` to a keyboard shortcut for fastest access.
 :::
 
 ## Available commands
 
-##### `Gemini Coder: Code Completion`
+##### `Code Web Chat: Code Completion`
 
 Inserts the AI-generated completion directly at the cursor's position using the default FIM model.
 
-##### `Gemini Coder: Code Completion with...`
+##### `Code Web Chat: Code Completion with...`
 
 Lets you select which model to use for FIM completion.
 
-##### `Gemini Coder: Code Completion with Suggestions`
+##### `Code Web Chat: Code Completion with Suggestions`
 
 Prompts for optional suggestions (e.g., "Avoid writing comments") before generating the FIM completion using the default model.
 
-##### `Gemini Coder: Code Completion with Suggestions with...`
+##### `Code Web Chat: Code Completion with Suggestions with...`
 
 Prompts for optional suggestions and lets you select which model to use for FIM completion.
 
-##### `Gemini Coder: Code Completion to Clipboard`
+##### `Code Web Chat: Code Completion to Clipboard`
 
 Instead of inserting completion directly, copies the FIM completion prompt content (including context) to your clipboard for use in other tools.
 
-##### `Gemini Coder: Code Completion with Suggestions to Clipboard`
+##### `Code Web Chat: Code Completion with Suggestions to Clipboard`
 
 Prompts for optional suggestions, then copies the FIM completion prompt content (including context and suggestions) to your clipboard.
 
-##### `Gemini Coder: FIM in Chat`
+##### `Code Web Chat: FIM in Chat`
 
 Prompts for optional suggestions, then sends the FIM completion prompt content (including context and suggestions) to the previously selected web chat preset(s) via the browser connector.
 
-##### `Gemini Coder: FIM in Chat with...`
+##### `Code Web Chat: FIM in Chat with...`
 
 Prompts for optional suggestions, lets you select a specific web chat preset, and then sends the FIM completion prompt content (including context and suggestions) to that preset via the browser connector.
 
-##### `Gemini Coder: Change Default FIM Model`
+##### `Code Web Chat: Change Default FIM Model`
 
 Configure which model should be used as the default for FIM completions.

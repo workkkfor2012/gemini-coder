@@ -7,9 +7,9 @@ hide_table_of_contents: true
 
 Non-agentic 100% free & open source coding tool for AI-assisted programming.
 
-All manually selected folders and files are fully attached with chats, code completions and file refactorings. Gemini Coder initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
+All manually selected folders and files are fully attached with chats, code completions and file refactorings. Code Web Chat initializes AI Studio, Gemini and 10+ other popular chatbots, hands-free. Whenever you're happy with a chat response, integrate it with the codebase with a single click.
 
-Gemini Coder is for you if:
+Code Web Chat is for you if:
 
 - you're an experienced developer working on a large codebase
 - coding agents failed you too many times
@@ -41,7 +41,7 @@ Not affiliated with Google.
 
 Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this problem by overloading context with excessive information, hurting model's performance and your wallet.
 
-Gemini Coder works differently:
+Code Web Chat works differently:
 
 - **You select** which folders and files are relevant to the task
 - **You decide** what examples of coding conventions will work best
@@ -53,7 +53,7 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Gemini Coder have you covered by initializing Gemini, AI Studio and many other popular chatbots with your context, instructions and settings, hands-free!
+As everyone have their own favourite web chat interface, each with unique features and feel not feasible to integrate within the editor, Code Web Chat have you covered by initializing Gemini, AI Studio and many other popular chatbots with your context, instructions and settings, hands-free!
 
 **You can start chats in one of two modes:**
 
@@ -114,15 +114,15 @@ Generate meaningful commit messages based on contents of affected files and diff
 
 ## Quick start for chat
 
-1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+1. Open the new Code Web Chat view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
 3. Enter instructions and copy generated prompt.
 4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
 
 ## Quick start for code completions
 
-1. Open the new Gemini Coder view from the activity bar (sparkles icon).
+1. Open the new Code Web Chat view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
 3. Place caret where you want code completion to appear.
 4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Code Completion".
-5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Gemini Coder: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
+5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Code Web Chat: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).

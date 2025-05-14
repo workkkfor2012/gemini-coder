@@ -5,7 +5,7 @@ hide_table_of_contents: true
 
 # Tips
 
-Here are some tips and best practices for using Gemini Coder effectively.
+Here are some tips and best practices for using Code Web Chat effectively.
 
 ## Context
 
