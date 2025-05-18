@@ -1,10 +1,19 @@
 /**
  * Cleans up the API response by iteratively stripping away wrapper markup
  * at the beginning and end of the content, without affecting the middle content.
+ * Also removes <think>...</think> sections from the beginning of the content.
  */
 export function cleanup_api_response(params: { content: string }): string {
   try {
     let content = params.content
+
+    // First, handle the specific case of <think>...</think> at the beginning
+    const think_pattern = /^<think>([\s\S]*?)<\/think>/
+    const think_match = content.match(think_pattern)
+    if (think_match) {
+      content = content.substring(think_match[0].length).trim()
+    }
+
     let changed = true
 
     // Continue processing until no more changes are made
