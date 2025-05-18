@@ -14,6 +14,9 @@ export const PROVIDERS = {
   DeepInfra: {
     base_url: 'https://api.deepinfra.com/v1'
   },
+  DeepSeek: {
+    base_url: 'https://api.deepseek.com/v1'
+  },
   Fireworks: {
     base_url: 'https://api.fireworks.ai/inference/v1'
   },
@@ -32,7 +35,7 @@ export const PROVIDERS = {
   OpenRouter: {
     base_url: 'https://openrouter.ai/api/v1'
   },
-  Together: {
+  TogetherAI: {
     base_url: 'https://api.together.xyz/v1'
   }
 } satisfies Providers
