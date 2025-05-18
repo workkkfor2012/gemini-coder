@@ -1,11 +1,11 @@
 import * as vscode from 'vscode'
 import { PROVIDERS } from '@shared/constants/providers'
 import {
-  SAVED_API_PROVIDERS_STATE_KEY,
   TOOL_CONFIG_FILE_REFACTORING_STATE_KEY,
   TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY,
   TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY
 } from '@/constants/state-keys'
+import { SECRET_STORAGE_API_PROVIDERS_KEY } from '@/constants/secret-storage-keys'
 
 export type BuiltInProvider = {
   type: 'built-in'
@@ -39,21 +39,35 @@ export class ApiProvidersManager {
   }
 
   private async _load_providers() {
-    const saved_providers = this._vscode.globalState
-      .get<Provider[]>(SAVED_API_PROVIDERS_STATE_KEY, [])
+    try {
+      const providers_json = await this._vscode.secrets.get(
+        SECRET_STORAGE_API_PROVIDERS_KEY
+      )
+      const saved_providers = providers_json
+        ? (JSON.parse(providers_json) as Provider[])
+        : []
+
       // Make sure all built-in providers exist
-      .filter(
+      this._providers = saved_providers.filter(
         (provider) => provider.type == 'custom' || PROVIDERS[provider.name]
       )
-    this._providers = saved_providers
+    } catch (error) {
+      console.error('Error loading providers from secret storage:', error)
+      this._providers = []
+    }
   }
 
   public async save_providers(providers: Provider[]) {
-    await this._vscode.globalState.update(
-      SAVED_API_PROVIDERS_STATE_KEY,
-      providers
-    )
-    this._providers = providers
+    try {
+      await this._vscode.secrets.store(
+        SECRET_STORAGE_API_PROVIDERS_KEY,
+        JSON.stringify(providers)
+      )
+      this._providers = providers
+    } catch (error) {
+      console.error('Error saving providers to secret storage:', error)
+      throw error
+    }
   }
 
   public get_providers() {

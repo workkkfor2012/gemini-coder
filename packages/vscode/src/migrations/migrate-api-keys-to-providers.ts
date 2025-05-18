@@ -1,8 +1,8 @@
 import * as vscode from 'vscode'
 import { Logger } from '../helpers/logger'
-import { SAVED_API_PROVIDERS_STATE_KEY } from '@/constants/state-keys'
 
 const MIGRATION_ID = 'api-keys-to-providers-migration-1505251700'
+const SAVED_API_PROVIDERS_STATE_KEY = 'savedApiProviders'
 
 /**
  * Migration to create providers for Gemini and OpenRouter if their API keys are saved.
