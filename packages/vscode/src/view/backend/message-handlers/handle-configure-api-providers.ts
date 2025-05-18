@@ -107,7 +107,6 @@ export const handle_configure_api_providers = async (
           quick_pick.hide()
           await show_create_provider_quick_pick()
         } else if ('provider' in selected) {
-          // Handle selection of an existing provider item (clicking the label)
           quick_pick.hide()
           await edit_provider(selected.provider as Provider)
         }
@@ -180,7 +179,7 @@ export const handle_configure_api_providers = async (
       })
 
       quick_pick.onDidHide(() => {
-        resolve() // Resolve the promise if the user cancels
+        resolve()
       })
 
       quick_pick.show()
@@ -309,8 +308,6 @@ export const handle_configure_api_providers = async (
     if (provider.type == 'custom') {
       await edit_custom_provider(provider as CustomProvider)
     } else {
-      // This case is now primarily handled by the change_api_key_button,
-      // but keeping this function for completeness if the label is clicked.
       await edit_built_in_provider(provider as BuiltInProvider)
     }
   }
@@ -412,7 +409,6 @@ export const handle_configure_api_providers = async (
           return
         }
         if (new_base_url !== undefined) {
-          // Normalize base URL to not end with slash
           updated_provider.base_url = normalize_base_url(new_base_url)
         }
       } else if (field_to_edit.label == change_api_key_label) {
@@ -430,22 +426,17 @@ export const handle_configure_api_providers = async (
         }
       }
 
-      // Save the updated provider (for URL and API key changes, or if name wasn't changed)
-      // This save happens only if the name change block didn't execute and return
       const providers = providers_manager.get_providers()
       const updated_providers = providers.map((p) =>
         p.type == 'custom' && p.name == provider.name ? updated_provider : p
       )
       await providers_manager.save_providers(updated_providers)
 
-      // Update the provider reference for future edits in this session
       provider = updated_provider
 
-      // Return to field selection after editing a field
       await show_field_selection()
     }
 
-    // Start the field selection
     await show_field_selection()
   }
 
@@ -456,8 +447,7 @@ export const handle_configure_api_providers = async (
       placeHolder: '(Keep current API key)'
     })
     if (api_key === undefined) {
-      // User cancelled
-      await show_providers_quick_pick() // Go back to main list
+      await show_providers_quick_pick()
       return
     }
 
@@ -466,7 +456,6 @@ export const handle_configure_api_providers = async (
       api_key: api_key.trim() || provider.api_key
     } as BuiltInProvider
 
-    // Save the updated provider
     const providers = providers_manager.get_providers()
     const updated_providers = providers.map((p) =>
       p.type == 'built-in' && p.name == provider.name ? updated_provider : p
