@@ -27,7 +27,7 @@ Guiding Principles:
 
 - initialize all popular chatbots
 - don't overengineer AI-assistance
-- stay free and do not track usage
+- stay free and do not track users
 - be robust and lightweight (~1 MB)
 
 CWC is for you if:
@@ -99,25 +99,25 @@ Chat conversations are only a construct of product interfaces, they hurt the qua
 
 CWC will elevate your coding with battle-tested, must have API features.
 
-#### 🛠️ Code completions
+### 🛠️ Code completions
 
 Use state-of-the-art models for accurate code completions. The tool attaches selected context in each request.
 
-#### 🛠️ File refactoring
+### 🛠️ File refactoring
 
 Modify the active file based on natural language instructions. The tool attaches selected context in each request.
 
-#### 🛠️ Apply chat response
+### 🛠️ Apply chat response
 
 Automatically integrate chat responses with your codebase. The tool detects whether the clipboard contains complete files (replaces them directly), diffs or truncated files with ellipsis commments, e.g. "// ..." (applies them intelligently).
 
-#### 🛠️ Commit messages
+### 🛠️ Commit messages
 
 Generate meaningful commit messages based on contents of affected files and diffs of changes.
 
----
+### 🔑 Bring your own API keys
 
-**Bring your own API keys for: _(alphabetically)_**
+**Predefined providers: _(alphabetically)_**
 
 - Anthropic
 - Cerebras
@@ -132,8 +132,10 @@ Generate meaningful commit messages based on contents of affected files and diff
 - OpenRouter
 - TogetherAI
 
+...or add any other OpenAI-API comptabile provider.
+
 <small>
-...or custom OpenAI-API comptabile provider. API keys are stored securely in the editor's Secret Storage.
+🔒️ API keys are stored securely in the editor's Secret Storage.
 </small>
 
 ## Quick start for chat
