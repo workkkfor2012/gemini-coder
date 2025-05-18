@@ -76,7 +76,7 @@ export const handle_configure_api_providers = async (
           detail:
             provider.type == 'custom'
               ? provider.base_url || '⚠ Missing base URL'
-              : `${PROVIDERS[provider.name].base_url} (predefined)`,
+              : `Predefined • ${PROVIDERS[provider.name].base_url}`,
           buttons: buttons,
           provider,
           index
