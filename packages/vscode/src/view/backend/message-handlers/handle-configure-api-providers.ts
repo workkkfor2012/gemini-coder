@@ -415,7 +415,9 @@ export const handle_configure_api_providers = async (
         const new_api_key = await vscode.window.showInputBox({
           title: 'API Key',
           prompt: 'Enter your API key',
-          placeHolder: '(Keep current API key)'
+          placeHolder: provider.api_key
+            ? `(Keep current API key ...${provider.api_key.slice(-4)})`
+            : '(No API key set)'
         })
         if (new_api_key === undefined) {
           await show_field_selection()
@@ -444,7 +446,9 @@ export const handle_configure_api_providers = async (
     const api_key = await vscode.window.showInputBox({
       title: `API Key for ${provider.name}`,
       prompt: "API keys are stored securely in the editor's Secret Storage.",
-      placeHolder: '(Keep current API key)'
+      placeHolder: provider.api_key
+        ? `(Keep current API key ...${provider.api_key.slice(-4)})`
+        : '(No API key set)'
     })
     if (api_key === undefined) {
       await show_providers_quick_pick()
