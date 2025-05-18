@@ -71,17 +71,18 @@ Additional texts for model's guidance are fully adjustable in settings.
 
 **_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either refactoring with API ("Truncated" edit format), replacing original files in place ("Whole" edit format) or patching with diffs ("Diff" edit format).
 
-**Supported chatbots: (alphabetically)**
+**Supported chatbots: _(alphabetically)_**
 
 - AI Studio
 - ChatGPT
 - Claude
 - DeepSeek
+- Doubao
 - Gemini
 - Grok
 - HuggingChat
 - Mistral
-- Open WebUI (self-hosted)
+- Open WebUI
 - OpenRouter Chat
 - Qwen
 - Yuanbao
@@ -96,20 +97,11 @@ Chat conversations are only a construct of product interfaces, they hurt the qua
 
 ## 🧰 Tools
 
-Support your day-to-day work with all must-have AI features.
-
-**Bring your own API keys for:**
-
-- Gemini API
-- OpenRouter
-
-<small>
-API keys are stored locally on your computer and all requests are sent directly to the provider.
-</small>
+CWC will elevate your coding with battle-tested, must have API features.
 
 #### 🛠️ Code completions
 
-Use any model for accurate code completions. The tool attaches selected context in each request.
+Use state-of-the-art models for accurate code completions. The tool attaches selected context in each request.
 
 #### 🛠️ File refactoring
 
@@ -122,6 +114,27 @@ Automatically integrate chat responses with your codebase. The tool detects whet
 #### 🛠️ Commit messages
 
 Generate meaningful commit messages based on contents of affected files and diffs of changes.
+
+---
+
+**Bring your own API keys for: _(alphabetically)_**
+
+- Anthropic
+- Cerebras
+- Chutes
+- DeepInfra
+- DeepSeek
+- Fireworks
+- Gemini
+- Hyperbolic
+- Mistral
+- OpenAI
+- OpenRouter
+- TogetherAI
+
+<small>
+...or custom OpenAI-API comptabile provider. API keys are stored securely in the editor's Secret Storage.
+</small>
 
 ## Quick start for chat
 
