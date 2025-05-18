@@ -5,7 +5,7 @@ import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
-} from '../utils/apply-response'
+} from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 
 export const claude: Chatbot = {
@@ -23,7 +23,7 @@ export const claude: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response'
+      const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
@@ -39,7 +39,10 @@ export const claude: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
@@ -56,7 +59,7 @@ export const claude: Chatbot = {
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
           const copy_button = params.footer.querySelector(
-            'button:first-child'
+            'button:nth-child(2)'
           ) as HTMLElement
           copy_button.click()
           await new Promise((resolve) => setTimeout(resolve, 500))
@@ -68,7 +71,7 @@ export const claude: Chatbot = {
 
         params.footer.insertBefore(
           apply_response_button,
-          params.footer.children[params.footer.children.length]
+          params.footer.children[0]
         )
       }
 

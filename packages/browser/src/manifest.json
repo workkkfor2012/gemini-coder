@@ -2,15 +2,15 @@
   "manifest_version": 3,
   "author": "Robert Piosik",
   "name": "Code Web Chat Connector",
-  "short_name": "code-web-chat-connector",
-  "description": "Initialize any web chat with your code. Add websites to context.",
+  "short_name": "CWC",
+  "description": "Initialize any web chat with your code.",
   "version": "0.1.70",
   "homepage_url": "https://github.com/robertpiosik/CodeWebChat",
   "icons": {
-    "16": "icons/icon16.png",
-    "32": "icons/icon32.png",
-    "48": "icons/icon48.png",
-    "128": "icons/icon128.png"
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
   },
   "permissions": ["storage", "alarms", "activeTab"],
   "host_permissions": ["http://localhost:55155/", "ws://localhost:55155/"],

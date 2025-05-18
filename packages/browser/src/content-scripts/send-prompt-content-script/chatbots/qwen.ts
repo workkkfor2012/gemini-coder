@@ -6,7 +6,7 @@ import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
-} from '../utils/apply-response'
+} from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 
 export const qwen: Chatbot = {
@@ -149,7 +149,7 @@ export const qwen: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response'
+      const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
@@ -182,6 +182,7 @@ export const qwen: Chatbot = {
         apply_response_button.textContent = apply_response_button_text
         apply_response_button.title =
           'Integrate changes with the codebase. You can fully revert this operation.'
+        apply_response_button.style.order = '7'
         apply_chat_response_button_style(apply_response_button)
 
         apply_response_button.addEventListener('click', async () => {

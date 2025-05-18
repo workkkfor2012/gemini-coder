@@ -653,37 +653,14 @@
               "systemInstructions": "You're a helpful coding assistant."
             },
             {
-              "name": "2.0 Flash",
-              "chatbot": "AI Studio",
-              "model": "gemini-2.0-flash",
-              "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant."
-            },
-            {
               "name": "2.5 Pro",
               "chatbot": "Gemini",
               "model": "2.5-pro"
             },
             {
-              "name": "2.5 Pro (canvas)",
-              "chatbot": "Gemini",
-              "model": "2.5-pro",
-              "options": [
-                "canvas"
-              ]
-            },
-            {
               "name": "2.5 Flash",
               "chatbot": "Gemini",
               "model": "2.5-flash-experimental"
-            },
-            {
-              "name": "2.5 Flash (canvas)",
-              "chatbot": "Gemini",
-              "model": "2.5-flash-experimental",
-              "options": [
-                "canvas"
-              ]
             },
             {
               "name": "ChatGPT",
@@ -725,6 +702,10 @@
               "model": "deepseek"
             },
             {
+              "name": "Doubao",
+              "chatbot": "Doubao"
+            },
+            {
               "name": "Mistral",
               "chatbot": "Mistral"
             },
@@ -761,6 +742,7 @@
                   "DeepSeek",
                   "Qwen",
                   "Yuanbao",
+                  "Doubao",
                   "Mistral",
                   "HuggingChat"
                 ],

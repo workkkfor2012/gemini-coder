@@ -5,7 +5,7 @@ import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
-} from '../utils/apply-response'
+} from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 
 export const mistral: Chatbot = {
@@ -27,7 +27,7 @@ export const mistral: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response'
+      const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
@@ -44,7 +44,10 @@ export const mistral: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
@@ -73,7 +76,7 @@ export const mistral: Chatbot = {
 
         params.footer.insertBefore(
           apply_response_button,
-          params.footer.children[params.footer.children.length]
+          params.footer.children[0]
         )
       }
 
@@ -93,7 +96,7 @@ export const mistral: Chatbot = {
         }
 
         const all_footers = document.querySelectorAll(
-          'div[class="flex min-h-8 w-full flex-row items-center justify-between gap-2 py-1 font-normal transition-opacity group-hover:opacity-100 opacity-100"] > div:last-child'
+          'div[class="flex min-h-8 w-full flex-row items-center justify-between gap-2 py-1 font-normal transition-opacity group-hover:opacity-100 opacity-100 mb-2"] > div:last-child'
         )
 
         all_footers.forEach((footer) => {

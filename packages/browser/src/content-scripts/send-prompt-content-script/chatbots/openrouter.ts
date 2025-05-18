@@ -5,7 +5,7 @@ import browser from 'webextension-polyfill'
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
-} from '../utils/apply-response'
+} from '../utils/apply-response-styles'
 import { is_eligible_code_block } from '../utils/is-eligible-code-block'
 
 export const openrouter: Chatbot = {
@@ -136,7 +136,7 @@ export const openrouter: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response'
+      const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(

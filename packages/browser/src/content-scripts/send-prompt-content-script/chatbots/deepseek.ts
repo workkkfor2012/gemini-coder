@@ -6,7 +6,7 @@ import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-
 import {
   apply_chat_response_button_style,
   set_button_disabled_state
-} from '../utils/apply-response'
+} from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 
 export const deepseek: Chatbot = {
@@ -97,7 +97,7 @@ export const deepseek: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response'
+      const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
