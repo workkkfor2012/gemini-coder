@@ -8,6 +8,9 @@ export const PROVIDERS = {
   Anthropic: {
     base_url: 'https://api.anthropic.com/v1'
   },
+  Cerebras: {
+    base_url: 'https://api.cerebras.ai/v1'
+  },
   Chutes: {
     base_url: 'https://llm.chutes.ai/v1'
   },
