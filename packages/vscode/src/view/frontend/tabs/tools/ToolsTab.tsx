@@ -32,15 +32,15 @@ export const ToolsTab: React.FC<Props> = (props) => {
   const handle_code_completions_more_actions = () => {
     const items = [
       {
-        label: 'Enter suggestions',
+        label: 'Code completion with suggestions',
         command: 'codeWebChat.codeCompletionWithSuggestionsAutoAccept'
       },
       {
-        label: 'Copy prompt to clipboard',
+        label: 'Copy code completion prompt to clipboard',
         command: 'codeWebChat.codeCompletionToClipboard'
       },
       {
-        label: 'Enter suggestions & copy',
+        label: 'Code completion with suggestions to clipboard',
         command: 'codeWebChat.codeCompletionWithSuggestionsToClipboard'
       }
     ]
@@ -55,8 +55,23 @@ export const ToolsTab: React.FC<Props> = (props) => {
   const handle_file_refactoring_more_actions = () => {
     const items = [
       {
-        label: 'Copy prompt to clipboard',
+        label: 'Copy file refactoring prompt to clipboard',
         command: 'codeWebChat.refactorToClipboard'
+      }
+    ]
+
+    props.vscode.postMessage({
+      command: 'SHOW_QUICK_PICK',
+      items,
+      title: 'More actions...'
+    })
+  }
+
+  const handle_apply_chat_response_more_actions = () => {
+    const items = [
+      {
+        label: 'Revert last applied chat response',
+        command: 'codeWebChat.revert'
       }
     ]
 
@@ -106,6 +121,7 @@ export const ToolsTab: React.FC<Props> = (props) => {
           on_click={() =>
             handle_execute_command('codeWebChat.applyChatResponse')
           }
+          on_quick_pick_trigger_click={handle_apply_chat_response_more_actions}
         >
           Apply Copied Chat Response
         </Button>

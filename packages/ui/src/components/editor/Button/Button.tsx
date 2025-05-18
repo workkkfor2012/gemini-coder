@@ -35,6 +35,7 @@ export const Button: FC<Props> = (props) => {
         className={styles.button}
         disabled={props.disabled}
         onClick={props.on_quick_pick_trigger_click}
+        title="More Actions..."
       >
         <span className="codicon codicon-ellipsis" />
       </button>
