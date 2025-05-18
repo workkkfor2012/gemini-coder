@@ -222,7 +222,8 @@ export const handle_configure_api_providers = async (
 
     const selected = await vscode.window.showQuickPick(items, {
       title: 'Select Provider Type',
-      placeHolder: 'Choose a predefined provider or create a custom one'
+      placeHolder: 'Choose a predefined provider or create a custom one',
+      ignoreFocusOut: true
     })
 
     if (!selected) {
