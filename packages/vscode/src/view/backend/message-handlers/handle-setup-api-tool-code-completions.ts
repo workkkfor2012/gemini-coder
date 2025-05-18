@@ -182,13 +182,13 @@ export const handle_setup_api_tool_code_completions = async (
     // Step 1: Select provider
     const provider_info = await select_provider()
     if (!provider_info) {
-      return // User cancelled, return to main quick pick
+      return // User cancelled
     }
 
     // Step 2: Select model
     const model = await select_model(provider_info)
     if (!model) {
-      return
+      return // User cancelled
     }
 
     const provider_model_exists = current_configs.some(
@@ -214,6 +214,8 @@ export const handle_setup_api_tool_code_completions = async (
 
     current_configs.push(new_config)
     await providers_manager.save_code_completions_tool_configs(current_configs)
+
+    await edit_configuration(new_config)
   }
 
   async function edit_configuration(config: ToolConfig) {
@@ -351,7 +353,6 @@ export const handle_setup_api_tool_code_completions = async (
         )
       } else {
         console.error('Could not find original config in array to update.')
-        await edit_configuration(config)
         return
       }
     }
