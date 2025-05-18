@@ -144,7 +144,7 @@ export const handle_setup_api_tool = async (
   async function select_provider(): Promise<
     Pick<Provider, 'type' | 'name'> | undefined
   > {
-    const providers = providers_manager.get_providers()
+    const providers = await providers_manager.get_providers()
 
     if (providers.length == 0) {
       vscode.window.showErrorMessage(
@@ -176,7 +176,7 @@ export const handle_setup_api_tool = async (
     provider_info: Pick<Provider, 'type' | 'name'>
   ): Promise<string | undefined> {
     try {
-      const provider = providers_manager.get_provider(provider_info.name)
+      const provider = await providers_manager.get_provider(provider_info.name)
       if (!provider) {
         throw new Error(`Provider ${provider_info.name} not found`)
       }

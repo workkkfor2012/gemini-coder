@@ -141,7 +141,7 @@ async function perform_code_completion(params: {
     return
   }
 
-  const provider = api_providers_manager.get_provider(
+  const provider = await api_providers_manager.get_provider(
     code_completions_config.provider_name
   )
 

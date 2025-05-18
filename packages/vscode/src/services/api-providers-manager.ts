@@ -33,9 +33,10 @@ export type CodeCompletionsConfigs = ToolConfig[]
 
 export class ApiProvidersManager {
   private _providers: Provider[] = []
+  private _load_promise: Promise<void>
 
   constructor(private readonly _vscode: vscode.ExtensionContext) {
-    this._load_providers()
+    this._load_promise = this._load_providers()
   }
 
   private async _load_providers() {
@@ -70,11 +71,13 @@ export class ApiProvidersManager {
     }
   }
 
-  public get_providers() {
+  public async get_providers(): Promise<Provider[]> {
+    await this._load_promise
     return this._providers
   }
 
-  public get_provider(name: string): Provider | undefined {
+  public async get_provider(name: string): Promise<Provider | undefined> {
+    await this._load_promise
     return this._providers.find((provider) => provider.name == name)
   }
 

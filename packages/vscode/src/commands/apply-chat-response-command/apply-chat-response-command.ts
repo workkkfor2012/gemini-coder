@@ -173,7 +173,7 @@ export function apply_chat_response_command(params: {
             return
           }
 
-          const provider = api_providers_manager.get_provider(
+          const provider = await api_providers_manager.get_provider(
             file_refactoring_settings.provider_name
           )
 
@@ -386,7 +386,7 @@ export function apply_chat_response_command(params: {
           return
         }
 
-        const provider = api_providers_manager.get_provider(
+        const provider = await api_providers_manager.get_provider(
           file_refactoring_settings.provider_name
         )
 
@@ -507,7 +507,7 @@ export function apply_chat_response_command(params: {
               return
             }
 
-            const provider = api_providers_manager.get_provider(
+            const provider = await api_providers_manager.get_provider(
               file_refactoring_settings.provider_name
             )
 

@@ -88,7 +88,7 @@ export function generate_commit_message_command(
           return
         }
 
-        const provider = api_providers_manager.get_provider(
+        const provider = await api_providers_manager.get_provider(
           commit_message_config.provider_name
         )
 

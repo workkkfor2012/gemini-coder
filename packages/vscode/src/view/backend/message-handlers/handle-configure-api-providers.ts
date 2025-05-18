@@ -42,8 +42,8 @@ export const handle_configure_api_providers = async (
     tooltip: 'Change API key'
   }
 
-  const create_provider_items = (): vscode.QuickPickItem[] => {
-    const saved_providers = providers_manager.get_providers()
+  const create_provider_items = async (): Promise<vscode.QuickPickItem[]> => {
+    const saved_providers = await providers_manager.get_providers()
 
     return [
       {
@@ -88,7 +88,7 @@ export const handle_configure_api_providers = async (
   }
 
   const show_providers_quick_pick = async () => {
-    const saved_providers = providers_manager.get_providers()
+    const saved_providers = await providers_manager.get_providers()
 
     if (saved_providers.length == 0) {
       await show_create_provider_quick_pick()
@@ -96,7 +96,7 @@ export const handle_configure_api_providers = async (
     }
 
     const quick_pick = vscode.window.createQuickPick()
-    quick_pick.items = create_provider_items()
+    quick_pick.items = await create_provider_items()
     quick_pick.title = 'Configure API Providers'
     quick_pick.placeholder = 'Select an API provider to edit or add a new one'
 
@@ -135,12 +135,12 @@ export const handle_configure_api_providers = async (
           )
 
           if (confirm == 'Delete') {
-            const providers = providers_manager.get_providers()
+            const providers = await providers_manager.get_providers()
             const updated_providers = providers.filter(
               (p) => p.name != item.provider.name
             )
             await providers_manager.save_providers(updated_providers)
-            quick_pick.items = create_provider_items()
+            quick_pick.items = await create_provider_items()
             if (updated_providers.length === 0) {
               quick_pick.hide()
               vscode.window.showInformationMessage(
@@ -156,7 +156,7 @@ export const handle_configure_api_providers = async (
           event.button === move_up_button ||
           event.button === move_down_button
         ) {
-          const providers = providers_manager.get_providers()
+          const providers = await providers_manager.get_providers()
           const current_index = item.index
 
           const is_moving_up = event.button === move_up_button
@@ -174,7 +174,7 @@ export const handle_configure_api_providers = async (
           const [moved_provider] = reordered_providers.splice(current_index, 1)
           reordered_providers.splice(new_index, 0, moved_provider)
           await providers_manager.save_providers(reordered_providers)
-          quick_pick.items = create_provider_items()
+          quick_pick.items = await create_provider_items()
         }
       })
 
@@ -187,7 +187,7 @@ export const handle_configure_api_providers = async (
   }
 
   const show_create_provider_quick_pick = async () => {
-    const saved_providers = providers_manager.get_providers()
+    const saved_providers = await providers_manager.get_providers()
     const saved_provider_names = saved_providers
       .filter((p) => p.type == 'built-in')
       .map((p) => p.name)
@@ -251,12 +251,12 @@ export const handle_configure_api_providers = async (
     const name = await vscode.window.showInputBox({
       title: 'Provider Name',
       prompt: 'Enter a name for the custom provider',
-      validateInput: (value) => {
+      validateInput: async (value) => {
         if (!value.trim()) return 'Name is required'
         if (
-          providers_manager
-            .get_providers()
-            .some((p) => p.type == 'custom' && p.name == value.trim())
+          (await providers_manager.get_providers()).some(
+            (p) => p.type == 'custom' && p.name == value.trim()
+          )
         ) {
           return 'A provider with this name already exists'
         }
@@ -275,7 +275,7 @@ export const handle_configure_api_providers = async (
       api_key: ''
     }
 
-    const providers = providers_manager.get_providers()
+    const providers = await providers_manager.get_providers()
     await providers_manager.save_providers([...providers, new_provider])
     await edit_custom_provider(new_provider)
   }
@@ -283,7 +283,7 @@ export const handle_configure_api_providers = async (
   const create_built_in_provider = async (name: keyof typeof PROVIDERS) => {
     const api_key = await vscode.window.showInputBox({
       title: 'API Key',
-      prompt: `Enter your API key for ${name}`,
+      prompt: "API keys are stored securely in the editor's Secret Storage.",
       validateInput: (value) => (!value.trim() ? 'API key is required' : null)
     })
     if (!api_key) {
@@ -291,7 +291,7 @@ export const handle_configure_api_providers = async (
       return
     }
 
-    const providers = providers_manager.get_providers()
+    const providers = await providers_manager.get_providers()
     await providers_manager.save_providers([
       ...providers,
       {
@@ -359,13 +359,13 @@ export const handle_configure_api_providers = async (
           title: 'Provider Name',
           prompt: 'Enter a new name for the custom provider',
           value: provider.name,
-          validateInput: (value) => {
+          validateInput: async (value) => {
             if (!value.trim()) return 'Name is required'
             if (
               value.trim() != provider.name &&
-              providers_manager
-                .get_providers()
-                .some((p) => p.type == 'custom' && p.name == value.trim())
+              (await providers_manager.get_providers()).some(
+                (p) => p.type == 'custom' && p.name == value.trim()
+              )
             ) {
               return 'A provider with this name already exists'
             }
@@ -380,7 +380,7 @@ export const handle_configure_api_providers = async (
           const old_name = provider.name
           updated_provider.name = new_name.trim()
 
-          const providers = providers_manager.get_providers()
+          const providers = await providers_manager.get_providers()
           const updated_providers = providers.map((p) =>
             p.type == 'custom' && p.name == old_name ? updated_provider : p
           )
@@ -426,7 +426,7 @@ export const handle_configure_api_providers = async (
         }
       }
 
-      const providers = providers_manager.get_providers()
+      const providers = await providers_manager.get_providers()
       const updated_providers = providers.map((p) =>
         p.type == 'custom' && p.name == provider.name ? updated_provider : p
       )
@@ -443,7 +443,7 @@ export const handle_configure_api_providers = async (
   const edit_built_in_provider = async (provider: BuiltInProvider) => {
     const api_key = await vscode.window.showInputBox({
       title: `API Key for ${provider.name}`,
-      prompt: `Enter your API key for ${provider.name}`,
+      prompt: "API keys are stored securely in the editor's Secret Storage.",
       placeHolder: '(Keep current API key)'
     })
     if (api_key === undefined) {
@@ -456,7 +456,7 @@ export const handle_configure_api_providers = async (
       api_key: api_key.trim() || provider.api_key
     } as BuiltInProvider
 
-    const providers = providers_manager.get_providers()
+    const providers = await providers_manager.get_providers()
     const updated_providers = providers.map((p) =>
       p.type == 'built-in' && p.name == provider.name ? updated_provider : p
     )

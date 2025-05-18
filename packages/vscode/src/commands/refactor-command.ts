@@ -97,7 +97,7 @@ export function refactor_command(params: {
       return
     }
 
-    const provider = api_providers_manager.get_provider(
+    const provider = await api_providers_manager.get_provider(
       refactoring_settings.provider_name
     )
 
