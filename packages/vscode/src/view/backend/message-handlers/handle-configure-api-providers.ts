@@ -75,7 +75,9 @@ export const handle_configure_api_providers = async (
           description: masked_api_key,
           detail:
             provider.type == 'custom'
-              ? provider.base_url || '⚠ Missing base URL'
+              ? `Custom • ${
+                  provider.base_url ? provider.base_url : '⚠ Missing base URL'
+                }`
               : `Predefined • ${PROVIDERS[provider.name].base_url}`,
           buttons: buttons,
           provider,
