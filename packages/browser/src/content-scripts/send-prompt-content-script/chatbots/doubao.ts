@@ -38,7 +38,6 @@ export const doubao: Chatbot = {
         deep_thinking_button.dispatchEvent(mouse_up)
       }
     }
-    await new Promise((resolve) => requestAnimationFrame(resolve))
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
