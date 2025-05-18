@@ -164,7 +164,7 @@ export function apply_chat_response_command(params: {
         } else if (response == 'Use intelligent update') {
           const api_providers_manager = new ApiProvidersManager(params.context)
           const file_refactoring_settings =
-            api_providers_manager.get_file_refactoring_tool_config()
+            await api_providers_manager.get_file_refactoring_tool_config()
 
           if (!file_refactoring_settings) {
             vscode.window.showErrorMessage(
@@ -355,7 +355,7 @@ export function apply_chat_response_command(params: {
         const api_providers_manager = new ApiProvidersManager(params.context)
 
         const file_refactoring_settings =
-          api_providers_manager.get_file_refactoring_tool_config()
+          await api_providers_manager.get_file_refactoring_tool_config()
 
         if (!file_refactoring_settings) {
           vscode.window.showErrorMessage(
@@ -498,7 +498,7 @@ export function apply_chat_response_command(params: {
               params.context
             )
             const file_refactoring_settings =
-              api_providers_manager.get_file_refactoring_tool_config()
+              await api_providers_manager.get_file_refactoring_tool_config()
 
             if (!file_refactoring_settings) {
               vscode.window.showErrorMessage(

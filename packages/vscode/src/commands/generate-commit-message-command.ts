@@ -60,7 +60,6 @@ export function generate_commit_message_command(
           return
         }
 
-        // Get configuration
         const config = vscode.workspace.getConfiguration('codeWebChat')
         const commit_message_prompt = config.get<string>('commitMessagePrompt')
         const config_ignored_extensions = new Set(
@@ -75,7 +74,7 @@ export function generate_commit_message_command(
 
         const api_providers_manager = new ApiProvidersManager(context)
         const commit_message_config =
-          api_providers_manager.get_commit_messages_tool_config()
+          await api_providers_manager.get_commit_messages_tool_config()
 
         if (!commit_message_config) {
           vscode.window.showErrorMessage(

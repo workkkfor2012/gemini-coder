@@ -16,10 +16,10 @@ export const handle_setup_api_tool = async (
   const model_fetcher = new ModelFetcher()
   const default_temperature = tool == 'file-refactoring' ? 0 : 0.3
 
-  const get_tool_config = () => {
+  const get_tool_config = async () => {
     return tool == 'file-refactoring'
-      ? providers_manager.get_file_refactoring_tool_config()
-      : providers_manager.get_commit_messages_tool_config()
+      ? await providers_manager.get_file_refactoring_tool_config()
+      : await providers_manager.get_commit_messages_tool_config()
   }
 
   const save_tool_config = async (config: ToolConfig) => {
@@ -30,7 +30,7 @@ export const handle_setup_api_tool = async (
     }
   }
 
-  const current_config = get_tool_config()
+  const current_config = await get_tool_config()
 
   if (!current_config) {
     await setup_new_config()

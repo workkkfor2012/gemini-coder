@@ -97,7 +97,8 @@ export class ApiProvidersManager {
     return config
   }
 
-  public get_code_completions_tool_configs(): CodeCompletionsConfigs {
+  public async get_code_completions_tool_configs(): Promise<CodeCompletionsConfigs> {
+    await this._load_promise
     const configs = this._vscode.globalState.get<CodeCompletionsConfigs>(
       TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY,
       []
@@ -105,14 +106,20 @@ export class ApiProvidersManager {
     return configs.filter((c) => this._validate_tool_config(c) !== undefined)
   }
 
-  public get_file_refactoring_tool_config(): ToolConfig | undefined {
+  public async get_file_refactoring_tool_config(): Promise<
+    ToolConfig | undefined
+  > {
+    await this._load_promise
     const config = this._vscode.globalState.get<ToolConfig>(
       TOOL_CONFIG_FILE_REFACTORING_STATE_KEY
     )
     return this._validate_tool_config(config)
   }
 
-  public get_commit_messages_tool_config(): ToolConfig | undefined {
+  public async get_commit_messages_tool_config(): Promise<
+    ToolConfig | undefined
+  > {
+    await this._load_promise
     const config = this._vscode.globalState.get<ToolConfig>(
       TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY
     )

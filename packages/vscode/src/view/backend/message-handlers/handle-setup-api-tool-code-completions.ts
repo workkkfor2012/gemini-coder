@@ -15,7 +15,8 @@ export const handle_setup_api_tool_code_completions = async (
   const model_fetcher = new ModelFetcher()
   const default_temperature = 0.2
 
-  let current_configs = providers_manager.get_code_completions_tool_configs()
+  let current_configs =
+    await providers_manager.get_code_completions_tool_configs()
 
   const edit_button = {
     iconPath: new vscode.ThemeIcon('edit'),

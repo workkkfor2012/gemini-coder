@@ -105,7 +105,7 @@ async function perform_code_completion(params: {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
   const code_completions_configs =
-    api_providers_manager.get_code_completions_tool_configs()
+    await api_providers_manager.get_code_completions_tool_configs()
 
   if (code_completions_configs.length == 0) {
     vscode.window.showErrorMessage(
