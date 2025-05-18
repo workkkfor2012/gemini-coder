@@ -67,10 +67,10 @@ export const handle_preview_preset = async (
       instructions = instructions + '\n' + message.preset.prompt_suffix
     }
 
-    // Use the stored edit_format property
+    // Fixed: Use the same config key format as handle-send-prompt.ts
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const edit_format_instructions = config.get<string>(
-      `codeWebChat.editFormatInstructions${
+      `editFormatInstructions${
         provider.edit_format.charAt(0).toUpperCase() +
         provider.edit_format.slice(1)
       }`
