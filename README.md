@@ -35,7 +35,6 @@ CWC is for you if:
 - you're a craftsman working on a large codebase
 - you're a student or hobbyist on a budget
 - coding agents are too autonomous for your liking
-- you value privacy and full control over your data
 - you love open source software! 🫶
 
 <br/>
