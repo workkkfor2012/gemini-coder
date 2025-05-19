@@ -130,20 +130,93 @@ async function get_code_completion_config(
       return {
         label: is_default ? `$(star) ${config.model}` : config.model,
         description: config.provider_name,
-        config
+        config,
+        buttons: is_default
+          ? []
+          : [
+              {
+                iconPath: new vscode.ThemeIcon('star'),
+                tooltip: 'Set as default configuration'
+              }
+            ]
       }
     })
 
-    const selected = await vscode.window.showQuickPick(items, {
-      placeHolder: 'Select code completion configuration',
-      matchOnDescription: true
-    })
+    const quick_pick = vscode.window.createQuickPick()
+    quick_pick.items = items
+    quick_pick.placeholder = 'Select code completion configuration'
+    quick_pick.matchOnDescription = true
 
-    if (!selected) {
-      return
-    }
+    return new Promise<{ provider: any; config: any } | undefined>(
+      (resolve) => {
+        quick_pick.onDidTriggerItemButton(async (event) => {
+          const item = event.item as any
+          await api_providers_manager.set_default_code_completions_config(
+            item.config
+          )
 
-    selected_config = selected.config
+          // Update the UI to show the new default
+          quick_pick.items = quick_pick.items.map((qpItem: any) => {
+            const is_now_default =
+              item.config.provider_name === qpItem.config.provider_name &&
+              item.config.model === qpItem.config.model
+
+            return {
+              ...qpItem,
+              label: is_now_default
+                ? `$(star) ${qpItem.config.model}`
+                : qpItem.config.model,
+              buttons: is_now_default
+                ? []
+                : [
+                    {
+                      iconPath: new vscode.ThemeIcon('star'),
+                      tooltip: 'Set as default configuration'
+                    }
+                  ]
+            }
+          })
+        })
+
+        quick_pick.onDidAccept(async () => {
+          const selected = quick_pick.selectedItems[0] as any
+          quick_pick.hide()
+
+          if (!selected) {
+            resolve(undefined)
+            return
+          }
+
+          const provider = await api_providers_manager.get_provider(
+            selected.config.provider_name
+          )
+
+          if (!provider) {
+            vscode.window.showErrorMessage(
+              'API provider not found for Code Completions tool. Go to Code Web Chat panel -> Settings tab.'
+            )
+            Logger.warn({
+              function_name: 'get_code_completion_config',
+              message: 'API provider not found for Code Completions tool.'
+            })
+            resolve(undefined)
+            return
+          }
+
+          resolve({
+            provider,
+            config: selected.config
+          })
+        })
+
+        quick_pick.onDidHide(() => {
+          quick_pick.dispose()
+          resolve(undefined)
+        })
+
+        quick_pick.show()
+      }
+    )
   }
 
   const provider = await api_providers_manager.get_provider(
