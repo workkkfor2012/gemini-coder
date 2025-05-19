@@ -3,7 +3,8 @@ import { PROVIDERS } from '@shared/constants/providers'
 import {
   TOOL_CONFIG_FILE_REFACTORING_STATE_KEY,
   TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY,
-  TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY
+  TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY,
+  DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY
 } from '@/constants/state-keys'
 import { SECRET_STORAGE_API_PROVIDERS_KEY } from '@/constants/secret-storage-keys'
 
@@ -106,6 +107,23 @@ export class ApiProvidersManager {
     return configs.filter((c) => this._validate_tool_config(c) !== undefined)
   }
 
+  public async get_default_code_completions_config(): Promise<
+    ToolConfig | undefined
+  > {
+    await this._load_promise
+    const config = this._vscode.globalState.get<ToolConfig>(
+      DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY
+    )
+    return this._validate_tool_config(config)
+  }
+
+  public async set_default_code_completions_config(config: ToolConfig) {
+    await this._vscode.globalState.update(
+      DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY,
+      config
+    )
+  }
+
   public async get_file_refactoring_tool_config(): Promise<
     ToolConfig | undefined
   > {
@@ -166,10 +184,10 @@ export class ApiProvidersManager {
         []
       )
 
-    const updatedCompletionsConfig = completionsConfig.map((config) => {
+    const updated_completions_config = completionsConfig.map((config) => {
       if (
-        config.provider_type === 'custom' &&
-        config.provider_name === old_name
+        config.provider_type == 'custom' &&
+        config.provider_name == old_name
       ) {
         return { ...config, provider_name: new_name }
       }
@@ -178,38 +196,54 @@ export class ApiProvidersManager {
 
     await this._vscode.globalState.update(
       TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY,
-      updatedCompletionsConfig
+      updated_completions_config
     )
 
+    // Update default code completions config if affected
+    const default_completions_config = this._vscode.globalState.get<ToolConfig>(
+      DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY
+    )
+
+    if (
+      default_completions_config &&
+      default_completions_config.provider_type == 'custom' &&
+      default_completions_config.provider_name == old_name
+    ) {
+      await this._vscode.globalState.update(
+        DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY,
+        { ...default_completions_config, provider_name: new_name }
+      )
+    }
+
     // Update file refactoring config
-    const fileRefactoringConfig = this._vscode.globalState.get<ToolConfig>(
+    const file_refactoring_config = this._vscode.globalState.get<ToolConfig>(
       TOOL_CONFIG_FILE_REFACTORING_STATE_KEY
     )
 
     if (
-      fileRefactoringConfig &&
-      fileRefactoringConfig.provider_type === 'custom' &&
-      fileRefactoringConfig.provider_name === old_name
+      file_refactoring_config &&
+      file_refactoring_config.provider_type == 'custom' &&
+      file_refactoring_config.provider_name == old_name
     ) {
       await this._vscode.globalState.update(
         TOOL_CONFIG_FILE_REFACTORING_STATE_KEY,
-        { ...fileRefactoringConfig, provider_name: new_name }
+        { ...file_refactoring_config, provider_name: new_name }
       )
     }
 
     // Update commit messages config
-    const commitMessagesConfig = this._vscode.globalState.get<ToolConfig>(
+    const commit_messages_config = this._vscode.globalState.get<ToolConfig>(
       TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY
     )
 
     if (
-      commitMessagesConfig &&
-      commitMessagesConfig.provider_type === 'custom' &&
-      commitMessagesConfig.provider_name === old_name
+      commit_messages_config &&
+      commit_messages_config.provider_type == 'custom' &&
+      commit_messages_config.provider_name == old_name
     ) {
       await this._vscode.globalState.update(
         TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY,
-        { ...commitMessagesConfig, provider_name: new_name }
+        { ...commit_messages_config, provider_name: new_name }
       )
     }
   }

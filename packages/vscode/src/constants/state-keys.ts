@@ -11,3 +11,5 @@ export const TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY =
 export const TOOL_CONFIG_FILE_REFACTORING_STATE_KEY =
   'toolConfigFileRefactoring'
 export const TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY = 'toolConfigCommitMessages'
+export const DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY =
+  'defaultCodeCompletionsConfiguration'

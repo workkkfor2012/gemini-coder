@@ -8,15 +8,18 @@ import {
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
 
+const DEFAULT_TEMPERATURE = 0.2
+
 export const handle_setup_api_tool_code_completions = async (
   provider: ViewProvider
 ): Promise<void> => {
   const providers_manager = new ApiProvidersManager(provider.context)
   const model_fetcher = new ModelFetcher()
-  const default_temperature = 0.2
 
   let current_configs =
     await providers_manager.get_code_completions_tool_configs()
+  let default_config =
+    await providers_manager.get_default_code_completions_config()
 
   const edit_button = {
     iconPath: new vscode.ThemeIcon('edit'),
@@ -60,8 +63,14 @@ export const handle_setup_api_tool_code_completions = async (
               ? [move_up_button, move_down_button, edit_button, delete_button]
               : [edit_button, delete_button]
 
+          const is_default =
+            default_config &&
+            default_config.provider_type == config.provider_type &&
+            default_config.provider_name == config.provider_name &&
+            default_config.model == config.model
+
           return {
-            label: `${config.model}`,
+            label: `${is_default ? '$(star) ' : ''}${config.model}`,
             description: config.provider_name,
             buttons,
             config,
@@ -131,6 +140,18 @@ export const handle_setup_api_tool_code_completions = async (
               current_configs
             )
 
+            if (
+              default_config &&
+              default_config.provider_type == item.config.provider_type &&
+              default_config.provider_name == item.config.provider_name &&
+              default_config.model == item.config.model
+            ) {
+              default_config = undefined
+              await providers_manager.set_default_code_completions_config(
+                null as any
+              )
+            }
+
             if (current_configs.length == 0) {
               quick_pick.hide()
               await add_configuration()
@@ -183,13 +204,13 @@ export const handle_setup_api_tool_code_completions = async (
     // Step 1: Select provider
     const provider_info = await select_provider()
     if (!provider_info) {
-      return // User cancelled
+      return
     }
 
     // Step 2: Select model
     const model = await select_model(provider_info)
     if (!model) {
-      return // User cancelled
+      return
     }
 
     const provider_model_exists = current_configs.some(
@@ -210,7 +231,7 @@ export const handle_setup_api_tool_code_completions = async (
       provider_type: provider_info.type,
       provider_name: provider_info.name,
       model,
-      temperature: default_temperature
+      temperature: DEFAULT_TEMPERATURE
     }
 
     current_configs.push(new_config)
@@ -221,6 +242,13 @@ export const handle_setup_api_tool_code_completions = async (
 
   async function edit_configuration(config: ToolConfig) {
     const back_label = '$(arrow-left) Back'
+    const set_as_default_label = '$(star) Set as default'
+
+    const is_default =
+      default_config &&
+      default_config.provider_type == config.provider_type &&
+      default_config.provider_name == config.provider_name &&
+      default_config.model == config.model
 
     const edit_options = [
       { label: back_label },
@@ -236,6 +264,12 @@ export const handle_setup_api_tool_code_completions = async (
       }
     ]
 
+    if (!is_default) {
+      edit_options.push({
+        label: set_as_default_label
+      })
+    }
+
     const selected_option = await vscode.window.showQuickPick(edit_options, {
       title: `Edit Configuration: ${config.provider_name} / ${config.model}`,
       placeHolder: 'Select what to update',
@@ -243,6 +277,14 @@ export const handle_setup_api_tool_code_completions = async (
     })
 
     if (!selected_option || selected_option.label == back_label) {
+      return
+    }
+
+    if (selected_option.label == set_as_default_label) {
+      default_config = { ...config }
+      await providers_manager.set_default_code_completions_config(
+        default_config
+      )
       return
     }
 
@@ -264,9 +306,9 @@ export const handle_setup_api_tool_code_completions = async (
       }
 
       if (
-        new_provider.type !== config.provider_type ||
-        new_provider.name !== config.provider_name ||
-        new_model !== config.model
+        new_provider.type != config.provider_type ||
+        new_provider.name != config.provider_name ||
+        new_model != config.model
       ) {
         updated_config_state.provider_type = new_provider.type
         updated_config_state.provider_name = new_provider.name
@@ -290,7 +332,7 @@ export const handle_setup_api_tool_code_completions = async (
         return
       }
 
-      if (new_model !== config.model) {
+      if (new_model != config.model) {
         updated_config_state.model = new_model
         config_changed_in_this_step = true
       } else {
@@ -304,7 +346,7 @@ export const handle_setup_api_tool_code_completions = async (
         return
       }
 
-      if (new_temperature !== config.temperature) {
+      if (new_temperature != config.temperature) {
         updated_config_state.temperature = new_temperature
         config_changed_in_this_step = true
       } else {
@@ -352,6 +394,18 @@ export const handle_setup_api_tool_code_completions = async (
         await providers_manager.save_code_completions_tool_configs(
           current_configs
         )
+
+        if (
+          default_config &&
+          default_config.provider_type == original_config_state.provider_type &&
+          default_config.provider_name == original_config_state.provider_name &&
+          default_config.model == original_config_state.model
+        ) {
+          default_config = updated_config_state
+          await providers_manager.set_default_code_completions_config(
+            updated_config_state
+          )
+        }
       } else {
         console.error('Could not find original config in array to update.')
         return
