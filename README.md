@@ -60,7 +60,7 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favorite chatbot, each with unique features, feel and associated costs (with some being completely free!) CWC's core feature is prompt preparation (special context formatting using XML tags and instructions placement) for copy & paste and their hands-free initialization.
+As everyone have their own favorite chatbot, each with unique features and feel, CWC's core feature is their hands-free initialization.
 
 **The feature has two modes:**
 
