@@ -98,20 +98,7 @@ export async function activate(context: vscode.ExtensionContext) {
   )
 
   context.subscriptions.push(
-    apply_chat_response_command({
-      command: 'codeWebChat.applyChatResponse',
-      context
-    }),
-    apply_chat_response_command({
-      command: 'codeWebChat.applyChatResponseFastReplace',
-      context,
-      mode: 'Fast replace'
-    }),
-    apply_chat_response_command({
-      command: 'codeWebChat.applyChatResponseIntelligentUpdate',
-      context,
-      mode: 'Intelligent update'
-    }),
+    apply_chat_response_command(context),
     refactor_command({
       context,
       file_tree_provider: workspace_provider,

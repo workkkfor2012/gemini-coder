@@ -170,8 +170,6 @@ Generate meaningful commit messages based on contents of affected files and diff
 #### Applying chat responses
 
 - `Code Web Chat: Apply Chat Response` - Apply changes suggested by AI using clipboard content.
-- `Code Web Chat: Apply Chat Response (Fast replace)` - Apply changes suggested by AI using clipboard content (Fast replace).
-- `Code Web Chat: Apply Chat Response (Intelligent update)` - Apply changes suggested by AI using clipboard content (Intelligent update).
 - `Code Web Chat: Revert Last Applied Changes` - Revert the last applied changes.
 
 #### Chat

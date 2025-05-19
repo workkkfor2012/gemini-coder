@@ -283,16 +283,6 @@
         "title": "Delete"
       },
       {
-        "command": "codeWebChat.applyChatResponseFastReplace",
-        "title": "Apply Chat Response (Fast replace)",
-        "category": "Code Web Chat"
-      },
-      {
-        "command": "codeWebChat.applyChatResponseIntelligentUpdate",
-        "title": "Apply Chat Response (Intelligent update)",
-        "category": "Code Web Chat"
-      },
-      {
         "command": "codeWebChat.revert",
         "title": "Revert Last Applied Chat Response",
         "category": "Code Web Chat"
