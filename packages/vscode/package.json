@@ -201,6 +201,11 @@
         "category": "Code Web Chat"
       },
       {
+        "command": "codeWebChat.codeCompletionWithSuggestionsUsingAutoAccept",
+        "title": "Code Completion with Suggestions using...",
+        "category": "Code Web Chat"
+      },
+      {
         "command": "codeWebChat.codeCompletionWithSuggestionsAutoAccept",
         "title": "Code Completion with Suggestions",
         "category": "Code Web Chat"
@@ -417,7 +422,15 @@
           "when": "false"
         },
         {
+          "command": "codeWebChat.codeCompletionUsingAutoAccept",
+          "when": "false"
+        },
+        {
           "command": "codeWebChat.codeCompletionWithSuggestionsAutoAccept",
+          "when": "false"
+        },
+        {
+          "command": "codeWebChat.codeCompletionWithSuggestionsUsingAutoAccept",
           "when": "false"
         },
         {
