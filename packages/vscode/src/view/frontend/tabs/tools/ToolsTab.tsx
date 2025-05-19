@@ -32,8 +32,16 @@ export const ToolsTab: React.FC<Props> = (props) => {
   const handle_code_completions_more_actions = () => {
     const items = [
       {
+        label: 'Code completion using...',
+        command: 'codeWebChat.codeCompletionUsingAutoAccept'
+      },
+      {
         label: 'Code completion with suggestions',
         command: 'codeWebChat.codeCompletionWithSuggestionsAutoAccept'
+      },
+      {
+        label: 'Code completion with suggestions using...',
+        command: 'codeWebChat.codeCompletionWithSuggestionsUsingAutoAccept'
       },
       {
         label: 'Copy code completion prompt to clipboard',

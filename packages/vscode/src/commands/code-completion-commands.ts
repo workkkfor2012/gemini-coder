@@ -250,6 +250,18 @@ async function perform_code_completion(params: {
 }) {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
+  let suggestions: string | undefined
+  if (params.with_suggestions) {
+    suggestions = await vscode.window.showInputBox({
+      placeHolder: 'Enter suggestions',
+      prompt: 'E.g. include explanatory comments'
+    })
+
+    if (suggestions === undefined) {
+      return
+    }
+  }
+
   const config_result = await get_code_completion_config(
     api_providers_manager,
     params.show_quick_pick
@@ -297,18 +309,6 @@ async function perform_code_completion(params: {
     endpoint_url = provider_info.base_url
   } else {
     endpoint_url = provider.base_url
-  }
-
-  let suggestions: string | undefined
-  if (params.with_suggestions) {
-    suggestions = await vscode.window.showInputBox({
-      placeHolder: 'Enter suggestions',
-      prompt: 'E.g. include explanatory comments'
-    })
-
-    if (suggestions === undefined) {
-      return
-    }
   }
 
   if (!provider.api_key) {
@@ -472,6 +472,30 @@ export function code_completion_commands(
           context,
           with_suggestions: false,
           auto_accept: false,
+          show_quick_pick: true
+        })
+    ),
+    vscode.commands.registerCommand(
+      'codeWebChat.codeCompletionUsingAutoAccept',
+      async () =>
+        perform_code_completion({
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          with_suggestions: false,
+          auto_accept: true,
+          show_quick_pick: true
+        })
+    ),
+    vscode.commands.registerCommand(
+      'codeWebChat.codeCompletionWithSuggestionsUsingAutoAccept',
+      async () =>
+        perform_code_completion({
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          with_suggestions: true,
+          auto_accept: true,
           show_quick_pick: true
         })
     ),
