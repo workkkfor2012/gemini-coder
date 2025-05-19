@@ -131,9 +131,8 @@ Generate meaningful commit messages based on contents of affected files and diff
 - OpenRouter
 - TogetherAI
 
-...or add any other OpenAI-API comptabile provider.
-
 <small>
+ℹ️ Any custom OpenAI-API compatible provider works with CWC.<br/>
 🔒️ API keys are stored securely in the editor's Secret Storage.
 </small>
 
