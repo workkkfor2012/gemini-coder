@@ -71,21 +71,26 @@ export const handle_setup_api_tool_code_completions = async (
 
           let buttons = []
           if (current_configs.length > 1) {
+            const isFirstItem = index == 0
+            const isLastItem = index == current_configs.length - 1
+
+            const navigationButtons = []
+            if (!isFirstItem) {
+              navigationButtons.push(move_up_button)
+            }
+            if (!isLastItem) {
+              navigationButtons.push(move_down_button)
+            }
+
             if (!is_default) {
               buttons = [
                 set_default_button,
-                move_up_button,
-                move_down_button,
+                ...navigationButtons,
                 edit_button,
                 delete_button
               ]
             } else {
-              buttons = [
-                move_up_button,
-                move_down_button,
-                edit_button,
-                delete_button
-              ]
+              buttons = [...navigationButtons, edit_button, delete_button]
             }
           } else {
             if (!is_default) {
@@ -155,7 +160,7 @@ export const handle_setup_api_tool_code_completions = async (
           await show_configs_quick_pick()
         } else if (event.button === delete_button) {
           const confirm = await vscode.window.showWarningMessage(
-            `Are you sure you want to delete ${item.config.model} (item.config.provider_name)?`,
+            `Are you sure you want to delete ${item.config.model} (${item.config.provider_name})?`,
             { modal: true },
             'Delete'
           )

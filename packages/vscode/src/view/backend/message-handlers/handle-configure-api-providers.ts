@@ -61,8 +61,13 @@ export const handle_configure_api_providers = async (
         const buttons = []
 
         if (saved_providers.length > 1) {
-          buttons.push(move_up_button)
-          buttons.push(move_down_button)
+          if (index > 0) {
+            buttons.push(move_up_button)
+          }
+
+          if (index < saved_providers.length - 1) {
+            buttons.push(move_down_button)
+          }
         }
 
         buttons.push(

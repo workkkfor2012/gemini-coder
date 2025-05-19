@@ -123,27 +123,57 @@ async function get_code_completion_config(
     const default_config =
       await api_providers_manager.get_default_code_completions_config()
 
-    const items = code_completions_configs.map((config) => {
-      const is_default =
-        default_config?.provider_name == config.provider_name &&
-        default_config?.model == config.model
-      return {
-        label: is_default ? `$(star) ${config.model}` : config.model,
-        description: config.provider_name,
-        config,
-        buttons: is_default
-          ? []
-          : [
-              {
-                iconPath: new vscode.ThemeIcon('star'),
-                tooltip: 'Set as default configuration'
-              }
-            ]
-      }
-    })
+    const move_up_button = {
+      iconPath: new vscode.ThemeIcon('chevron-up'),
+      tooltip: 'Move up'
+    }
+
+    const move_down_button = {
+      iconPath: new vscode.ThemeIcon('chevron-down'),
+      tooltip: 'Move down'
+    }
+
+    const create_items = () => {
+      return code_completions_configs.map((config, index) => {
+        const is_default =
+          default_config?.provider_name == config.provider_name &&
+          default_config?.model == config.model
+
+        let buttons = [
+          {
+            iconPath: new vscode.ThemeIcon('star'),
+            tooltip: 'Set as default configuration'
+          }
+        ]
+
+        if (code_completions_configs.length > 1) {
+          if (index > 0) {
+            buttons.push(move_up_button)
+          }
+
+          if (index < code_completions_configs.length - 1) {
+            buttons.push(move_down_button)
+          }
+        }
+
+        if (is_default) {
+          buttons = buttons.filter(
+            (btn) => btn.tooltip != 'Set as default configuration'
+          )
+        }
+
+        return {
+          label: is_default ? `$(star) ${config.model}` : config.model,
+          description: config.provider_name,
+          config,
+          index,
+          buttons
+        }
+      })
+    }
 
     const quick_pick = vscode.window.createQuickPick()
-    quick_pick.items = items
+    quick_pick.items = create_items()
     quick_pick.placeholder = 'Select code completion configuration'
     quick_pick.matchOnDescription = true
 
@@ -151,31 +181,41 @@ async function get_code_completion_config(
       (resolve) => {
         quick_pick.onDidTriggerItemButton(async (event) => {
           const item = event.item as any
-          await api_providers_manager.set_default_code_completions_config(
-            item.config
-          )
+          const button = event.button
+          const index = item.index
 
-          // Update the UI to show the new default
-          quick_pick.items = quick_pick.items.map((qpItem: any) => {
-            const is_now_default =
-              item.config.provider_name === qpItem.config.provider_name &&
-              item.config.model === qpItem.config.model
+          if (button.tooltip == 'Move up' && index > 0) {
+            const temp = code_completions_configs[index]
+            code_completions_configs[index] =
+              code_completions_configs[index - 1]
+            code_completions_configs[index - 1] = temp
 
-            return {
-              ...qpItem,
-              label: is_now_default
-                ? `$(star) ${qpItem.config.model}`
-                : qpItem.config.model,
-              buttons: is_now_default
-                ? []
-                : [
-                    {
-                      iconPath: new vscode.ThemeIcon('star'),
-                      tooltip: 'Set as default configuration'
-                    }
-                  ]
-            }
-          })
+            await api_providers_manager.save_code_completions_tool_configs(
+              code_completions_configs
+            )
+
+            quick_pick.items = create_items()
+          } else if (
+            button.tooltip == 'Move down' &&
+            index < code_completions_configs.length - 1
+          ) {
+            const temp = code_completions_configs[index]
+            code_completions_configs[index] =
+              code_completions_configs[index + 1]
+            code_completions_configs[index + 1] = temp
+
+            await api_providers_manager.save_code_completions_tool_configs(
+              code_completions_configs
+            )
+
+            quick_pick.items = create_items()
+          } else if (button.tooltip == 'Set as default configuration') {
+            await api_providers_manager.set_default_code_completions_config(
+              item.config
+            )
+
+            quick_pick.items = create_items()
+          }
         })
 
         quick_pick.onDidAccept(async () => {
