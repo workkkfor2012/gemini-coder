@@ -9,6 +9,7 @@ type Props = {
   chat_history_fim_mode: string[]
   on_change: (value: string) => void
   on_submit: () => void
+  on_submit_with_control: () => void
   on_copy: () => void
   token_count?: number
   is_connected: boolean
@@ -87,14 +88,22 @@ export const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_submit = (e?: React.MouseEvent<HTMLButtonElement>) => {
-    e?.stopPropagation()
+  const handle_submit = (
+    e:
+      | React.KeyboardEvent<HTMLTextAreaElement>
+      | React.MouseEvent<HTMLButtonElement>
+  ) => {
+    e.stopPropagation()
     if (
       !props.is_connected ||
       (!props.is_in_code_completions_mode && !props.value)
     )
       return
-    props.on_submit()
+    if (e.ctrlKey || e.metaKey) {
+      props.on_submit_with_control()
+    } else {
+      props.on_submit()
+    }
     set_history_index(-1) // Reset history index after submitting
   }
 
@@ -126,7 +135,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       }, 0)
     } else if (e.key == 'Enter' && !e.shiftKey) {
       e.preventDefault()
-      handle_submit()
+      handle_submit(e)
     } else if (
       (e.key == 'ArrowUp' || e.key == 'ArrowDown') &&
       is_history_enabled
@@ -301,7 +310,12 @@ export const ChatInput: React.FC<Props> = (props) => {
               !props.is_connected ||
               (!props.is_in_code_completions_mode && !props.value)
             }
-            title={props.submit_disabled_title || 'Send'}
+            title={
+              !props.is_connected ||
+              (!props.is_in_code_completions_mode && !props.value)
+                ? props.submit_disabled_title
+                : 'Send'
+            }
           >
             <div className={cn('codicon', 'codicon-send')} />
           </button>

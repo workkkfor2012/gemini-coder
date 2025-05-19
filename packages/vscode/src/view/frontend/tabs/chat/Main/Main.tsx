@@ -48,28 +48,21 @@ export const Main: React.FC<Props> = (props) => {
     ? props.code_completion_suggestions
     : props.normal_instructions
 
-  // Calculate input token estimation
   useEffect(() => {
     let estimated_tokens = 0
-    // Basic estimation for instruction
     let text = current_prompt
 
-    // If there's @selection in the instruction and we have an active selection
     if (
       text.includes('@selection') &&
       props.has_active_selection &&
       props.selection_text
     ) {
-      // Approximate replacement
       text = text.replace(/@selection/g, props.selection_text)
     }
 
-    // Rough estimation of tokens (chars/4) for the instruction
     estimated_tokens = Math.ceil(text.length / 4)
 
-    // Add active file length tokens when in FIM mode
     if (props.is_in_code_completions_mode && props.active_file_length) {
-      // Estimate tokens for the file content
       const file_tokens = Math.ceil(props.active_file_length / 4)
       estimated_tokens += file_tokens
     }
@@ -86,9 +79,9 @@ export const Main: React.FC<Props> = (props) => {
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
     if (props.is_in_code_completions_mode) {
-      props.set_code_completion_suggestions(value) // Use prop setter
+      props.set_code_completion_suggestions(value)
     } else {
-      props.set_normal_instructions(value) // Use prop setter
+      props.set_normal_instructions(value)
     }
   }
 
@@ -101,16 +94,22 @@ export const Main: React.FC<Props> = (props) => {
     })
   }
 
+  // Let user select a preset
+  const handle_submit_with_control = async () => {
+    props.initialize_chats({
+      prompt: current_prompt,
+      preset_names: []
+    })
+  }
+
   const handle_copy = () => {
     props.copy_to_clipboard(current_prompt)
   }
 
   const handle_preset_copy = (preset_name: string) => {
-    // Get the preset by name
     const preset = props.presets.find((p) => p.name == preset_name)
 
     if (preset) {
-      // Apply prefix and suffix if they exist
       let modified_instruction = current_prompt
       if (preset.prompt_prefix) {
         modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
@@ -149,13 +148,14 @@ export const Main: React.FC<Props> = (props) => {
           chat_history_fim_mode={props.chat_history_fim_mode}
           on_change={handle_input_change}
           on_submit={handle_submit}
+          on_submit_with_control={handle_submit_with_control}
           on_copy={handle_copy}
           is_connected={props.is_connected}
           token_count={total_token_count}
           submit_disabled_title={
             !props.is_connected
               ? 'WebSocket connection not established. Please install the browser extension.'
-              : 'Initialize chats'
+              : 'Enter instructions'
           }
           is_in_code_completions_mode={props.is_in_code_completions_mode}
           has_active_selection={props.has_active_selection}

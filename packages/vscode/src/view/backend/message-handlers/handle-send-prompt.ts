@@ -6,8 +6,7 @@ import { apply_preset_affixes_to_instruction } from '@/helpers/apply-preset-affi
 
 async function validate_presets(
   preset_names: string[],
-  is_code_completions_mode: boolean,
-  context: vscode.ExtensionContext
+  is_code_completions_mode: boolean
 ): Promise<string[]> {
   const config = vscode.workspace.getConfiguration('codeWebChat')
   const presets = config.get<any[]>('presets', [])
@@ -28,31 +27,21 @@ async function validate_presets(
     const preset_quick_pick_items = available_presets.map((preset) => ({
       label: preset.name,
       description: `${preset.chatbot}${
-        preset.model ? ` - ${preset.model}` : ''
+        preset.model ? ` • ${preset.model}` : ''
       }`,
       picked: false
     }))
 
-    const placeholder = !is_code_completions_mode
-      ? 'Select one or more presets'
-      : 'Select one or more presets to use when asking for code completions'
-
-    const selected_presets = await vscode.window.showQuickPick(
+    const selected_preset = await vscode.window.showQuickPick(
       preset_quick_pick_items,
       {
-        placeHolder: placeholder,
-        canPickMany: true
+        placeHolder: 'Select preset'
       }
     )
 
-    if (selected_presets) {
-      const selected_names = selected_presets.map((preset) => preset.label)
-      const selected_names_key = is_code_completions_mode
-        ? 'selectedCodeCompletionPresets'
-        : 'selectedPresets'
-      await context.globalState.update(selected_names_key, selected_names)
-
-      return selected_names
+    if (selected_preset) {
+      const selected_name = selected_preset.label
+      return [selected_name]
     }
     return []
   }
@@ -64,20 +53,12 @@ export const handle_send_prompt = async (
   provider: ViewProvider,
   preset_names: string[]
 ): Promise<void> => {
-  // Validate presets first
   const valid_preset_names = await validate_presets(
     preset_names,
-    provider.is_code_completions_mode,
-    provider.context
+    provider.is_code_completions_mode
   )
 
-  // If no presets were selected in the picker
-  if (valid_preset_names.length == 0) {
-    vscode.window.showInformationMessage(
-      'Please select at least one preset to continue.'
-    )
-    return
-  }
+  if (valid_preset_names.length == 0) return
 
   await vscode.workspace.saveAll()
 
@@ -126,12 +107,7 @@ export const handle_send_prompt = async (
       valid_preset_names
     )
   } else if (!provider.is_code_completions_mode) {
-    if (!provider.instructions) {
-      vscode.window.showInformationMessage(
-        'Please enter instructions.'
-      )
-      return
-    }
+    if (!provider.instructions) return
 
     const context_text = await files_collector.collect_files({
       active_path
@@ -144,7 +120,6 @@ export const handle_send_prompt = async (
       valid_preset_names
     )
 
-    // Use the stored edit_format property
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const edit_format_instructions = config.get<string>(
       `editFormatInstructions${
