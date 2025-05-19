@@ -256,16 +256,104 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
             }
           }
         } else if (success_count > 0) {
+          // All patches applied successfully - show both options now
           const response = await vscode.window.showInformationMessage(
             `Successfully applied ${success_count} patch${
               success_count != 1 ? 'es' : ''
             }.`,
-            'Revert'
+            'Revert',
+            'Looks off, use intelligent mode'
           )
 
           if (response == 'Revert' && all_original_states.length > 0) {
             await revert_files(all_original_states)
             context.workspaceState.update(LAST_APPLIED_CHANGES_STATE_KEY, null)
+          } else if (response == 'Looks off, use intelligent mode') {
+            // Revert the applied patches first
+            await revert_files(all_original_states)
+
+            // Then try with intelligent update
+            const api_providers_manager = new ApiProvidersManager(context)
+            const file_refactoring_settings =
+              await api_providers_manager.get_file_refactoring_tool_config()
+
+            if (!file_refactoring_settings) {
+              vscode.window.showErrorMessage(
+                'API provider or model is not configured for Intelligent update.'
+              )
+              return
+            }
+
+            const provider = await api_providers_manager.get_provider(
+              file_refactoring_settings.provider_name
+            )
+
+            if (!provider) {
+              vscode.window.showErrorMessage(
+                'API provider not found for Intelligent update.'
+              )
+              return
+            }
+
+            let endpoint_url = ''
+            if (provider.type == 'built-in') {
+              const provider_info = PROVIDERS[provider.name]
+              endpoint_url = provider_info.base_url
+            } else {
+              endpoint_url = provider.base_url
+            }
+
+            // Convert all patches to clipboard format for intelligent update
+            const all_patches_text = clipboard_content.patches
+              .map((patch) => `// ${patch.file_path}\n${patch.content}`)
+              .join('\n\n')
+
+            try {
+              const intelligent_update_states = await handle_intelligent_update(
+                {
+                  endpoint_url,
+                  api_key: provider.api_key,
+                  model: file_refactoring_settings.model,
+                  temperature: file_refactoring_settings.temperature,
+                  clipboard_text: all_patches_text,
+                  context: context,
+                  is_single_root_folder_workspace
+                }
+              )
+
+              if (intelligent_update_states) {
+                context.workspaceState.update(
+                  LAST_APPLIED_CHANGES_STATE_KEY,
+                  intelligent_update_states
+                )
+                const response = await vscode.window.showInformationMessage(
+                  `Successfully applied patches using intelligent update.`,
+                  'Revert'
+                )
+
+                if (response == 'Revert') {
+                  await revert_files(intelligent_update_states)
+                  context.workspaceState.update(
+                    LAST_APPLIED_CHANGES_STATE_KEY,
+                    null
+                  )
+                }
+              } else {
+                vscode.window.showInformationMessage(
+                  'Intelligent update was canceled. Original changes have been reverted.'
+                )
+              }
+            } catch (error) {
+              // Handle any errors during intelligent update
+              Logger.error({
+                function_name: 'apply_chat_response_command',
+                message: 'Error during intelligent update of all patches'
+              })
+
+              vscode.window.showErrorMessage(
+                'Error during intelligent update. Original patches have been reverted.'
+              )
+            }
           }
         }
 
@@ -453,13 +541,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
           // Show appropriate buttons based on whether any existing files were replaced
           if (selected_mode_label == 'Fast replace') {
-            // Check if any of the affected files were existing files
-            const has_existing_files = final_original_states.some(
-              (state) => !state.is_new
-            )
-            const buttons = has_existing_files
-              ? ['Revert', 'Looks off, use intelligent mode']
-              : ['Revert']
+            // Always show both buttons regardless of whether files are new or existing
+            const buttons = ['Revert', 'Looks off, use intelligent mode']
 
             const response = await vscode.window.showInformationMessage(
               message,
