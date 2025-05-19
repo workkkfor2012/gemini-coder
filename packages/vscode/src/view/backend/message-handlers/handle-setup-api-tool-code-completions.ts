@@ -41,6 +41,11 @@ export const handle_setup_api_tool_code_completions = async (
     tooltip: 'Move down'
   }
 
+  const set_default_button = {
+    iconPath: new vscode.ThemeIcon('star'),
+    tooltip: 'Set as default'
+  }
+
   const create_config_items = () => {
     const items: (vscode.QuickPickItem & {
       config?: ToolConfig
@@ -58,16 +63,37 @@ export const handle_setup_api_tool_code_completions = async (
       })
       items.push(
         ...current_configs.map((config, index) => {
-          const buttons =
-            current_configs.length > 1
-              ? [move_up_button, move_down_button, edit_button, delete_button]
-              : [edit_button, delete_button]
-
           const is_default =
             default_config &&
             default_config.provider_type == config.provider_type &&
             default_config.provider_name == config.provider_name &&
             default_config.model == config.model
+
+          let buttons = []
+          if (current_configs.length > 1) {
+            if (!is_default) {
+              buttons = [
+                set_default_button,
+                move_up_button,
+                move_down_button,
+                edit_button,
+                delete_button
+              ]
+            } else {
+              buttons = [
+                move_up_button,
+                move_down_button,
+                edit_button,
+                delete_button
+              ]
+            }
+          } else {
+            if (!is_default) {
+              buttons = [set_default_button, edit_button, delete_button]
+            } else {
+              buttons = [edit_button, delete_button]
+            }
+          }
 
           return {
             label: `${is_default ? '$(star) ' : ''}${config.model}`,
@@ -189,6 +215,12 @@ export const handle_setup_api_tool_code_completions = async (
           )
 
           quick_pick.items = create_config_items()
+        } else if (event.button === set_default_button) {
+          default_config = { ...item.config }
+          await providers_manager.set_default_code_completions_config(
+            default_config
+          )
+          quick_pick.items = create_config_items()
         }
       })
 
@@ -201,13 +233,11 @@ export const handle_setup_api_tool_code_completions = async (
   }
 
   async function add_configuration() {
-    // Step 1: Select provider
     const provider_info = await select_provider()
     if (!provider_info) {
       return
     }
 
-    // Step 2: Select model
     const model = await select_model(provider_info)
     if (!model) {
       return
@@ -236,6 +266,13 @@ export const handle_setup_api_tool_code_completions = async (
 
     current_configs.push(new_config)
     await providers_manager.save_code_completions_tool_configs(current_configs)
+
+    if (current_configs.length == 1 || !default_config) {
+      default_config = { ...new_config }
+      await providers_manager.set_default_code_completions_config(
+        default_config
+      )
+    }
 
     await edit_configuration(new_config)
   }
