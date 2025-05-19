@@ -155,7 +155,7 @@ export const handle_setup_api_tool_code_completions = async (
           await show_configs_quick_pick()
         } else if (event.button === delete_button) {
           const confirm = await vscode.window.showWarningMessage(
-            `Are you sure you want to delete "${item.config.provider_name} / ${item.config.model}"?`,
+            `Are you sure you want to delete ${item.config.model} (item.config.provider_name)?`,
             { modal: true },
             'Delete'
           )
