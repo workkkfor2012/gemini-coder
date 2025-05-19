@@ -22,7 +22,7 @@ import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
 
-class search_block {
+class SearchBlock {
   public search_lines: string[]
   public replace_lines: string[]
   public search_block_start_index: number
@@ -84,25 +84,22 @@ export async function process_diff_patch(
     result = apply_diff_patch(file_content, diff_patch_content)
   }
 
-  if (result === 'error') {
+  if (result == 'error') {
     return false
   }
 
   // Save result to file
-  vscode.workspace.fs
-    .writeFile(vscode.Uri.file(file_path), Buffer.from(result, 'utf8'))
-    .then(
-      () => {
-        console.log('File saved successfully')
-      },
-      (error) => {
-        console.error('Error saving file:', error)
-
-        return false
-      }
+  try {
+    await vscode.workspace.fs.writeFile(
+      vscode.Uri.file(file_path),
+      Buffer.from(result, 'utf8')
     )
-
-  return true
+    console.log('File saved successfully')
+    return true // Return true after successful write
+  } catch (error) {
+    console.error('Error saving file:', error)
+    return false // Return false if write fails
+  }
 }
 
 function create_new_file_from_patch(diff_patch: string): string {
@@ -269,7 +266,7 @@ function apply_diff_patch(original_code: string, diff_patch: string): string {
           if (search_chunks.length > 0 || replace_chunks.length > 0) {
             // Add the previous search block to the searchReplaceBlocks
             search_replace_blocks.push(
-              new search_block(search_chunks, replace_chunks, -1)
+              new SearchBlock(search_chunks, replace_chunks, -1)
             )
           }
 
@@ -318,7 +315,7 @@ function apply_diff_patch(original_code: string, diff_patch: string): string {
     if (inside_replace_block) {
       // Add the previous search block to the searchReplaceBlocks
       search_replace_blocks.push(
-        new search_block(search_chunks, replace_chunks, -1)
+        new SearchBlock(search_chunks, replace_chunks, -1)
       )
     }
 
