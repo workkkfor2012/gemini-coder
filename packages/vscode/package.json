@@ -176,6 +176,11 @@
         "category": "Code Web Chat"
       },
       {
+        "command": "codeWebChat.codeCompletionUsing",
+        "title": "Code Completion using...",
+        "category": "Code Web Chat"
+      },
+      {
         "command": "codeWebChat.codeCompletionAutoAccept",
         "title": "Code Completion",
         "category": "Code Web Chat"
@@ -183,6 +188,11 @@
       {
         "command": "codeWebChat.codeCompletionWithSuggestions",
         "title": "Code Completion with Suggestions",
+        "category": "Code Web Chat"
+      },
+      {
+        "command": "codeWebChat.codeCompletionWithSuggestionsUsing",
+        "title": "Code Completion with Suggestions using...",
         "category": "Code Web Chat"
       },
       {

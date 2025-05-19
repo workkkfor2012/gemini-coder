@@ -94,32 +94,99 @@ async function show_inline_completion(params: {
   }, 10000)
 }
 
-// Core function that contains the shared logic
+async function get_code_completion_config(
+  api_providers_manager: ApiProvidersManager,
+  show_quick_pick: boolean = false
+): Promise<{ provider: any; config: any } | undefined> {
+  const code_completions_configs =
+    await api_providers_manager.get_code_completions_tool_configs()
+
+  if (code_completions_configs.length === 0) {
+    vscode.window.showErrorMessage(
+      'Code Completions tool is not configured. Go to Code Web Chat panel -> Settings tab.'
+    )
+    Logger.warn({
+      function_name: 'get_code_completion_config',
+      message: 'Code Completions tool is not configured.'
+    })
+    return
+  }
+
+  let selected_config = null
+
+  if (!show_quick_pick) {
+    selected_config =
+      await api_providers_manager.get_default_code_completions_config()
+  }
+
+  if (!selected_config || show_quick_pick) {
+    const default_config =
+      await api_providers_manager.get_default_code_completions_config()
+
+    const items = code_completions_configs.map((config) => {
+      const is_default =
+        default_config?.provider_name == config.provider_name &&
+        default_config?.model == config.model
+      return {
+        label: is_default ? `$(star) ${config.model}` : config.model,
+        description: config.provider_name,
+        config
+      }
+    })
+
+    const selected = await vscode.window.showQuickPick(items, {
+      placeHolder: 'Select code completion configuration',
+      matchOnDescription: true
+    })
+
+    if (!selected) {
+      return
+    }
+
+    selected_config = selected.config
+  }
+
+  const provider = await api_providers_manager.get_provider(
+    selected_config.provider_name
+  )
+
+  if (!provider) {
+    vscode.window.showErrorMessage(
+      'API provider not found for Code Completions tool. Go to Code Web Chat panel -> Settings tab.'
+    )
+    Logger.warn({
+      function_name: 'get_code_completion_config',
+      message: 'API provider not found for Code Completions tool.'
+    })
+    return
+  }
+
+  return {
+    provider,
+    config: selected_config
+  }
+}
+
 async function perform_code_completion(params: {
   file_tree_provider: any
   open_editors_provider: any
   context: vscode.ExtensionContext
   with_suggestions: boolean
   auto_accept: boolean
+  show_quick_pick?: boolean
 }) {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
-  const code_completions_configs =
-    await api_providers_manager.get_code_completions_tool_configs()
+  const config_result = await get_code_completion_config(
+    api_providers_manager,
+    params.show_quick_pick
+  )
 
-  if (code_completions_configs.length == 0) {
-    vscode.window.showErrorMessage(
-      'Code Completions tool is not configured. Go to Code Web Chat panel -> Settings tab.'
-    )
-    Logger.warn({
-      function_name: 'perform_code_completion',
-      message: 'Code Completions tool is not configured.'
-    })
+  if (!config_result) {
     return
   }
 
-  // Use the first configuration by default
-  const code_completions_config = code_completions_configs[0]
+  const { provider, config: code_completions_config } = config_result
 
   if (!code_completions_config.provider_name) {
     vscode.window.showErrorMessage(
@@ -141,24 +208,9 @@ async function perform_code_completion(params: {
     return
   }
 
-  const provider = await api_providers_manager.get_provider(
-    code_completions_config.provider_name
-  )
-
-  if (!provider) {
-    vscode.window.showErrorMessage(
-      'API provider not found for Code Completions tool. Go to Code Web Chat panel -> Settings tab.'
-    )
-    Logger.warn({
-      function_name: 'perform_code_completion',
-      message: 'API provider not found for Code Completions tool.'
-    })
-    return
-  }
-
   let endpoint_url = ''
   if (provider.type == 'built-in') {
-    const provider_info = PROVIDERS[provider.name]
+    const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
     if (!provider_info) {
       vscode.window.showErrorMessage(
         `Built-in provider "${provider.name}" not found. Go to Code Web Chat panel -> Settings tab.`
@@ -298,7 +350,8 @@ export function code_completion_commands(
         open_editors_provider,
         context,
         with_suggestions: false,
-        auto_accept: false
+        auto_accept: false,
+        show_quick_pick: false
       })
     ),
     vscode.commands.registerCommand(
@@ -309,7 +362,8 @@ export function code_completion_commands(
           open_editors_provider,
           context,
           with_suggestions: false,
-          auto_accept: true
+          auto_accept: true,
+          show_quick_pick: false
         })
     ),
     vscode.commands.registerCommand(
@@ -320,7 +374,8 @@ export function code_completion_commands(
           open_editors_provider,
           context,
           with_suggestions: true,
-          auto_accept: false
+          auto_accept: false,
+          show_quick_pick: false
         })
     ),
     vscode.commands.registerCommand(
@@ -331,7 +386,32 @@ export function code_completion_commands(
           open_editors_provider,
           context,
           with_suggestions: true,
-          auto_accept: true
+          auto_accept: true,
+          show_quick_pick: false
+        })
+    ),
+    vscode.commands.registerCommand(
+      'codeWebChat.codeCompletionUsing',
+      async () =>
+        perform_code_completion({
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          with_suggestions: false,
+          auto_accept: false,
+          show_quick_pick: true
+        })
+    ),
+    vscode.commands.registerCommand(
+      'codeWebChat.codeCompletionWithSuggestionsUsing',
+      async () =>
+        perform_code_completion({
+          file_tree_provider,
+          open_editors_provider,
+          context,
+          with_suggestions: true,
+          auto_accept: false,
+          show_quick_pick: true
         })
     )
   ]
