@@ -539,10 +539,11 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
             message = `Operation completed successfully.`
           }
 
-          // Show appropriate buttons based on whether any existing files were replaced
           if (selected_mode_label == 'Fast replace') {
-            // Always show both buttons regardless of whether files are new or existing
-            const buttons = ['Revert', 'Looks off, use intelligent mode']
+            const buttons = ['Revert']
+            if (replaced_files_count > 0) {
+              buttons.push('Looks off, use intelligent mode')
+            }
 
             const response = await vscode.window.showInformationMessage(
               message,
