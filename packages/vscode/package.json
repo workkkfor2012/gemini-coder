@@ -1,8 +1,8 @@
 {
   "name": "gemini-coder",
   "displayName": "Code Web Chat (CWC, prev. Gemini Coder)",
-  "description": "Initialize any web chat with your code",
-  "version": "1.5.0",
+  "description": "Non-agentic 100% free & open source coding tool for AI-assisted programming.",
+  "version": "1.6.0",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
