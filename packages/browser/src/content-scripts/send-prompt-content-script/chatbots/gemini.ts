@@ -53,8 +53,6 @@ export const gemini: Chatbot = {
           }
         }
       }
-    } else if (model) {
-      alert(`Model "${model}" is no longer supported.`)
     }
   },
   set_options: async (options: string[]) => {
@@ -90,7 +88,10 @@ export const gemini: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
