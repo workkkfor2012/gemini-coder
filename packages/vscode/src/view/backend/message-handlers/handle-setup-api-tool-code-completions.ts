@@ -46,6 +46,11 @@ export const handle_setup_api_tool_code_completions = async (
     tooltip: 'Set as default'
   }
 
+  const unset_default_button = {
+    iconPath: new vscode.ThemeIcon('star-full'),
+    tooltip: 'Unset default'
+  }
+
   const create_config_items = () => {
     const items: (vscode.QuickPickItem & {
       config?: ToolConfig
@@ -71,38 +76,45 @@ export const handle_setup_api_tool_code_completions = async (
 
           let buttons = []
           if (current_configs.length > 1) {
-            const isFirstItem = index == 0
-            const isLastItem = index == current_configs.length - 1
+            const is_first_item = index == 0
+            const is_last_item = index == current_configs.length - 1
 
-            const navigationButtons = []
-            if (!isFirstItem) {
-              navigationButtons.push(move_up_button)
+            const navigation_buttons = []
+            if (!is_first_item) {
+              navigation_buttons.push(move_up_button)
             }
-            if (!isLastItem) {
-              navigationButtons.push(move_down_button)
+            if (!is_last_item) {
+              navigation_buttons.push(move_down_button)
             }
 
             if (!is_default) {
               buttons = [
+                ...navigation_buttons,
                 set_default_button,
-                ...navigationButtons,
                 edit_button,
                 delete_button
               ]
             } else {
-              buttons = [...navigationButtons, edit_button, delete_button]
+              buttons = [
+                ...navigation_buttons,
+                unset_default_button,
+                edit_button,
+                delete_button
+              ]
             }
           } else {
             if (!is_default) {
               buttons = [set_default_button, edit_button, delete_button]
             } else {
-              buttons = [edit_button, delete_button]
+              buttons = [unset_default_button, edit_button, delete_button]
             }
           }
 
           return {
-            label: `${is_default ? '$(star) ' : ''}${config.model}`,
-            description: config.provider_name,
+            label: config.model,
+            description: `${config.provider_name}${
+              is_default ? ` • default` : ''
+            }`,
             buttons,
             config,
             index
@@ -226,6 +238,12 @@ export const handle_setup_api_tool_code_completions = async (
             default_config
           )
           quick_pick.items = create_config_items()
+        } else if (event.button === unset_default_button) {
+          default_config = undefined
+          await providers_manager.set_default_code_completions_config(
+            null as any
+          )
+          quick_pick.items = create_config_items()
         }
       })
 
@@ -285,6 +303,7 @@ export const handle_setup_api_tool_code_completions = async (
   async function edit_configuration(config: ToolConfig) {
     const back_label = '$(arrow-left) Back'
     const set_as_default_label = '$(star) Set as default'
+    const unset_default_label = '$(star-full) Unset default'
 
     const is_default =
       default_config &&
@@ -306,7 +325,11 @@ export const handle_setup_api_tool_code_completions = async (
       }
     ]
 
-    if (!is_default) {
+    if (is_default) {
+      edit_options.push({
+        label: unset_default_label
+      })
+    } else {
       edit_options.push({
         label: set_as_default_label
       })
@@ -327,6 +350,12 @@ export const handle_setup_api_tool_code_completions = async (
       await providers_manager.set_default_code_completions_config(
         default_config
       )
+      return
+    }
+
+    if (selected_option.label == unset_default_label) {
+      default_config = undefined
+      await providers_manager.set_default_code_completions_config(null as any)
       return
     }
 
