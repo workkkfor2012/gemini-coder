@@ -189,6 +189,59 @@ export async function store_original_file_states(
   return original_states
 }
 
+// Ensures all target files are closed before applying patches
+async function close_files_in_all_editor_groups(
+  file_paths: string[],
+  workspace_path: string
+): Promise<vscode.Uri[]> {
+  const closedFiles: vscode.Uri[] = []
+
+  for (const file_path of file_paths) {
+    const safe_path = create_safe_path(workspace_path, file_path)
+    if (!safe_path) {
+      continue
+    }
+
+    const uri = vscode.Uri.file(safe_path)
+
+    // Find all tabs with this document open
+    for (const editor of vscode.window.visibleTextEditors) {
+      if (editor.document.uri.fsPath === uri.fsPath) {
+        // Check if document is dirty
+        if (editor.document.isDirty) {
+          await editor.document.save()
+        }
+
+        closedFiles.push(editor.document.uri)
+
+        // Close the editor
+        await vscode.window.showTextDocument(editor.document, { preview: true })
+        await vscode.commands.executeCommand(
+          'workbench.action.closeActiveEditor'
+        )
+      }
+    }
+  }
+
+  return closedFiles
+}
+
+// Reopens files that were closed before patch application
+async function reopen_closed_files(closedFiles: vscode.Uri[]): Promise<void> {
+  for (const uri of closedFiles) {
+    try {
+      const document = await vscode.workspace.openTextDocument(uri)
+      await vscode.window.showTextDocument(document, { preview: false })
+    } catch (error) {
+      Logger.error({
+        function_name: 'reopen_closed_files',
+        message: 'Failed to reopen file',
+        data: { file_path: uri.fsPath, error }
+      })
+    }
+  }
+}
+
 // Opens, formats, and saves a list of files.
 async function process_modified_files(
   file_paths: string[],
@@ -246,13 +299,24 @@ export async function apply_git_patch(
   patch_content: string,
   workspace_path: string
 ): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
+  let closed_files: vscode.Uri[] = []
+
   try {
     // Normalize line endings to LF for git
     const normalized_patch_content = patch_content.replace(/\r\n/g, '\n')
 
+    // Extract file paths from the patch
+    const file_paths = extract_file_paths_from_patch(normalized_patch_content)
+
     // Store original file states before applying patch
     const original_states = await store_original_file_states(
       normalized_patch_content,
+      workspace_path
+    )
+
+    // Close all files before applying patch to prevent conflicts
+    closed_files = await close_files_in_all_editor_groups(
+      file_paths,
       workspace_path
     )
 
@@ -276,8 +340,7 @@ export async function apply_git_patch(
         )
       } catch (error) {
         // git apply failed, now trying to apply with custom diff processor as fallback
-        const paths = extract_file_paths_from_patch(normalized_patch_content)
-        const file_path_safe = create_safe_path(workspace_path, paths[0])
+        const file_path_safe = create_safe_path(workspace_path, file_paths[0])
 
         if (file_path_safe == null) {
           throw new Error('File path is null')
@@ -295,7 +358,6 @@ export async function apply_git_patch(
       })
 
       // Extract file paths from the patch and open, format, and save them
-      const file_paths = extract_file_paths_from_patch(normalized_patch_content)
       await process_modified_files(file_paths, workspace_path)
 
       // Clean up temp file
@@ -303,15 +365,15 @@ export async function apply_git_patch(
 
       return { success: true, original_states }
     } catch (error: any) {
+      // Reopen the closed files since the patch application failed
+      await reopen_closed_files(closed_files)
+
       // Check if there are .rej files indicating partial failure
       // NOTE: This has not been implementred yet in the custom diff processor. Can be added later.
       const has_rejects = error.message.includes('.rej')
 
       if (has_rejects) {
         // Even with partial failure, try to format the files that were modified
-        const file_paths = extract_file_paths_from_patch(
-          normalized_patch_content
-        )
         await process_modified_files(file_paths, workspace_path)
       }
 
@@ -327,6 +389,11 @@ export async function apply_git_patch(
       return { success: false }
     }
   } catch (error: any) {
+    // Reopen any files that might have been closed
+    if (closed_files.length > 0) {
+      await reopen_closed_files(closed_files)
+    }
+
     Logger.error({
       function_name: 'apply_git_patch',
       message: 'Error handling patch file',
