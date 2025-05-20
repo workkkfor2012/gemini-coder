@@ -34,6 +34,7 @@ export const CHATBOTS = {
     },
     models: {
       'gemini-2.5-flash-preview-04-17': 'Gemini 2.5 Flash Preview 04-17',
+      'gemini-2.5-flash-preview-05-20': 'Gemini 2.5 Flash Preview 05-20',
       'gemini-2.5-pro-preview-05-06': 'Gemini 2.5 Pro Preview 05-06',
       'gemini-2.0-flash': 'Gemini 2.0 Flash',
       'gemini-2.0-flash-lite': 'Gemini 2.0 Flash-Lite'
@@ -50,8 +51,7 @@ export const CHATBOTS = {
     default_system_instructions: '',
     default_top_p: 0,
     models: {
-      '2.0-flash': '2.0 Flash',
-      '2.5-flash-preview': '2.5 Flash (preview)',
+      '2.5-flash': '2.5 Flash',
       '2.5-pro-preview': '2.5 Pro (preview)'
     }
   },
