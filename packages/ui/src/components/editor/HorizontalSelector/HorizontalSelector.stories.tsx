@@ -33,6 +33,8 @@ export const EditFormatExample = () => {
       options={options}
       selected_value={format}
       on_select={set_format}
+      disabled_state_title=""
+      is_disabled={false}
     />
   )
 }
@@ -52,6 +54,8 @@ export const GenericExample = () => {
       options={options}
       selected_value={value}
       on_select={set_value}
+      disabled_state_title=""
+      is_disabled={false}
     />
   )
 }

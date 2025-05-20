@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import styles from './Main.module.scss'
+import styles from './ChatView.module.scss'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
@@ -41,7 +41,7 @@ type Props = {
   on_caret_position_change: (caret_position: number) => void
 }
 
-export const Main: React.FC<Props> = (props) => {
+export const ChatTabView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   const current_prompt = props.is_in_code_completions_mode
@@ -162,65 +162,61 @@ export const Main: React.FC<Props> = (props) => {
           on_caret_position_change={props.on_caret_position_change}
         />
       </div>
-
       <UiSeparator size="small" />
-
       <UiHorizontalSelector
         heading="Mode"
         options={[
           {
             value: 'general',
             label: 'General',
-            title: 'Ask anything',
-            disabled: !props.has_active_editor || props.has_active_selection
+            title: 'Ask anything'
           },
           {
             value: 'code-completions',
             label: 'Code Completions',
-            title: !props.has_active_editor
-              ? 'Unavailable when missing active editor'
-              : props.has_active_selection
-              ? 'Unavailable with text selection'
-              : 'Ask for code at cursor position',
-            disabled: !props.has_active_editor || props.has_active_selection
+            title: 'Ask for code at cursor position'
           }
         ]}
         selected_value={
           props.is_in_code_completions_mode ? 'code-completions' : 'general'
         }
         on_select={handle_mode_click}
+        is_disabled={!props.has_active_editor || props.has_active_selection}
+        disabled_state_title={
+          props.has_active_selection
+            ? 'Code completions mode is not available when text is selected'
+            : 'Code completions mode is only available when any file is open'
+        }
       />
 
       {props.edit_format_selector_visibility == 'visible' && (
         <>
           <UiSeparator size="small" />
-
           <UiHorizontalSelector
             heading="Edit Format"
             options={[
               {
                 value: 'truncated',
                 label: 'Truncated',
-                title: 'The model will skip unchanged fragments.',
-                disabled: props.is_in_code_completions_mode
+                title: 'The model will skip unchanged fragments.'
               },
               {
                 value: 'whole',
                 label: 'Whole',
-                title: 'The model will output complete files.',
-                disabled: props.is_in_code_completions_mode
+                title: 'The model will output complete files.'
               },
               {
                 value: 'diff',
                 label: 'Diff',
-                title: 'The model will output diffs.',
-                disabled: props.is_in_code_completions_mode
+                title: 'The model will output diffs.'
               }
             ]}
             selected_value={
               !props.is_in_code_completions_mode ? props.edit_format : undefined
             }
             on_select={props.on_edit_format_change}
+            is_disabled={props.is_in_code_completions_mode}
+            disabled_state_title="Edit format selection is only available in General mode"
           />
         </>
       )}
@@ -228,7 +224,6 @@ export const Main: React.FC<Props> = (props) => {
       {!props.is_connected && (
         <>
           <UiSeparator size="large" />
-
           <div className={styles['browser-extension-message']}>
             <span>
               Get the{' '}

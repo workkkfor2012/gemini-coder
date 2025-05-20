@@ -3,11 +3,11 @@
   <br/>
   <h1>Code Web Chat (CWC)</h1>
   <h4 style="line-height: 1.8">
-  👉 Copy selected folders and files for web chats or initialize them hands-free!
+  👉 Select context, type instructions and continue in Chrome or Firefox
   <br/>
-  👉 Apply chat responses with truncated, whole or diff markdown code blocks
+  👉 Apply chat responses in truncated, whole or diff edit formats
   <br/>
-  👉 Use the same context for quality code completions and file refactorings
+  👉 Use SOTA models for quality code completions and file refactorings
   <br/>
   👉 Generate meaningful commit messages
   </h4>
@@ -59,14 +59,14 @@ The result? Unmatched in cost, speed and accuracy AI assistance.
 
 ## Web chats
 
-As everyone have their own favorite chatbot, each with unique features and feel, CWC's core feature is their hands-free initialization.
+As everyone have their own favorite chatbot, each with unique capabilities, CWC lets you initialize them hands-free!
 
 **The feature has two modes:**
 
-- General - context and your instructions
-- Code Completions - context, open editor with marked cursor position
+- General - select context and type instructions
+- Code Completions - select context and place cursor
 
-Additional texts for model's guidance are fully adjustable in settings.
+Generated prompts are simple and adjustable.
 
 **_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either refactoring with API ("Truncated" edit format), replacing original files in place ("Whole" edit format) or patching with diffs ("Diff" edit format).
 

@@ -1,5 +1,5 @@
 import { Button } from '@ui/components/editor/Button'
-import styles from './ToolsTab.module.scss'
+import styles from './Tools.module.scss'
 import { useEffect, useState } from 'react'
 import { ExtensionMessage } from '@/view/types/messages'
 
@@ -8,7 +8,7 @@ type Props = {
   is_visible: boolean
 }
 
-export const ToolsTab: React.FC<Props> = (props) => {
+export const Tools: React.FC<Props> = (props) => {
   const [has_active_editor, set_has_active_editor] = useState(false)
   const [has_active_selection, set_has_active_selection] = useState(false)
 

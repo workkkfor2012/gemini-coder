@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Main } from './Main'
+import { ChatTabView } from './ChatView'
 import {
   WebviewMessage,
   ExtensionMessage,
@@ -18,7 +18,7 @@ type Props = {
   set_code_completion_suggestions: (value: string) => void
 }
 
-export const ChatTab: React.FC<Props> = (props) => {
+export const Chat: React.FC<Props> = (props) => {
   const [is_connected, set_is_connected] = useState<boolean>()
   const [presets, set_presets] = useState<Preset[]>()
   const [selected_presets, set_selected_presets] = useState<string[]>([])
@@ -285,7 +285,7 @@ export const ChatTab: React.FC<Props> = (props) => {
   }
 
   return (
-    <Main
+    <ChatTabView
       is_visible={props.is_visible}
       initialize_chats={handle_initialize_chats}
       copy_to_clipboard={handle_copy_to_clipboard}

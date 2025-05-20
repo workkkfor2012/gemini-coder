@@ -1,5 +1,5 @@
-import { ChatTab } from './tabs/chat/ChatTab'
-import { ToolsTab } from './tabs/tools/ToolsTab'
+import { Chat } from './tabs/chat/Chat'
+import { Tools } from './tabs/tools/Tools'
 import { Header as UiHeader } from '@ui/components/editor/Header'
 import { useEffect, useState } from 'react'
 import { Template as UiTemplate } from '@ui/components/editor/Template'
@@ -13,7 +13,7 @@ import {
   WebviewMessage
 } from '../types/messages'
 import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
-import { SettingsTab } from './tabs/settings/SettingsTab'
+import { Settings } from './tabs/settings/Settings'
 
 const vscode = acquireVsCodeApi()
 
@@ -110,7 +110,7 @@ export const View = () => {
           set_active_tab('settings')
         }}
       />
-      <ChatTab
+      <Chat
         vscode={vscode}
         is_visible={active_tab == 'chat'}
         on_preset_edit={(preset) => {
@@ -123,8 +123,8 @@ export const View = () => {
           handle_code_completion_suggestions_change
         }
       />
-      <ToolsTab vscode={vscode} is_visible={active_tab == 'tools'} />
-      <SettingsTab vscode={vscode} is_visible={active_tab == 'settings'} />
+      <Tools vscode={vscode} is_visible={active_tab == 'tools'} />
+      <Settings vscode={vscode} is_visible={active_tab == 'settings'} />
     </>
   )
 
