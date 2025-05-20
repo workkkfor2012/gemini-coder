@@ -3,51 +3,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '@/helpers/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 import { apply_preset_affixes_to_instruction } from '@/helpers/apply-preset-affixes'
-
-async function validate_presets(
-  preset_names: string[],
-  is_code_completions_mode: boolean
-): Promise<string[]> {
-  const config = vscode.workspace.getConfiguration('codeWebChat')
-  const presets = config.get<any[]>('presets', [])
-  const available_presets = presets.filter((preset) =>
-    !is_code_completions_mode
-      ? true
-      : !preset.promptPrefix && !preset.promptSuffix
-  )
-  const available_preset_names = available_presets.map((preset) => preset.name)
-
-  // Filter out any presets that no longer exist
-  const valid_presets = preset_names.filter((name) =>
-    available_preset_names.includes(name)
-  )
-
-  // If no valid presets, show the picker
-  if (valid_presets.length == 0) {
-    const preset_quick_pick_items = available_presets.map((preset) => ({
-      label: preset.name,
-      description: `${preset.chatbot}${
-        preset.model ? ` • ${preset.model}` : ''
-      }`,
-      picked: false
-    }))
-
-    const selected_preset = await vscode.window.showQuickPick(
-      preset_quick_pick_items,
-      {
-        placeHolder: 'Select preset'
-      }
-    )
-
-    if (selected_preset) {
-      const selected_name = selected_preset.label
-      return [selected_name]
-    }
-    return []
-  }
-
-  return valid_presets
-}
+import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 
 export const handle_send_prompt = async (
   provider: ViewProvider,
@@ -55,7 +11,8 @@ export const handle_send_prompt = async (
 ): Promise<void> => {
   const valid_preset_names = await validate_presets(
     preset_names,
-    provider.is_code_completions_mode
+    provider.is_code_completions_mode,
+    provider.context
   )
 
   if (valid_preset_names.length == 0) return
@@ -146,4 +103,142 @@ export const handle_send_prompt = async (
       ? 'Chats have been initialized in the connected browser.'
       : 'Chat has been initialized in the connected browser.'
   )
+}
+
+async function validate_presets(
+  preset_names: string[],
+  is_code_completions_mode: boolean,
+  context: vscode.ExtensionContext
+): Promise<string[]> {
+  const config = vscode.workspace.getConfiguration('codeWebChat')
+  const presets = config.get<any[]>('presets', [])
+  const available_presets = presets.filter((preset) =>
+    !is_code_completions_mode
+      ? true
+      : !preset.promptPrefix && !preset.promptSuffix
+  )
+  const available_preset_names = available_presets.map((preset) => preset.name)
+
+  const valid_presets = preset_names.filter((name) =>
+    available_preset_names.includes(name)
+  )
+
+  if (valid_presets.length == 0) {
+    const last_selected_preset = context.globalState.get<string>(
+      LAST_SELECTED_PRESET_KEY,
+      ''
+    )
+
+    const move_up_button = {
+      iconPath: new vscode.ThemeIcon('chevron-up'),
+      tooltip: 'Move up'
+    }
+
+    const move_down_button = {
+      iconPath: new vscode.ThemeIcon('chevron-down'),
+      tooltip: 'Move down'
+    }
+
+    const create_items = () => {
+      return available_presets.map((preset, index) => {
+        const buttons = []
+
+        if (available_presets.length > 1) {
+          if (index > 0) {
+            buttons.push(move_up_button)
+          }
+
+          if (index < available_presets.length - 1) {
+            buttons.push(move_down_button)
+          }
+        }
+
+        return {
+          label: preset.name,
+          description: `${preset.chatbot}${
+            preset.model ? ` • ${preset.model}` : ''
+          }`,
+          index,
+          buttons
+        }
+      })
+    }
+
+    const quick_pick = vscode.window.createQuickPick()
+    const items = create_items()
+    quick_pick.items = items
+    quick_pick.placeholder = 'Select preset'
+
+    if (
+      last_selected_preset &&
+      items.some((item: any) => item.label == last_selected_preset)
+    ) {
+      quick_pick.activeItems = [
+        items.find((item: any) => item.label == last_selected_preset)!
+      ]
+    } else if (items.length > 0) {
+      quick_pick.activeItems = [items[0]]
+    }
+
+    return new Promise<string[]>((resolve) => {
+      quick_pick.onDidTriggerItemButton(async (event) => {
+        const item = event.item as any
+        const button = event.button
+        const index = item.index
+
+        if (button.tooltip == 'Move up' && index > 0) {
+          const temp = available_presets[index]
+          available_presets[index] = available_presets[index - 1]
+          available_presets[index - 1] = temp
+
+          // Save the reordered presets to configuration
+          await config.update(
+            'presets',
+            available_presets,
+            vscode.ConfigurationTarget.Global
+          )
+
+          quick_pick.items = create_items()
+        } else if (
+          button.tooltip == 'Move down' &&
+          index < available_presets.length - 1
+        ) {
+          const temp = available_presets[index]
+          available_presets[index] = available_presets[index + 1]
+          available_presets[index + 1] = temp
+
+          // Save the reordered presets to configuration
+          await config.update(
+            'presets',
+            available_presets,
+            vscode.ConfigurationTarget.Global
+          )
+
+          quick_pick.items = create_items()
+        }
+      })
+
+      quick_pick.onDidAccept(() => {
+        const selected = quick_pick.selectedItems[0] as any
+        quick_pick.hide()
+
+        if (selected) {
+          const selected_name = selected.label
+          context.globalState.update(LAST_SELECTED_PRESET_KEY, selected_name)
+          resolve([selected_name])
+        } else {
+          resolve([])
+        }
+      })
+
+      quick_pick.onDidHide(() => {
+        quick_pick.dispose()
+        resolve([])
+      })
+
+      quick_pick.show()
+    })
+  }
+
+  return valid_presets
 }
