@@ -7,6 +7,7 @@ import { ApiProvidersManager } from '../services/api-providers-manager'
 import { Logger } from '../helpers/logger'
 import he from 'he'
 import { PROVIDERS } from '@shared/constants/providers'
+import { LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY } from '../constants/state-keys'
 
 async function build_completion_payload(params: {
   document: vscode.TextDocument
@@ -96,7 +97,8 @@ async function show_inline_completion(params: {
 
 async function get_code_completion_config(
   api_providers_manager: ApiProvidersManager,
-  show_quick_pick: boolean = false
+  show_quick_pick: boolean = false,
+  context: vscode.ExtensionContext
 ): Promise<{ provider: any; config: any } | undefined> {
   const code_completions_configs =
     await api_providers_manager.get_code_completions_tool_configs()
@@ -173,9 +175,21 @@ async function get_code_completion_config(
     }
 
     const quick_pick = vscode.window.createQuickPick()
-    quick_pick.items = create_items()
+    const items = create_items()
+    quick_pick.items = items
     quick_pick.placeholder = 'Select code completion configuration'
     quick_pick.matchOnDescription = true
+
+    const last_selected_index = context.globalState.get<number>(
+      LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY,
+      0
+    )
+
+    if (last_selected_index >= 0 && last_selected_index < items.length) {
+      quick_pick.activeItems = [items[last_selected_index]]
+    } else if (items.length > 0) {
+      quick_pick.activeItems = [items[0]]
+    }
 
     return new Promise<{ provider: any; config: any } | undefined>(
       (resolve) => {
@@ -226,6 +240,11 @@ async function get_code_completion_config(
             resolve(undefined)
             return
           }
+
+          context.globalState.update(
+            LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY,
+            selected.index
+          )
 
           const provider = await api_providers_manager.get_provider(
             selected.config.provider_name
@@ -304,7 +323,8 @@ async function perform_code_completion(params: {
 
   const config_result = await get_code_completion_config(
     api_providers_manager,
-    params.show_quick_pick
+    params.show_quick_pick,
+    params.context
   )
 
   if (!config_result) {
