@@ -172,7 +172,7 @@ export async function activate(context: vscode.ExtensionContext) {
     }),
     open_url_command({
       command: 'codeWebChat.openX',
-      url: 'https://x.com/CodeWebChat'
+      url: 'https://x.com/robertpiosik'
     }),
     open_url_command({
       command: 'codeWebChat.openReddit',
