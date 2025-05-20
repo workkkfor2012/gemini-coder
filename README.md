@@ -100,15 +100,15 @@ CWC will elevate your coding with battle-tested, must have API features.
 
 ### 🛠️ Code completions
 
-Use state-of-the-art models for accurate code completions. The tool attaches selected context in each request.
+Use state-of-the-art reasoning models for accurate code completions. Selected context is included with every request.
 
 ### 🛠️ File refactoring
 
-Modify the active file based on natural language instructions. The tool attaches selected context in each request.
+Modify the active file based on natural language instructions. Selected context is included with every request.
 
 ### 🛠️ Apply chat response
 
-Automatically integrate chat responses with your codebase. The tool detects whether the clipboard contains complete files (replaces them directly), diffs or truncated files with ellipsis commments, e.g. "// ..." (applies them intelligently).
+Automatically integrate chat responses with your codebase. The tool detects whether the clipboard-held chat response contains complete files (replaces them), diffs (possible fallback with the file refactoring tool without context) or truncated fragments (always uses file refactoring tool without context).
 
 ### 🛠️ Commit messages
 
