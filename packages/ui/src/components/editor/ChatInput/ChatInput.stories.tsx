@@ -17,6 +17,7 @@ export const Empty = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -33,6 +34,7 @@ export const WithText = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -50,6 +52,7 @@ export const DisabledSubmit = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -66,6 +69,7 @@ export const MultilineText = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -82,6 +86,7 @@ export const LongText = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -99,6 +104,7 @@ export const WithTokenCount = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -116,6 +122,7 @@ export const WithLargeTokenCount = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -132,6 +139,7 @@ export const CodeCompletionsMode = () => (
     is_in_code_completions_mode={true}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -148,6 +156,7 @@ export const WithActiveSelection = () => (
     is_in_code_completions_mode={false}
     has_active_selection={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -164,6 +173,7 @@ export const WithActiveSelectionAndPlaceholder = () => (
     is_in_code_completions_mode={false}
     has_active_selection={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
 
@@ -180,5 +190,6 @@ export const WithPlaceholderNoSelection = () => (
     is_in_code_completions_mode={false}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_submit_with_control={() => {}}
   />
 )
