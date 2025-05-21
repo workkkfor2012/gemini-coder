@@ -131,10 +131,8 @@ Generate meaningful commit messages based on contents of affected files and diff
 - OpenRouter
 - TogetherAI
 
-<small>
 ℹ️ Any OpenAI-API compatible provider works with CWC.<br/>
-🔒️ API keys are stored securely in the editor's Secret Storage.
-</small>
+🔒️ API keys are stored securely in the [Secret Storage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage).
 
 ## Quick start for chat
 
