@@ -69,6 +69,7 @@ export const gemini: Chatbot = {
         }
       }
     }
+    await new Promise((r) => requestAnimationFrame(r))
   },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
