@@ -77,9 +77,7 @@ export const CHATBOTS = {
     default_system_instructions: "You're a helpful coding assistant.",
     supported_options: {},
     default_top_p: 1,
-    models: {
-      // Populated dynamically
-    }
+    models: {}
   },
   ChatGPT: {
     url: 'https://chatgpt.com/',
@@ -90,8 +88,7 @@ export const CHATBOTS = {
     supports_user_provided_port: false,
     default_system_instructions: '',
     supported_options: {
-      reason: 'Reason',
-      search: 'Search'
+      temporary: 'Temporary'
     },
     default_top_p: 0,
     models: {}
