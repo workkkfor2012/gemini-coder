@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat (CWC, prev. Gemini Coder)",
   "description": "Initialize any web chat with your code",
-  "version": "1.6.4",
+  "version": "1.7.0",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -662,28 +662,14 @@
           "type": "array",
           "default": [
             {
-              "name": "2.5 Pro",
+              "name": "AI Studio",
               "chatbot": "AI Studio",
-              "model": "gemini-2.5-pro-preview-03-25",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
             },
             {
-              "name": "2.5 Flash",
-              "chatbot": "AI Studio",
-              "model": "gemini-2.5-flash-preview-04-17",
-              "temperature": 0.5,
-              "systemInstructions": "You're a helpful coding assistant."
-            },
-            {
-              "name": "2.5 Pro",
-              "chatbot": "Gemini",
-              "model": "2.5-pro"
-            },
-            {
-              "name": "2.5 Flash",
-              "chatbot": "Gemini",
-              "model": "2.5-flash-experimental"
+              "name": "Gemini",
+              "chatbot": "Gemini"
             },
             {
               "name": "ChatGPT",
