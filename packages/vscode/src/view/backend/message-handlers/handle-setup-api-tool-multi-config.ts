@@ -10,7 +10,7 @@ import { PROVIDERS } from '@shared/constants/providers'
 
 const DEFAULT_TEMPERATURE = 0.2
 
-export const handle_setup_api_tool_code_completions = async (
+export const handle_setup_api_tool_multi_config = async (
   provider: ViewProvider
 ): Promise<void> => {
   const providers_manager = new ApiProvidersManager(provider.context)
