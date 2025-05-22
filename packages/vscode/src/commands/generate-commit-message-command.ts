@@ -61,7 +61,7 @@ export function generate_commit_message_command(
         }
 
         const config = vscode.workspace.getConfiguration('codeWebChat')
-        const commit_message_prompt = config.get<string>('commitMessagePrompt')
+        const commit_message_prompt = config.get<string>('commitMessageInstructions')
         const config_ignored_extensions = new Set(
           config
             .get<string[]>('ignoredExtensions', [])

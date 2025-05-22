@@ -608,10 +608,10 @@
       "type": "object",
       "title": "Code Web Chat Settings",
       "properties": {
-        "codeWebChat.commitMessagePrompt": {
+        "codeWebChat.commitMessageInstructions": {
           "type": "string",
           "scope": "resource",
-          "description": "The prompt text used when generating commit messages.",
+          "description": "The instructions used when generating a commit message.",
           "default": "Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
         },
         "codeWebChat.ignoredExtensions": {

@@ -525,7 +525,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
 
     const provider_items = providers.map((p) => ({
       label: p.name,
-      description: p.type == 'built-in' ? '(built-in)' : '(custom)',
+      description: p.type == 'built-in' ? 'Predefined' : 'Custom',
       provider: p
     }))
 

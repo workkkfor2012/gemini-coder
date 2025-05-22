@@ -8,10 +8,11 @@ import {
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
 
-export const handle_setup_api_tool = async (
+export const handle_setup_api_tool = async (params: {
   provider: ViewProvider
-): Promise<void> => {
-  const providers_manager = new ApiProvidersManager(provider.context)
+  tool: 'commit-messages' | 'some-other-introduced-later'
+}): Promise<void> => {
+  const providers_manager = new ApiProvidersManager(params.provider.context)
   const model_fetcher = new ModelFetcher()
   const default_temperature = 0.3
 
@@ -50,8 +51,10 @@ export const handle_setup_api_tool = async (
     const api_provider_label = 'API Provider'
     const model_label = 'Model'
     const temperature_label = 'Temperature'
+    const edit_instructions_label = 'Edit instructions'
+
     const show_config_options = async () => {
-      const options = [
+      const options: vscode.QuickPickItem[] = [
         { label: api_provider_label, description: config.provider_name },
         { label: model_label, description: config.model },
         {
@@ -61,6 +64,17 @@ export const handle_setup_api_tool = async (
           }`
         }
       ]
+
+      if (params.tool == 'commit-messages') {
+        const current_prompt = vscode.workspace
+          .getConfiguration('codeWebChat')
+          .get<string>('commitMessageInstructions', '')
+
+        options.push({
+          label: edit_instructions_label,
+          detail: current_prompt
+        })
+      }
 
       const selection = await vscode.window.showQuickPick(options, {
         title: 'Update Commit Messages Configuration',
@@ -116,7 +130,14 @@ export const handle_setup_api_tool = async (
         }
         config.temperature = new_temperature
         updated = true
+      } else if (selection.label == edit_instructions_label) {
+        await vscode.commands.executeCommand(
+          'workbench.action.openSettings',
+          'codeWebChat.commitMessageInstructions'
+        )
+        return
       }
+
       if (updated) {
         await providers_manager.save_commit_messages_tool_config(config)
       }

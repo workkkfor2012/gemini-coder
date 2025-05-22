@@ -11,12 +11,10 @@
   <br/>
   👉 Generate meaningful commit messages
   </h4>
-
-<a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
-<a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x" alt="X"></a>
-<a href="https://www.reddit.com/r/CodeWebChat"><img src="https://img.shields.io/badge/Join_subreddit-r%2FCodeWebChat-orange?logo=reddit&logoColor=white" alt="Join subreddit r/CodeWebChat on Reddit"></a>
-<br/>
-
+  <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace"></a>
+  <a href="https://x.com/CodeWebChat"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x" alt="X"></a>
+  <a href="https://www.reddit.com/r/CodeWebChat"><img src="https://img.shields.io/badge/Join_subreddit-r%2FCodeWebChat-orange?logo=reddit&logoColor=white" alt="Join subreddit r/CodeWebChat on Reddit"></a>
+  <br/>
 </div>
 
 <a href="https://codeweb.chat/">Documentation</a>
