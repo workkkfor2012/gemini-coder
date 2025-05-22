@@ -1,3 +1,9 @@
+---
+sidebar_position: 1
+title: Intro
+hide_title: true
+---
+
 <div align="center">
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="128" />
   <br/>

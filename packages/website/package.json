@@ -2,8 +2,9 @@
   "name": "my-website",
   "scripts": {
     "docusaurus": "docusaurus",
-    "dev": "docusaurus start",
-    "build": "docusaurus build",
+    "dev": "npm run copy-readme && docusaurus start",
+    "build": "npm run copy-readme && docusaurus build",
+    "copy-readme": "node scripts/copy-readme.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",

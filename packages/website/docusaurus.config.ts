@@ -23,6 +23,7 @@ const config: Config = {
       'classic',
       {
         docs: {
+          routeBasePath: '/',
           sidebarPath: './sidebars.ts',
           editUrl:
             'https://github.com/robertpiosik/CodeWebChat/tree/master/packages/website/'
@@ -119,7 +120,7 @@ const config: Config = {
       //     ],
       //   },
       // ],
-      copyright: `Copyright © ${new Date().getFullYear()}-present Robert Piosik. GPL-3.0 license.`
+      copyright: `Copyright © ${new Date().getFullYear()} Robert Piosik. GPL-3.0 license.`
     },
     prism: {
       theme: prismThemes.github,
