@@ -2,9 +2,18 @@ import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { ViewProvider } from './view/backend/view-provider'
 import { WebSocketManager } from './services/websocket-manager'
-import { migrate_remove_copilot_presets } from './migrations/migrate-remove-copilot-presets'
-import { migrate_api_tool_settings } from './migrations/migrate-api-tool-settings'
-import { migrate_file_refactoring_to_array } from './migrations/migrate-file-refactoring-to-array'
+import {
+  migrate_remove_copilot_presets,
+  migrate_api_tool_settings,
+  migrate_file_refactoring_to_array,
+  migrate_settings_prefix,
+  migrate_keybindings,
+  migrate_api_keys_to_providers,
+  migrate_api_tool_configs,
+  migrate_api_providers_to_secret_storage,
+  migrate_commit_message_prompt_to_instructions,
+  migrate_chat_code_completion_instructions
+} from './migrations'
 import {
   apply_chat_response_command,
   refactor_commands,
@@ -32,12 +41,6 @@ import {
   open_settings_command,
   open_url_command
 } from './commands'
-import { migrate_settings_prefix } from './migrations/migrate-settings-prefix'
-import { migrate_keybindings } from './migrations/migrate-keybindings'
-import { migrate_api_keys_to_providers } from './migrations/migrate-api-keys-to-providers'
-import { migrate_api_tool_configs } from './migrations/migrate-api-tool-configs'
-import { migrate_api_providers_to_secret_storage } from './migrations/migrate-api-providers-to-secret-storage'
-import { migrate_commit_message_prompt_to_instructions } from './migrations/migrate-commit-message-prompt-to-instructions'
 
 // Store WebSocketServer instance at module level
 let websocket_server_instance: WebSocketManager | null = null
@@ -70,6 +73,7 @@ export async function activate(context: vscode.ExtensionContext) {
     await migrate_file_refactoring_to_array(context)
     // Remove a few weeks after 25 May 2025
     await migrate_commit_message_prompt_to_instructions(context)
+    await migrate_chat_code_completion_instructions(context)
   }
 
   await migrations()

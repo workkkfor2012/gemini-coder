@@ -48,7 +48,7 @@ export const handle_send_prompt = async (
 
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const chat_code_completion_instructions = config.get<string>(
-      'chatCodeCompletionInstructions'
+      'chatCodeCompletionsInstructions'
     )
 
     const instructions = `${chat_code_completion_instructions}${

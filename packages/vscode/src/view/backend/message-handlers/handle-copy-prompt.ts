@@ -38,11 +38,11 @@ export const handle_copy_prompt = async (
 
     // Use the configurable instruction for code completions copy
     const config = vscode.workspace.getConfiguration('codeWebChat')
-    const chatCodeCompletionInstructions = config.get<string>(
-      'chatCodeCompletionInstructions'
+    const chatCodeCompletionsInstructions = config.get<string>(
+      'chatCodeCompletionsInstructions'
     )
 
-    const instructions = `${chatCodeCompletionInstructions}${
+    const instructions = `${chatCodeCompletionsInstructions}${
       current_instruction ? ` Follow suggestions: ${current_instruction}` : ''
     }`
 

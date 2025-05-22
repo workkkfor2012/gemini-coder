@@ -71,7 +71,7 @@ async function handle_code_completion_in_chat_command(
 
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const chat_code_completion_instructions = config.get<string>(
-      'chatCodeCompletionInstructions'
+      'chatCodeCompletionsInstructions'
     )
 
     const instructions = `${chat_code_completion_instructions}${

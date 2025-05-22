@@ -652,10 +652,10 @@
           "description": "Style instructions for chat responses when using diff format.",
           "default": "Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch."
         },
-        "codeWebChat.chatCodeCompletionInstructions": {
+        "codeWebChat.chatCodeCompletionsInstructions": {
           "type": "string",
           "scope": "resource",
-          "description": "Instruction for code completion in chat",
+          "description": "Instructions for code completions in chat.",
           "default": "Find correct replacement text for the <missing text> symbol. Correctly formatted response begins with a code block containing replacement text end then proceeds with explanation. Always refer to symbol \"<missing_text>\" as \"cursor position\" and \"replacement\" as \"completion\"."
         },
         "codeWebChat.presets": {
