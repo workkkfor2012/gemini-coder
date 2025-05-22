@@ -2,8 +2,8 @@
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="60">
   <br/>
   <h1>Code Web Chat (CWC)</h1>
-  <h4 style="line-height: 1.8">
-  👉 Select context, type instructions and continue in Chrome or Firefox
+  <h4 style="line-height: 2">
+  👉 Select context, ask anything and initialize a web chat hands-free!
   <br/>
   👉 Apply chat responses in truncated, whole or diff edit formats
   <br/>
