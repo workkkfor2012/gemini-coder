@@ -8,13 +8,19 @@ import {
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
 
+type SupportedTool = 'commit-messages' | 'some-other-introduced-later'
+
+const DEFAULT_TEMPERATURE: { [key in SupportedTool]: number } = {
+  'commit-messages': 0.3,
+  'some-other-introduced-later': 0.3
+}
+
 export const handle_setup_api_tool = async (params: {
   provider: ViewProvider
-  tool: 'commit-messages' | 'some-other-introduced-later'
+  tool: SupportedTool
 }): Promise<void> => {
   const providers_manager = new ApiProvidersManager(params.provider.context)
   const model_fetcher = new ModelFetcher()
-  const default_temperature = 0.3
 
   const current_config =
     await providers_manager.get_commit_messages_tool_config()
@@ -26,11 +32,9 @@ export const handle_setup_api_tool = async (params: {
   }
 
   async function setup_new_config() {
-    // Step 1: Select provider
     const provider_info = await select_provider()
     if (!provider_info) return
 
-    // Step 2: Select model
     const model = await select_model(provider_info)
     if (!model) return
 
@@ -38,7 +42,7 @@ export const handle_setup_api_tool = async (params: {
       provider_type: provider_info.type,
       provider_name: provider_info.name,
       model,
-      temperature: default_temperature
+      temperature: DEFAULT_TEMPERATURE[params.tool]
     }
 
     await providers_manager.save_commit_messages_tool_config(config)
@@ -60,7 +64,9 @@ export const handle_setup_api_tool = async (params: {
         {
           label: temperature_label,
           description: `${config.temperature.toString()}${
-            config.temperature == default_temperature ? ' (default)' : ''
+            config.temperature == DEFAULT_TEMPERATURE[params.tool]
+              ? ' (default)'
+              : ''
           }`
         }
       ]
@@ -103,7 +109,7 @@ export const handle_setup_api_tool = async (params: {
           provider_type: provider_info.type,
           provider_name: provider_info.name,
           model,
-          temperature: default_temperature
+          temperature: DEFAULT_TEMPERATURE[params.tool]
         }
         updated = true
       } else if (selection.label == model_label) {
@@ -120,7 +126,7 @@ export const handle_setup_api_tool = async (params: {
           return
         }
         config.model = new_model
-        config.temperature = default_temperature
+        config.temperature = DEFAULT_TEMPERATURE[params.tool]
         updated = true
       } else if (selection.label == temperature_label) {
         const new_temperature = await set_temperature(config.temperature)
@@ -245,7 +251,7 @@ export const handle_setup_api_tool = async (params: {
     })
 
     if (temperature_input === undefined || temperature_input == '') {
-      return default_temperature
+      return DEFAULT_TEMPERATURE[params.tool]
     }
 
     return Number(temperature_input)
