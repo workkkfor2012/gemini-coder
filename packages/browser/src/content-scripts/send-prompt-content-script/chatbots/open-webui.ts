@@ -174,6 +174,8 @@ export const open_webui: Chatbot = {
           apply_response_button,
           params.footer.children[params.footer.children.length]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()

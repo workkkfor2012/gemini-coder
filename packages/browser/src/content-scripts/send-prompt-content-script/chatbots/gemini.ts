@@ -128,6 +128,8 @@ export const gemini: Chatbot = {
           apply_response_button,
           params.footer.children[5]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()

@@ -78,6 +78,8 @@ export const mistral: Chatbot = {
           apply_response_button,
           params.footer.children[0]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()

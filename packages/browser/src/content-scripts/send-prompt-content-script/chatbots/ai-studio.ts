@@ -182,6 +182,8 @@ export const ai_studio: Chatbot = {
           apply_response_button,
           params.footer.children[2]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()

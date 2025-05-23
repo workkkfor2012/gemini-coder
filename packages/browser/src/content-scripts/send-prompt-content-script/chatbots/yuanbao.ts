@@ -96,7 +96,10 @@ export const yuanbao: Chatbot = {
       let has_eligible_block = false
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text = code_block?.textContent?.split('\n')[0]
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
@@ -127,6 +130,8 @@ export const yuanbao: Chatbot = {
           apply_response_button,
           params.footer.children[6]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()

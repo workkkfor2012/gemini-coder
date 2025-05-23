@@ -108,6 +108,8 @@ export const chatgpt: Chatbot = {
           apply_response_button,
           params.footer.children[params.footer.children.length - 1]
         )
+
+        apply_response_button.focus()
       }
 
       create_apply_response_button()
