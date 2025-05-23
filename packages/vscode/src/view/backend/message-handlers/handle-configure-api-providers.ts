@@ -202,13 +202,13 @@ export const handle_configure_api_providers = async (
     )
 
     const back_label = '$(arrow-left) Back'
-    const custom_label = '$(edit) Custom...'
+    const custom_label = '$(edit) Custom endpoint...'
 
     const items: vscode.QuickPickItem[] = [
       ...(saved_providers.length > 0 ? [{ label: back_label }] : []),
       {
         label: custom_label,
-        description: 'Any OpenAI-API compatible provider'
+        description: 'You can use any OpenAI-API compatible provider'
       },
       {
         label: '',
@@ -226,8 +226,7 @@ export const handle_configure_api_providers = async (
 
     const selected = await vscode.window.showQuickPick(items, {
       title: 'Select Provider Type',
-      placeHolder: 'Choose a predefined provider or create a custom one',
-      ignoreFocusOut: true
+      placeHolder: 'Choose a predefined provider or create a custom one'
     })
 
     if (!selected) {

@@ -40,5 +40,8 @@ export const PROVIDERS = {
   },
   TogetherAI: {
     base_url: 'https://api.together.xyz/v1'
+  },
+  xAI: {
+    base_url: 'https://api.x.ai/v1'
   }
 } satisfies Providers

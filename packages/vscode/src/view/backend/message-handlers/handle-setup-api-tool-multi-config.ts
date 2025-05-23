@@ -9,6 +9,7 @@ import {
 } from '@/services/api-providers-manager'
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
+import { Logger } from '@/helpers/logger'
 
 type SupportedTool = 'code-completions' | 'file-refactoring'
 
@@ -339,179 +340,212 @@ export const handle_setup_api_tool_multi_config = async (params: {
     const set_as_default_label = '$(star) Set as default'
     const unset_default_label = '$(star-full) Unset default'
 
-    const is_default =
-      default_config &&
-      default_config.provider_type == config.provider_type &&
-      default_config.provider_name == config.provider_name &&
-      default_config.model == config.model
-
-    const edit_options = [
-      { label: back_label },
-      { label: '', kind: vscode.QuickPickItemKind.Separator },
-      {
-        label: `Provider`,
-        description: config.provider_name
-      },
-      { label: `Model`, description: config.model },
-      {
-        label: `Temperature`,
-        description: config.temperature.toString()
-      }
-    ]
-
-    if (is_default) {
-      edit_options.push({
-        label: unset_default_label
-      })
-    } else {
-      edit_options.push({
-        label: set_as_default_label
-      })
-    }
-
-    const selected_option = await vscode.window.showQuickPick(edit_options, {
-      title: `Edit Configuration: ${config.provider_name} / ${config.model}`,
-      placeHolder: 'Select what to update',
-      ignoreFocusOut: true
-    })
-
-    if (!selected_option || selected_option.label == back_label) {
-      return
-    }
-
-    if (selected_option.label == set_as_default_label) {
-      default_config = { ...config }
-      await tool_methods.set_default_config(default_config)
-      return
-    }
-
-    if (selected_option.label == unset_default_label) {
-      default_config = undefined
-      await tool_methods.set_default_config(null)
-      return
-    }
-
-    const original_config_state = { ...config }
-    const updated_config_state = { ...config }
-    let config_changed_in_this_step = false
-
-    if (selected_option.label.startsWith('Provider')) {
-      const new_provider = await select_provider()
-      if (!new_provider) {
-        await edit_configuration(config)
-        return
-      }
-
-      const new_model = await select_model(new_provider)
-      if (!new_model) {
-        await edit_configuration(config)
-        return
-      }
-
-      if (
-        new_provider.type != config.provider_type ||
-        new_provider.name != config.provider_name ||
-        new_model != config.model
-      ) {
-        updated_config_state.provider_type = new_provider.type
-        updated_config_state.provider_name = new_provider.name
-        updated_config_state.model = new_model
-        config_changed_in_this_step = true
-      } else {
-        await edit_configuration(config)
-        return
-      }
-    } else if (selected_option.label.startsWith('Model')) {
-      const provider_info = {
-        type: config.provider_type,
-        name: config.provider_name
-      }
-
-      const new_model = await select_model(
-        provider_info as Pick<Provider, 'type' | 'name'>
-      )
-      if (!new_model) {
-        await edit_configuration(config)
-        return
-      }
-
-      if (new_model != config.model) {
-        updated_config_state.model = new_model
-        config_changed_in_this_step = true
-      } else {
-        await edit_configuration(config)
-        return
-      }
-    } else if (selected_option.label.startsWith('Temperature')) {
-      const new_temperature = await set_temperature(config.temperature)
-      if (new_temperature === undefined) {
-        await edit_configuration(config)
-        return
-      }
-
-      if (new_temperature != config.temperature) {
-        updated_config_state.temperature = new_temperature
-        config_changed_in_this_step = true
-      } else {
-        await edit_configuration(config)
-        return
-      }
-    } else {
-      await edit_configuration(config)
-      return
-    }
-
-    if (config_changed_in_this_step) {
-      const original_config_in_array = current_configs.find(
-        (c) =>
-          c.provider_name == original_config_state.provider_name &&
-          c.provider_type == original_config_state.provider_type &&
-          c.model == original_config_state.model
-      )
-
-      const would_be_duplicate = current_configs.some(
-        (c) =>
-          c !== original_config_in_array &&
-          c.provider_type == updated_config_state.provider_type &&
-          c.provider_name == updated_config_state.provider_name &&
-          c.model == updated_config_state.model
-      )
-
-      if (would_be_duplicate) {
-        vscode.window.showErrorMessage(
-          `A configuration for ${updated_config_state.model} provided by ${updated_config_state.provider_name} already exists.`
-        )
-        await edit_configuration(config)
-        return
-      }
-
-      const index = current_configs.findIndex(
-        (c) =>
-          c.provider_name == original_config_state.provider_name &&
-          c.provider_type == original_config_state.provider_type &&
-          c.model == original_config_state.model
-      )
-
-      if (index != -1) {
-        current_configs[index] = updated_config_state
-        await tool_methods.save_configs(current_configs)
-
-        if (
-          default_config &&
-          default_config.provider_type == original_config_state.provider_type &&
-          default_config.provider_name == original_config_state.provider_name &&
-          default_config.model == original_config_state.model
-        ) {
-          default_config = updated_config_state
-          await tool_methods.set_default_config(updated_config_state)
+    const create_edit_options = () => {
+      const options = [
+        { label: back_label },
+        { label: '', kind: vscode.QuickPickItemKind.Separator },
+        {
+          label: `Provider`,
+          description: config.provider_name
+        },
+        { label: `Model`, description: config.model },
+        {
+          label: `Temperature`,
+          description: config.temperature.toString()
         }
+      ]
+
+      const current_is_default =
+        default_config &&
+        default_config.provider_type == config.provider_type &&
+        default_config.provider_name == config.provider_name &&
+        default_config.model == config.model
+
+      if (current_is_default) {
+        options.push({
+          label: unset_default_label
+        })
       } else {
-        console.error('Could not find original config in array to update.')
-        return
+        options.push({
+          label: set_as_default_label
+        })
       }
+
+      return options
     }
 
-    await edit_configuration(updated_config_state)
+    const quick_pick = vscode.window.createQuickPick()
+    quick_pick.items = create_edit_options()
+    quick_pick.title = `Edit Configuration: ${config.provider_name} / ${config.model}`
+    quick_pick.placeholder = 'Select what to update'
+
+    return new Promise<void>((resolve) => {
+      quick_pick.onDidAccept(async () => {
+        const selected_option = quick_pick.selectedItems[0]
+        if (!selected_option || selected_option.label == back_label) {
+          quick_pick.hide()
+          resolve()
+          return
+        }
+
+        if (selected_option.label == set_as_default_label) {
+          default_config = { ...config }
+          await tool_methods.set_default_config(default_config)
+          quick_pick.items = create_edit_options()
+          return
+        }
+
+        if (selected_option.label == unset_default_label) {
+          default_config = undefined
+          await tool_methods.set_default_config(null)
+          quick_pick.items = create_edit_options()
+          return
+        }
+
+        quick_pick.hide()
+
+        const original_config_state = { ...config }
+        const updated_config_state = { ...config }
+        let config_changed_in_this_step = false
+
+        if (selected_option.label.startsWith('Provider')) {
+          const new_provider = await select_provider()
+          if (!new_provider) {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+
+          const new_model = await select_model(new_provider)
+          if (!new_model) {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+
+          if (
+            new_provider.type != config.provider_type ||
+            new_provider.name != config.provider_name ||
+            new_model != config.model
+          ) {
+            updated_config_state.provider_type = new_provider.type
+            updated_config_state.provider_name = new_provider.name
+            updated_config_state.model = new_model
+            config_changed_in_this_step = true
+          } else {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+        } else if (selected_option.label.startsWith('Model')) {
+          const provider_info = {
+            type: config.provider_type,
+            name: config.provider_name
+          }
+
+          const new_model = await select_model(
+            provider_info as Pick<Provider, 'type' | 'name'>
+          )
+          if (!new_model) {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+
+          if (new_model != config.model) {
+            updated_config_state.model = new_model
+            config_changed_in_this_step = true
+          } else {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+        } else if (selected_option.label.startsWith('Temperature')) {
+          const new_temperature = await set_temperature(config.temperature)
+          if (new_temperature === undefined) {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+
+          if (new_temperature != config.temperature) {
+            updated_config_state.temperature = new_temperature
+            config_changed_in_this_step = true
+          } else {
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+        } else {
+          await edit_configuration(config)
+          resolve()
+          return
+        }
+
+        if (config_changed_in_this_step) {
+          const original_config_in_array = current_configs.find(
+            (c) =>
+              c.provider_name == original_config_state.provider_name &&
+              c.provider_type == original_config_state.provider_type &&
+              c.model == original_config_state.model
+          )
+
+          const would_be_duplicate = current_configs.some(
+            (c) =>
+              c !== original_config_in_array &&
+              c.provider_type == updated_config_state.provider_type &&
+              c.provider_name == updated_config_state.provider_name &&
+              c.model == updated_config_state.model
+          )
+
+          if (would_be_duplicate) {
+            vscode.window.showErrorMessage(
+              `A configuration for ${updated_config_state.model} provided by ${updated_config_state.provider_name} already exists.`
+            )
+            await edit_configuration(config)
+            resolve()
+            return
+          }
+
+          const index = current_configs.findIndex(
+            (c) =>
+              c.provider_name == original_config_state.provider_name &&
+              c.provider_type == original_config_state.provider_type &&
+              c.model == original_config_state.model
+          )
+
+          if (index != -1) {
+            current_configs[index] = updated_config_state
+            await tool_methods.save_configs(current_configs)
+
+            if (
+              default_config &&
+              default_config.provider_type ==
+                original_config_state.provider_type &&
+              default_config.provider_name ==
+                original_config_state.provider_name &&
+              default_config.model == original_config_state.model
+            ) {
+              default_config = updated_config_state
+              await tool_methods.set_default_config(updated_config_state)
+            }
+          } else {
+            console.error('Could not find original config in array to update.')
+            resolve()
+            return
+          }
+        }
+
+        await edit_configuration(updated_config_state)
+        resolve()
+      })
+
+      quick_pick.onDidHide(() => {
+        resolve()
+      })
+
+      quick_pick.show()
+    })
   }
 
   async function select_provider(): Promise<
@@ -588,7 +622,11 @@ export const handle_setup_api_tool_multi_config = async (params: {
 
       return selected?.description || selected?.label
     } catch (error) {
-      console.error('Error fetching models:', error)
+      Logger.error({
+        function_name: 'select_model',
+        message: 'Failed to fetch models',
+        data: error
+      })
       vscode.window.showErrorMessage(
         `Failed to fetch models: ${
           error instanceof Error ? error.message : String(error)

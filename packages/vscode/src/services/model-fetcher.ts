@@ -1,3 +1,4 @@
+import { Logger } from '@/helpers/logger'
 import { PROVIDERS } from '@shared/constants/providers'
 import axios from 'axios'
 
@@ -22,7 +23,10 @@ type ApiResponse = {
 export class ModelFetcher {
   private _fetched_providers: ProviderModels = {}
 
-  public async get_models(params: { base_url: string; api_key?: string }) {
+  public async get_models(params: {
+    base_url: string
+    api_key?: string
+  }): Promise<Model[]> {
     if (this._fetched_providers[params.base_url]) {
       return this._fetched_providers[params.base_url]
     }
@@ -59,11 +63,25 @@ export class ModelFetcher {
 
       return models
     } catch (error) {
-      console.error(
-        `Error fetching models from ${params.base_url}/models:`,
-        error
-      )
-      return []
+      Logger.error({
+        function_name: 'get_models',
+        message: 'Failed to fetch models',
+        data: error
+      })
+      if (axios.isAxiosError(error)) {
+        if (
+          error.response?.status &&
+          error.response?.status >= 400 &&
+          error.response?.status < 500
+        ) {
+          throw new Error('Invalid API key')
+        } else if (error.response?.status && error.response.status >= 500) {
+          throw new Error('Server error')
+        } else if (error.request) {
+          throw new Error('Network error')
+        }
+      }
+      throw error
     }
   }
 }
