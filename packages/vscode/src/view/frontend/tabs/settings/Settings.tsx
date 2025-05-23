@@ -63,7 +63,7 @@ export const Settings: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on complexity of the problem.',
+          'The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on difficulty of the completion.',
         on_setup_click: handle_setup_code_completions_click,
         button_label: 'Setup Code Completions API Tool',
         checkmarks: ['Includes selected context', 'Works great with any model']
