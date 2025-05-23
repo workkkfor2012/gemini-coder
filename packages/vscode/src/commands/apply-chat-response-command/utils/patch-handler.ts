@@ -125,9 +125,7 @@ export async function extract_diff_patches(
 
 export function extract_file_paths_from_patch(patch_content: string): string[] {
   const file_paths: string[] = []
-  // Normalize line endings to LF
-  const normalized_content = patch_content.replace(/\r\n/g, '\n')
-  const lines = normalized_content.split('\n')
+  const lines = patch_content.split('\n')
 
   for (const line of lines) {
     // Look for lines starting with +++ b/ which indicate target files in git patches
@@ -302,19 +300,12 @@ export async function apply_git_patch(
   let closed_files: vscode.Uri[] = []
 
   try {
-    // Normalize line endings to LF for git
-    const normalized_patch_content = patch_content.replace(/\r\n/g, '\n')
-
-    // Extract file paths from the patch
-    const file_paths = extract_file_paths_from_patch(normalized_patch_content)
-
-    // Store original file states before applying patch
+    const file_paths = extract_file_paths_from_patch(patch_content)
     const original_states = await store_original_file_states(
-      normalized_patch_content,
+      patch_content,
       workspace_path
     )
 
-    // Close all files before applying patch to prevent conflicts
     closed_files = await close_files_in_all_editor_groups(
       file_paths,
       workspace_path
@@ -324,14 +315,13 @@ export async function apply_git_patch(
     const temp_file = path.join(workspace_path, '.tmp_patch')
     await vscode.workspace.fs.writeFile(
       vscode.Uri.file(temp_file),
-      Buffer.from(normalized_patch_content)
+      Buffer.from(patch_content)
     )
 
     // Apply the patch
     try {
+      let used_fallback = false
       try {
-        // Attempt to apply the patch using git
-        // Add the --ignore-whitespace flag to handle whitespace differences on Windows
         await execAsync(
           'git apply --whitespace=fix --ignore-whitespace ' + temp_file,
           {
@@ -349,11 +339,15 @@ export async function apply_git_patch(
         if ((await process_diff_patch(file_path_safe, temp_file)) == false) {
           throw new Error('Failed to apply diff patch for all methods')
         }
+
+        used_fallback = true
       }
 
       Logger.log({
         function_name: 'apply_git_patch',
-        message: 'Patch applied successfully',
+        message: `Patch applied successfully${
+          used_fallback ? ' using fallback' : ''
+        }`,
         data: { workspace_path }
       })
 
