@@ -44,7 +44,7 @@ All files in your project and allows batch selections. Gitignored or non-code fi
 
 ### Websites
 
-Websites selected in the popup of the [web browser integration](/docs/installation/web-browser-integration).
+Websites selected in the popup of the [web browser integration](/installation/web-browser-integration).
 
 ## Available commands
 
