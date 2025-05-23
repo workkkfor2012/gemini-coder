@@ -14,7 +14,8 @@ import {
   openrouter,
   qwen,
   yuanbao,
-  doubao
+  doubao,
+  huggingchat
 } from './chatbots'
 
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
@@ -65,9 +66,8 @@ const is_grok = current_url.startsWith(grok_url)
 const doubao_url = 'https://www.doubao.com/chat/'
 const is_doubao = current_url.startsWith(doubao_url)
 
-// No need for special handling
-// const huggingchat_url = 'https://huggingface.co/chat/'
-// const is_huggingchat = current_url == huggingchat_url
+const huggingchat_url = 'https://huggingface.co/chat/'
+const is_huggingchat = current_url.startsWith(huggingchat_url)
 
 const is_open_webui = document.title.includes('Open WebUI')
 
@@ -97,6 +97,8 @@ if (is_ai_studio) {
   chatbot = yuanbao
 } else if (is_doubao) {
   chatbot = doubao
+} else if (is_huggingchat) {
+  chatbot = huggingchat
 }
 
 export const get_textarea_element = () => {
