@@ -401,7 +401,6 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  temperature: file_refactoring_config.temperature,
                   clipboard_text: failed_patches_text,
                   context: context,
                   is_single_root_folder_workspace
@@ -513,7 +512,6 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  temperature: file_refactoring_config.temperature,
                   clipboard_text: all_patches_text,
                   context: context,
                   is_single_root_folder_workspace
@@ -647,7 +645,6 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
             endpoint_url,
             api_key: provider.api_key,
             model: file_refactoring_config.model,
-            temperature: file_refactoring_config.temperature,
             clipboard_text,
             context: context,
             is_single_root_folder_workspace
@@ -755,7 +752,6 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  temperature: file_refactoring_config.temperature,
                   clipboard_text,
                   context: context,
                   is_single_root_folder_workspace

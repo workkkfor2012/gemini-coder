@@ -24,7 +24,6 @@ async function process_file(params: {
   endpoint_url: string
   api_key: string
   model: string
-  temperature: number
   file_path: string
   file_content: string
   instruction: string
@@ -52,7 +51,7 @@ async function process_file(params: {
   const body = {
     messages,
     model: params.model,
-    temperature: params.temperature
+    temperature: 0
   }
 
   Logger.log({
@@ -145,7 +144,6 @@ export async function handle_intelligent_update(params: {
   endpoint_url: string
   api_key: string
   model: string
-  temperature: number
   clipboard_text: string
   context: vscode.ExtensionContext
   is_single_root_folder_workspace: boolean
@@ -471,7 +469,6 @@ export async function handle_intelligent_update(params: {
                 endpoint_url: params.endpoint_url,
                 api_key: params.api_key,
                 model: params.model,
-                temperature: params.temperature,
                 file_path: file.file_path,
                 file_content: original_content_for_api, // Send original content to AI
                 instruction: file.content, // Clipboard content is the instruction
