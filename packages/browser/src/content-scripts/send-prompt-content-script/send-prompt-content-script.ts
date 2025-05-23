@@ -22,10 +22,14 @@ const current_url = window.location.href
 
 // Extract batch ID from URL hash if available
 const hash = window.location.hash
-const hash_prefix = '#gemini-coder'
-const is_gemini_coder_hash = hash.startsWith(hash_prefix)
+const hash_prefix_old = '#gemini-coder'
+const hash_prefix_new = '#cwc'
+const is_gemini_coder_hash = hash.startsWith(hash_prefix_old)
+const is_cwc_hash = hash.startsWith(hash_prefix_new)
 const batch_id = is_gemini_coder_hash
-  ? hash.substring(hash_prefix.length + 1) || 'default'
+  ? hash.substring(hash_prefix_old.length + 1) || 'default'
+  : is_cwc_hash
+  ? hash.substring(hash_prefix_new.length + 1) || 'default'
   : ''
 
 const ai_studio_url = 'https://aistudio.google.com/prompts/new_chat'
