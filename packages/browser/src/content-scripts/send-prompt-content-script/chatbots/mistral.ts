@@ -64,7 +64,7 @@ export const mistral: Chatbot = {
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
           const copy_button = params.footer.querySelector(
-            'button:nth-of-type(4)'
+            'button:last-child'
           ) as HTMLElement
           copy_button.click()
           await new Promise((resolve) => setTimeout(resolve, 500))
@@ -98,7 +98,7 @@ export const mistral: Chatbot = {
         }
 
         const all_footers = document.querySelectorAll(
-          'div[class="flex min-h-8 w-full flex-row items-center justify-between gap-2 py-1 font-normal transition-opacity group-hover:opacity-100 opacity-100 mb-2"] > div:last-child'
+          'div.group:nth-child(even) > div > div:last-child > div:last-child'
         )
 
         all_footers.forEach((footer) => {
