@@ -10,9 +10,12 @@ import {
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
 
-const DEFAULT_TEMPERATURE = 0.2
-
 type SupportedTool = 'code-completions' | 'file-refactoring'
+
+const DEFAULT_TEMPERATURE: { [key in SupportedTool]: number } = {
+  'code-completions': 0.2,
+  'file-refactoring': 0.2
+}
 
 interface ToolMethods {
   get_configs: () => Promise<ToolConfig[]>
@@ -323,7 +326,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
       provider_type: provider_info.type,
       provider_name: provider_info.name,
       model,
-      temperature: DEFAULT_TEMPERATURE
+      temperature: DEFAULT_TEMPERATURE[params.tool]
     }
 
     current_configs.push(new_config)
