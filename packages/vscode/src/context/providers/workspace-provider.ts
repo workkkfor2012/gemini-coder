@@ -5,6 +5,7 @@ import ignore from 'ignore'
 import { ignored_extensions } from '../constants/ignored-extensions'
 import { should_ignore_file } from '../utils/extension-utils'
 import { natural_sort } from '../../utils/natural-sort'
+import { Logger } from '@/helpers/logger'
 
 export class WorkspaceProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
@@ -92,10 +93,11 @@ export class WorkspaceProvider
           this.file_workspace_map.set(file, workspace_root)
         }
       } catch (error) {
-        console.error(
-          `Error mapping files for workspace ${workspace_root}:`,
-          error
-        )
+        Logger.error({
+          function_name: 'update_file_workspace_mapping',
+          message: `Error mapping files for workspace ${workspace_root}`,
+          data: error
+        })
       }
     }
   }
@@ -126,7 +128,11 @@ export class WorkspaceProvider
         }
       }
     } catch (error) {
-      console.error(`Error finding files in ${dir_path}:`, error)
+      Logger.error({
+        function_name: 'find_all_files',
+        message: `Error finding files in ${dir_path}`,
+        data: error
+      })
     }
 
     return results
@@ -626,7 +632,11 @@ export class WorkspaceProvider
 
       return token_count
     } catch (error) {
-      console.error(`Error calculating tokens for ${file_path}:`, error)
+      Logger.error({
+        function_name: 'calculate_file_tokens',
+        message: `Error calculating tokens for ${file_path}`,
+        data: error
+      })
       return 0
     }
   }
@@ -702,10 +712,11 @@ export class WorkspaceProvider
 
       return total_tokens
     } catch (error) {
-      console.error(
-        `Error calculating tokens for directory ${dir_path}:`,
-        error
-      )
+      Logger.error({
+        function_name: 'calculate_directory_tokens',
+        message: `Error calculating tokens for directory ${dir_path}`,
+        data: error
+      })
       return 0
     }
   }
@@ -825,7 +836,11 @@ export class WorkspaceProvider
         items.push(item)
       }
     } catch (error) {
-      console.error(`Error reading directory ${dir_path}:`, error)
+      Logger.error({
+        function_name: 'get_files_and_directories',
+        message: `Error reading directory ${dir_path}`,
+        data: error
+      })
     }
     return items
   }
@@ -940,7 +955,11 @@ export class WorkspaceProvider
         this.partially_checked_dirs.delete(dir_path)
       }
     } catch (error) {
-      console.error(`Error updating parent state for ${dir_path}:`, error)
+      Logger.error({
+        function_name: 'update_parent_state',
+        message: `Error updating parent state for ${dir_path}`,
+        data: error
+      })
     }
   }
 
@@ -1003,10 +1022,11 @@ export class WorkspaceProvider
         }
       }
     } catch (error) {
-      console.error(
-        `Error updating directory check state for ${dir_path}:`,
-        error
-      )
+      Logger.error({
+        function_name: 'update_directory_check_state',
+        message: `Error updating directory check state for ${dir_path}`,
+        data: error
+      })
     }
   }
 
@@ -1111,10 +1131,11 @@ export class WorkspaceProvider
 
         this.combined_gitignore.add(rules_with_prefix)
       } catch (error) {
-        console.error(
-          `Error reading .gitignore file at ${gitignore_path}:`,
-          error
-        )
+        Logger.error({
+          function_name: 'load_all_gitignore_files',
+          message: `Error reading .gitignore file at ${gitignore_path}`,
+          data: error
+        })
       }
     }
 
@@ -1210,10 +1231,11 @@ export class WorkspaceProvider
         }
       } catch (error) {
         // Handle cases where the file might have been deleted since get_checked_files was called
-        console.error(
-          `Error accessing file ${file_path} for token count:`,
-          error
-        )
+        Logger.error({
+          function_name: 'get_checked_files_token_count',
+          message: `Error accessing file ${file_path} for token count`,
+          data: error
+        })
       }
     }
 
