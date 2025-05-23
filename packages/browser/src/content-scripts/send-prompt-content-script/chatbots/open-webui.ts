@@ -139,8 +139,11 @@ export const open_webui: Chatbot = {
       for (const code_block of Array.from(code_blocks)) {
         const first_line_text =
           code_block?.querySelector('.cm-line')?.textContent
-        console.log(first_line_text)
-        if (first_line_text && extract_path_from_line_of_code(first_line_text)) {
+
+        if (
+          first_line_text &&
+          extract_path_from_line_of_code(first_line_text)
+        ) {
           has_eligible_block = true
           break
         }
@@ -157,7 +160,7 @@ export const open_webui: Chatbot = {
         apply_response_button.addEventListener('click', async () => {
           set_button_disabled_state(apply_response_button)
           const copy_button = params.footer.querySelector(
-            'div[aria-label]:nth-of-type(2) > button' // aria-label could be transalted
+            'button.copy-response-button'
           ) as HTMLElement
           copy_button.click()
           await new Promise((resolve) => setTimeout(resolve, 500))
