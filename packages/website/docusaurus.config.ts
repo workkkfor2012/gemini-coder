@@ -25,6 +25,7 @@ const config: Config = {
         docs: {
           routeBasePath: '/',
           sidebarPath: './sidebars.ts',
+          path: '../../docs',
           editUrl:
             'https://github.com/robertpiosik/CodeWebChat/tree/master/packages/website/'
         },

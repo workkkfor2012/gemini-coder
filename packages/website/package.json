@@ -2,9 +2,9 @@
   "name": "my-website",
   "scripts": {
     "docusaurus": "docusaurus",
-    "dev": "npm run copy-readme && docusaurus start",
+    "dev": "concurrently \"node copy-readme.js --watch\" \"docusaurus start\"",
     "build": "npm run copy-readme && docusaurus build",
-    "copy-readme": "node scripts/copy-readme.js",
+    "copy-readme": "node copy-readme.js",
     "swizzle": "docusaurus swizzle",
     "deploy": "docusaurus deploy",
     "clear": "docusaurus clear",
@@ -26,6 +26,7 @@
     "@docusaurus/module-type-aliases": "3.7.0",
     "@docusaurus/tsconfig": "3.7.0",
     "@docusaurus/types": "3.7.0",
+    "concurrently": "^8.2.2",
     "typescript": "~5.8.2"
   },
   "browserslist": {
