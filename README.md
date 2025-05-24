@@ -19,19 +19,21 @@
 
 ## What is CWC?
 
-CWC is a non-agentic 100% free & open source VS Code extension for AI-assisted programming.
+CWC enables developers getting the best quality AI-assistance with a game-changing cost efficiency.
+
+✌️ 100% free and open source!
 
 Guiding Principles:
 
-- initialize all popular chatbots
-- don't overengineer AI-assistance
+- initialize popular chatbots but don't game them
+- don’t complicate what can be simple
 - never collect any usage data
 - be robust and lightweight (~1 MB)
 
 CWC is for you if:
 
-- you want the best performance out of LLMs
-- you want to code with your favourite chatbot
+- you're an experienced engineer working on a large project
+- you're a student or hobbyist on a budget
 - you love open source software! 🫶
 
 <p>
@@ -40,30 +42,29 @@ CWC is for you if:
 
 ## You own the context
 
-Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this problem by overloading context with excessive information, hurting model's performance and your wallet.
+Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context hurting model's performance and your wallet.
 
 CWC works differently:
 
 - **You select** which folders and files are relevant to the task
-- **You decide** what examples of coding conventions will work best
-- **You know** exactly how much tokens you have in the context
+- **You know** exactly how many tokens you have in the context
 
-The result? Unmatched in cost, speed and accuracy AI assistance.
+The result? Unmatched in accuracy and cost AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
 ## Web chats
 
-As everyone have their own favorite chatbot, each with unique capabilities, CWC lets you initialize them hands-free!
+Use your favorite chatbot no more tediously copy-pasting contents of files you want to include with your instructions.
 
 **The feature has two modes:**
 
-- General - select context and type instructions
-- Code Completions - select context and place cursor
+- General - ask anything
+- Code Completions - code completion at cursor
 
-Generated prompts are simple and adjustable.
+Prompts can be copied or sent to the browser hands-free!
 
-**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase, either refactoring with API ("Truncated" edit format), replacing original files in place ("Whole" edit format) or patching with diffs ("Diff" edit format).
+**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase by modyfing exisitng files or creating new ones.
 
 **Supported chatbots: _(alphabetically)_**
 
@@ -87,29 +88,37 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 ### Practice single-turns
 
-Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it will not recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and re-initialize**.
+Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it will not recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and re-initialize a chat**.
 
-## 🧰 Tools
+## API Tools
 
-CWC will elevate your coding with battle-tested, must have API features.
+CWC will elevate your workflow with must-have API features.
 
-### 🛠️ Code completions
+### Code completions
 
-Use state-of-the-art reasoning models for accurate code completions. Selected context is included with every request.
+The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on difficulty of the completion.
 
-### 🛠️ File refactoring
+✓ Includes selected context
+<br />
+✓ Works great with any model
 
-Modify the active file based on natural language instructions. Selected context is included with every request.
+### File refactoring
 
-### 🛠️ Apply chat response
+Modify a file based on natural language instructions.
 
-Automatically integrate chat responses with your codebase. The tool detects whether the clipboard-held chat response contains complete files (replaces them), diffs (possible fallback with the file refactoring tool without context) or truncated fragments (always uses file refactoring tool without context).
+✓ Includes selected context
+<br />
+✓ Reliable single-file edits
 
-### 🛠️ Commit messages
+### Commit messages
 
-Generate meaningful commit messages based on contents of affected files and diffs of changes.
+Generate meaningful commit messages. The tool first attaches affected files, then the customizable instructions, then diff of changes. Not lobotomized context ensures unmatched accuracy.
 
-### 🔑 Bring your own API keys
+✓ Includes affected files in full
+<br />
+✓ Customizable instructions
+
+### Bring your own API keys
 
 **Predefined providers: _(alphabetically)_**
 
