@@ -55,7 +55,7 @@ export const handle_setup_api_tool = async (params: {
     const api_provider_label = 'API Provider'
     const model_label = 'Model'
     const temperature_label = 'Temperature'
-    const edit_instructions_label = 'Edit instructions'
+    const edit_instructions_label = 'Instructions'
 
     const show_config_options = async () => {
       const options: vscode.QuickPickItem[] = [
