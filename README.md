@@ -17,7 +17,7 @@
   </p>
 </div>
 
-## What is CWC?
+# What is CWC?
 
 CWC enables developers getting the best quality AI-assistance with a game-changing cost efficiency.
 
@@ -40,7 +40,7 @@ CWC is for you if:
 <img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 </p>
 
-## Context
+# Context
 
 Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context hurting model's performance and your wallet.
 
@@ -53,20 +53,22 @@ The result? Unmatched in accuracy and cost AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
-## Web chats
+# Web chats
 
-Use your favorite chatbot no more tediously copy-pasting contents of files you want to include with your instructions.
+Use your favorite chatbot without tedious copy-pasting contents of files you want to include with your instructions.
 
-**The feature has two modes:**
+**Operates in two modes:**
 
-- General - ask anything
-- Code Completions - code completion at cursor
+- General<br/>_Ask anything_
+- Code Completions <br/>_Ask what fits the cursor position_
 
-Prompts can be copied or sent to the browser hands-free!
+Prompts with context and instructions can be copied to clipboard or sent directly to the chosen chatbot.
 
-**_Apply Chat Response_** is a smart tool that automatically integrates chat responses with the codebase by modyfing exisitng files or creating new ones.
+**Apply Chat Response** is a smart tool that automatically integrates multi-file changes with the codebase by modyfing exisitng files or creating new ones. Works with chat responses in three edit formats: truncated, whole and diff.
 
-**Supported chatbots: _(alphabetically)_**
+### Supported chatbots:
+
+_(alphabetically)_
 
 - AI Studio
 - ChatGPT
@@ -86,41 +88,17 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
-### Practice single-turns
+**TIP: Practice single-turns**
 
 Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it will not recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and re-initialize a chat**.
 
-## API Tools
+# API Tools
 
 CWC will elevate your workflow with must-have API features.
 
-### Code completions
+### Predefined providers
 
-The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on difficulty of the completion.
-
-✓ Includes selected context
-<br />
-✓ Works great with any model
-
-### File refactoring
-
-Modify a file based on natural language instructions.
-
-✓ Includes selected context
-<br />
-✓ Reliable single-file edits
-
-### Commit messages
-
-Generate meaningful commit messages. The tool first attaches affected files, then the customizable instructions, then diff of changes. Not lobotomized context ensures unmatched accuracy.
-
-✓ Includes affected files in full
-<br />
-✓ Customizable instructions
-
-### Bring your own API keys
-
-**Predefined providers: _(alphabetically)_**
+_(alphabetically)_
 
 - Anthropic
 - Cerebras
@@ -138,14 +116,38 @@ Generate meaningful commit messages. The tool first attaches affected files, the
 ℹ️ Any OpenAI-API compatible endpoint works with CWC.<br/>
 🔒️ API keys are stored securely in the [Secret Storage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage).
 
-## Quick start for chat
+## Code completions
+
+The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on difficulty of the completion.
+
+✓ Includes selected context
+<br />
+✓ Works great with any model
+
+## File refactoring
+
+Modify a file based on natural language instructions.
+
+✓ Includes selected context
+<br />
+✓ Reliable single-file edits
+
+## Commit messages
+
+Generate meaningful commit messages. The tool first attaches affected files, then the customizable instructions, then diff of changes. Not lobotomized context ensures unmatched accuracy.
+
+✓ Includes affected files in full
+<br />
+✓ Customizable instructions
+
+# Quick start for chat
 
 1. Open the new Code Web Chat view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
 3. Enter instructions and copy generated prompt.
 4. (optional) Install [browser integration](https://gemini-coder.netlify.app/docs/installation/web-browser-integration) for hands-free initializations.
 
-## Quick start for code completions
+# Quick start for code completions
 
 1. Open the new Code Web Chat view from the activity bar (sparkles icon).
 2. Select folders and files to include in the context.
@@ -153,9 +155,9 @@ Generate meaningful commit messages. The tool first attaches affected files, the
 4. Use Command Palette (Ctrl/Cmd + Shift + P) and type "Code Completion".
 5. Bind the command to a keyboard shortcut by opening Keyboard Shortcuts (Ctrl/Cmd+K Ctrl/Cmd+S), searching for `Code Web Chat: Code Completion`, clicking the + icon, and pressing your preferred key combination (e.g. Ctrl/Cmd+I).
 
-## Commands
+# Commands
 
-#### Code completions
+### Code completions
 
 - `Code Web Chat: Code Completion` - Get code completion.
 - `Code Web Chat: Code Completion with Suggestions` - Get code completion that follows given suggestions.
@@ -164,31 +166,31 @@ Generate meaningful commit messages. The tool first attaches affected files, the
 - `Code Web Chat: Code Completion in Chat` - Send code completion prompt to web chat using default preset.
 - `Code Web Chat: Code Completion in Chat with...` - Send code completion prompt to web chat with preset selection.
 
-#### Refactoring
+### Refactoring
 
 - `Code Web Chat: Refactor` - Refactor active editor.
 - `Code Web Chat: Refactor to Clipboard` - Copy refactoring prompt to clipboard.
 
-#### Applying chat responses
+### Applying chat responses
 
 - `Code Web Chat: Apply Chat Response` - Apply changes suggested by AI using clipboard content.
 - `Code Web Chat: Revert Last Applied Changes` - Revert the last applied changes.
 
-#### Chat
+### Chat
 
 - `Code Web Chat: Web Chat` - Open web chat with default preset.
 - `Code Web Chat: Web Chat with...` - Open web chat with preset selection.
 - `Code Web Chat: Chat to Clipboard` - Enter instructions and copy to clipboard.
 
-#### Context
+### Context
 
 - `Code Web Chat: Copy Context` - Copy selected folders/files and websites to clipboard.
 
-## Community
+# Community
 
 Please be welcomed in [discussions](https://github.com/robertpiosik/CodeWebChat/discussions) and in our subreddit [/r/CodeWebChat](https://www.reddit.com/r/CodeWebChat).
 
-## Donations
+# Donations
 
 If you find CWC helpful, please consider buying the author a [coffee](https://buymeacoffee.com/robertpiosik). Thank you for your support! 🙏
 
@@ -200,11 +202,11 @@ If you find CWC helpful, please consider buying the author a [coffee](https://bu
 
 **XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
 
-## Contributing
+# Contributing
 
 All contributions are welcome. Feel free to submit pull requests, feature requests and bug reports.
 
-## License
+# License
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
 <br/>📨 `robertpiosik@gmail.com`
