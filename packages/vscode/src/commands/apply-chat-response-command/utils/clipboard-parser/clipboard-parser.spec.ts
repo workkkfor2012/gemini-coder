@@ -195,7 +195,7 @@ describe('clipboard-parser', () => {
 `)
     })
 
-        it('should parse direct diff format in variant c', () => {
+    it('should parse direct diff format in variant c', () => {
       const text = load_clipboard_text('diff-direct-variant-c.txt')
       const result = parse_clipboard_content(text, true)
 
@@ -211,8 +211,102 @@ describe('clipboard-parser', () => {
 `)
     })
 
-    it('should parse multiple diff files format', () => {
-      const text = load_clipboard_text('diff-multiple-files.txt')
+    it('should parse direct diff format in variant d', () => {
+      const text = load_clipboard_text('diff-direct-variant-d.txt')
+      const result = parse_clipboard_content(text, true)
+
+      expect(result.type).toBe('patches')
+      expect(result.patches).toHaveLength(1)
+      expect(result.patches![0].file_path).toBe('src/index.ts')
+      expect(result.patches![0].content).toBe(`--- a/src/index.ts
++++ b/src/index.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old message")
++console.log("new message")
+`)
+    })
+
+    it('should parse multiple diff files format in variant a', () => {
+      const text = load_clipboard_text('diff-multiple-files-variant-a.txt')
+      const result = parse_clipboard_content(text, true)
+
+      expect(result.type).toBe('patches')
+      expect(result.patches).toHaveLength(2)
+
+      expect(result.patches![0].file_path).toBe('src/lorem.ts')
+      expect(result.patches![1].file_path).toBe('src/ipsum.ts')
+
+      expect(result.patches![0].content).toBe(`--- a/src/lorem.ts
++++ b/src/lorem.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old lorem")
++console.log("new lorem")
+`)
+      expect(result.patches![1].content).toBe(`--- a/src/ipsum.ts
++++ b/src/ipsum.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old ipsum")
++console.log("new ipsum")
+`)
+    })
+
+    it('should parse multiple diff files format in variant b', () => {
+      const text = load_clipboard_text('diff-multiple-files-variant-b.txt')
+      const result = parse_clipboard_content(text, true)
+
+      expect(result.type).toBe('patches')
+      expect(result.patches).toHaveLength(2)
+
+      expect(result.patches![0].file_path).toBe('src/lorem.ts')
+      expect(result.patches![1].file_path).toBe('src/ipsum.ts')
+
+      expect(result.patches![0].content).toBe(`--- a/src/lorem.ts
++++ b/src/lorem.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old lorem")
++console.log("new lorem")
+`)
+      expect(result.patches![1].content).toBe(`--- a/src/ipsum.ts
++++ b/src/ipsum.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old ipsum")
++console.log("new ipsum")
+`)
+    })
+
+    it('should parse multiple diff files format in variant c', () => {
+      const text = load_clipboard_text('diff-multiple-files-variant-c.txt')
+      const result = parse_clipboard_content(text, true)
+
+      expect(result.type).toBe('patches')
+      expect(result.patches).toHaveLength(2)
+
+      expect(result.patches![0].file_path).toBe('src/lorem.ts')
+      expect(result.patches![1].file_path).toBe('src/ipsum.ts')
+
+      expect(result.patches![0].content).toBe(`--- a/src/lorem.ts
++++ b/src/lorem.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old lorem")
++console.log("new lorem")
+`)
+      expect(result.patches![1].content).toBe(`--- a/src/ipsum.ts
++++ b/src/ipsum.ts
+@@ -1,3 +1,3 @@
+ console.log("hello")
+-console.log("old ipsum")
++console.log("new ipsum")
+`)
+    })
+
+    it('should parse multiple diff files format in variant d', () => {
+      const text = load_clipboard_text('diff-multiple-files-variant-d.txt')
       const result = parse_clipboard_content(text, true)
 
       expect(result.type).toBe('patches')
