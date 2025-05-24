@@ -315,11 +315,9 @@ export const parse_clipboard_content = (
     clipboard_text.startsWith('diff --git')
   ) {
     const patches = extract_diff_patches(clipboard_text)
-    if (patches.length > 0) {
-      return {
-        type: 'patches',
-        patches
-      }
+    return {
+      type: 'patches',
+      patches
     }
   }
 

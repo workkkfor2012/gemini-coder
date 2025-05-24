@@ -6,27 +6,40 @@ export type DiffPatch = {
   workspace_name?: string
 }
 
-export function extract_diff_patches(clipboard_text: string): DiffPatch[] {
+export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
   const patches: DiffPatch[] = []
   // Normalize line endings to LF
   const normalized_text = clipboard_text.replace(/\r\n/g, '\n')
 
-  if (clipboard_text.startsWith('---')) {
+  if (
+    clipboard_text.startsWith('---') ||
+    clipboard_text.startsWith('diff --git')
+  ) {
     // Treat the entire text as a single patch
     const lines = normalized_text.split('\n')
     let current_file_path: string | undefined
+    let patch_start_index = 0
 
-    // Try to extract file path from +++ b/ line
-    for (const line of lines) {
+    // Try to extract file path from +++ b/ line and find where the actual patch starts
+    for (let i = 0; i < lines.length; i++) {
+      const line = lines[i]
       const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
       if (file_path_match) {
         current_file_path = file_path_match[1]
-        break // Use the first file path found
+        // Find the corresponding --- line to start the patch from
+        for (let j = i - 1; j >= 0; j--) {
+          if (lines[j].startsWith('--- ')) {
+            patch_start_index = j
+            break
+          }
+        }
+        break
       }
     }
 
     if (current_file_path) {
-      let patch_content = normalized_text
+      // Extract patch content starting from the --- line
+      let patch_content = lines.slice(patch_start_index).join('\n')
       // Ensure patch ends with a newline
       if (!patch_content.endsWith('\n')) {
         patch_content += '\n'
@@ -47,7 +60,6 @@ export function extract_diff_patches(clipboard_text: string): DiffPatch[] {
   } else {
     const lines = normalized_text.split('\n')
     let in_diff_block = false
-    // Diffs sometimes start with "diff --git ...", we skip all lines until "--- [PATH]"
     let diff_header_detected = false
     let current_patch = ''
     let current_workspace: string | undefined
