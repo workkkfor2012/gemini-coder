@@ -40,7 +40,7 @@ CWC is for you if:
 <img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
 </p>
 
-## You own the context
+## Context
 
 Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context hurting model's performance and your wallet.
 
