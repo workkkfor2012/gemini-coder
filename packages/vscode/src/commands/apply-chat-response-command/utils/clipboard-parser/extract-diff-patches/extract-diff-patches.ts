@@ -67,7 +67,7 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
         for (const line of patch_body_lines) {
           // Check if line starts with @@ and has content after it without newline
           const hunk_match = line.match(/^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/)
-          if (hunk_match && hunk_match[2].trim() !== '') {
+          if (hunk_match && hunk_match[2].trim() != '') {
             // Split hunk header and content onto separate lines
             formatted_patch_body_lines.push(hunk_match[1])
             formatted_patch_body_lines.push(hunk_match[2])
@@ -142,6 +142,24 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
             // This is variant c - add the missing header lines
             patch_content = `--- a/${current_file_path}\n+++ b/${current_file_path}\n${patch_content}`
           }
+
+          // Apply hunk header formatting fix for code block patches too
+          const patch_lines = patch_content.split('\n')
+          const formatted_patch_lines: string[] = []
+          for (const patch_line of patch_lines) {
+            // Check if line starts with @@ and has content after it without newline
+            const hunk_match = patch_line.match(
+              /^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/
+            )
+            if (hunk_match && hunk_match[2].trim() != '') {
+              // Split hunk header and content onto separate lines
+              formatted_patch_lines.push(hunk_match[1])
+              formatted_patch_lines.push(hunk_match[2])
+            } else {
+              formatted_patch_lines.push(patch_line)
+            }
+          }
+          patch_content = formatted_patch_lines.join('\n')
 
           // Ensure patch ends with a newline
           if (!patch_content.endsWith('\n')) {
