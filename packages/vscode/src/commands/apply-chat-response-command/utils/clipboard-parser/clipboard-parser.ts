@@ -1,6 +1,6 @@
 import { cleanup_api_response } from '@/helpers/cleanup-api-response'
 import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-line-of-code'
-import { extract_diff_patches, DiffPatch } from '../patch-handler'
+import { DiffPatch, extract_diff_patches } from './extract-diff-patches'
 
 export interface ClipboardFile {
   file_path: string
@@ -304,17 +304,17 @@ export const parse_file_content_only = (params: {
   return null
 }
 
-export const parse_clipboard_content = async (
+export const parse_clipboard_content = (
   clipboard_text: string,
   is_single_root_folder_workspace: boolean
-): Promise<ClipboardContent> => {
-  // First check for diff patches
+): ClipboardContent => {
   if (
     clipboard_text.includes('```diff') ||
     clipboard_text.includes('```patch') ||
-    clipboard_text.startsWith('--- ')
+    clipboard_text.startsWith('--- ') ||
+    clipboard_text.startsWith('diff --git')
   ) {
-    const patches = await extract_diff_patches(clipboard_text)
+    const patches = extract_diff_patches(clipboard_text)
     if (patches.length > 0) {
       return {
         type: 'patches',
@@ -323,7 +323,6 @@ export const parse_clipboard_content = async (
     }
   }
 
-  // If no patches found, parse as regular files
   const files = parse_clipboard_multiple_files({
     clipboard_text,
     is_single_root_folder_workspace

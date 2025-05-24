@@ -13,9 +13,10 @@ import { handle_intelligent_update } from './handlers/intelligent-update-handler
 import { create_safe_path } from '@/utils/path-sanitizer'
 import { check_for_truncated_fragments } from '@/utils/check-for-truncated-fragments'
 import { ApiProvidersManager } from '@/services/api-providers-manager'
-import { apply_git_patch, DiffPatch } from './utils/patch-handler'
+import { apply_git_patch } from './utils/patch-handler'
 import { PROVIDERS } from '@shared/constants/providers'
 import { LAST_SELECTED_FILE_REFACTORING_CONFIG_INDEX_KEY } from '../../constants/state-keys'
+import { DiffPatch } from './utils/clipboard-parser/extract-diff-patches'
 
 async function check_if_all_files_new(
   files: ClipboardFile[]
@@ -290,7 +291,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
         vscode.workspace.workspaceFolders?.length == 1
 
       // Parse clipboard content which can now contain either files or patches
-      const clipboard_content = await parse_clipboard_content(
+      const clipboard_content = parse_clipboard_content(
         clipboard_text,
         is_single_root_folder_workspace
       )
@@ -384,7 +385,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
             let endpoint_url = ''
             if (provider.type == 'built-in') {
-              const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
+              const provider_info =
+                PROVIDERS[provider.name as keyof typeof PROVIDERS]
               endpoint_url = provider_info.base_url
             } else {
               endpoint_url = provider.base_url
@@ -495,7 +497,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
             let endpoint_url = ''
             if (provider.type == 'built-in') {
-              const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
+              const provider_info =
+                PROVIDERS[provider.name as keyof typeof PROVIDERS]
               endpoint_url = provider_info.base_url
             } else {
               endpoint_url = provider.base_url
@@ -635,7 +638,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
           let endpoint_url = ''
           if (provider.type == 'built-in') {
-            const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
+            const provider_info =
+              PROVIDERS[provider.name as keyof typeof PROVIDERS]
             endpoint_url = provider_info.base_url
           } else {
             endpoint_url = provider.base_url
@@ -741,7 +745,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
               let endpoint_url = ''
               if (provider.type == 'built-in') {
-                const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
+                const provider_info =
+                  PROVIDERS[provider.name as keyof typeof PROVIDERS]
                 endpoint_url = provider_info.base_url
               } else {
                 endpoint_url = provider.base_url
