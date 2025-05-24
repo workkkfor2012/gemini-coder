@@ -108,26 +108,42 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
       // Check for diff or patch block start
       if (line == '```diff' || line == '```patch') {
         in_diff_block = true
+        diff_header_detected = false // Reset for new block
         current_patch = ''
         current_workspace = undefined
         current_file_path = undefined
         continue
       }
 
-      if (line.startsWith('---')) {
+      // Only check for diff header when inside a block
+      if (
+        in_diff_block &&
+        (line.startsWith('---') || line.startsWith('diff --git'))
+      ) {
         diff_header_detected = true
       }
 
-      if (!diff_header_detected) {
+      // Skip processing if not in a diff block or no header detected yet
+      if (!in_diff_block || !diff_header_detected) {
         continue
       }
 
       // Check for diff block end
-      if (in_diff_block && line == '```') {
-        // Only add if patch is valid (starts with ---) and we have a file path
-        if (current_patch.startsWith('---') && current_file_path) {
-          // Ensure patch ends with a newline
+      if (line == '```') {
+        // Only add if we have a file path and valid patch content
+        if (current_file_path && current_patch.trim()) {
           let patch_content = current_patch
+
+          // Check if patch needs header lines added (variant c case)
+          if (
+            !patch_content.includes('--- a/') &&
+            !patch_content.includes('+++ b/')
+          ) {
+            // This is variant c - add the missing header lines
+            patch_content = `--- a/${current_file_path}\n+++ b/${current_file_path}\n${patch_content}`
+          }
+
+          // Ensure patch ends with a newline
           if (!patch_content.endsWith('\n')) {
             patch_content += '\n'
           }
@@ -139,21 +155,26 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
           })
         }
         in_diff_block = false
+        diff_header_detected = false // Reset for next potential block
         continue
       }
 
-      // Inside diff block
-      if (in_diff_block) {
-        // Extract file path from the +++ line
-        if (!current_file_path) {
-          const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
-          if (file_path_match) {
-            current_file_path = file_path_match[1]
+      // Extract file path from the +++ line or diff --git line
+      if (!current_file_path) {
+        const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
+        if (file_path_match) {
+          current_file_path = file_path_match[1]
+        } else {
+          const git_diff_match = line.match(/^diff --git a\/(.+) b\/(.+)$/)
+          if (git_diff_match) {
+            current_file_path = git_diff_match[2] // Use the "b/" path
+            // Don't include the diff --git line in the patch content for variant c
+            continue
           }
         }
-
-        current_patch += line + '\n'
       }
+
+      current_patch += line + '\n'
     }
 
     return patches
