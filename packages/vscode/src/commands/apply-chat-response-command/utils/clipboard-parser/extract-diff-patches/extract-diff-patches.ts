@@ -63,7 +63,8 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
         // Extract patch content starting from the --- line
         const patch_lines = lines.slice(patch_start_index).map((line) => {
           if (line.startsWith('--- a/') || line.startsWith('+++ b/')) {
-            return line.replace(/\t.*$/, '') // Remove everything after tab
+            // Remove timestamps and everything after tab
+            return line.replace(/\s+\d{4}-\d{2}-\d{2}.*$/, '').replace(/\t.*$/, '')
           }
           return line
         })
@@ -180,16 +181,20 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
           const final_patch_lines = patch_content.split('\n')
           const formatted_patch_lines: string[] = []
           for (const patch_line of final_patch_lines) {
-            // Check if line starts with @@ and has content after it without newline
-            const hunk_match = patch_line.match(
-              /^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/
-            )
-            if (hunk_match && hunk_match[2].trim() != '') {
-              // Split hunk header and content onto separate lines
-              formatted_patch_lines.push(hunk_match[1])
-              formatted_patch_lines.push(hunk_match[2])
-            } else {
-              formatted_patch_lines.push(patch_line)
+            // Remove timestamps from ---/+++ lines
+            if (patch_line.startsWith('--- a/') || patch_line.startsWith('+++ b/')) {
+              formatted_patch_lines.push(patch_line.replace(/\s+\d{4}-\d{2}-\d{2}.*$/, ''))
+            } 
+            // Handle hunk headers
+            else {
+              const hunk_match = patch_line.match(/^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/)
+              if (hunk_match && hunk_match[2].trim() != '') {
+                // Split hunk header and content onto separate lines
+                formatted_patch_lines.push(hunk_match[1])
+                formatted_patch_lines.push(hunk_match[2])
+              } else {
+                formatted_patch_lines.push(patch_line)
+              }
             }
           }
           patch_content = formatted_patch_lines.join('\n')
@@ -212,7 +217,7 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
 
       // Extract file path from the +++ line or diff --git line
       if (!current_file_path) {
-        const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
+        const file_path_match = line.match(/^\+\+\+ b\/(.+?)(?:\s+\d{4}-\d{2}-\d{2}.*)?$/)
         if (file_path_match) {
           current_file_path = file_path_match[1]
         } else {
