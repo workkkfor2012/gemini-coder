@@ -24,7 +24,7 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
     // Try to extract file path from +++ b/ line and find where the actual patch starts
     for (let i = 0; i < lines.length; i++) {
       const line = lines[i]
-      const file_path_match = line.match(/^\+\+\+ b\/(.+)$/)
+      const file_path_match = line.match(/^\+\+\+ b\/([^\t]+)/) // Match up to tab or end of line
       if (file_path_match) {
         current_file_path = file_path_match[1]
         has_header_lines = true
@@ -57,7 +57,14 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
 
       if (has_header_lines) {
         // Extract patch content starting from the --- line
-        patch_content = lines.slice(patch_start_index).join('\n')
+        // Clean up any timestamps in the header lines
+        const cleaned_lines = lines.slice(patch_start_index).map((line) => {
+          if (line.startsWith('--- a/') || line.startsWith('+++ b/')) {
+            return line.replace(/\t.*$/, '') // Remove everything after tab
+          }
+          return line
+        })
+        patch_content = cleaned_lines.join('\n')
       } else {
         // Add missing header lines for diff --git format without --- +++ lines
         const patch_body_lines = lines.slice(patch_start_index + 1) // Skip the diff --git line
