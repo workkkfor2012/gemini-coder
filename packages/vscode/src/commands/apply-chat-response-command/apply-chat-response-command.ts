@@ -392,10 +392,12 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
               endpoint_url = provider.base_url
             }
 
-            // Convert failed patches to clipboard format for intelligent update
-            const failed_patches_text = failed_patches
-              .map((patch) => `// ${patch.file_path}\n${patch.content}`)
-              .join('\n\n')
+            const failed_patches_as_code_blocks = failed_patches
+              .map(
+                (patch) =>
+                  `\`\`\`\n// ${patch.file_path}\n${patch.content}\n\`\`\``
+              )
+              .join('\n')
 
             try {
               const intelligent_update_states = await handle_intelligent_update(
@@ -403,14 +405,13 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  clipboard_text: failed_patches_text,
+                  clipboard_text: failed_patches_as_code_blocks,
                   context: context,
                   is_single_root_folder_workspace
                 }
               )
 
               if (intelligent_update_states) {
-                // Combine original states from successful patches and intelligent update
                 const combined_states = [
                   ...all_original_states,
                   ...intelligent_update_states
