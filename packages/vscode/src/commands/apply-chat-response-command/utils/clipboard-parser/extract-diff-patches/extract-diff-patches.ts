@@ -1,4 +1,3 @@
-// packages/vscode/src/commands/apply-chat-response-command/utils/clipboard-parser/extract-diff-patches/extract-diff-patches.ts
 import { Logger } from '@/helpers/logger'
 
 export type DiffPatch = {
@@ -19,8 +18,7 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
     // Treat the entire text as a single patch
     const lines = normalized_text.split('\n')
     let current_file_path: string | undefined
-    let patch_start_index = 0
-    let has_header_lines = false
+    let patch_start_index = -1
 
     // Try to extract file path from +++ b/ line and find where the actual patch starts
     for (let i = 0; i < lines.length; i++) {
@@ -28,7 +26,6 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
       const file_path_match = line.match(/^\+\+\+ b\/([^\t]+)/) // Match up to tab or end of line
       if (file_path_match) {
         current_file_path = file_path_match[1]
-        has_header_lines = true
         // Find the corresponding --- line to start the patch from
         for (let j = i - 1; j >= 0; j--) {
           if (lines[j].startsWith('--- ')) {
@@ -47,7 +44,13 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
         const git_diff_match = line.match(/^diff --git a\/(.+) b\/(.+)$/)
         if (git_diff_match) {
           current_file_path = git_diff_match[2] // Use the "b/" path
-          patch_start_index = i
+          // Find the first --- line after the diff --git line
+          for (let j = i + 1; j < lines.length; j++) {
+            if (lines[j].startsWith('--- ')) {
+              patch_start_index = j
+              break
+            }
+          }
           break
         }
       }
@@ -56,27 +59,33 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
     if (current_file_path) {
       let patch_content: string
 
-      if (has_header_lines) {
+      if (patch_start_index >= 0) {
         // Extract patch content starting from the --- line
-        // Clean up any timestamps in the header lines
-        const cleaned_lines = lines.slice(patch_start_index).map((line) => {
+        const patch_lines = lines.slice(patch_start_index).map((line) => {
           if (line.startsWith('--- a/') || line.startsWith('+++ b/')) {
             return line.replace(/\t.*$/, '') // Remove everything after tab
           }
           return line
         })
-        patch_content = cleaned_lines.join('\n')
+        patch_content = patch_lines.join('\n')
       } else {
-        // Add missing header lines for diff --git format without --- +++ lines
-        const patch_body_lines = lines.slice(patch_start_index + 1) // Skip the diff --git line
+        // No --- line found, add missing header lines
+        // Skip the diff --git line and any metadata, look for hunk headers
+        let content_start_index = 0
+        for (let i = 0; i < lines.length; i++) {
+          if (lines[i].startsWith('@@')) {
+            content_start_index = i
+            break
+          }
+        }
+
+        const patch_body_lines = lines.slice(content_start_index)
 
         // Fix formatting: ensure hunk headers are on separate lines
         const formatted_patch_body_lines: string[] = []
         for (const line of patch_body_lines) {
-          // Check if line starts with @@ and has content after it without newline
           const hunk_match = line.match(/^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/)
           if (hunk_match && hunk_match[2].trim() != '') {
-            // Split hunk header and content onto separate lines
             formatted_patch_body_lines.push(hunk_match[1])
             formatted_patch_body_lines.push(hunk_match[2])
           } else {
@@ -84,14 +93,16 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
           }
         }
 
-        const patch_body = formatted_patch_body_lines.join('\n')
-        patch_content = `--- a/${current_file_path}\n+++ b/${current_file_path}\n${patch_body}`
+        patch_content = `--- a/${current_file_path}\n+++ b/${current_file_path}\n${formatted_patch_body_lines.join(
+          '\n'
+        )}`
       }
 
       // Ensure patch ends with a newline
       if (!patch_content.endsWith('\n')) {
         patch_content += '\n'
       }
+
       patches.push({
         file_path: current_file_path,
         content: patch_content
@@ -151,7 +162,7 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
               break
             }
           }
-          
+
           if (first_header_index >= 0) {
             patch_content = patch_lines.slice(first_header_index).join('\n')
           }
