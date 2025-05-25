@@ -52,8 +52,7 @@ export const handle_copy_prompt = async (
   } else if (!provider.is_code_completions_mode) {
     const active_path = active_editor?.document.uri.fsPath
     const context_text = await files_collector.collect_files({
-      active_path,
-      with_line_numbers: provider.edit_format == 'diff'
+      active_path
     })
 
     let instructions = replace_selection_placeholder(current_instruction)

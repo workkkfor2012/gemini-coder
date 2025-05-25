@@ -67,8 +67,7 @@ export const handle_send_prompt = async (
     if (!provider.instructions) return
 
     const context_text = await files_collector.collect_files({
-      active_path,
-      with_line_numbers: provider.edit_format == 'diff'
+      active_path
     })
 
     let instructions = provider.instructions

@@ -27,7 +27,6 @@ export class FilesCollector {
     disable_xml?: boolean
     exclude_path?: string
     active_path?: string
-    with_line_numbers?: boolean
   }): Promise<string> {
     const workspace_files = this.workspace_provider.get_checked_files()
     const open_editor_files =
@@ -59,11 +58,7 @@ export class FilesCollector {
 
         if (stats.isDirectory()) continue
 
-        let content = fs.readFileSync(file_path, 'utf8')
-
-        if (params?.with_line_numbers) {
-          content = this.add_line_numbers(content)
-        }
+        const content = fs.readFileSync(file_path, 'utf8')
 
         // Find which workspace root this file belongs to
         const workspace_root = this.get_workspace_root_for_file(file_path)
@@ -106,19 +101,6 @@ export class FilesCollector {
     }
 
     return collected_text
-  }
-
-  private add_line_numbers(content: string): string {
-    const lines = content.split('\n')
-    const max_line_number = lines.length
-    const padding = max_line_number.toString().length
-
-    return lines
-      .map((line, index) => {
-        const line_number = (index + 1).toString().padStart(padding, ' ')
-        return `${line_number} ${line}`
-      })
-      .join('\n')
   }
 
   private get_workspace_root_for_file(file_path: string): string | undefined {
