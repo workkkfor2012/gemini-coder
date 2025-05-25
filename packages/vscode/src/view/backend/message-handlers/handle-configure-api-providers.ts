@@ -225,7 +225,7 @@ export const handle_configure_api_providers = async (
     ]
 
     const selected = await vscode.window.showQuickPick(items, {
-      title: 'Select Provider Type',
+      title: 'Select API Endpoint',
       placeHolder: 'Choose a predefined provider or create a custom one'
     })
 

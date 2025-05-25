@@ -78,11 +78,11 @@ export function generate_commit_message_command(
 
         if (!commit_message_config) {
           vscode.window.showErrorMessage(
-            'Commit Messages tool is not configured. Go to Code Web Chat panel -> Settings tab.'
+            'Commit Messages API tool is not configured. Navigate to Settings tab, configure API providers and setup the tool.'
           )
           Logger.warn({
             function_name: 'generate_commit_message_command',
-            message: 'Commit Messages tool is not configured.'
+            message: 'Commit Messages API tool is not configured.'
           })
           return
         }
@@ -93,7 +93,7 @@ export function generate_commit_message_command(
 
         if (!provider) {
           vscode.window.showErrorMessage(
-            'API provider not found for Commit Messages tool. Go to Code Web Chat panel -> Settings tab.'
+            'API provider not found for Commit Messages tool. Navigate to Settings tab, configure API providers and setup the tool.'
           )
           Logger.warn({
             function_name: 'generate_commit_message_command',

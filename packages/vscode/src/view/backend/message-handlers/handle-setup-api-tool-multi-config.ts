@@ -555,7 +555,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
 
     if (providers.length == 0) {
       vscode.window.showErrorMessage(
-        'No API providers configured. Please configure an API provider first.'
+        'No API providers found. Please configure an API provider first.'
       )
       return undefined
     }
