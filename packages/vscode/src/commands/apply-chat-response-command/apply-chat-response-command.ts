@@ -315,6 +315,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
         let failure_count = 0
         let all_original_states: OriginalFileState[] = []
         const failed_patches: DiffPatch[] = []
+        let any_patch_used_fallback = false
 
         // Process patches
         const total_patches = clipboard_content.patches.length
@@ -336,6 +337,9 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                 result.original_states
               )
             }
+            if (result.used_fallback) {
+              any_patch_used_fallback = true
+            }
           } else {
             failure_count++
             failed_patches.push(patch)
@@ -352,111 +356,79 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
 
         // Handle results
         if (failure_count > 0) {
-          const response = await vscode.window.showWarningMessage(
-            success_count > 0
-              ? `Applied ${success_count} patch${
-                  success_count != 1 ? 'es' : ''
-                } successfully, but ${failure_count} patch${
-                  failure_count != 1 ? 'es' : ''
-                } failed.`
-              : `Failed to apply ${failure_count} patch${
-                  failure_count != 1 ? 'es' : ''
-                }.`,
-            'Use intelligent update',
-            ...(success_count > 0 ? ['Revert'] : [])
+          const api_providers_manager = new ApiProvidersManager(context)
+          const config_result = await get_file_refactoring_config(
+            api_providers_manager,
+            false,
+            context
           )
 
-          if (response == 'Revert' && all_original_states.length > 0) {
-            await revert_files(all_original_states)
-            context.workspaceState.update(LAST_APPLIED_CHANGES_STATE_KEY, null)
-          } else if (response == 'Use intelligent update') {
-            const api_providers_manager = new ApiProvidersManager(context)
-            const config_result = await get_file_refactoring_config(
-              api_providers_manager,
-              false,
-              context
+          if (!config_result) {
+            // If we can't get the config, revert successful patches to maintain consistency
+            if (success_count > 0 && all_original_states.length > 0) {
+              await revert_files(all_original_states)
+              context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                null
+              )
+            }
+            return
+          }
+
+          const { provider, config: file_refactoring_config } = config_result
+
+          let endpoint_url = ''
+          if (provider.type == 'built-in') {
+            const provider_info =
+              PROVIDERS[provider.name as keyof typeof PROVIDERS]
+            endpoint_url = provider_info.base_url
+          } else {
+            endpoint_url = provider.base_url
+          }
+
+          const failed_patches_as_code_blocks = failed_patches
+            .map(
+              (patch) =>
+                `\`\`\`\n// ${patch.file_path}\n${patch.content}\n\`\`\``
             )
+            .join('\n')
 
-            if (!config_result) {
-              return
-            }
+          try {
+            const intelligent_update_states = await handle_intelligent_update({
+              endpoint_url,
+              api_key: provider.api_key,
+              model: file_refactoring_config.model,
+              clipboard_text: failed_patches_as_code_blocks,
+              context: context,
+              is_single_root_folder_workspace
+            })
 
-            const { provider, config: file_refactoring_config } = config_result
-
-            let endpoint_url = ''
-            if (provider.type == 'built-in') {
-              const provider_info =
-                PROVIDERS[provider.name as keyof typeof PROVIDERS]
-              endpoint_url = provider_info.base_url
-            } else {
-              endpoint_url = provider.base_url
-            }
-
-            const failed_patches_as_code_blocks = failed_patches
-              .map(
-                (patch) =>
-                  `\`\`\`\n// ${patch.file_path}\n${patch.content}\n\`\`\``
+            if (intelligent_update_states) {
+              const combined_states = [
+                ...all_original_states,
+                ...intelligent_update_states
+              ]
+              context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                combined_states
               )
-              .join('\n')
-
-            try {
-              const intelligent_update_states = await handle_intelligent_update(
-                {
-                  endpoint_url,
-                  api_key: provider.api_key,
-                  model: file_refactoring_config.model,
-                  clipboard_text: failed_patches_as_code_blocks,
-                  context: context,
-                  is_single_root_folder_workspace
-                }
-              )
-
-              if (intelligent_update_states) {
-                const combined_states = [
-                  ...all_original_states,
-                  ...intelligent_update_states
-                ]
-                context.workspaceState.update(
-                  LAST_APPLIED_CHANGES_STATE_KEY,
-                  combined_states
-                )
-                const response = await vscode.window.showInformationMessage(
-                  `Successfully applied ${failed_patches.length} failed patch${
-                    failed_patches.length != 1 ? 'es' : ''
-                  }.`,
-                  'Revert'
-                )
-
-                if (response == 'Revert') {
-                  await revert_files(combined_states)
-                  context.workspaceState.update(
-                    LAST_APPLIED_CHANGES_STATE_KEY,
-                    null
-                  )
-                }
-              } else {
-                if (success_count > 0 && all_original_states.length > 0) {
-                  await revert_files(all_original_states)
-                  context.workspaceState.update(
-                    LAST_APPLIED_CHANGES_STATE_KEY,
-                    null
-                  )
-                }
-              }
-            } catch (error) {
-              // Handle any errors during intelligent update
-              Logger.error({
-                function_name: 'apply_chat_response_command',
-                message: 'Error during intelligent update of failed patches'
-              })
-
-              const response = await vscode.window.showErrorMessage(
-                'Error during fix attempt with the refactoring tool. Would you like to revert the successfully applied patches?',
-                'Keep changes',
+              const response = await vscode.window.showInformationMessage(
+                `Successfully applied ${failed_patches.length} failed patch${
+                  failed_patches.length != 1 ? 'es' : ''
+                } using intelligent update.`,
                 'Revert'
               )
 
-              if (response == 'Revert' && all_original_states.length > 0) {
+              if (response == 'Revert') {
+                await revert_files(combined_states)
+                context.workspaceState.update(
+                  LAST_APPLIED_CHANGES_STATE_KEY,
+                  null
+                )
+              }
+            } else {
+              // Intelligent update failed or was canceled - revert successful patches
+              if (success_count > 0 && all_original_states.length > 0) {
                 await revert_files(all_original_states)
                 context.workspaceState.update(
                   LAST_APPLIED_CHANGES_STATE_KEY,
@@ -464,15 +436,39 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                 )
               }
             }
+          } catch (error) {
+            // Handle any errors during intelligent update
+            Logger.error({
+              function_name: 'apply_chat_response_command',
+              message: 'Error during intelligent update of failed patches'
+            })
+
+            const response = await vscode.window.showErrorMessage(
+              'Error during fix attempt with the refactoring tool. Would you like to revert the successfully applied patches?',
+              'Keep changes',
+              'Revert'
+            )
+
+            if (response == 'Revert' && all_original_states.length > 0) {
+              await revert_files(all_original_states)
+              context.workspaceState.update(
+                LAST_APPLIED_CHANGES_STATE_KEY,
+                null
+              )
+            }
           }
         } else if (success_count > 0) {
-          // All patches applied successfully - show both options now
+          // All patches applied successfully - show "Looks off" only if any used fallback
+          const buttons = ['Revert']
+          if (any_patch_used_fallback) {
+            buttons.push('Looks off, use intelligent mode')
+          }
+
           const response = await vscode.window.showInformationMessage(
             `Successfully applied ${success_count} patch${
               success_count != 1 ? 'es' : ''
             }.`,
-            'Revert',
-            'Looks off, use intelligent mode'
+            ...buttons
           )
 
           if (response == 'Revert' && all_original_states.length > 0) {

@@ -184,7 +184,11 @@ async function process_modified_files(
 export async function apply_git_patch(
   patch_content: string,
   workspace_path: string
-): Promise<{ success: boolean; original_states?: OriginalFileState[] }> {
+): Promise<{
+  success: boolean
+  original_states?: OriginalFileState[]
+  used_fallback?: boolean
+}> {
   let closed_files: vscode.Uri[] = []
 
   try {
@@ -245,7 +249,7 @@ export async function apply_git_patch(
       // Clean up temp file
       await vscode.workspace.fs.delete(vscode.Uri.file(temp_file))
 
-      return { success: true, original_states }
+      return { success: true, original_states, used_fallback }
     } catch (error: any) {
       // Reopen the closed files since the patch application failed
       await reopen_closed_files(closed_files)
