@@ -374,14 +374,14 @@ describe('clipboard-parser', () => {
       expect(result.patches![0].file_path).toBe('src/lorem.ts')
       expect(result.patches![1].file_path).toBe('src/ipsum.ts')
 
-      expect(result.patches![0].content).toBe(`--- a/src/lorem.ts
+      expect(result.patches![0].content).toBe(`--- /dev/null
 +++ b/src/lorem.ts
 @@ -1,3 +1,3 @@
  console.log("hello")
 -console.log("old lorem")
 +console.log("new lorem")
 `)
-      expect(result.patches![1].content).toBe(`--- a/src/ipsum.ts
+      expect(result.patches![1].content).toBe(`--- /dev/null
 +++ b/src/ipsum.ts
 @@ -1,3 +1,3 @@
  console.log("hello")

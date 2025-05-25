@@ -11,7 +11,7 @@ index 0000000..3303f25
 ```
 
 ```diff
-diff --git a/src/index.ts b/src/ipsum.ts
+diff --git a/src/ipsum.ts b/src/ipsum.ts
 new file mode 100644
 index 0000000..3303f25
 --- /dev/null

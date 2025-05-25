@@ -1,3 +1,4 @@
+// packages/vscode/src/commands/apply-chat-response-command/utils/clipboard-parser/extract-diff-patches/extract-diff-patches.ts
 import { Logger } from '@/helpers/logger'
 
 export type DiffPatch = {
@@ -141,6 +142,20 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
         if (current_file_path && current_patch.trim()) {
           let patch_content = current_patch
 
+          // Remove everything above the first "--- " line
+          const patch_lines = patch_content.split('\n')
+          let first_header_index = -1
+          for (let i = 0; i < patch_lines.length; i++) {
+            if (patch_lines[i].startsWith('--- ')) {
+              first_header_index = i
+              break
+            }
+          }
+          
+          if (first_header_index >= 0) {
+            patch_content = patch_lines.slice(first_header_index).join('\n')
+          }
+
           // Check if patch needs header lines added (variant c case)
           if (
             !patch_content.includes('--- a/') &&
@@ -151,9 +166,9 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
           }
 
           // Apply hunk header formatting fix for code block patches too
-          const patch_lines = patch_content.split('\n')
+          const final_patch_lines = patch_content.split('\n')
           const formatted_patch_lines: string[] = []
-          for (const patch_line of patch_lines) {
+          for (const patch_line of final_patch_lines) {
             // Check if line starts with @@ and has content after it without newline
             const hunk_match = patch_line.match(
               /^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/
