@@ -27,13 +27,9 @@ const config: Config = {
           sidebarPath: './sidebars.ts',
           path: '../../docs',
           editUrl:
-            'https://github.com/robertpiosik/CodeWebChat/tree/master/packages/website/'
+            'https://github.com/robertpiosik/CodeWebChat/tree/dev/docs/docs/'
         },
         blog: {
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true
-          },
           onInlineTags: 'warn',
           onInlineAuthors: 'warn',
           onUntruncatedBlogPosts: 'warn'
