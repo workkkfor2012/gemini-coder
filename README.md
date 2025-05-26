@@ -26,9 +26,9 @@ CWC enables developers getting the best quality AI-assistance with a game-changi
 Guiding Principles:
 
 - initialize popular chatbots but don't game them
-- don’t over-engineer AI-assistance
-- don’t collect telemetry
-- be robust and lightweight
+- fully-featured, yet simple to use
+- zero telemetry
+- robust and lightweight
 
 CWC is for you if:
 
