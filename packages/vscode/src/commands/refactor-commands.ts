@@ -23,7 +23,7 @@ export const get_refactor_config = async (
 
   if (refactor_configs.length === 0) {
     vscode.window.showErrorMessage(
-      'File Refactoring API tool is not configured. Navigate to Settings tab, configure API providers and setup the tool.'
+      'File Refactoring API tool is not configured. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
       function_name: 'get_refactor_config',
@@ -180,7 +180,7 @@ export const get_refactor_config = async (
           )
           if (!provider) {
             vscode.window.showErrorMessage(
-              'API provider not found for File Refactoring tool. Navigate to Settings tab, configure API providers and setup the tool.'
+              'API provider not found for File Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
             )
             Logger.warn({
               function_name: 'get_refactor_config',
@@ -212,7 +212,7 @@ export const get_refactor_config = async (
 
   if (!provider) {
     vscode.window.showErrorMessage(
-      'API provider not found for File Refactoring tool. Navigate to Settings tab, configure API providers and setup the tool.'
+      'API provider not found for File Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
       function_name: 'get_refactor_config',
@@ -288,7 +288,7 @@ const perform_refactor = async (params: {
 
   if (!refactoring_settings.provider_name) {
     vscode.window.showErrorMessage(
-      'API provider is not specified for File Refactoring tool. Navigate to Settings tab, configure API providers and setup the tool.'
+      'API provider is not specified for File Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
       function_name: 'perform_refactor',
@@ -297,7 +297,7 @@ const perform_refactor = async (params: {
     return
   } else if (!refactoring_settings.model) {
     vscode.window.showErrorMessage(
-      'Model is not specified for File Refactoring tool. Navigate to Settings tab, configure API providers and setup the tool.'
+      'Model is not specified for File Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
       function_name: 'perform_refactor',
@@ -308,7 +308,7 @@ const perform_refactor = async (params: {
 
   if (!provider.api_key) {
     vscode.window.showErrorMessage(
-      'API key is missing. Please add it in the settings.'
+      'API key is missing. Please add it in the Settings tab.'
     )
     return
   }
@@ -318,7 +318,7 @@ const perform_refactor = async (params: {
     const provider_info = PROVIDERS[provider.name as keyof typeof PROVIDERS]
     if (!provider_info) {
       vscode.window.showErrorMessage(
-        `Built-in provider "${provider.name}" not found. Navigate to Settings tab, configure API providers and setup the tool.`
+        `Built-in provider "${provider.name}" not found. Navigate to the Settings tab, configure API providers and setup the API tool.`
       )
       Logger.warn({
         function_name: 'perform_refactor',
@@ -354,7 +354,6 @@ const perform_refactor = async (params: {
     }
   }
 
-  // Create files collector with both providers
   const files_collector = new FilesCollector(
     params.file_tree_provider,
     params.open_editors_provider
