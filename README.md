@@ -26,7 +26,7 @@ CWC is a tool built by an independent developer enabling engineers getting the b
 
 **Guiding Principles:**
 
-- initialize popular chatbots but don't game them
+- initialize popular chatbots—but don't game them
 - everything you need—nothing you don’t
 - respect privacy—zero tracking
 - lightweight—under 1MB
