@@ -13,11 +13,11 @@ import { ApiProvidersManager } from '../services/api-providers-manager'
 import { get_refactoring_instruction } from '@/constants/instructions'
 import { PROVIDERS } from '@shared/constants/providers'
 
-async function get_refactor_config(
+export const get_refactor_config = async (
   api_providers_manager: ApiProvidersManager,
   show_quick_pick: boolean = false,
   context: vscode.ExtensionContext
-): Promise<{ provider: any; config: any } | undefined> {
+): Promise<{ provider: any; config: any } | undefined> => {
   const refactor_configs =
     await api_providers_manager.get_file_refactoring_tool_configs()
 
@@ -227,12 +227,12 @@ async function get_refactor_config(
   }
 }
 
-async function perform_refactor(params: {
+const perform_refactor = async (params: {
   context: vscode.ExtensionContext
   file_tree_provider: any
-  open_editors_provider?: any
-  show_quick_pick?: boolean
-}) {
+  open_editors_provider: any
+  show_quick_pick: boolean
+}) => {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
   const editor = vscode.window.activeTextEditor
@@ -509,14 +509,14 @@ async function perform_refactor(params: {
     })
 }
 
-export function refactor_commands(params: {
+export const refactor_commands = (params: {
   context: vscode.ExtensionContext
   workspace_provider: any
   open_editors_provider?: any
   use_default_model?: boolean
-}) {
+}) => {
   return [
-    vscode.commands.registerCommand('codeWebChat.refactor', async () =>
+    vscode.commands.registerCommand('codeWebChat.refactor', () =>
       perform_refactor({
         context: params.context,
         file_tree_provider: params.workspace_provider,
@@ -524,7 +524,7 @@ export function refactor_commands(params: {
         show_quick_pick: false
       })
     ),
-    vscode.commands.registerCommand('codeWebChat.refactorUsing', async () =>
+    vscode.commands.registerCommand('codeWebChat.refactorUsing', () =>
       perform_refactor({
         context: params.context,
         file_tree_provider: params.workspace_provider,
