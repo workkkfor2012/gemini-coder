@@ -16,9 +16,28 @@ const perform_agent_task = async (params: {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
   const editor = vscode.window.activeTextEditor
+  let current_file_path = ''
+  let selected_text = ''
 
-  if (!editor) {
-    vscode.window.showErrorMessage('No active editor found.')
+  if (editor) {
+    const document = editor.document
+    current_file_path = vscode.workspace.asRelativePath(document.uri)
+
+    const selection = editor.selection
+    selected_text = editor.document.getText(selection)
+  }
+
+  const files_collector = new FilesCollector(
+    params.file_tree_provider,
+    params.open_editors_provider
+  )
+
+  const collected_files = await files_collector.collect_files({
+    active_path: editor?.document?.uri.fsPath
+  })
+
+  if (!collected_files) {
+    vscode.window.showErrorMessage('Unable to work with empty context.')
     return
   }
 
@@ -88,21 +107,6 @@ const perform_agent_task = async (params: {
     endpoint_url = provider.base_url
   }
 
-  const document = editor.document
-  const document_path = document.uri.fsPath
-  const current_file_path = vscode.workspace.asRelativePath(document.uri)
-
-  const files_collector = new FilesCollector(
-    params.file_tree_provider,
-    params.open_editors_provider
-  )
-
-  const collected_files = await files_collector.collect_files({
-    active_path: document_path
-  })
-
-  const selection = editor.selection
-  const selected_text = editor.document.getText(selection)
   let agent_instructions = ''
   if (selected_text) {
     agent_instructions += `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
@@ -157,7 +161,7 @@ const perform_agent_task = async (params: {
           (chunk: string) => {
             total_tokens += Math.ceil(chunk.length / 4)
             progress.report({
-              message: `received ${total_tokens} tokens`
+              message: `received ${total_tokens} tokens...`
             })
           }
         )
