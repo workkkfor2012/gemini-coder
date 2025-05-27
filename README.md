@@ -19,7 +19,7 @@
 
 ## What is CWC?
 
-CWC is a tool built by an independent developer enabling engineers getting the best quality AI-assistance with a game-changing cost efficiency.
+CWC is a tool built by an independent developer enabling programmers getting the best quality AI-assistance with a game-changing cost efficiency.
 
 🧩 Compatible with VS Code, Cursor and Windsurf<br/>
 ✌️ 100% free and open source!
@@ -161,8 +161,8 @@ Generate meaningful commit messages. The tool first attaches affected files, the
 
 ### Chat
 
-- `Code Web Chat: Web Chat` - Open web chat with default preset.
-- `Code Web Chat: Web Chat with...` - Open web chat with preset selection.
+- `Code Web Chat: Chat` - Open web chat with default preset.
+- `Code Web Chat: Chat using...` - Open web chat with preset selection.
 - `Code Web Chat: Chat to Clipboard` - Enter instructions and copy to clipboard.
 
 ### Context
