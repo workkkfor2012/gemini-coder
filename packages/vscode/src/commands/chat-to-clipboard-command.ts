@@ -1,6 +1,5 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
-import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 
 export function chat_to_clipboard_command(
@@ -32,15 +31,19 @@ export function chat_to_clipboard_command(
       })
 
       if (!instructions) {
-        return // User cancelled
+        return
       }
 
-      const current_history = context.workspaceState.get<string[]>(
-        'history',
-        []
-      )
-      const updated_history = [instructions, ...current_history].slice(0, 100)
-      await context.workspaceState.update('history', updated_history)
+      const editor = vscode.window.activeTextEditor
+      const document = editor?.document
+      const current_file_path = document
+        ? vscode.workspace.asRelativePath(document.uri)
+        : ''
+
+      if (editor && !editor.selection.isEmpty) {
+        const selected_text = editor.document.getText(editor.selection)
+        instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
+      }
 
       const files_collector = new FilesCollector(
         file_tree_provider,
@@ -62,8 +65,6 @@ export function chat_to_clipboard_command(
         )
         return
       }
-
-      instructions = replace_selection_placeholder(instructions)
 
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const edit_format = config.get<EditFormat>('editFormat')!
