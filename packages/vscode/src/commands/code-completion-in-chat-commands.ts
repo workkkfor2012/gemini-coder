@@ -120,7 +120,7 @@ export function code_completion_in_chat_with_command(
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
-    'codeWebChat.codeCompletionInChatWith',
+    'codeWebChat.codeCompletionInChatUsing',
     async () => {
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const all_presets = config.get<any[]>('presets', [])

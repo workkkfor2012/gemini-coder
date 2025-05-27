@@ -226,8 +226,8 @@
         "category": "Code Web Chat"
       },
       {
-        "command": "codeWebChat.codeCompletionInChatWith",
-        "title": "Code Completion in Chat with...",
+        "command": "codeWebChat.codeCompletionInChatUsing",
+        "title": "Code Completion in Chat using...",
         "category": "Code Web Chat"
       },
       {
@@ -236,13 +236,13 @@
         "category": "Code Web Chat"
       },
       {
-        "command": "codeWebChat.webChat",
-        "title": "Web Chat",
+        "command": "codeWebChat.chat",
+        "title": "Chat",
         "category": "Code Web Chat"
       },
       {
-        "command": "codeWebChat.webChatWith",
-        "title": "Web Chat with...",
+        "command": "codeWebChat.chatUsing",
+        "title": "Chat using...",
         "category": "Code Web Chat"
       },
       {

@@ -19,8 +19,8 @@ import {
   refactor_commands,
   refactor_to_clipboard_command,
   code_completion_commands,
-  web_chat_command,
-  web_chat_with_command,
+  chat_command,
+  chat_using_command,
   chat_to_clipboard_command,
   close_editor_command,
   close_all_editors_command,
@@ -150,13 +150,13 @@ export async function activate(context: vscode.ExtensionContext) {
       open_editors_provider,
       websocket_server_instance
     ),
-    web_chat_command(
+    chat_command(
       context,
       workspace_provider,
       open_editors_provider,
       websocket_server_instance
     ),
-    web_chat_with_command(
+    chat_using_command(
       context,
       workspace_provider,
       open_editors_provider,

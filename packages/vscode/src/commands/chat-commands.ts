@@ -83,14 +83,14 @@ async function handle_chat_command(
 }
 
 // For single preset selection
-export function web_chat_with_command(
+export function chat_using_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
   return vscode.commands.registerCommand(
-    'codeWebChat.webChatWith',
+    'codeWebChat.chatUsing',
     async () => {
       // Check connection status immediately
       if (!websocket_server_instance.is_connected_with_browser()) {
@@ -136,13 +136,13 @@ export function web_chat_with_command(
 }
 
 // For multiple preset selection
-export function web_chat_command(
+export function chat_command(
   context: vscode.ExtensionContext,
   file_tree_provider: any,
   open_editors_provider: any,
   websocket_server_instance: WebSocketManager
 ) {
-  return vscode.commands.registerCommand('codeWebChat.webChat', async () => {
+  return vscode.commands.registerCommand('codeWebChat.chat', async () => {
     // Check connection status immediately
     if (!websocket_server_instance.is_connected_with_browser()) {
       vscode.window.showInformationMessage(
