@@ -64,13 +64,17 @@ async function handle_chat_command(
 
   instructions = apply_preset_affixes_to_instruction(instructions, preset_names)
 
-  const config = vscode.workspace.getConfiguration('codeWebChat')
-  const edit_format = config.get<EditFormat>('editFormat')!
-  const edit_format_instructions = config.get<string>(
-    `editFormatInstructions${
-      edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
-    }`
+  const edit_format = context.workspaceState.get<EditFormat>(
+    'editFormat',
+    'truncated'
   )
+  const edit_format_instructions = vscode.workspace
+    .getConfiguration('codeWebChat')
+    .get<string>(
+      `editFormatInstructions${
+        edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
+      }`
+    )
 
   if (edit_format_instructions) {
     instructions += `\n${edit_format_instructions}`
