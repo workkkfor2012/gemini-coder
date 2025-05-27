@@ -19,8 +19,8 @@ export namespace Presets {
 
   export type Props = {
     presets: Preset[]
+    is_disabled: boolean
     on_preset_click: (name: string) => void
-    disabled: boolean
     selected_presets: string[]
     selected_code_completion_presets: string[]
     on_create_preset: () => void
@@ -71,7 +71,11 @@ export const Presets: React.FC<Presets.Props> = (props) => {
   if (props.presets.length == 0) return null
 
   return (
-    <div className={styles.container}>
+    <div
+      className={cn(styles.container, {
+        [styles['container--disabled']]: props.is_disabled
+      })}
+    >
       <div className={styles['my-presets']}>
         <div className={styles['my-presets__left']}>
           <span>MY PRESETS</span>
@@ -90,11 +94,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
         </TextButton>
       </div>
 
-      <div
-        className={cn(styles.presets, {
-          [styles['presets--disabled']]: props.disabled
-        })}
-      >
+      <div className={styles.presets}>
         <ReactSortable
           list={with_ids(props.presets)}
           setList={(new_state) => {
@@ -105,7 +105,6 @@ export const Presets: React.FC<Presets.Props> = (props) => {
           }}
           animation={150}
           handle={`.${styles.presets__item__right__drag_handle}`}
-          disabled={props.disabled}
         >
           {props.presets.map((preset, i) => {
             const is_disabled_in_code_completion_mode =
@@ -166,7 +165,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                     e.stopPropagation()
                   }}
                 >
-                  {preset.has_affixes && !props.disabled && (
+                  {preset.has_affixes && (
                     <IconButton
                       codicon_icon="copy"
                       title="Copy to clipboard"

@@ -19,7 +19,7 @@
 
 ## What is CWC?
 
-CWC is a tool built by an independent developer enabling programmers getting the best quality AI-assistance with a game-changing cost efficiency.
+CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
 🧩 Compatible with VS Code, Cursor and Windsurf<br/>
 ✌️ 100% free and open source!
@@ -27,9 +27,9 @@ CWC is a tool built by an independent developer enabling programmers getting the
 **Guiding Principles:**
 
 - initialize popular chatbots—but don't game them
-- everything you need—nothing you don’t
+- API features—ecomonic on token usage
 - respect privacy—zero tracking
-- lightweight—under 1MB
+- lightweight—under 2MB
 
 **CWC is for you if:**
 

@@ -268,6 +268,28 @@ export const Chat: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const handle_apply_copied_chat_response = () => {
+    props.vscode.postMessage({
+      command: 'EXECUTE_COMMAND',
+      command_id: 'codeWebChat.applyChatResponse'
+    } as WebviewMessage)
+  }
+
+  const handle_apply_copied_chat_response_more_click = () => {
+    const items = [
+      {
+        label: 'Revert last applied chat response',
+        command: 'codeWebChat.revert'
+      }
+    ]
+
+    props.vscode.postMessage({
+      command: 'SHOW_QUICK_PICK',
+      items,
+      title: 'More actions...'
+    })
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -294,6 +316,10 @@ export const Chat: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
+      on_apply_copied_chat_response_click={handle_apply_copied_chat_response}
+      on_apply_copied_chat_response_more_click={
+        handle_apply_copied_chat_response_more_click
+      }
       has_active_editor={has_active_editor}
       is_in_code_completions_mode={is_in_code_completions_mode}
       on_code_completions_mode_click={handle_code_completions_mode_click}

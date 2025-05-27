@@ -7,12 +7,15 @@ import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/edito
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
+import { Button } from '@ui/components/editor/Button'
 
 type Props = {
   is_visible: boolean
   initialize_chats: (params: { prompt: string; preset_names: string[] }) => void
   copy_to_clipboard: (instruction: string) => void
   on_create_preset: () => void
+  on_apply_copied_chat_response_click: () => void
+  on_apply_copied_chat_response_more_click: () => void
   is_connected: boolean
   presets: Preset[]
   selected_presets: string[]
@@ -221,9 +224,10 @@ export const ChatTabView: React.FC<Props> = (props) => {
         </>
       )}
 
+      <UiSeparator size="large" />
+
       {!props.is_connected && (
         <>
-          <UiSeparator size="large" />
           <div className={styles['browser-extension-message']}>
             <span>
               Get the connector browser extension for hands-free chat
@@ -236,10 +240,10 @@ export const ChatTabView: React.FC<Props> = (props) => {
               Install for Firefox
             </a>
           </div>
+
+          <UiSeparator size="large" />
         </>
       )}
-
-      <UiSeparator size="large" />
 
       <UiPresets
         presets={props.presets.map((preset) => {
@@ -248,7 +252,7 @@ export const ChatTabView: React.FC<Props> = (props) => {
             has_affixes: !!(preset.prompt_prefix || preset.prompt_suffix)
           }
         })}
-        disabled={!props.is_connected}
+        is_disabled={!props.is_connected}
         selected_presets={props.selected_presets}
         selected_code_completion_presets={
           props.selected_code_completion_presets
@@ -268,6 +272,19 @@ export const ChatTabView: React.FC<Props> = (props) => {
         on_preset_delete={props.on_preset_delete}
         on_set_default_presets={props.on_set_default_presets}
       />
+
+      <UiSeparator size="medium" />
+
+      <div className={styles['apply-copied-chat-response']}>
+        <Button
+          on_click={props.on_apply_copied_chat_response_click}
+          on_quick_pick_trigger_click={
+            props.on_apply_copied_chat_response_more_click
+          }
+        >
+          Apply Copied Chat Response
+        </Button>
+      </div>
     </div>
   )
 }
