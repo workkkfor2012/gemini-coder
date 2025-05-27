@@ -22,18 +22,33 @@ const perform_agent_task = async (params: {
     return
   }
 
-  const instructions = await vscode.window.showInputBox({
-    prompt: 'Enter instructions',
-    validateInput: (value) => {
-      if (!value || value.trim().length == 0) {
-        return 'Instruction cannot be empty'
+  const last_chat_prompt =
+    params.context.workspaceState.get<string>('last-chat-prompt') || ''
+
+  const input_box = vscode.window.createInputBox()
+  input_box.placeholder = 'Enter instructions'
+  input_box.value = last_chat_prompt
+
+  input_box.onDidChangeValue(async (value) => {
+    await params.context.workspaceState.update('last-chat-prompt', value)
+  })
+
+  const instructions = await new Promise<string | undefined>((resolve) => {
+    input_box.onDidAccept(() => {
+      const value = input_box.value.trim()
+      if (value.length === 0) {
+        vscode.window.showErrorMessage('Instruction cannot be empty')
+        return
       }
-      return null
-    }
+      resolve(value)
+      input_box.hide()
+    })
+    input_box.onDidHide(() => resolve(undefined))
+    input_box.show()
   })
 
   if (!instructions) {
-    return // User cancelled the instruction input
+    return
   }
 
   const config_result = await get_refactor_config(
