@@ -25,7 +25,7 @@ const perform_agent_task = async (params: {
   const instructions = await vscode.window.showInputBox({
     prompt: 'Enter instructions',
     validateInput: (value) => {
-      if (!value || value.trim().length === 0) {
+      if (!value || value.trim().length == 0) {
         return 'Instruction cannot be empty'
       }
       return null
@@ -90,9 +90,9 @@ const perform_agent_task = async (params: {
   const selected_text = editor.document.getText(selection)
   let agent_instructions = ''
   if (selected_text) {
-    agent_instructions += `Regarding the following snippet \`\`\`\n${selected_text}\n\`\`\`\nin \`${current_file_path}\``
+    agent_instructions += `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
   }
-  agent_instructions += ` ${instructions}`
+  agent_instructions += instructions
 
   const files = `<files>${collected_files}\n</files>`
   const edit_format_instructions =
@@ -124,7 +124,7 @@ const perform_agent_task = async (params: {
     const response = await vscode.window.withProgress(
       {
         location: vscode.ProgressLocation.Notification,
-        title: 'Waiting for the API response...',
+        title: 'Waiting for response',
         cancellable: true
       },
       async (progress, token) => {
@@ -132,11 +132,19 @@ const perform_agent_task = async (params: {
           cancel_token_source.cancel('Cancelled by user.')
         })
 
+        let total_tokens = 0
+
         return make_api_request(
           endpoint_url,
           provider.api_key,
           body,
-          cancel_token_source.token
+          cancel_token_source.token,
+          (chunk: string) => {
+            total_tokens += Math.ceil(chunk.length / 4)
+            progress.report({
+              message: `received ${total_tokens} tokens`
+            })
+          }
         )
       }
     )
