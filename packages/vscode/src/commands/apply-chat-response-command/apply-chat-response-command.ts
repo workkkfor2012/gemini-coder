@@ -461,7 +461,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
           // All patches applied successfully - show "Looks off" only if any used fallback
           const buttons = ['Revert']
           if (any_patch_used_fallback) {
-            buttons.push('Looks off, use intelligent mode')
+            buttons.push('Looks off, use refactoring tool')
           }
 
           const response = await vscode.window.showInformationMessage(
@@ -474,7 +474,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
           if (response == 'Revert' && all_original_states.length > 0) {
             await revert_files(all_original_states)
             context.workspaceState.update(LAST_APPLIED_CHANGES_STATE_KEY, null)
-          } else if (response == 'Looks off, use intelligent mode') {
+          } else if (response == 'Looks off, use refactoring tool') {
             // Revert the applied patches first
             await revert_files(all_original_states)
 
@@ -707,7 +707,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
           if (selected_mode_label == 'Fast replace') {
             const buttons = ['Revert']
             if (replaced_files_count > 0) {
-              buttons.push('Looks off, use intelligent mode')
+              buttons.push('Looks off, use refactoring tool')
             }
 
             const response = await vscode.window.showInformationMessage(
@@ -721,7 +721,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                 LAST_APPLIED_CHANGES_STATE_KEY,
                 null
               )
-            } else if (response == 'Looks off, use intelligent mode') {
+            } else if (response == 'Looks off, use refactoring tool') {
               // First revert the fast replace changes
               await revert_files(final_original_states)
 
