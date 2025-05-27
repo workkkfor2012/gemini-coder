@@ -25,13 +25,49 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
   return patches
 }
 
+const process_collected_patch_lines = (
+  patch_lines_array: string[]
+): DiffPatch | null => {
+  const joined_patch_text_for_checks = patch_lines_array.join('\n')
+  if (joined_patch_text_for_checks.trim() === '') return null
+
+  const file_path = extract_file_path_from_lines(patch_lines_array)
+
+  if (!file_path) {
+    Logger.log({
+      function_name: 'process_collected_patch_lines',
+      message:
+        'Could not extract file path from collected patch lines in code block.',
+      data: {
+        clipboard_start: joined_patch_text_for_checks.substring(0, 200),
+        lines_count: patch_lines_array.length
+      }
+    })
+    return null
+  }
+
+  const patch_start_idx = find_patch_start_index(patch_lines_array)
+  let content_str = build_patch_content(
+    patch_lines_array,
+    file_path,
+    patch_start_idx
+  )
+
+  content_str = content_str.trim() // Canonical: remove any leading/trailing whitespace including extra newlines.
+
+  return {
+    file_path,
+    content: ensure_newline_ending(content_str) // Ensure one trailing newline.
+  }
+}
+
 const extract_direct_patch = (normalized_text: string): DiffPatch | null => {
   const lines = normalized_text.split('\n')
   const file_path = extract_file_path_from_lines(lines)
 
   if (!file_path) {
     Logger.log({
-      function_name: 'extract_diff_patches',
+      function_name: 'extract_direct_patch',
       message: 'Direct patch detected but no file path found.',
       data: { clipboard_start: normalized_text.substring(0, 100) }
     })
@@ -39,11 +75,12 @@ const extract_direct_patch = (normalized_text: string): DiffPatch | null => {
   }
 
   const patch_start_index = find_patch_start_index(lines)
-  const patch_content = build_patch_content(lines, file_path, patch_start_index)
+  let patch_content = build_patch_content(lines, file_path, patch_start_index)
+  patch_content = patch_content.trim() // Canonical: remove any leading/trailing whitespace
 
   return {
     file_path,
-    content: patch_content
+    content: ensure_newline_ending(patch_content) // Ensure one trailing newline
   }
 }
 
@@ -51,57 +88,65 @@ const extract_code_block_patches = (normalized_text: string): DiffPatch[] => {
   const patches: DiffPatch[] = []
   const lines = normalized_text.split('\n')
   let in_diff_block = false
-  let diff_header_detected = false
-  let current_patch = ''
-  let current_workspace: string | undefined
-  let current_file_path: string | undefined
+  let current_patch_lines: string[] = []
 
   for (const line of lines) {
-    if (line == '```diff' || line == '```patch') {
+    const trimmed_line = line.trim() // Use trimmed line for block delimiters
+
+    if (trimmed_line === '```diff' || trimmed_line === '```patch') {
+      // If starting a new diff block, process any previously accumulated patch lines from a malformed block
+      if (current_patch_lines.length > 0) {
+        const patch_info = process_collected_patch_lines(current_patch_lines)
+        if (patch_info) patches.push(patch_info)
+      }
       in_diff_block = true
-      diff_header_detected = false
-      current_patch = ''
-      current_workspace = undefined
-      current_file_path = undefined
+      current_patch_lines = [] // Reset for the new block
       continue
     }
 
-    if (
-      in_diff_block &&
-      (line.startsWith('---') || line.startsWith('diff --git'))
-    ) {
-      diff_header_detected = true
-    }
-
-    if (!in_diff_block || !diff_header_detected) {
+    if (trimmed_line === '```') {
+      if (in_diff_block) {
+        // Only process if we were in a diff block
+        if (current_patch_lines.length > 0) {
+          const patch_info = process_collected_patch_lines(current_patch_lines)
+          if (patch_info) patches.push(patch_info)
+        }
+        current_patch_lines = [] // Reset after processing
+      }
+      in_diff_block = false // Exited diff block
       continue
     }
 
-    if (line == '```') {
-      if (current_file_path && current_patch.trim()) {
-        const patch_content = process_code_block_patch(
-          current_patch,
-          current_file_path
+    if (in_diff_block) {
+      const is_potential_new_patch_header =
+        line.startsWith('diff --git a/') || line.startsWith('--- a/')
+
+      if (is_potential_new_patch_header && current_patch_lines.length > 0) {
+        const contains_plus_plus_plus = current_patch_lines.some((l) =>
+          l.startsWith('+++ b/')
         )
-        patches.push({
-          file_path: current_file_path,
-          content: patch_content,
-          workspace_name: current_workspace
-        })
-      }
-      in_diff_block = false
-      diff_header_detected = false
-      continue
-    }
+        // Also ensure the current lines have at least one of the starting headers.
+        const contains_main_header = current_patch_lines.some(
+          (l) => l.startsWith('--- a/') || l.startsWith('diff --git a/')
+        )
 
-    if (!current_file_path) {
-      current_file_path = extract_file_path_from_line(line)
-      if (current_file_path && line.startsWith('diff --git')) {
-        continue
+        if (contains_plus_plus_plus && contains_main_header) {
+          const patch_info = process_collected_patch_lines(current_patch_lines)
+          if (patch_info) patches.push(patch_info)
+          current_patch_lines = [line] // Start new patch with the current header line
+          continue
+        }
       }
+      current_patch_lines.push(line) // Add original line, not trimmed_line
     }
+  }
 
-    current_patch += line + '\n'
+  // After loop, if in_diff_block is true (e.g. missing closing ```) and lines were collected
+  if (in_diff_block && current_patch_lines.length > 0) {
+    const patch_info = process_collected_patch_lines(current_patch_lines)
+    if (patch_info) {
+      patches.push(patch_info)
+    }
   }
 
   return patches
@@ -122,22 +167,6 @@ const extract_file_path_from_lines = (lines: string[]): string | undefined => {
     if (git_diff_match) {
       return git_diff_match[2]
     }
-  }
-
-  return undefined
-}
-
-const extract_file_path_from_line = (line: string): string | undefined => {
-  const file_path_match = line.match(
-    /^\+\+\+ b\/(.+?)(?:\s+\d{4}-\d{2}-\d{2}.*)?$/
-  )
-  if (file_path_match) {
-    return file_path_match[1]
-  }
-
-  const git_diff_match = line.match(/^diff --git a\/(.+) b\/(.+)$/)
-  if (git_diff_match) {
-    return git_diff_match[2]
   }
 
   return undefined
@@ -197,31 +226,6 @@ const build_patch_content = (
   return ensure_newline_ending(patch_content)
 }
 
-const process_code_block_patch = (
-  current_patch: string,
-  file_path: string
-): string => {
-  let patch_content = current_patch
-
-  const patch_lines = patch_content.split('\n')
-  const first_header_index = patch_lines.findIndex((line) =>
-    line.startsWith('--- ')
-  )
-
-  if (first_header_index >= 0) {
-    patch_content = patch_lines.slice(first_header_index).join('\n')
-  }
-
-  if (!patch_content.includes('--- a/') && !patch_content.includes('+++ b/')) {
-    patch_content = `--- a/${file_path}\n+++ b/${file_path}\n${patch_content}`
-  }
-
-  const final_patch_lines = patch_content.split('\n')
-  const formatted_patch_lines = format_patch_lines(final_patch_lines)
-
-  return ensure_newline_ending(formatted_patch_lines.join('\n'))
-}
-
 const format_hunk_headers = (lines: string[]): string[] => {
   const formatted_lines: string[] = []
   for (const line of lines) {
@@ -231,24 +235,6 @@ const format_hunk_headers = (lines: string[]): string[] => {
       formatted_lines.push(hunk_match[2])
     } else {
       formatted_lines.push(line)
-    }
-  }
-  return formatted_lines
-}
-
-const format_patch_lines = (lines: string[]): string[] => {
-  const formatted_lines: string[] = []
-  for (const line of lines) {
-    if (line.startsWith('--- a/') || line.startsWith('+++ b/')) {
-      formatted_lines.push(line.replace(/\s+\d{4}-\d{2}-\d{2}.*$/, ''))
-    } else {
-      const hunk_match = line.match(/^(@@ -\d+,\d+ \+\d+,\d+ @@)(.*)$/)
-      if (hunk_match && hunk_match[2].trim() !== '') {
-        formatted_lines.push(hunk_match[1])
-        formatted_lines.push(hunk_match[2])
-      } else {
-        formatted_lines.push(line)
-      }
     }
   }
   return formatted_lines
