@@ -78,7 +78,7 @@ export function chat_to_clipboard_command(
           }`
         )
 
-      if (edit_format_instructions) {
+      if (edit_format_instructions && context_text) {
         instructions += `\n${edit_format_instructions}`
       }
 

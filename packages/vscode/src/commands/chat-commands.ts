@@ -76,7 +76,7 @@ async function handle_chat_command(
       }`
     )
 
-  if (edit_format_instructions) {
+  if (edit_format_instructions && context_text) {
     instructions += `\n${edit_format_instructions}`
   }
 
