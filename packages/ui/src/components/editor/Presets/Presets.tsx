@@ -78,7 +78,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
           <IconButton
             codicon_icon="info"
-            href="https://gemini-coder.netlify.app/docs/features/chat/presets"
+            href="https://codeweb.chat/features/chat"
           />
         </div>
 
