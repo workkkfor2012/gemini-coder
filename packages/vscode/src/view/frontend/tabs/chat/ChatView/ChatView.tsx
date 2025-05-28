@@ -233,7 +233,7 @@ export const ChatTabView: React.FC<Props> = (props) => {
               Get the connector browser extension for hands-free chat
               inititalizations.
             </span>
-            <a href="https://chromewebstore.google.com/detail/gemini-coder-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
+            <a href="https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
               Install for Chrome
             </a>
             <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
