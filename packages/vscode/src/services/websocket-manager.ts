@@ -13,6 +13,9 @@ import { WebsitesProvider } from '../context/providers/websites-provider'
 import { Logger } from '../helpers/logger'
 import { Preset } from '@shared/types/preset'
 
+/**
+ * Bridges the current workspace window and websocket server that runs in a separate process.
+ */
 export class WebSocketManager {
   private context: vscode.ExtensionContext
   private port: number = DEFAULT_PORT
