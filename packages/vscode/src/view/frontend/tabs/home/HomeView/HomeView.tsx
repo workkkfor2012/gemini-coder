@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import styles from './ChatView.module.scss'
+import styles from './HomeView.module.scss'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
@@ -7,7 +7,7 @@ import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/edito
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
-import { Button } from '@ui/components/editor/Button'
+import { Button as UiButton} from '@ui/components/editor/Button'
 
 type Props = {
   is_visible: boolean
@@ -44,7 +44,7 @@ type Props = {
   on_caret_position_change: (caret_position: number) => void
 }
 
-export const ChatTabView: React.FC<Props> = (props) => {
+export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   const current_prompt = props.is_in_code_completions_mode
@@ -276,14 +276,14 @@ export const ChatTabView: React.FC<Props> = (props) => {
       <UiSeparator size="medium" />
 
       <div className={styles['apply-copied-chat-response']}>
-        <Button
+        <UiButton
           on_click={props.on_apply_copied_chat_response_click}
           on_quick_pick_trigger_click={
             props.on_apply_copied_chat_response_more_click
           }
         >
           Apply Copied Chat Response
-        </Button>
+        </UiButton>
       </div>
     </div>
   )

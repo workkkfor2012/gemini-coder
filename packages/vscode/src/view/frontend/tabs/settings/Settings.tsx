@@ -1,5 +1,5 @@
 import styles from './Settings.module.scss'
-import { Button } from '@ui/components/editor/Button'
+import { Button as UiButton } from '@ui/components/editor/Button'
 import { WebviewMessage } from '@/view/types/messages'
 import { ApiTool as UiApiTool } from '@ui/components/editor/ApiTool'
 
@@ -47,7 +47,9 @@ export const Settings: React.FC<Props> = (props) => {
         description={params.description}
         checkmarks={params.checkmarks}
       />
-      <Button on_click={params.on_setup_click}>{params.button_label}</Button>
+      <UiButton on_click={params.on_setup_click}>
+        {params.button_label}
+      </UiButton>
     </div>
   )
 
@@ -56,9 +58,9 @@ export const Settings: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      <Button on_click={handle_configure_api_providers_click}>
+      <UiButton on_click={handle_configure_api_providers_click}>
         Configure API Providers
-      </Button>
+      </UiButton>
 
       {render_api_tool_settings({
         title: 'Code Completions',

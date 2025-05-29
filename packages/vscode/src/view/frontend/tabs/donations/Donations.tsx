@@ -1,7 +1,7 @@
-import { RecentDonations } from '@ui/components/editor/RecentDonations'
+import { RecentDonations as UiRecentDonations } from '@ui/components/editor/RecentDonations'
 import styles from './Donations.module.scss'
-import { Separator } from '@ui/components/editor/Separator'
-import { BuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
+import { Separator as UiSeparator } from '@ui/components/editor/Separator'
+import { BuyMeACoffee as UiBuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
 import { useEffect, useState } from 'react'
 import { Logger } from '@/helpers/logger'
 import cn from 'classnames'
@@ -69,9 +69,9 @@ export const Donations: React.FC<Props> = (props) => {
     >
       CWC is a work of an independent developer aimed at making high quality AI
       coding tools freely accessible to everyone.
-      <Separator size="large" />
-      <BuyMeACoffee username="robertpiosik" />
-      <Separator size="large" />
+      <UiSeparator size="large" />
+      <UiBuyMeACoffee username="robertpiosik" />
+      <UiSeparator size="large" />
       {is_loading && !donations.length ? (
         <>Fetching donations...</>
       ) : error ? (
@@ -82,7 +82,7 @@ export const Donations: React.FC<Props> = (props) => {
             [styles['recent-donations--loading']]: is_loading
           })}
         >
-          <RecentDonations donations={donations} />
+          <UiRecentDonations donations={donations} />
         </div>
       )}
     </div>

@@ -1,4 +1,4 @@
-import { Chat } from './tabs/chat/Chat'
+import { Home } from './tabs/home'
 import { Donations } from './tabs/donations/Donations'
 import { Header as UiHeader } from '@ui/components/editor/Header'
 import { useEffect, useState } from 'react'
@@ -18,9 +18,9 @@ import { Settings } from './tabs/settings/Settings'
 const vscode = acquireVsCodeApi()
 
 export const View = () => {
-  const [active_tab, set_active_tab] = useState<'chat' | 'settings' | 'donations'>(
-    'chat'
-  )
+  const [active_tab, set_active_tab] = useState<
+    'home' | 'settings' | 'donations'
+  >('home')
   const [updating_preset, set_updating_preset] = useState<Preset>()
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
@@ -100,19 +100,19 @@ export const View = () => {
     <>
       <UiHeader
         active_tab={active_tab}
-        on_chat_tab_click={() => {
-          set_active_tab('chat')
+        on_home_tab_click={() => {
+          set_active_tab('home')
         }}
-        on_donate_tab_click={() => {
+        on_donations_tab_click={() => {
           set_active_tab('donations')
         }}
         on_settings_tab_click={() => {
           set_active_tab('settings')
         }}
       />
-      <Chat
+      <Home
         vscode={vscode}
-        is_visible={active_tab == 'chat'}
+        is_visible={active_tab == 'home'}
         on_preset_edit={(preset) => {
           set_updating_preset(preset)
         }}
