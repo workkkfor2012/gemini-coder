@@ -1,4 +1,4 @@
-import { RecentCoffees } from '@ui/components/editor/RecentCoffees'
+import { RecentDonations } from '@ui/components/editor/RecentDonations'
 import styles from './Donations.module.scss'
 import { Separator } from '@ui/components/editor/Separator'
 import { BuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
@@ -12,7 +12,9 @@ type Props = {
 }
 
 export const Donations: React.FC<Props> = (props) => {
-  const [coffees, set_coffees] = useState<{ name: string; note?: string }[]>([])
+  const [donations, set_donations] = useState<
+    { name: string; date: Date; note?: string }[]
+  >([])
   const [is_loading, set_is_loading] = useState(false)
   const [error, set_error] = useState<string | null>(null)
 
@@ -33,10 +35,11 @@ export const Donations: React.FC<Props> = (props) => {
         throw new Error('Failed to fetch donations')
       }
       const data = await response.json()
-      set_coffees(
+      set_donations(
         data.data.map((coffee: any) => ({
           name: coffee.supporter_name,
-          note: coffee.support_note
+          note: coffee.support_note,
+          date: new Date(coffee.support_created_on)
         }))
       )
     } catch (err) {
@@ -61,7 +64,7 @@ export const Donations: React.FC<Props> = (props) => {
       <Separator size="large" />
       <BuyMeACoffee username="robertpiosik" />
       <Separator size="large" />
-      {is_loading && !coffees.length ? (
+      {is_loading && !donations.length ? (
         <>Fetching donations...</>
       ) : error ? (
         <>{error}</>
@@ -71,7 +74,7 @@ export const Donations: React.FC<Props> = (props) => {
             [styles['recent-donations--loading']]: is_loading
           })}
         >
-          <RecentCoffees coffees={coffees} />
+          <RecentDonations donations={donations} />
         </div>
       )}
     </div>

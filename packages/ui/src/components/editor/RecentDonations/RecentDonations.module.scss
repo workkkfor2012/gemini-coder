@@ -12,6 +12,12 @@
       display: flex;
       align-items: center;
       color: var(--vscode-descriptionForeground);
+      white-space: nowrap;
+
+      > span:last-child {
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
       &__username {
         color: black;

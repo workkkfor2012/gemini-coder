@@ -2,8 +2,7 @@ import { HorizontalSelector } from './HorizontalSelector'
 import { useState } from 'react'
 
 export default {
-  component: HorizontalSelector,
-  title: 'Components/HorizontalSelector'
+  component: HorizontalSelector
 }
 
 export const EditFormatExample = () => {

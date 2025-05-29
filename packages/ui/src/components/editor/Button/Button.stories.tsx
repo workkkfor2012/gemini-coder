@@ -2,7 +2,6 @@ import { Button } from './Button'
 import { useState } from 'react'
 
 export default {
-  title: 'Editor/Button',
   component: Button
 }
 

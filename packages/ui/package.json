@@ -24,6 +24,7 @@
     "@storybook/react-vite": "^7.6.20",
     "@vscode/codicons": "^0.0.36",
     "classnames": "^2.5.1",
+    "dayjs": "^1.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-sortablejs": "^6.1.4",
