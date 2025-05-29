@@ -56,8 +56,8 @@ export const Donations: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      CWC is a work of an independent developer aimed at making AI-assisted
-      software development freely accessible to everyone.
+      CWC is a work of an independent developer aimed at making high quality AI
+      coding tools freely accessible to everyone.
       <Separator size="large" />
       <BuyMeACoffee username="robertpiosik" />
       <Separator size="large" />
