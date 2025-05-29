@@ -10,13 +10,18 @@
 
     &__heading {
       display: flex;
+      gap: var(--padding-4px);
       align-items: center;
       color: var(--vscode-descriptionForeground);
       white-space: nowrap;
 
-      > span:last-child {
-        overflow: hidden;
+      > span {
         text-overflow: ellipsis;
+        overflow: hidden;
+      }
+
+      > span:last-child {
+        flex: 1;
       }
 
       &__username {
@@ -24,7 +29,6 @@
         background-color: #ffdd00;
         padding: var(--padding-2px) var(--padding-5px);
         font-weight: 600;
-        margin-right: var(--padding-4px);
         border-radius: var(--border-radius-8px);
       }
     }

@@ -5,6 +5,7 @@ import { BuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
 import { useEffect, useState } from 'react'
 import { Logger } from '@/helpers/logger'
 import cn from 'classnames'
+import { useRef } from 'react'
 
 type Props = {
   vscode: any
@@ -18,7 +19,11 @@ export const Donations: React.FC<Props> = (props) => {
   const [is_loading, set_is_loading] = useState(false)
   const [error, set_error] = useState<string | null>(null)
 
+  const container_ref = useRef<HTMLDivElement>(null)
+
   useEffect(() => {
+    container_ref.current!.scrollTop = 0
+
     if (props.is_visible && !is_loading) {
       fetch_donations()
     }
@@ -56,7 +61,10 @@ export const Donations: React.FC<Props> = (props) => {
 
   return (
     <div
-      className={styles.container}
+      ref={container_ref}
+      className={cn(styles.container, {
+        [styles['container--visible']]: props.is_visible
+      })}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       CWC is a work of an independent developer aimed at making high quality AI
