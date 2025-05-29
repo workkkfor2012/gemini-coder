@@ -73,8 +73,8 @@ const extract_file_path_from_xml = (line: string): string | null => {
   return match ? match[1] : null
 }
 
-export const parse_clipboard_multiple_files = (params: {
-  clipboard_text: string
+export const parse_multiple_files = (params: {
+  response: string
   is_single_root_folder_workspace: boolean
 }): ClipboardFile[] => {
   // Check if it's a file-content-only format first
@@ -96,7 +96,7 @@ export const parse_clipboard_multiple_files = (params: {
   let in_cdata = false
 
   // Split text into lines for easier processing
-  const lines = params.clipboard_text.split('\n')
+  const lines = params.response.split('\n')
 
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
@@ -258,10 +258,10 @@ export const parse_clipboard_multiple_files = (params: {
 }
 
 export const parse_file_content_only = (params: {
-  clipboard_text: string
+  response: string
   is_single_root_folder_workspace: boolean
 }): ClipboardFile | null => {
-  const lines = params.clipboard_text.trim().split('\n')
+  const lines = params.response.trim().split('\n')
 
   // Check if the first line looks like a file path comment
   if (lines.length < 2) return null
@@ -304,25 +304,25 @@ export const parse_file_content_only = (params: {
   return null
 }
 
-export const parse_clipboard_content = (
-  clipboard_text: string,
+export const parse_response = (
+  response: string,
   is_single_root_folder_workspace: boolean
 ): ClipboardContent => {
   if (
-    clipboard_text.includes('```diff') ||
-    clipboard_text.includes('```patch') ||
-    clipboard_text.startsWith('--- ') ||
-    clipboard_text.startsWith('diff --git')
+    response.includes('```diff') ||
+    response.includes('```patch') ||
+    response.startsWith('--- ') ||
+    response.startsWith('diff --git')
   ) {
-    const patches = extract_diff_patches(clipboard_text)
+    const patches = extract_diff_patches(response)
     return {
       type: 'patches',
       patches
     }
   }
 
-  const files = parse_clipboard_multiple_files({
-    clipboard_text,
+  const files = parse_multiple_files({
+    response,
     is_single_root_folder_workspace
   })
 

@@ -7,7 +7,7 @@ import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { get_refactoring_instruction } from '../../../constants/instructions'
 import {
   ClipboardFile,
-  parse_clipboard_multiple_files
+  parse_multiple_files
 } from '../utils/clipboard-parser'
 import {
   sanitize_file_name,
@@ -144,7 +144,7 @@ export async function handle_intelligent_update(params: {
   endpoint_url: string
   api_key: string
   model: string
-  clipboard_text: string
+  response: string
   context: vscode.ExtensionContext
   is_single_root_folder_workspace: boolean
 }): Promise<OriginalFileState[] | null> {
@@ -173,8 +173,8 @@ export async function handle_intelligent_update(params: {
     message: 'Processing multiple files'
   })
   // Handle multiple files with AI processing ('Intelligent update' mode)
-  const raw_files = parse_clipboard_multiple_files({
-    clipboard_text: params.clipboard_text,
+  const raw_files = parse_multiple_files({
+    response: params.response,
     is_single_root_folder_workspace: params.is_single_root_folder_workspace
   })
 

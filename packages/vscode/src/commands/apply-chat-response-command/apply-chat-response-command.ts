@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as fs from 'fs'
 import {
-  parse_clipboard_content,
+  parse_response,
   ClipboardFile
 } from './utils/clipboard-parser'
 import { LAST_APPLIED_CHANGES_STATE_KEY } from '../../constants/state-keys'
@@ -274,11 +274,17 @@ async function get_file_refactoring_config(
 export function apply_chat_response_command(context: vscode.ExtensionContext) {
   return vscode.commands.registerCommand(
     'codeWebChat.applyChatResponse',
-    async () => {
-      const clipboard_text = await vscode.env.clipboard.readText()
+    async (args?: { response?: string }) => {
+      let response = args?.response
 
-      if (!clipboard_text) {
-        vscode.window.showErrorMessage('Clipboard is empty.')
+      if (!response) {
+        response = await vscode.env.clipboard.readText()
+      }
+
+      if (!response) {
+        vscode.window.showErrorMessage(
+          'No response text provided and clipboard is empty.'
+        )
         Logger.warn({
           function_name: 'apply_chat_response_command',
           message: 'Clipboard is empty.'
@@ -291,8 +297,8 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
         vscode.workspace.workspaceFolders?.length == 1
 
       // Parse clipboard content which can now contain either files or patches
-      const clipboard_content = parse_clipboard_content(
-        clipboard_text,
+      const clipboard_content = parse_response(
+        response,
         is_single_root_folder_workspace
       )
 
@@ -398,7 +404,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
               endpoint_url,
               api_key: provider.api_key,
               model: file_refactoring_config.model,
-              clipboard_text: failed_patches_as_code_blocks,
+              response: failed_patches_as_code_blocks,
               context: context,
               is_single_root_folder_workspace
             })
@@ -512,7 +518,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  clipboard_text: all_patches_text,
+                  response: all_patches_text,
                   context: context,
                   is_single_root_folder_workspace
                 }
@@ -645,7 +651,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
             endpoint_url,
             api_key: provider.api_key,
             model: file_refactoring_config.model,
-            clipboard_text,
+            response,
             context: context,
             is_single_root_folder_workspace
           })
@@ -753,7 +759,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   endpoint_url,
                   api_key: provider.api_key,
                   model: file_refactoring_config.model,
-                  clipboard_text,
+                  response,
                   context: context,
                   is_single_root_folder_workspace
                 })

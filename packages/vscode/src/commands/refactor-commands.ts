@@ -391,9 +391,9 @@ const perform_refactoring = async (params: {
     )
 
     if (response) {
-      vscode.env.clipboard.writeText(response)
-      await new Promise((resolve) => setTimeout(resolve, 500))
-      await vscode.commands.executeCommand('codeWebChat.applyChatResponse')
+      await vscode.commands.executeCommand('codeWebChat.applyChatResponse', {
+        response: response
+      })
     }
   } catch (error) {
     if (axios.isCancel(error)) return
