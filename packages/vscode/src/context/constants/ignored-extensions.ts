@@ -43,4 +43,5 @@ export const ignored_extensions = new Set([
   'dll',
   'so',
   'dylib',
+  'bin'
 ])
