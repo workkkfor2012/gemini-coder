@@ -524,7 +524,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                   intelligent_update_states
                 )
                 const response = await vscode.window.showInformationMessage(
-                  `Successfully applied patches using intelligent update.`,
+                  `Successfully applied patches using refactoring tool.`,
                   'Revert'
                 )
 
@@ -541,14 +541,13 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
                 )
               }
             } catch (error) {
-              // Handle any errors during intelligent update
               Logger.error({
                 function_name: 'apply_chat_response_command',
-                message: 'Error during intelligent update of all patches'
+                message: 'Error during refactoring of all patches'
               })
 
               vscode.window.showErrorMessage(
-                'Error during intelligent update. Original patches have been reverted.'
+                'Error during refactoring. Original patches have been reverted.'
               )
             }
           }
