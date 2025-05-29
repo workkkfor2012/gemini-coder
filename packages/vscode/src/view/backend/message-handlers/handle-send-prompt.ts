@@ -126,7 +126,7 @@ async function validate_presets(params: {
   )
 
   if (valid_presets.length == 0) {
-    const last_selected_preset = params.context.globalState.get<string>(
+    const last_selected_item = params.context.globalState.get<string>(
       LAST_SELECTED_PRESET_KEY,
       ''
     )
@@ -142,25 +142,33 @@ async function validate_presets(params: {
     }
 
     const create_items = () => {
-      const static_items = [
-        {
-          label: 'Use refactoring API tool',
-          kind: vscode.QuickPickItemKind.Default,
-          is_static: true,
-          command: 'refactor'
-        },
-        {
-          label: 'Use refactoring API tool using...',
-          kind: vscode.QuickPickItemKind.Default,
-          is_static: true,
-          command: 'refactorUsing'
-        },
-        {
-          label: 'My Presets',
-          kind: vscode.QuickPickItemKind.Separator,
-          is_static: true
-        }
-      ]
+      const refactoring_items = !params.is_code_completions_mode
+        ? [
+            {
+              label: 'Use refactoring API tool',
+              kind: vscode.QuickPickItemKind.Default,
+              command: 'refactor',
+              type: 'refactoring'
+            },
+            {
+              label: 'Use refactoring API tool using...',
+              kind: vscode.QuickPickItemKind.Default,
+              command: 'refactorUsing',
+              type: 'refactoring'
+            },
+            {
+              label: 'My Presets',
+              kind: vscode.QuickPickItemKind.Separator,
+              type: 'separator'
+            }
+          ]
+        : [
+            {
+              label: 'My Presets',
+              kind: vscode.QuickPickItemKind.Separator,
+              type: 'separator'
+            }
+          ]
 
       const preset_items = available_presets.map((preset, index) => {
         const buttons = []
@@ -182,11 +190,11 @@ async function validate_presets(params: {
           }`,
           index,
           buttons,
-          is_static: false
+          type: 'preset'
         }
       })
 
-      return [...static_items, ...preset_items]
+      return [...refactoring_items, ...preset_items]
     }
 
     const quick_pick = vscode.window.createQuickPick()
@@ -194,24 +202,26 @@ async function validate_presets(params: {
     quick_pick.items = items
     quick_pick.placeholder = 'Select preset'
 
-    if (
-      last_selected_preset &&
-      items.some(
-        (item: any) => item.label == last_selected_preset && !item.is_static
+    if (last_selected_item) {
+      const last_item = items.find(
+        (item: any) => item.label === last_selected_item
       )
-    ) {
-      quick_pick.activeItems = [
-        items.find(
-          (item: any) => item.label == last_selected_preset && !item.is_static
-        )!
-      ]
-    } else {
-      const first_preset = items.find(
-        (item: any) =>
-          !item.is_static && item.kind !== vscode.QuickPickItemKind.Separator
-      )
+      if (last_item) {
+        quick_pick.activeItems = [last_item]
+      }
+    }
+
+    if (!quick_pick.activeItems.length) {
+      const first_preset = items.find((item: any) => item.type == 'preset')
       if (first_preset) {
         quick_pick.activeItems = [first_preset]
+      } else {
+        const first_selectable = items.find(
+          (item: any) => item.kind !== vscode.QuickPickItemKind.Separator
+        )
+        if (first_selectable) {
+          quick_pick.activeItems = [first_selectable]
+        }
       }
     }
 
@@ -221,7 +231,7 @@ async function validate_presets(params: {
         const button = event.button
         const index = item.index
 
-        if (item.is_static) return
+        if (item.type != 'preset') return
 
         if (button.tooltip == 'Move up' && index > 0) {
           const temp = available_presets[index]
@@ -260,7 +270,12 @@ async function validate_presets(params: {
         if (selected) {
           const selected_name = selected.label
 
-          if (selected.is_static && selected.command) {
+          params.context.globalState.update(
+            LAST_SELECTED_PRESET_KEY,
+            selected_name
+          )
+
+          if (selected.type == 'refactoring' && selected.command) {
             const instructions = replace_selection_placeholder(
               params.instructions
             )
@@ -269,11 +284,7 @@ async function validate_presets(params: {
             })
 
             resolve([])
-          } else if (!selected.is_static) {
-            params.context.globalState.update(
-              LAST_SELECTED_PRESET_KEY,
-              selected_name
-            )
+          } else if (selected.type == 'preset') {
             resolve([selected_name])
           } else {
             resolve([])
