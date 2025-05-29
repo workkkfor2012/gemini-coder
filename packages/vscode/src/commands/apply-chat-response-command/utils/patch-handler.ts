@@ -215,7 +215,8 @@ export async function apply_git_patch(
       let used_fallback = false
       try {
         await execAsync(
-          'git apply --whitespace=fix --ignore-whitespace ' + temp_file,
+          'git apply --whitespace=fix --ignore-whitespace --recount ' +
+            temp_file,
           {
             cwd: workspace_path
           }
