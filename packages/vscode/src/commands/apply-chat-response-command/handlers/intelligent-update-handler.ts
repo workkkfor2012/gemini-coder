@@ -338,7 +338,7 @@ export async function handle_intelligent_update(params: {
         filePath: string
         workspaceName?: string
       }
-      const documentChanges: DocumentChange[] = []
+      const document_changes: DocumentChange[] = []
 
       // Focus on the largest file for progress tracking
       let largest_file: {
@@ -545,13 +545,10 @@ export async function handle_intelligent_update(params: {
 
           // Wait for all promises in this batch
           const results = await Promise.all(promises)
-          documentChanges.push(...results)
+          document_changes.push(...results)
         }
 
-        // If we reached here without errors, apply all changes
-        progress.report({ message: 'Applying changes...' }) // Update progress message
-
-        for (const change of documentChanges) {
+        for (const change of document_changes) {
           if (token.isCancellationRequested)
             throw new Error('Operation cancelled')
 

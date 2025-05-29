@@ -6,11 +6,28 @@ export type DiffPatch = {
   workspace_name?: string
 }
 
+const normalize_header_line = (line: string): string => {
+  const processed_line = line
+    .replace(/\s+\d{4}-\d{2}-\d{2}.*$/, '')
+    .replace(/\t.*$/, '')
+
+  if (processed_line.startsWith('--- "a/') && processed_line.endsWith('"')) {
+    const path = processed_line.substring(7, processed_line.length - 1)
+    return `--- a/${path}`
+  }
+  if (processed_line.startsWith('+++ "b/') && processed_line.endsWith('"')) {
+    const path = processed_line.substring(7, processed_line.length - 1)
+    return `+++ b/${path}`
+  }
+
+  return processed_line
+}
+
 const process_collected_patch_lines = (
   patch_lines_array: string[]
 ): DiffPatch | null => {
   const joined_patch_text_for_checks = patch_lines_array.join('\n')
-  if (joined_patch_text_for_checks.trim() === '') return null
+  if (joined_patch_text_for_checks.trim() == '') return null
 
   const file_path = extract_file_path_from_lines(patch_lines_array)
 
@@ -62,7 +79,7 @@ const extract_code_block_patches = (normalized_text: string): DiffPatch[] => {
       continue
     }
 
-    if (trimmed_line === '```') {
+    if (trimmed_line == '```') {
       if (in_diff_block) {
         if (current_patch_lines.length > 0) {
           const patch_info = process_collected_patch_lines(current_patch_lines)
@@ -76,14 +93,19 @@ const extract_code_block_patches = (normalized_text: string): DiffPatch[] => {
 
     if (in_diff_block) {
       const is_potential_new_patch_header =
-        line.startsWith('diff --git a/') || line.startsWith('--- a/')
+        line.startsWith('diff --git a/') ||
+        line.startsWith('--- a/') ||
+        line.startsWith('--- "a/')
 
       if (is_potential_new_patch_header && current_patch_lines.length > 0) {
-        const contains_plus_plus_plus = current_patch_lines.some((l) =>
-          l.startsWith('+++ b/')
+        const contains_plus_plus_plus = current_patch_lines.some(
+          (l) => l.startsWith('+++ b/') || l.startsWith('+++ "b/')
         )
         const contains_main_header = current_patch_lines.some(
-          (l) => l.startsWith('--- a/') || l.startsWith('diff --git a/')
+          (l) =>
+            l.startsWith('--- a/') ||
+            l.startsWith('diff --git a/') ||
+            l.startsWith('--- "a/')
         )
 
         if (contains_plus_plus_plus && contains_main_header) {
@@ -113,14 +135,19 @@ const parse_multiple_raw_patches = (all_lines: string[]): DiffPatch[] => {
 
   for (const line of all_lines) {
     const is_potential_new_patch_header =
-      line.startsWith('--- a/') || line.startsWith('diff --git a/')
+      line.startsWith('--- a/') ||
+      line.startsWith('diff --git a/') ||
+      line.startsWith('--- "a/')
 
     if (is_potential_new_patch_header && current_patch_lines.length > 0) {
       const contains_main_header = current_patch_lines.some(
-        (l) => l.startsWith('--- a/') || l.startsWith('diff --git a/')
+        (l) =>
+          l.startsWith('--- a/') ||
+          l.startsWith('diff --git a/') ||
+          l.startsWith('--- "a/')
       )
-      const contains_plus_plus_plus = current_patch_lines.some((l) =>
-        l.startsWith('+++ b/')
+      const contains_plus_plus_plus = current_patch_lines.some(
+        (l) => l.startsWith('+++ b/') || l.startsWith('+++ "b/')
       )
 
       if (contains_main_header && contains_plus_plus_plus) {
@@ -161,17 +188,21 @@ export const extract_diff_patches = (clipboard_text: string): DiffPatch[] => {
 }
 
 const extract_file_path_from_lines = (lines: string[]): string | undefined => {
-  for (let i = 0; i < lines.length; i++) {
-    const file_path_match = lines[i].match(/^\+\+\+ b\/([^\t]+)/)
-    if (file_path_match) {
+  for (const line of lines) {
+    const file_path_match = line.match(
+      /^\+\+\+ (?:b\/|"b\/)?([^\t"]+)"?(?:\t.*)?$/
+    )
+    if (file_path_match && file_path_match[1]) {
       return file_path_match[1]
     }
   }
 
   for (const line of lines) {
-    const git_diff_match = line.match(/^diff --git a\/(.+) b\/(.+)$/)
-    if (git_diff_match) {
-      return git_diff_match[2]
+    const git_diff_match = line.match(
+      /^diff --git [^ ]+ (?:b\/|"b\/)?([^\t"]+)"?(?:\t.*)?$/
+    )
+    if (git_diff_match && git_diff_match[1]) {
+      return git_diff_match[1]
     }
   }
 
@@ -180,7 +211,7 @@ const extract_file_path_from_lines = (lines: string[]): string | undefined => {
 
 const find_patch_start_index = (lines: string[]): number => {
   for (let i = 0; i < lines.length; i++) {
-    if (lines[i].match(/^\+\+\+ b\//)) {
+    if (lines[i].match(/^\+\+\+ (?:b\/|"b\/)/)) {
       for (let j = i - 1; j >= 0; j--) {
         if (lines[j].startsWith('--- ')) {
           if (j > 0 && lines[j - 1].startsWith('diff --git')) {
@@ -199,8 +230,9 @@ const find_patch_start_index = (lines: string[]): number => {
         if (lines[j].startsWith('--- ')) {
           return j
         }
-        if (lines[j].startsWith('diff --git') || lines[j].startsWith('@@'))
+        if (lines[j].startsWith('diff --git') || lines[j].startsWith('@@')) {
           break
+        }
       }
     }
   }
@@ -217,8 +249,8 @@ const build_patch_content = (
 
   if (patch_start_index >= 0) {
     const patch_lines = lines.slice(patch_start_index).map((line) => {
-      if (line.startsWith('--- a/') || line.startsWith('+++ b/')) {
-        return line.replace(/\s+\d{4}-\d{2}-\d{2}.*$/, '').replace(/\t.*$/, '')
+      if (line.startsWith('--- ') || line.startsWith('+++ ')) {
+        return normalize_header_line(line)
       }
       return line
     })
@@ -229,7 +261,8 @@ const build_patch_content = (
     if (content_start_index == -1) {
       Logger.log({
         function_name: 'build_patch_content',
-        message: 'No @@ content found, constructing minimal patch headers.',
+        message:
+          'No @@ content found, constructing minimal patch headers based on file_path.',
         data: { file_path }
       })
       patch_content = `--- a/${file_path}\n+++ b/${file_path}`
