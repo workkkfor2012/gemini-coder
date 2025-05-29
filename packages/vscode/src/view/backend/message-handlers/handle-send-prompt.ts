@@ -9,11 +9,12 @@ export const handle_send_prompt = async (
   provider: ViewProvider,
   preset_names: string[]
 ): Promise<void> => {
-  const valid_preset_names = await validate_presets(
-    preset_names,
-    provider.is_code_completions_mode,
-    provider.context
-  )
+  const valid_preset_names = await validate_presets({
+    preset_names: preset_names,
+    is_code_completions_mode: provider.is_code_completions_mode,
+    context: provider.context,
+    instructions: provider.instructions
+  })
 
   if (valid_preset_names.length == 0) return
 
@@ -105,26 +106,27 @@ export const handle_send_prompt = async (
   )
 }
 
-async function validate_presets(
-  preset_names: string[],
-  is_code_completions_mode: boolean,
+async function validate_presets(params: {
+  preset_names: string[]
+  is_code_completions_mode: boolean
   context: vscode.ExtensionContext
-): Promise<string[]> {
+  instructions: string
+}): Promise<string[]> {
   const config = vscode.workspace.getConfiguration('codeWebChat')
   const presets = config.get<any[]>('presets', [])
   const available_presets = presets.filter((preset) =>
-    !is_code_completions_mode
+    !params.is_code_completions_mode
       ? true
       : !preset.promptPrefix && !preset.promptSuffix
   )
   const available_preset_names = available_presets.map((preset) => preset.name)
 
-  const valid_presets = preset_names.filter((name) =>
+  const valid_presets = params.preset_names.filter((name) =>
     available_preset_names.includes(name)
   )
 
   if (valid_presets.length == 0) {
-    const last_selected_preset = context.globalState.get<string>(
+    const last_selected_preset = params.context.globalState.get<string>(
       LAST_SELECTED_PRESET_KEY,
       ''
     )
@@ -140,7 +142,27 @@ async function validate_presets(
     }
 
     const create_items = () => {
-      return available_presets.map((preset, index) => {
+      const static_items = [
+        {
+          label: 'Use refactoring API tool',
+          kind: vscode.QuickPickItemKind.Default,
+          is_static: true,
+          command: 'refactor'
+        },
+        {
+          label: 'Use refactoring API tool using...',
+          kind: vscode.QuickPickItemKind.Default,
+          is_static: true,
+          command: 'refactorUsing'
+        },
+        {
+          label: 'My Presets',
+          kind: vscode.QuickPickItemKind.Separator,
+          is_static: true
+        }
+      ]
+
+      const preset_items = available_presets.map((preset, index) => {
         const buttons = []
 
         if (available_presets.length > 1) {
@@ -159,9 +181,12 @@ async function validate_presets(
             preset.model ? ` • ${preset.model}` : ''
           }`,
           index,
-          buttons
+          buttons,
+          is_static: false
         }
       })
+
+      return [...static_items, ...preset_items]
     }
 
     const quick_pick = vscode.window.createQuickPick()
@@ -171,13 +196,23 @@ async function validate_presets(
 
     if (
       last_selected_preset &&
-      items.some((item: any) => item.label == last_selected_preset)
+      items.some(
+        (item: any) => item.label == last_selected_preset && !item.is_static
+      )
     ) {
       quick_pick.activeItems = [
-        items.find((item: any) => item.label == last_selected_preset)!
+        items.find(
+          (item: any) => item.label == last_selected_preset && !item.is_static
+        )!
       ]
-    } else if (items.length > 0) {
-      quick_pick.activeItems = [items[0]]
+    } else {
+      const first_preset = items.find(
+        (item: any) =>
+          !item.is_static && item.kind !== vscode.QuickPickItemKind.Separator
+      )
+      if (first_preset) {
+        quick_pick.activeItems = [first_preset]
+      }
     }
 
     return new Promise<string[]>((resolve) => {
@@ -186,12 +221,13 @@ async function validate_presets(
         const button = event.button
         const index = item.index
 
+        if (item.is_static) return
+
         if (button.tooltip == 'Move up' && index > 0) {
           const temp = available_presets[index]
           available_presets[index] = available_presets[index - 1]
           available_presets[index - 1] = temp
 
-          // Save the reordered presets to configuration
           await config.update(
             'presets',
             available_presets,
@@ -207,7 +243,6 @@ async function validate_presets(
           available_presets[index] = available_presets[index + 1]
           available_presets[index + 1] = temp
 
-          // Save the reordered presets to configuration
           await config.update(
             'presets',
             available_presets,
@@ -218,14 +253,31 @@ async function validate_presets(
         }
       })
 
-      quick_pick.onDidAccept(() => {
+      quick_pick.onDidAccept(async () => {
         const selected = quick_pick.selectedItems[0] as any
         quick_pick.hide()
 
         if (selected) {
           const selected_name = selected.label
-          context.globalState.update(LAST_SELECTED_PRESET_KEY, selected_name)
-          resolve([selected_name])
+
+          if (selected.is_static && selected.command) {
+            const instructions = replace_selection_placeholder(
+              params.instructions
+            )
+            vscode.commands.executeCommand(`codeWebChat.${selected.command}`, {
+              instructions
+            })
+
+            resolve([])
+          } else if (!selected.is_static) {
+            params.context.globalState.update(
+              LAST_SELECTED_PRESET_KEY,
+              selected_name
+            )
+            resolve([selected_name])
+          } else {
+            resolve([])
+          }
         } else {
           resolve([])
         }

@@ -226,7 +226,9 @@ const perform_refactoring = async (params: {
   file_tree_provider: any
   open_editors_provider?: any
   show_quick_pick?: boolean
+  instructions?: string
 }) => {
+  console.log(params)
   const api_providers_manager = new ApiProvidersManager(params.context)
 
   const editor = vscode.window.activeTextEditor
@@ -255,30 +257,36 @@ const perform_refactoring = async (params: {
     return
   }
 
-  const last_chat_prompt =
-    params.context.workspaceState.get<string>('last-chat-prompt') || ''
+  let instructions: string | undefined
 
-  const input_box = vscode.window.createInputBox()
-  input_box.placeholder = 'Enter instructions'
-  input_box.value = last_chat_prompt
+  if (params.instructions) {
+    instructions = params.instructions
+  } else {
+    const last_chat_prompt =
+      params.context.workspaceState.get<string>('last-chat-prompt') || ''
 
-  input_box.onDidChangeValue(async (value) => {
-    await params.context.workspaceState.update('last-chat-prompt', value)
-  })
+    const input_box = vscode.window.createInputBox()
+    input_box.placeholder = 'Enter instructions'
+    input_box.value = last_chat_prompt
 
-  const instructions = await new Promise<string | undefined>((resolve) => {
-    input_box.onDidAccept(() => {
-      const value = input_box.value.trim()
-      if (value.length === 0) {
-        vscode.window.showErrorMessage('Instruction cannot be empty')
-        return
-      }
-      resolve(value)
-      input_box.hide()
+    input_box.onDidChangeValue(async (value) => {
+      await params.context.workspaceState.update('last-chat-prompt', value)
     })
-    input_box.onDidHide(() => resolve(undefined))
-    input_box.show()
-  })
+
+    instructions = await new Promise<string | undefined>((resolve) => {
+      input_box.onDidAccept(() => {
+        const value = input_box.value.trim()
+        if (value.length === 0) {
+          vscode.window.showErrorMessage('Instruction cannot be empty')
+          return
+        }
+        resolve(value)
+        input_box.hide()
+      })
+      input_box.onDidHide(() => resolve(undefined))
+      input_box.show()
+    })
+  }
 
   if (!instructions) {
     return
@@ -406,21 +414,27 @@ export const refactor_commands = (params: {
   open_editors_provider?: any
 }) => {
   return [
-    vscode.commands.registerCommand('codeWebChat.refactor', async () =>
-      perform_refactoring({
-        context: params.context,
-        file_tree_provider: params.workspace_provider,
-        open_editors_provider: params.open_editors_provider,
-        show_quick_pick: false
-      })
+    vscode.commands.registerCommand(
+      'codeWebChat.refactor',
+      async (args?: { instructions?: string }) =>
+        perform_refactoring({
+          context: params.context,
+          file_tree_provider: params.workspace_provider,
+          open_editors_provider: params.open_editors_provider,
+          show_quick_pick: false,
+          instructions: args?.instructions
+        })
     ),
-    vscode.commands.registerCommand('codeWebChat.refactorUsing', async () =>
-      perform_refactoring({
-        context: params.context,
-        file_tree_provider: params.workspace_provider,
-        open_editors_provider: params.open_editors_provider,
-        show_quick_pick: true
-      })
+    vscode.commands.registerCommand(
+      'codeWebChat.refactorUsing',
+      async (args?: { instructions?: string }) =>
+        perform_refactoring({
+          context: params.context,
+          file_tree_provider: params.workspace_provider,
+          open_editors_provider: params.open_editors_provider,
+          show_quick_pick: true,
+          instructions: args?.instructions
+        })
     )
   ]
 }
