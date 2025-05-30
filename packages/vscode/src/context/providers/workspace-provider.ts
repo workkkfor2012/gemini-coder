@@ -542,13 +542,7 @@ export class WorkspaceProvider
           selected_token_count < total_token_count
         ) {
           const formatted_selected = format_token_count(selected_token_count)
-          display_description = `${formatted_total} • ${formatted_selected}`
-        } else if (
-          selected_token_count == total_token_count &&
-          total_token_count > 0
-        ) {
-          // Ensure total_token_count > 0 before adding checkmark
-          display_description = formatted_total + ' ✓'
+          display_description = `${formatted_total} • ${formatted_selected} selected`
         } else {
           display_description = formatted_total
         }
