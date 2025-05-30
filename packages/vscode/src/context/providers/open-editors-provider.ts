@@ -403,6 +403,7 @@ export class OpenEditorsProvider
         false, // not a symlink
         true, // is an open file
         token_count,
+        undefined, // selectedTokenCount is undefined for open editor files
         description
       )
 
