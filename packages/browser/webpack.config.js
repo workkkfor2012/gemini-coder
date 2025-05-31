@@ -36,6 +36,12 @@ module.exports = (_, argv) => {
       path: path.resolve(__dirname, 'dist'),
       filename: '[name].js'
     },
+    cache: {
+      type: 'filesystem',
+      buildDependencies: {
+        config: [__filename]
+      }
+    },
     module: {
       rules: [
         {

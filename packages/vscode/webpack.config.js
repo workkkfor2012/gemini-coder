@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
 const crypto = require('crypto')
 const CopyWebpackPlugin = require('copy-webpack-plugin')
@@ -30,8 +29,8 @@ const config = [
       cache: {
         type: 'filesystem',
         buildDependencies: {
-          config: [__filename] // This makes all dependencies of this file - build dependencies
-        },
+          config: [__filename]
+        }
       },
       externals: {
         vscode: 'commonjs vscode'
