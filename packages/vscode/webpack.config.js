@@ -14,7 +14,7 @@ const config = [
     const isProduction = argv.mode == 'production'
     return {
       name: 'extension',
-      mode: isProduction ? 'production' : 'development', 
+      mode: isProduction ? 'production' : 'development',
       target: 'node',
       entry: {
         extension: './src/extension.ts',
@@ -26,7 +26,13 @@ const config = [
         libraryTarget: 'commonjs2',
         devtoolModuleFilenameTemplate: '../[resource-path]'
       },
-      devtool: isProduction ? 'source-map' : 'eval-source-map', // Use 'eval-source-map' for faster dev builds and good debugging
+      devtool: isProduction ? false : 'eval-source-map', // Use 'eval-source-map' for faster dev builds and good debugging
+      cache: {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename] // This makes all dependencies of this file - build dependencies
+        },
+      },
       externals: {
         vscode: 'commonjs vscode'
       },
@@ -89,7 +95,13 @@ const config = [
       performance: {
         hints: false
       },
-      devtool: isProduction ? 'source-map' : 'eval-source-map', // Use 'eval-source-map' for dev
+      devtool: isProduction ? false : 'eval-source-map', // Use 'eval-source-map' for dev
+      cache: {
+        type: 'filesystem',
+        buildDependencies: {
+          config: [__filename]
+        }
+      },
       resolve: {
         extensions: ['.ts', '.tsx', '.js'],
         alias: {

@@ -1,5 +1,5 @@
 src
 .gitignore
 tsconfig.json
-out/*.map
-out/*.LICENSE.txt
+__mocks__
+jest.config.js

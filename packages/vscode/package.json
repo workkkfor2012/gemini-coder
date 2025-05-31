@@ -6,7 +6,7 @@
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
-    "compile": "webpack --config ./webpack.config.js",
+    "compile": "webpack --config ./webpack.config.js --mode production",
     "watch": "webpack --config ./webpack.config.js --watch --mode development",
     "lint": "eslint src --ext ts,tsx",
     "lint:fix": "eslint src --ext ts,tsx --fix",
