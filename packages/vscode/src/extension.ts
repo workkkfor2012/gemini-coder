@@ -57,24 +57,24 @@ export async function activate(context: vscode.ExtensionContext) {
   websocket_server_instance = new WebSocketManager(context, websites_provider)
 
   const migrations = async () => {
-    // Remove a few weeks after 4 May 2025
+    // 4 May 2025
     await migrate_remove_copilot_presets(context)
-    // Remove a few weeks after 5 May 2025
+    // 5 May 2025
     await migrate_api_tool_settings(context)
-    // Remove a few weeks after 9 May 2025
+    // 9 May 2025
     await migrate_settings_prefix(context)
     await migrate_keybindings(context)
     await migrate_api_keys_to_providers(context)
-    // Remove a few weeks after 17 May 2025
+    // 17 May 2025
     await migrate_api_tool_configs(context)
-    // Remove a few weeks after 20 May 2025
+    // 20 May 2025
     await migrate_api_providers_to_secret_storage(context)
-    // Remove a few weeks after 22 May 2025
+    // 22 May 2025
     await migrate_file_refactoring_to_array(context)
-    // Remove a few weeks after 25 May 2025
+    // 25 May 2025
     await migrate_commit_message_prompt_to_instructions(context)
     await migrate_chat_code_completion_instructions(context)
-    // Remove a few weeks after 31 May 2025
+    // 31 May 2025
     await migrate_refactoring_to_intelligent_update(context)
   }
 
