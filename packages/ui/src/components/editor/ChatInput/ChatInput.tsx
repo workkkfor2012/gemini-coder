@@ -309,7 +309,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           onSelect={handle_select}
           autoFocus
           className={styles.textarea}
-          minRows={1}
+          minRows={2}
         />
         <div className={styles.footer}>
           <div className={styles.footer__left}>
