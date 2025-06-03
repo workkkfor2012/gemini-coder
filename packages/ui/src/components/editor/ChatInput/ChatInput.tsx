@@ -111,7 +111,7 @@ export const ChatInput: React.FC<Props> = (props) => {
   ) => {
     e.stopPropagation()
     if (
-      !props.is_connected ||
+      (!props.is_connected && props.is_web_mode) ||
       (!props.is_in_code_completions_mode && !props.value)
     )
       return
