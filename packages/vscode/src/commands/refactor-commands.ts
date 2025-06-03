@@ -98,7 +98,7 @@ const get_refactor_config = async (
     const quick_pick = vscode.window.createQuickPick()
     const items = await create_items()
     quick_pick.items = items
-    quick_pick.placeholder = 'Select file refactoring configuration'
+    quick_pick.placeholder = 'Select refactoring configuration'
     quick_pick.matchOnDescription = true
 
     const last_selected_index = context.globalState.get<number>(

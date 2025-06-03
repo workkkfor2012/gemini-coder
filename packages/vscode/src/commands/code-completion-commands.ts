@@ -186,7 +186,7 @@ async function get_code_completion_config(
     const quick_pick = vscode.window.createQuickPick()
     const items = await create_items()
     quick_pick.items = items
-    quick_pick.placeholder = 'Select code completion configuration'
+    quick_pick.placeholder = 'Select code completions configuration'
     quick_pick.matchOnDescription = true
 
     const last_selected_index = context.globalState.get<number>(
