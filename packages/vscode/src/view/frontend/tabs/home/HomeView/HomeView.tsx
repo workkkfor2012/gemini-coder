@@ -295,7 +295,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
       <UiSeparator size="large" />
 
-      {!props.is_connected && (
+      {!props.is_connected && props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <>
           <div className={styles['browser-extension-message']}>
             <span>
