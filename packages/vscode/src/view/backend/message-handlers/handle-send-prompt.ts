@@ -150,34 +150,6 @@ async function validate_presets(params: {
     }
 
     const create_items = () => {
-      const refactoring_items = !params.is_code_completions_mode
-        ? [
-            {
-              label: 'Use refactoring API tool',
-              kind: vscode.QuickPickItemKind.Default,
-              command: 'refactor',
-              type: 'refactoring'
-            },
-            {
-              label: 'Use refactoring API tool using...',
-              kind: vscode.QuickPickItemKind.Default,
-              command: 'refactorUsing',
-              type: 'refactoring'
-            },
-            {
-              label: 'My Presets',
-              kind: vscode.QuickPickItemKind.Separator,
-              type: 'separator'
-            }
-          ]
-        : [
-            {
-              label: 'My Presets',
-              kind: vscode.QuickPickItemKind.Separator,
-              type: 'separator'
-            }
-          ]
-
       const preset_items = available_presets.map((preset, index) => {
         const buttons = []
 
@@ -202,7 +174,7 @@ async function validate_presets(params: {
         }
       })
 
-      return [...refactoring_items, ...preset_items]
+      return preset_items
     }
 
     const quick_pick = vscode.window.createQuickPick()
