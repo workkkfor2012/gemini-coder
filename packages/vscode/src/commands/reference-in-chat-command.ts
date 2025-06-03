@@ -29,7 +29,7 @@ export function reference_in_chat_command(
       }
 
       // Check if file is not already checked
-      const shared_state = SharedFileState.getInstance()
+      const shared_state = SharedFileState.get_instance()
       const is_checked = shared_state.get_checked_files().includes(file_path)
 
       if (!is_checked) {

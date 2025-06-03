@@ -44,7 +44,7 @@ export class OpenEditorsProvider
     workspace_provider: WorkspaceProvider
   ) {
     this._workspace_roots = workspace_folders.map((folder) => folder.uri.fsPath)
-    this._shared_state = SharedFileState.getInstance()
+    this._shared_state = SharedFileState.get_instance()
     this.workspace_provider = workspace_provider
 
     // Load ignored extensions

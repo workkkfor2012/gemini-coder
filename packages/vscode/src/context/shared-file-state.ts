@@ -22,16 +22,14 @@ export class SharedFileState {
   // Keep track of the last initialized state
   private is_initialized: boolean = false
 
-  private constructor() {}
-
-  static getInstance(): SharedFileState {
+  static get_instance(): SharedFileState {
     if (!SharedFileState.instance) {
       SharedFileState.instance = new SharedFileState()
     }
     return SharedFileState.instance
   }
 
-  setProviders(
+  set_providers(
     workspace_provider: WorkspaceProvider,
     open_editors_provider: OpenEditorsProvider
   ) {
@@ -115,7 +113,7 @@ export class SharedFileState {
         for (const file of open_editors_checked_files) {
           // If the file isn't checked in workspace, check it
           if (!workspace_checked_files.includes(file)) {
-            await this.update_file_in_workspace(file, true)
+            await this.update_file_check_state_in_workspace(file, true)
             this.unchecked_in_workspace.delete(file)
           }
         }
@@ -126,7 +124,7 @@ export class SharedFileState {
             !open_editors_checked_files.includes(file) &&
             workspace_checked_files.includes(file)
           ) {
-            await this.update_file_in_workspace(file, false)
+            await this.update_file_check_state_in_workspace(file, false)
             this.unchecked_in_workspace.add(file)
           }
         }
@@ -151,7 +149,7 @@ export class SharedFileState {
         // Check all open editor files in workspace view
         for (const file of open_editors_checked_files) {
           if (!workspace_checked_files.includes(file)) {
-            await this.update_file_in_workspace(file, true)
+            await this.update_file_check_state_in_workspace(file, true)
           }
         }
       }
@@ -242,8 +240,7 @@ export class SharedFileState {
     await this.open_editors_provider.update_check_state(fake_item, state)
   }
 
-  // Update a file check state in workspace
-  private async update_file_in_workspace(
+  private async update_file_check_state_in_workspace(
     file_path: string,
     checked: boolean
   ): Promise<void> {
@@ -253,7 +250,6 @@ export class SharedFileState {
       ? vscode.TreeItemCheckboxState.Checked
       : vscode.TreeItemCheckboxState.Unchecked
 
-    // Create a fake FileItem with just enough properties for updateCheckState
     const fake_item: FileItem = {
       resourceUri: vscode.Uri.file(file_path),
       label: path.basename(file_path),

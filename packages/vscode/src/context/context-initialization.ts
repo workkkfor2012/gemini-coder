@@ -86,8 +86,8 @@ export function context_initialization(context: vscode.ExtensionContext): {
   })
 
   // Initialize shared state
-  const shared_state = SharedFileState.getInstance()
-  shared_state.setProviders(workspace_provider, open_editors_provider)
+  const shared_state = SharedFileState.get_instance()
+  shared_state.set_providers(workspace_provider, open_editors_provider)
 
   // Add shared state to disposables
   context.subscriptions.push({
@@ -340,7 +340,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
         // Update the shared file state
         if (open_editors_provider) {
-          shared_state.setProviders(workspace_provider, open_editors_provider)
+          shared_state.set_providers(workspace_provider, open_editors_provider)
         }
 
         // Update token count
