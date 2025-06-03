@@ -49,12 +49,19 @@ import {
   handle_configure_api_providers,
   handle_setup_api_tool_multi_config,
   handle_setup_api_tool,
-  handle_pick_open_router_model
+  handle_pick_open_router_model,
+  handle_save_home_view_type,
+  handle_get_home_view_type,
+  handle_refactor,
+  handle_code_completion,
+  handle_get_edit_format
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
   ConfigPresetFormat
 } from '@/view/backend/helpers/preset-format-converters'
+import { HOME_VIEW_TYPE_STATE_KEY } from '@/constants/state-keys'
+import { HOME_VIEW_TYPES, HomeViewType } from '../types/home-view-type'
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
@@ -66,6 +73,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public instructions: string = ''
   public code_completion_suggestions: string = ''
   public edit_format: EditFormat
+  public home_view_type: HomeViewType = HOME_VIEW_TYPES.WEB
 
   constructor(
     public readonly extension_uri: vscode.Uri,
@@ -88,6 +96,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this.edit_format = this.context.workspaceState.get<EditFormat>(
       'editFormat',
       'truncated'
+    )
+
+    // Initialize home view type from workspace state
+    this.home_view_type = this.context.workspaceState.get<HomeViewType>(
+      HOME_VIEW_TYPE_STATE_KEY,
+      HOME_VIEW_TYPES.WEB
     )
 
     // Listen for changes to the new configuration keys
@@ -146,7 +160,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     )
     update_editor_state()
 
-    // Add selection change listener
     vscode.window.onDidChangeTextEditorSelection((event) => {
       const has_selection = !event.textEditor.selection.isEmpty
       if (has_selection != this.has_active_selection) {
@@ -155,15 +168,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           this.send_message<ExtensionMessage>({
             command: 'EDITOR_SELECTION_CHANGED',
             has_selection: has_selection
-          })
-        }
-      }
-      if (has_selection && this.is_code_completions_mode) {
-        this.is_code_completions_mode = false
-        if (this._webview_view) {
-          this.send_message<ExtensionMessage>({
-            command: 'CODE_COMPLETIONS_MODE',
-            enabled: false
           })
         }
       }
@@ -252,6 +256,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       })
       .catch((error) => {
         console.error('Error calculating token count:', error)
+        vscode.window.showErrorMessage(
+          `Error calculating token count: ${error.message}`
+        )
         this.send_message<TokenCountMessage>({
           command: 'TOKEN_COUNT_UPDATED',
           tokenCount: 0
@@ -348,13 +355,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await handle_create_preset(this)
           } else if (message.command == 'EXECUTE_COMMAND') {
             vscode.commands.executeCommand(message.command_id)
+          } else if (message.command == 'REFACTOR') {
+            await handle_refactor(this, message)
+          } else if (message.command == 'CODE_COMPLETION') {
+            await handle_code_completion(this, message)
           } else if (message.command == 'SHOW_QUICK_PICK') {
             await handle_show_quick_pick(message)
           } else if (message.command == 'GET_EDIT_FORMAT') {
-            this.send_message<ExtensionMessage>({
-              command: 'EDIT_FORMAT',
-              edit_format: this.edit_format
-            })
+            handle_get_edit_format(this)
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
             await handle_save_edit_format(this, message.edit_format)
           } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
@@ -372,10 +380,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               provider: this,
               tool: 'code-completions'
             })
-          } else if (message.command == 'SETUP_API_TOOL_FILE_REFACTORING') {
+          } else if (message.command == 'SETUP_API_TOOL_REFACTORING') {
             await handle_setup_api_tool_multi_config({
               provider: this,
               tool: 'refactoring'
+            })
+          } else if (message.command == 'SETUP_API_TOOL_INTELLIGENT_UPDATE') {
+            await handle_setup_api_tool_multi_config({
+              provider: this,
+              tool: 'intelligent-update'
             })
           } else if (message.command == 'SETUP_API_TOOL_COMMIT_MESSAGES') {
             await handle_setup_api_tool({
@@ -384,6 +397,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             })
           } else if (message.command == 'PICK_OPEN_ROUTER_MODEL') {
             await handle_pick_open_router_model(this)
+          } else if (message.command == 'SAVE_HOME_VIEW_TYPE') {
+            await handle_save_home_view_type(this, message)
+          } else if (message.command == 'GET_HOME_VIEW_TYPE') {
+            handle_get_home_view_type(this)
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

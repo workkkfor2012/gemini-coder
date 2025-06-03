@@ -3,6 +3,7 @@ import { EditFormat } from '@shared/types/edit-format'
 import { Preset } from '@shared/types/preset'
 import { EditFormatSelectorVisibility } from './edit-format-selector-visibility'
 import { PROVIDERS } from '@shared/constants/providers'
+import { HomeViewType } from './home-view-type'
 
 export interface BaseMessage {
   command: string
@@ -177,8 +178,12 @@ export interface SetupApiToolCodeCompletionsMessage extends BaseMessage {
   command: 'SETUP_API_TOOL_CODE_COMPLETIONS'
 }
 
-export interface SetupApiToolFileRefactoringMessage extends BaseMessage {
-  command: 'SETUP_API_TOOL_FILE_REFACTORING'
+export interface SetupApiToolRefactoringMessage extends BaseMessage {
+  command: 'SETUP_API_TOOL_REFACTORING'
+}
+
+export interface SetupApiToolIntelligentUpdateMessage extends BaseMessage {
+  command: 'SETUP_API_TOOL_INTELLIGENT_UPDATE'
 }
 
 export interface SetupApiToolCommitMessagesMessage extends BaseMessage {
@@ -187,6 +192,25 @@ export interface SetupApiToolCommitMessagesMessage extends BaseMessage {
 
 export interface PickOpenRouterModel extends BaseMessage {
   command: 'PICK_OPEN_ROUTER_MODEL'
+}
+
+export interface SaveHomeViewTypeMessage extends BaseMessage {
+  command: 'SAVE_HOME_VIEW_TYPE'
+  view_type: HomeViewType
+}
+
+export interface GetHomeViewTypeMessage extends BaseMessage {
+  command: 'GET_HOME_VIEW_TYPE'
+}
+
+export interface RefactorMessage extends BaseMessage {
+  command: 'REFACTOR'
+  use_quick_pick: boolean
+}
+
+export interface CodeCompletionMessage extends BaseMessage {
+  command: 'CODE_COMPLETION'
+  use_quick_pick: boolean
 }
 
 // Messages from extension to webview:
@@ -324,6 +348,11 @@ export interface ApiProvidersMessage extends BaseMessage {
   >
 }
 
+export interface HomeViewTypeMessage extends BaseMessage {
+  command: 'HOME_VIEW_TYPE'
+  view_type: HomeViewType
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetInstructionsMessage
@@ -362,9 +391,14 @@ export type WebviewMessage =
   | CaretPositionChangedWebviewMessage
   | ConfigureApiProvidersMessage
   | SetupApiToolCodeCompletionsMessage
-  | SetupApiToolFileRefactoringMessage
+  | SetupApiToolRefactoringMessage
+  | SetupApiToolIntelligentUpdateMessage
   | SetupApiToolCommitMessagesMessage
   | PickOpenRouterModel
+  | SaveHomeViewTypeMessage
+  | GetHomeViewTypeMessage
+  | RefactorMessage
+  | CodeCompletionMessage
 
 export type ExtensionMessage =
   | InstructionsMessage
@@ -390,3 +424,4 @@ export type ExtensionMessage =
   | SelectedCodeCompletionPresetsMessage
   | ExecuteCommandMessage
   | ApiProvidersMessage
+  | HomeViewTypeMessage

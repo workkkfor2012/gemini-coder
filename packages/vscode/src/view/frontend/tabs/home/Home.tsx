@@ -7,6 +7,7 @@ import {
 } from '../../../types/messages'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
+import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 
 type Props = {
   vscode: any
@@ -39,6 +40,9 @@ export const Home: React.FC<Props> = (props) => {
   const [edit_format, set_edit_format] = useState<EditFormat>()
   const [edit_format_selector_visibility, set_edit_format_selector_visibility] =
     useState<'visible' | 'hidden'>('visible')
+  const [home_view_type, set_home_view_type] = useState<HomeViewType>(
+    HOME_VIEW_TYPES.WEB
+  )
 
   useEffect(() => {
     const handle_message = async (event: MessageEvent) => {
@@ -105,6 +109,9 @@ export const Home: React.FC<Props> = (props) => {
         case 'EDIT_FORMAT_SELECTOR_VISIBILITY':
           set_edit_format_selector_visibility(message.visibility)
           break
+        case 'HOME_VIEW_TYPE':
+          set_home_view_type(message.view_type)
+          break
       }
     }
 
@@ -124,7 +131,8 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_INSTRUCTIONS' },
       { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
       { command: 'GET_EDIT_FORMAT' },
-      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' }
+      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' },
+      { command: 'GET_HOME_VIEW_TYPE' }
     ]
     initial_messages.forEach((message) => props.vscode.postMessage(message))
 
@@ -275,19 +283,39 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_apply_copied_chat_response_more_click = () => {
-    const items = [
-      {
-        label: 'Revert last applied chat response',
-        command: 'codeWebChat.revert'
-      }
-    ]
-
+  const handle_home_view_type_change = (view_type: HomeViewType) => {
     props.vscode.postMessage({
-      command: 'SHOW_QUICK_PICK',
-      items,
-      title: 'More actions...'
-    })
+      command: 'SAVE_HOME_VIEW_TYPE',
+      view_type
+    } as WebviewMessage)
+  }
+
+  const handle_refactor_click = () => {
+    props.vscode.postMessage({
+      command: 'REFACTOR',
+      use_quick_pick: false
+    } as WebviewMessage)
+  }
+
+  const handle_refactor_with_quick_pick_click = () => {
+    props.vscode.postMessage({
+      command: 'REFACTOR',
+      use_quick_pick: true
+    } as WebviewMessage)
+  }
+
+  const handle_code_completion_click = () => {
+    props.vscode.postMessage({
+      command: 'CODE_COMPLETION',
+      use_quick_pick: false
+    } as WebviewMessage)
+  }
+
+  const handle_code_completion_with_quick_pick_click = () => {
+    props.vscode.postMessage({
+      command: 'CODE_COMPLETION',
+      use_quick_pick: true
+    } as WebviewMessage)
   }
 
   if (
@@ -301,7 +329,8 @@ export const Home: React.FC<Props> = (props) => {
     props.normal_instructions === undefined ||
     props.code_completion_suggestions === undefined ||
     edit_format === undefined ||
-    edit_format_selector_visibility === undefined
+    edit_format_selector_visibility === undefined ||
+    home_view_type === undefined
   ) {
     return <></>
   }
@@ -317,9 +346,6 @@ export const Home: React.FC<Props> = (props) => {
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
       on_apply_copied_chat_response_click={handle_apply_copied_chat_response}
-      on_apply_copied_chat_response_more_click={
-        handle_apply_copied_chat_response_more_click
-      }
       has_active_editor={has_active_editor}
       is_in_code_completions_mode={is_in_code_completions_mode}
       on_code_completions_mode_click={handle_code_completions_mode_click}
@@ -342,6 +368,14 @@ export const Home: React.FC<Props> = (props) => {
       set_code_completion_suggestions={props.set_code_completion_suggestions}
       edit_format_selector_visibility={edit_format_selector_visibility}
       on_caret_position_change={handle_caret_position_change}
+      home_view_type={home_view_type}
+      on_home_view_type_change={handle_home_view_type_change}
+      on_refactor_click={handle_refactor_click}
+      on_refactor_with_quick_pick_click={handle_refactor_with_quick_pick_click}
+      on_code_completion_click={handle_code_completion_click}
+      on_code_completion_with_quick_pick_click={
+        handle_code_completion_with_quick_pick_click
+      }
     />
   )
 }

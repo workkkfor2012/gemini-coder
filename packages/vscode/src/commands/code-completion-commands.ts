@@ -7,7 +7,7 @@ import { ApiProvidersManager } from '../services/api-providers-manager'
 import { Logger } from '../helpers/logger'
 import he from 'he'
 import { PROVIDERS } from '@shared/constants/providers'
-import { LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY } from '../constants/state-keys'
+import { LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_STATE_KEY } from '../constants/state-keys'
 
 async function build_completion_payload(params: {
   document: vscode.TextDocument
@@ -174,7 +174,7 @@ async function get_code_completion_config(
         return {
           label: config.model,
           description: `${config.provider_name}${
-            is_default ? ' • default configuration' : ''
+            is_default ? ' • Default configuration' : ''
           }`,
           config,
           index,
@@ -190,7 +190,7 @@ async function get_code_completion_config(
     quick_pick.matchOnDescription = true
 
     const last_selected_index = context.globalState.get<number>(
-      LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY,
+      LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_STATE_KEY,
       0
     )
 
@@ -255,7 +255,7 @@ async function get_code_completion_config(
           }
 
           context.globalState.update(
-            LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_KEY,
+            LAST_SELECTED_CODE_COMPLETION_CONFIG_INDEX_STATE_KEY,
             selected.index
           )
 
@@ -318,11 +318,12 @@ async function perform_code_completion(params: {
   with_suggestions: boolean
   auto_accept: boolean
   show_quick_pick?: boolean
+  suggestions?: string
 }) {
   const api_providers_manager = new ApiProvidersManager(params.context)
 
-  let suggestions: string | undefined
-  if (params.with_suggestions) {
+  let suggestions: string | undefined = params.suggestions
+  if (params.with_suggestions && !suggestions) {
     suggestions = await vscode.window.showInputBox({
       placeHolder: 'Enter suggestions',
       prompt: 'E.g. include explanatory comments'
@@ -507,14 +508,15 @@ export function code_completion_commands(
     ),
     vscode.commands.registerCommand(
       'codeWebChat.codeCompletionAutoAccept',
-      async () =>
+      async (args?: { suggestions?: string }) =>
         perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
           with_suggestions: false,
           auto_accept: true,
-          show_quick_pick: false
+          show_quick_pick: false,
+          suggestions: args?.suggestions
         })
     ),
     vscode.commands.registerCommand(
@@ -531,14 +533,15 @@ export function code_completion_commands(
     ),
     vscode.commands.registerCommand(
       'codeWebChat.codeCompletionWithSuggestionsAutoAccept',
-      async () =>
+      async (args?: { suggestions?: string }) =>
         perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
           with_suggestions: true,
           auto_accept: true,
-          show_quick_pick: false
+          show_quick_pick: false,
+          suggestions: args?.suggestions
         })
     ),
     vscode.commands.registerCommand(
@@ -555,26 +558,28 @@ export function code_completion_commands(
     ),
     vscode.commands.registerCommand(
       'codeWebChat.codeCompletionUsingAutoAccept',
-      async () =>
+      async (args?: { suggestions?: string }) =>
         perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
           with_suggestions: false,
           auto_accept: true,
-          show_quick_pick: true
+          show_quick_pick: true,
+          suggestions: args?.suggestions
         })
     ),
     vscode.commands.registerCommand(
       'codeWebChat.codeCompletionWithSuggestionsUsingAutoAccept',
-      async () =>
+      async (args?: { suggestions?: string }) =>
         perform_code_completion({
           file_tree_provider,
           open_editors_provider,
           context,
           with_suggestions: true,
           auto_accept: true,
-          show_quick_pick: true
+          show_quick_pick: true,
+          suggestions: args?.suggestions
         })
     ),
     vscode.commands.registerCommand(
