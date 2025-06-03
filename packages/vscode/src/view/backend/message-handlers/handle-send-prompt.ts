@@ -71,12 +71,26 @@ export const handle_send_prompt = async (
   } else if (!provider.is_code_completions_mode) {
     if (!provider.instructions) return
 
+    const editor = vscode.window.activeTextEditor
+    const document = editor?.document
+    const current_file_path = document
+      ? vscode.workspace.asRelativePath(document.uri)
+      : ''
+
+    let base_instructions = provider.instructions
+
+    if (editor && !editor.selection.isEmpty) {
+      if (base_instructions.includes('@selection')) {
+        base_instructions = replace_selection_placeholder(base_instructions)
+      } else {
+        const selected_text = editor.document.getText(editor.selection)
+        base_instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${base_instructions}`
+      }
+    }
+
     const context_text = await files_collector.collect_files({
       active_path
     })
-
-    let base_instructions = provider.instructions
-    base_instructions = replace_selection_placeholder(base_instructions)
 
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const edit_format_instructions = config.get<string>(

@@ -20,5 +20,5 @@ export const replace_selection_placeholder = (instruction: string): string => {
 
   const replacement_text = `\n\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
 
-  return instruction.replace(/@selection/g, replacement_text)
+  return instruction.replace(/\s*@selection\s*/g, replacement_text)
 }
