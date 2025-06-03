@@ -11,6 +11,8 @@ function format_token_count(count: number): string {
   return count >= 1000 ? `${Math.floor(count / 1000)}k` : `${count}`
 }
 
+const SHOW_COUNTING_NOTIFICATION_DELAY_MS = 1000
+
 export class WorkspaceProvider
   implements vscode.TreeDataProvider<FileItem>, vscode.Disposable
 {
@@ -84,6 +86,34 @@ export class WorkspaceProvider
     this.tab_change_handler = vscode.window.tabGroups.onDidChangeTabs((e) => {
       this.handle_tab_changes(e)
     })
+  }
+
+  private async with_token_counting_notification<T>(
+    task: () => Promise<T>
+  ): Promise<T> {
+    let notification_stopper: any = null
+
+    const timer = setTimeout(() => {
+      vscode.window.withProgress(
+        {
+          location: vscode.ProgressLocation.Notification,
+          title: 'Counting tokens...',
+          cancellable: false
+        },
+        async (_progress) => {
+          return new Promise<void>((resolve) => {
+            notification_stopper = resolve
+          })
+        }
+      )
+    }, SHOW_COUNTING_NOTIFICATION_DELAY_MS)
+
+    try {
+      return await task()
+    } finally {
+      clearTimeout(timer)
+      notification_stopper?.()
+    }
   }
 
   // New method to update the file to workspace mapping
@@ -617,10 +647,14 @@ export class WorkspaceProvider
       // If there's only one workspace root, show its contents directly
       if (this.workspace_roots.length == 1) {
         const single_root = this.workspace_roots[0]
-        return this.get_files_and_directories(single_root)
+        return this.with_token_counting_notification(() =>
+          this.get_files_and_directories(single_root)
+        )
       }
       // Otherwise, show workspace folders as root items
-      return this.getWorkspaceFolderItems()
+      return this.with_token_counting_notification(() =>
+        this.getWorkspaceFolderItems()
+      )
     }
 
     // For workspace roots or directories, show their contents
