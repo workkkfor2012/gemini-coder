@@ -1,6 +1,7 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../helpers/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
+import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
 import { EditFormat } from '@shared/types/edit-format'
 
@@ -42,8 +43,12 @@ async function handle_chat_command(
     : ''
 
   if (editor && !editor.selection.isEmpty) {
-    const selected_text = editor.document.getText(editor.selection)
-    instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
+    if (instructions.includes('@selection')) {
+      instructions = replace_selection_placeholder(instructions)
+    } else {
+      const selected_text = editor.document.getText(editor.selection)
+      instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
+    }
   }
 
   const files_collector = new FilesCollector(
@@ -143,8 +148,12 @@ export function chat_using_command(
 
     let processed_instructions = instructions
     if (editor && !editor.selection.isEmpty) {
-      const selected_text = editor.document.getText(editor.selection)
-      processed_instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
+      if (instructions.includes('@selection')) {
+        processed_instructions = replace_selection_placeholder(instructions)
+      } else {
+        const selected_text = editor.document.getText(editor.selection)
+        processed_instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
+      }
     }
 
     const config = vscode.workspace.getConfiguration('codeWebChat')

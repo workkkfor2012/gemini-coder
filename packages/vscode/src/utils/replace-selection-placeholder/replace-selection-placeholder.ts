@@ -15,18 +15,10 @@ export const replace_selection_placeholder = (instruction: string): string => {
   }
 
   const selected_text = active_editor.document.getText(active_editor.selection)
+  const document = active_editor.document
+  const current_file_path = vscode.workspace.asRelativePath(document.uri)
 
-  // Check if the selected text is a single line
-  const is_single_line = !selected_text.includes('\n')
+  const replacement_text = `\n\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
 
-  if (is_single_line) {
-    // For single-line text, wrap with single backticks
-    return instruction.replace(/@selection/g, `\`${selected_text}\``)
-  } else {
-    // For multi-line text, wrap with triple backticks as before
-    return instruction.replace(
-      /@selection/g,
-      `\n\`\`\`\n${selected_text}\n\`\`\`\n`
-    )
-  }
+  return instruction.replace(/@selection/g, replacement_text)
 }
