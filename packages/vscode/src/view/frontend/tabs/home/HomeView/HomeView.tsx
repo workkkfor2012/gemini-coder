@@ -181,7 +181,7 @@ export const HomeView: React.FC<Props> = (props) => {
               on_click={props.on_apply_copied_chat_response_click}
               title="Copy an overall chat response or a single code block and integrate it with the codebase automatically"
             >
-              Apply chat response
+              Apply copied chat response
             </UiTextButton>
           </div>
         )}
