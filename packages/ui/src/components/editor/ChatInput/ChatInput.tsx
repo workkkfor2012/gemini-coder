@@ -359,7 +359,7 @@ export const ChatInput: React.FC<Props> = (props) => {
               className={styles.footer__right__button}
               onClick={(e) => handle_submit(e, true)}
               disabled={
-                !props.is_connected ||
+                (!props.is_connected && props.is_web_mode) ||
                 (!props.is_in_code_completions_mode && !props.value)
               }
               title={
@@ -388,7 +388,7 @@ export const ChatInput: React.FC<Props> = (props) => {
               className={styles.footer__right__button}
               onClick={handle_submit}
               disabled={
-                !props.is_connected ||
+                (!props.is_connected && props.is_web_mode) ||
                 (!props.is_in_code_completions_mode && !props.value)
               }
               title={
