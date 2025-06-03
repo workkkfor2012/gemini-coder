@@ -325,7 +325,7 @@
       },
       {
         "command": "codeWebChat.openX",
-        "title": "@robertpiosik",
+        "title": "@CodeWebChat",
         "category": "Code Web Chat",
         "icon": {
           "light": "resources/x-logo-light.svg",
