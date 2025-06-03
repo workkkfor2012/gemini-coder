@@ -25,7 +25,7 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 **Guiding Principles:**
 
 - initialize popular chatbots—but don't game them
-- API features—powerful yet simple to use
+- API tools—battle-tested must-haves
 - respect privacy—zero tracking
 - lightweight—under 2MB
 
