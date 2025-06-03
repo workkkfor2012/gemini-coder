@@ -561,7 +561,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
       } else {
         if (!clipboard_content.files || clipboard_content.files.length == 0) {
           vscode.window.showErrorMessage(
-            'Clipboard content must contain properly formatted code blocks. Each code block should start with a file path or be a diff.'
+            'Unable to parse changes from clipbaord content.'
           )
           return
         }
@@ -581,7 +581,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
           Logger.log({
             function_name: 'apply_chat_response_command',
             message:
-              'All files are new - automatically selecting Fast replace mode'
+              'All files are new - automatically selecting fast replace mode'
           })
         } else {
           const has_truncated_fragments = check_for_truncated_fragments(
@@ -593,10 +593,9 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
             Logger.log({
               function_name: 'apply_chat_response_command',
               message:
-                'Auto-selecting Intelligent update mode due to detected truncated fragments or diff markers'
+                'Auto-selecting intelligent update mode due to detected truncated fragments'
             })
           } else {
-            // Instead of showing dialog, default to fast replace
             selected_mode_label = 'Fast replace'
             Logger.log({
               function_name: 'apply_chat_response_command',

@@ -13,13 +13,13 @@ type Props = {
 }
 
 export const Donations: React.FC<Props> = (props) => {
+  const container_ref = useRef<HTMLDivElement>(null)
   const [donations, set_donations] = useState<
     { name: string; date: Date; note?: string }[]
   >([])
   const [is_loading, set_is_loading] = useState(false)
+  const [is_initialized, set_is_initialized] = useState(false)
   const [error, set_error] = useState<string | null>(null)
-
-  const container_ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     container_ref.current!.scrollTop = 0
@@ -47,6 +47,7 @@ export const Donations: React.FC<Props> = (props) => {
           date: new Date(coffee.support_created_on)
         }))
       )
+      set_is_initialized(true)
     } catch (err) {
       set_error('Failed to fetch donations. Please try again later.')
       Logger.error({
@@ -67,15 +68,15 @@ export const Donations: React.FC<Props> = (props) => {
       })}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      CWC is a work of an independent developer aimed at making high quality AI
-      coding tools freely accessible to everyone.
+      CWC is a work of an independent developer aimed on making top-tier AI
+      coding tools freely available to everyone.
       <UiSeparator size="large" />
       <UiBuyMeACoffee username="robertpiosik" />
       <UiSeparator size="large" />
-      {is_loading && !donations.length ? (
+      {is_loading && !is_initialized ? (
         <>Fetching donations...</>
       ) : error ? (
-        <>{error}</>
+        error
       ) : (
         <div
           className={cn(styles['recent-donations'], {
