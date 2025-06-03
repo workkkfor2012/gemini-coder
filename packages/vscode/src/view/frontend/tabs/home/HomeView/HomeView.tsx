@@ -174,11 +174,12 @@ export const HomeView: React.FC<Props> = (props) => {
           on_change={props.on_home_view_type_change}
           options={Object.values(HOME_VIEW_TYPES)}
         />
+
         {props.home_view_type == HOME_VIEW_TYPES.WEB && (
           <div className={styles.top__right}>
             <UiTextButton
               on_click={props.on_apply_copied_chat_response_click}
-              title="Copy an overall chat response or a single code block and integrate it with the codebase"
+              title="Copy an overall chat response or a single code block and integrate it with the codebase automatically"
             >
               Apply chat response
             </UiTextButton>

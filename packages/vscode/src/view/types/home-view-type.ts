@@ -1,6 +1,6 @@
 export const HOME_VIEW_TYPES = {
-  WEB: 'Open chatbot',
-  API: 'Call API'
+  WEB: 'Web',
+  API: 'API'
 } as const
 
 export type HomeViewType =
