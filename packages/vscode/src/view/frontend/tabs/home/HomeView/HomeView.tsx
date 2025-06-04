@@ -7,7 +7,7 @@ import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/edito
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
-import { Switch } from '@ui/components/editor/Switch'
+import { Switch as UiSwitch } from '@ui/components/editor/Switch'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
 
@@ -169,10 +169,11 @@ export const HomeView: React.FC<Props> = (props) => {
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       <div className={styles.top}>
-        <Switch
+        <UiSwitch
           value={props.home_view_type}
           on_change={props.on_home_view_type_change}
           options={Object.values(HOME_VIEW_TYPES)}
+          title="Initialize web chats hands-free or update your files right away"
         />
 
         {props.home_view_type == HOME_VIEW_TYPES.WEB && (
