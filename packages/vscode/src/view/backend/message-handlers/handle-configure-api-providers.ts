@@ -287,7 +287,7 @@ export const handle_configure_api_providers = async (
   const create_built_in_provider = async (name: keyof typeof PROVIDERS) => {
     const api_key = await vscode.window.showInputBox({
       title: 'API Key',
-      prompt: "API keys are stored securely in the editor's Secret Storage.",
+      prompt: 'Enter your API key',
       validateInput: (value) => (!value.trim() ? 'API key is required' : null)
     })
     if (!api_key) {
@@ -449,7 +449,7 @@ export const handle_configure_api_providers = async (
   const edit_built_in_provider = async (provider: BuiltInProvider) => {
     const api_key = await vscode.window.showInputBox({
       title: `API Key for ${provider.name}`,
-      prompt: "API keys are stored securely in the editor's Secret Storage.",
+      prompt: 'Enter your API key',
       placeHolder: provider.api_key
         ? `(Keep current API key ...${provider.api_key.slice(-4)})`
         : '(No API key set)'

@@ -40,7 +40,7 @@ const render_supporter_name = (name: string): (string | JSX.Element)[] => {
 export const TopSupporters: React.FC<Props> = (props) => {
   return (
     <div className={styles.container}>
-      <div>{props.heading}</div>
+      <div className={styles.heading}>{props.heading}</div>
       <div className={styles.supporters}>
         {props.top_supporters.slice(0, 3).map((name, i) => (
           <div key={i} className={styles.supporter}>

@@ -3,10 +3,9 @@ import styles from './Donations.module.scss'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { BuyMeACoffee as UiBuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
 import { TopSupporters as UiTopSupporters } from '@ui/components/editor/TopSupporters'
-import { useEffect, useState } from 'react'
-import { Logger } from '@/helpers/logger'
-import cn from 'classnames'
-import { useRef } from 'react'
+import { useEffect } from 'react'
+import { use_donations } from './hooks/use-donations'
+import { use_infinite_scroll } from './hooks/use-infinite-scroll'
 
 type Props = {
   vscode: any
@@ -14,71 +13,27 @@ type Props = {
 }
 
 export const Donations: React.FC<Props> = (props) => {
-  const container_ref = useRef<HTMLDivElement>(null)
-  const [donations, set_donations] = useState<
-    { name: string; date: Date; note?: string }[]
-  >([])
-  const [top_supporters, set_top_supporters] = useState<string[]>([])
-  const [is_loading, set_is_loading] = useState(false)
-  const [is_initialized, set_is_initialized] = useState(false)
-  const [error, set_error] = useState<string | null>(null)
+  const {
+    donations,
+    top_supporters,
+    is_loading_more,
+    is_initialized,
+    error,
+    has_more,
+    load_more
+  } = use_donations(props.is_visible)
+
+  const container_ref = use_infinite_scroll({
+    load_more,
+    has_more,
+    is_loading: is_loading_more
+  })
 
   useEffect(() => {
-    container_ref.current!.scrollTop = 0
-
-    if (props.is_visible && !is_loading) {
-      fetch_all_data()
+    if (container_ref.current) {
+      container_ref.current.scrollTop = 0
     }
   }, [props.is_visible])
-
-  const fetch_all_data = async () => {
-    set_is_loading(true)
-    set_error(null)
-    try {
-      const [coffees_response, supporters_response] = await Promise.all([
-        fetch(
-          'https://app.buymeacoffee.com/api/creators/slug/robertpiosik/coffees?page=1&per_page=20'
-        ),
-        fetch(
-          'https://app.buymeacoffee.com/api/creators/slug/robertpiosik/top-supporters'
-        )
-      ])
-
-      if (!coffees_response.ok) {
-        throw new Error('Failed to fetch donations')
-      }
-      if (!supporters_response.ok) {
-        throw new Error('Failed to fetch top supporters')
-      }
-
-      const coffees_data = await coffees_response.json()
-      const supporters_data = await supporters_response.json()
-
-      set_top_supporters(
-        supporters_data.data.map(
-          (supporter: any) => supporter.profile_full_name
-        )
-      )
-
-      set_donations(
-        coffees_data.data.map((coffee: any) => ({
-          name: coffee.supporter_name,
-          note: coffee.support_note,
-          date: new Date(coffee.support_created_on)
-        }))
-      )
-    } catch (err) {
-      set_error('Failed to fetch recent donations. Please try again later.')
-      Logger.error({
-        function_name: 'fetch_all_data',
-        message: 'Error fetching data:',
-        data: err
-      })
-    } finally {
-      set_is_loading(false)
-      set_is_initialized(true)
-    }
-  }
 
   return (
     <div
@@ -100,14 +55,10 @@ export const Donations: React.FC<Props> = (props) => {
         error
       ) : (
         <>
-          <div
-            className={cn(styles['top-supporters'], {
-              [styles['top-supporters--loading']]: is_loading
-            })}
-          >
+          <div className={styles['top-supporters']}>
             <UiTopSupporters
               top_supporters={top_supporters}
-              heading="Meet top supporters from the last 90 days:"
+              heading="Top supporters from the last 90 days"
             />
           </div>
 
@@ -115,13 +66,17 @@ export const Donations: React.FC<Props> = (props) => {
 
           <UiSeparator size="large" />
 
-          <div
-            className={cn(styles['recent-donations'], {
-              [styles['recent-donations--loading']]: is_loading
-            })}
-          >
-            <UiRecentDonations donations={donations} />
-          </div>
+          <UiRecentDonations donations={donations} />
+          {is_loading_more && (
+            <div style={{ textAlign: 'center', padding: '1rem' }}>
+              Loading more donations...
+            </div>
+          )}
+          {!has_more && donations.length > 0 && (
+            <div style={{ textAlign: 'center', padding: '1rem', opacity: 0.7 }}>
+              No more donations to load
+            </div>
+          )}
         </>
       )}
     </div>

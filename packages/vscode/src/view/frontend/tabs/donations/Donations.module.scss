@@ -8,16 +8,4 @@
 
 .top-supporters {
   padding-bottom: var(--padding-14px);
-
-  &--loading {
-    opacity: var(--disabled-opacity);
-  }
-}
-
-.recent-donations {
-  display: block;
-
-  &--loading {
-    opacity: var(--disabled-opacity);
-  }
 }
