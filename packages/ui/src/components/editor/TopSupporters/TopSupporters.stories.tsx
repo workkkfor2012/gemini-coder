@@ -10,12 +10,10 @@ export const Default = () => {
       <TopSupporters
         heading="Top Supporters"
         top_supporters={[
-          { name: 'Alice' },
-          { name: 'Bob' },
-          { name: 'Charlie' },
-          { name: 'David' },
-          { name: 'Eve' },
-          { name: 'Frank' }
+          'Supporter 1',
+          'Another Supporter',
+          'Great! https://example.com',
+          'alice@gmail.com'
         ]}
       />
     </div>

@@ -1,7 +1,7 @@
 import styles from './TopSupporters.module.scss'
 
 type Props = {
-  top_supporters: { name: string }[]
+  top_supporters: string[]
   heading: string
 }
 
@@ -12,7 +12,7 @@ const normalizeUrl = (url: string): string => {
   return url
 }
 
-const urlPattern =
+const url_pattern =
   /((?:https?:\/\/)?(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z0-9][a-z0-9-]{0,61}[a-z0-9](?:\/[^\s()<>]*)*)/gi
 
 const render_supporter_name = (name: string): (string | JSX.Element)[] => {
@@ -20,12 +20,12 @@ const render_supporter_name = (name: string): (string | JSX.Element)[] => {
     return [name]
   }
 
-  const parts = name.split(urlPattern)
+  const parts = name.split(url_pattern)
 
   return parts.map((part, index) => {
-    if (index % 2 === 1 && part) {
-      const exactUrlPattern = new RegExp(`^${urlPattern.source}$`, 'i')
-      if (exactUrlPattern.test(part)) {
+    if (index % 2 == 1 && part) {
+      const exact_url_pattern = new RegExp(`^${url_pattern.source}$`, 'i')
+      if (exact_url_pattern.test(part)) {
         return (
           <a key={index} href={normalizeUrl(part)}>
             {part}
@@ -42,8 +42,8 @@ export const TopSupporters: React.FC<Props> = (props) => {
     <div className={styles.container}>
       <div className={styles.heading}>{props.heading}</div>
       <div className={styles.supporters}>
-        {props.top_supporters.map((supporter, i) => (
-          <div key={i}>{render_supporter_name(supporter.name)}</div>
+        {props.top_supporters.map((name, i) => (
+          <div key={i}>{render_supporter_name(name)}</div>
         ))}
       </div>
     </div>

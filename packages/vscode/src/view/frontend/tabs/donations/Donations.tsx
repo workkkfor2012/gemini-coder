@@ -18,7 +18,7 @@ export const Donations: React.FC<Props> = (props) => {
   const [donations, set_donations] = useState<
     { name: string; date: Date; note?: string }[]
   >([])
-  const [top_supporters, set_top_supporters] = useState<{ name: string }[]>([])
+  const [top_supporters, set_top_supporters] = useState<string[]>([])
   const [is_loading, set_is_loading] = useState(false)
   const [is_initialized, set_is_initialized] = useState(false)
   const [error, set_error] = useState<string | null>(null)
@@ -55,9 +55,9 @@ export const Donations: React.FC<Props> = (props) => {
       const supporters_data = await supporters_response.json()
 
       set_top_supporters(
-        supporters_data.data.map((supporter: any) => ({
-          name: supporter.profile_full_name
-        }))
+        supporters_data.data.map(
+          (supporter: any) => supporter.profile_full_name
+        )
       )
 
       set_donations(
@@ -70,7 +70,7 @@ export const Donations: React.FC<Props> = (props) => {
 
       set_is_initialized(true)
     } catch (err) {
-      set_error('Failed to fetch data. Please try again later.')
+      set_error('Failed to fetch recent donations. Please try again later.')
       Logger.error({
         function_name: 'fetch_all_data',
         message: 'Error fetching data:',
@@ -96,10 +96,10 @@ export const Donations: React.FC<Props> = (props) => {
 
       <UiBuyMeACoffee username="robertpiosik" />
 
-      <UiSeparator size="large" />
+      <UiSeparator size="medium" />
 
       {is_loading && !is_initialized ? (
-        <>Fetching data...</>
+        <>Fetching recent donations...</>
       ) : error ? (
         error
       ) : (
