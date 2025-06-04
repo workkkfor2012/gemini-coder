@@ -1,5 +1,4 @@
 import { Button } from './Button'
-import { useState } from 'react'
 
 export default {
   component: Button
@@ -20,17 +19,3 @@ export const Disabled = () => (
     Disabled Button
   </Button>
 )
-
-export const WithQuickPick = () => {
-  const [count, set_count] = useState(0)
-
-  return (
-    <Button
-      on_click={() => set_count((c) => c + 1)}
-      on_quick_pick_trigger_click={() => console.log('Quick pick clicked')}
-      title={`Clicked ${count} times`}
-    >
-      Button with Quick Pick
-    </Button>
-  )
-}
