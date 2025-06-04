@@ -6,6 +6,14 @@
   flex-direction: column;
 }
 
+.top-supporters {
+  display: block;
+
+  &--loading {
+    opacity: var(--disabled-opacity);
+  }
+}
+
 .recent-donations {
   display: block;
 
