@@ -318,6 +318,12 @@
         "icon": "$(feedback)"
       },
       {
+        "command": "codeWebChat.donate",
+        "title": "Donate",
+        "category": "Code Web Chat",
+        "icon": "$(coffee)"
+      },
+      {
         "command": "codeWebChat.openRepository",
         "title": "Repository",
         "category": "Code Web Chat",
@@ -441,6 +447,10 @@
           "when": "false"
         },
         {
+          "command": "codeWebChat.donate",
+          "when": "false"
+        },
+        {
           "command": "codeWebChat.openRepository",
           "when": "false"
         },
@@ -540,9 +550,14 @@
           "group": "navigation@5"
         },
         {
-          "command": "codeWebChat.openSettings",
+          "command": "codeWebChat.donate",
           "when": "view == codeWebChatView",
           "group": "navigation@6"
+        },
+        {
+          "command": "codeWebChat.openSettings",
+          "when": "view == codeWebChatView",
+          "group": "navigation@7"
         }
       ],
       "view/item/context": [

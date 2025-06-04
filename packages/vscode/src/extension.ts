@@ -171,6 +171,10 @@ export async function activate(context: vscode.ExtensionContext) {
       command: 'codeWebChat.rateExtension',
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
     }),
+    open_url_command({
+      command: 'codeWebChat.donate',
+      url: 'https://buymeacoffee.com/robertpiosik'
+    }),
     open_settings_command()
   )
 }
