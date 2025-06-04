@@ -67,8 +67,6 @@ export const Donations: React.FC<Props> = (props) => {
           date: new Date(coffee.support_created_on)
         }))
       )
-
-      set_is_initialized(true)
     } catch (err) {
       set_error('Failed to fetch recent donations. Please try again later.')
       Logger.error({
@@ -78,6 +76,7 @@ export const Donations: React.FC<Props> = (props) => {
       })
     } finally {
       set_is_loading(false)
+      set_is_initialized(true)
     }
   }
 
@@ -88,17 +87,14 @@ export const Donations: React.FC<Props> = (props) => {
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       <span>
-        CWC is a work of an independent developer aimed at making cost
-        effective, top-accuracy AI coding tools freely available to everyone.
+        {
+          'CWC is a work of an independent developer aimed at making cost effective, top-accuracy AI coding tools freely available to everyone.'
+        }
       </span>
-
-      <UiSeparator size="large" />
-
-      <UiBuyMeACoffee username="robertpiosik" />
 
       <UiSeparator size="medium" />
 
-      {is_loading && !is_initialized ? (
+      {!is_initialized ? (
         <>Fetching recent donations...</>
       ) : error ? (
         error
@@ -111,9 +107,11 @@ export const Donations: React.FC<Props> = (props) => {
           >
             <UiTopSupporters
               top_supporters={top_supporters}
-              heading="Top supporters from the last 90 days"
+              heading="Meet top supporters from the last 90 days:"
             />
           </div>
+
+          <UiBuyMeACoffee username="robertpiosik" />
 
           <UiSeparator size="large" />
 

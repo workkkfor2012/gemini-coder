@@ -7,7 +7,7 @@
 }
 
 .top-supporters {
-  display: block;
+  padding-bottom: var(--padding-14px);
 
   &--loading {
     opacity: var(--disabled-opacity);

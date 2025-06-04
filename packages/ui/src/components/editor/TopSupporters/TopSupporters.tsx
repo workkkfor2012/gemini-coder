@@ -40,10 +40,23 @@ const render_supporter_name = (name: string): (string | JSX.Element)[] => {
 export const TopSupporters: React.FC<Props> = (props) => {
   return (
     <div className={styles.container}>
-      <div className={styles.heading}>{props.heading}</div>
+      <div>{props.heading}</div>
       <div className={styles.supporters}>
-        {props.top_supporters.map((name, i) => (
-          <div key={i}>{render_supporter_name(name)}</div>
+        {props.top_supporters.slice(0, 3).map((name, i) => (
+          <div key={i} className={styles.supporter}>
+            <div
+              className={`${styles.rank} ${
+                i == 0
+                  ? styles.rank__gold
+                  : i == 1
+                  ? styles.rank__silver
+                  : styles.rank__bronze
+              }`}
+            >
+              {i + 1}
+            </div>
+            <div>{render_supporter_name(name)}</div>
+          </div>
         ))}
       </div>
     </div>

@@ -2,21 +2,39 @@
   display: flex;
   flex-direction: column;
   gap: var(--padding-6px);
-  text-align: center;
-}
-
-.heading {
-  font-weight: 500;
 }
 
 .supporters {
-  > div:nth-child(1) {
-    font-size: var(--font-size-15px);
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-4px);
+}
+
+.supporter {
+  display: flex;
+  gap: var(--padding-6px);
+  align-items: center;
+  font-size: var(--font-size-14px);
+  font-weight: 500;
+}
+
+.rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  font-weight: 600;
+  color: black;
+
+  &__gold {
+    background: linear-gradient(145deg, #ffd700, #ccad00); /* Gold */
   }
-  > div:nth-child(2) {
-    font-size: var(--font-size-14px);
+  &__silver {
+    background: linear-gradient(145deg, #e0e0e0, #a0a0a0); /* Silver */
   }
-  > div:nth-child(3) {
-    font-size: var(--font-size-13px);
+  &__bronze {
+    background: linear-gradient(145deg, #cd7f32, #995e26); /* Bronze */
   }
 }

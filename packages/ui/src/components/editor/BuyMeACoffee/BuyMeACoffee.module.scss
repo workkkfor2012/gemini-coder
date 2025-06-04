@@ -1,15 +1,17 @@
 .container {
   display: flex;
-  justify-content: center;
 }
 
 .button {
-  padding: 8px 16px;
+  padding: var(--padding-6px) var(--padding-12px);
   border-radius: 999px;
-  width: 150px;
   color: black;
   background-color: #ffdd00;
   transition: all 0.15s ease-out;
+
+  > svg {
+    width: 120px;
+  }
 
   &:hover {
     transform: scale(0.98);
