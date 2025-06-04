@@ -11,9 +11,7 @@ async function handle_code_completion_in_chat_command(
 ) {
   const active_editor = vscode.window.activeTextEditor
   if (!active_editor) {
-    vscode.window.showErrorMessage(
-      'No active text editor found. Please open a file to use this command.'
-    )
+    vscode.window.showErrorMessage('This command requires active text editor.')
     return
   }
 
