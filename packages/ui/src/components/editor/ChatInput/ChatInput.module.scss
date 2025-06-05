@@ -9,7 +9,7 @@
     top: 50%;
     left: 50%;
     transform: translateX(-50%) translateY(-50%);
-    color: var(--vscode-errorForeground);
+    color: var(--vscode-activityWarningBadge-background);
     z-index: 1;
     font-weight: 500;
   }
