@@ -51,6 +51,15 @@ export const ChatInput: React.FC<Props> = (props) => {
   const [history_index, set_history_index] = useState(-1)
   const [is_history_enabled, set_is_history_enabled] = useState(!props.value)
 
+  useEffect(() => {
+    if (
+      textarea_ref.current &&
+      document.activeElement !== textarea_ref.current
+    ) {
+      textarea_ref.current.focus()
+    }
+  }, [props.value])
+
   const get_highlighted_text = (text: string) => {
     if (props.is_in_code_completions_mode) {
       return <span>{text}</span>
@@ -93,13 +102,6 @@ export const ChatInput: React.FC<Props> = (props) => {
     props.on_caret_position_change(caret_position)
   }
 
-  useEffect(() => {
-    if (textarea_ref.current) {
-      textarea_ref.current.focus()
-      textarea_ref.current.select()
-    }
-  }, [])
-
   const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const new_value = e.target.value
     props.on_change(new_value)
@@ -109,8 +111,10 @@ export const ChatInput: React.FC<Props> = (props) => {
 
     const textarea = e.target
     const caret_position = textarea.selectionStart
-    if (new_value.charAt(caret_position - 1) == '@' && props.on_at_sign_click) {
-      props.on_at_sign_click()
+    if (new_value.charAt(caret_position - 1) == '@') {
+      setTimeout(() => {
+        props.on_at_sign_click()
+      }, 150)
     }
 
     if (!new_value) {
@@ -202,12 +206,6 @@ export const ChatInput: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_focus = () => {
-    if (textarea_ref.current) {
-      textarea_ref.current.select()
-    }
-  }
-
   const handle_container_click = () => {
     textarea_ref.current?.focus()
   }
@@ -287,7 +285,6 @@ export const ChatInput: React.FC<Props> = (props) => {
           value={props.value}
           onChange={handle_input_change}
           onKeyDown={handle_key_down}
-          onFocus={handle_focus}
           onSelect={handle_select}
           autoFocus
           className={styles.textarea}

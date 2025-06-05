@@ -12,7 +12,7 @@ export const handle_at_sign_quick_pick = async (
   ]
 
   const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select text to insert'
+    placeHolder: 'Select symbol to insert'
   })
 
   if (selected?.label == '@selection') {
