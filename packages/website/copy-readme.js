@@ -5,6 +5,7 @@ const header = `---
 sidebar_position: 1
 title: Intro
 hide_title: true
+custom_edit_url: https://github.com/robertpiosik/CodeWebChat/blob/dev/README.md
 ---
 
 `
