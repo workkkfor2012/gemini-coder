@@ -213,6 +213,10 @@ export interface CodeCompletionMessage extends BaseMessage {
   use_quick_pick: boolean
 }
 
+export interface ShowAtSignQuickPickMessage extends BaseMessage {
+  command: 'SHOW_AT_SIGN_QUICK_PICK'
+}
+
 // Messages from extension to webview:
 export interface InstructionsMessage extends BaseMessage {
   command: 'INSTRUCTIONS'
@@ -399,6 +403,7 @@ export type WebviewMessage =
   | GetHomeViewTypeMessage
   | RefactorMessage
   | CodeCompletionMessage
+  | ShowAtSignQuickPickMessage
 
 export type ExtensionMessage =
   | InstructionsMessage

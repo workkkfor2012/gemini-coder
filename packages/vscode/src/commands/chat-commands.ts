@@ -37,17 +37,10 @@ async function handle_chat_command(
   }
 
   const editor = vscode.window.activeTextEditor
-  const document = editor?.document
-  const current_file_path = document
-    ? vscode.workspace.asRelativePath(document.uri)
-    : ''
 
   if (editor && !editor.selection.isEmpty) {
     if (instructions.includes('@selection')) {
       instructions = replace_selection_placeholder(instructions)
-    } else {
-      const selected_text = editor.document.getText(editor.selection)
-      instructions = `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n${instructions}`
     }
   }
 

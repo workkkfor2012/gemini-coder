@@ -165,9 +165,5 @@ export const View = () => {
     )
   }
 
-  return (
-    <>
-      <UiTemplate edit_view_slot={edit_view} tabs_slot={tabs} />
-    </>
-  )
+  return <UiTemplate edit_view_slot={edit_view} tabs_slot={tabs} />
 }

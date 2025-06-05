@@ -17,6 +17,7 @@ type Props = {
   copy_to_clipboard: (instruction: string) => void
   on_create_preset: () => void
   on_apply_copied_chat_response_click: () => void
+  on_at_sign_click: () => void
   is_connected: boolean
   presets: Preset[]
   selected_presets: string[]
@@ -203,6 +204,7 @@ export const HomeView: React.FC<Props> = (props) => {
               ? handle_copy
               : undefined
           }
+          on_at_sign_click={props.on_at_sign_click}
           is_web_mode={props.home_view_type == HOME_VIEW_TYPES.WEB}
           is_connected={props.is_connected}
           token_count={total_token_count}

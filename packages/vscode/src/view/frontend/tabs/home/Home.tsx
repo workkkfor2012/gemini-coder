@@ -318,6 +318,12 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const handle_at_sign_click = () => {
+    props.vscode.postMessage({
+      command: 'SHOW_AT_SIGN_QUICK_PICK'
+    } as WebviewMessage)
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -340,6 +346,7 @@ export const Home: React.FC<Props> = (props) => {
       is_visible={props.is_visible}
       initialize_chats={handle_initialize_chats}
       copy_to_clipboard={handle_copy_to_clipboard}
+      on_at_sign_click={handle_at_sign_click}
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}

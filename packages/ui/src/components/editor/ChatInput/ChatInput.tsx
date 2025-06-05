@@ -20,6 +20,7 @@ type Props = {
   has_active_editor: boolean
   on_caret_position_change: (caret_position: number) => void
   is_web_mode: boolean
+  on_at_sign_click: () => void
   translations: {
     ask_anything: string
     refactoring_instructions: string
@@ -58,14 +59,22 @@ export const ChatInput: React.FC<Props> = (props) => {
     const parts = text.split(/(@selection)/g)
     return parts.map((part, index) => {
       if (part == '@selection') {
+        const is_clickable = !!props.on_at_sign_click
         return (
           <span
             key={index}
-            className={cn(styles['selection-keyword'], {
-              [styles['selection-keyword--error']]: !props.has_active_selection
-            })}
+            className={cn(
+              styles['selection-keyword'],
+              {
+                [styles['selection-keyword--error']]:
+                  !props.has_active_selection
+              },
+              { [styles['selection-keyword--clickable']]: is_clickable }
+            )}
             title={
-              !props.has_active_selection
+              is_clickable
+                ? 'Click to remove @selection'
+                : !props.has_active_selection
                 ? 'No active selection in editor'
                 : undefined
             }
@@ -197,46 +206,6 @@ export const ChatInput: React.FC<Props> = (props) => {
     textarea_ref.current?.focus()
   }
 
-  const insert_selection_placeholder = () => {
-    if (!textarea_ref.current) return
-
-    const start = textarea_ref.current.selectionStart
-    const end = textarea_ref.current.selectionEnd
-
-    const new_value =
-      props.value.substring(0, start) +
-      '@selection ' +
-      props.value.substring(end)
-
-    props.on_change(new_value)
-
-    // Disable history when inserting selection placeholder
-    set_is_history_enabled(false)
-
-    setTimeout(() => {
-      if (textarea_ref.current) {
-        textarea_ref.current.selectionStart =
-          textarea_ref.current.selectionEnd = start + '@selection '.length
-      }
-    }, 0)
-  }
-
-  const can_insert_selection_placeholder = useMemo(() => {
-    if (
-      !props.has_active_selection ||
-      props.value.includes('@selection') ||
-      props.is_in_code_completions_mode
-    ) {
-      return false
-    } else {
-      return true
-    }
-  }, [
-    props.has_active_selection,
-    props.value,
-    props.is_in_code_completions_mode
-  ])
-
   const placeholder = useMemo(() => {
     const active_history = props.is_in_code_completions_mode
       ? props.chat_history_fim_mode
@@ -296,7 +265,14 @@ export const ChatInput: React.FC<Props> = (props) => {
         onClick={handle_container_click}
         ref={container_ref}
       >
-        <div className={styles['highlight-container']} ref={highlight_ref}>
+        <div
+          className={styles['highlight-container']}
+          ref={highlight_ref}
+          onClick={() => {
+            if (props.value.includes('@selection') && props.on_at_sign_click)
+              props.on_at_sign_click()
+          }}
+        >
           {get_highlighted_text(props.value)}
         </div>
         <TextareaAutosize
@@ -313,16 +289,13 @@ export const ChatInput: React.FC<Props> = (props) => {
         />
         <div className={styles.footer}>
           <div className={styles.footer__left}>
-            {can_insert_selection_placeholder && (
+            {!props.is_in_code_completions_mode && (
               <button
-                onClick={insert_selection_placeholder}
-                className={cn(
-                  styles.footer__left__button,
-                  styles['footer__left__button--selection']
-                )}
-                title="Insert @selection placeholder"
+                onClick={props.on_at_sign_click}
+                className={cn(styles['footer__left__at-sign-button'])}
+                title="Insert placeholder"
               >
-                <span>@selection</span>
+                <span>@</span>
               </button>
             )}
           </div>
@@ -356,7 +329,10 @@ export const ChatInput: React.FC<Props> = (props) => {
             )}
 
             <button
-              className={styles.footer__right__button}
+              className={cn([
+                styles.footer__right__button,
+                styles['footer__right__button--secondary']
+              ])}
               onClick={(e) => handle_submit(e, true)}
               disabled={
                 (!props.is_connected && props.is_web_mode) ||

@@ -4,7 +4,21 @@ export default {
   component: ChatInput
 }
 
-// Basic usage with empty input
+const translations = {
+  ask_anything: 'Ask anything...',
+  refactoring_instructions: 'Refactoring instructions...',
+  optional_suggestions: 'Optional suggestions...',
+  edit_files: 'Edit files',
+  autocomplete: 'Autocomplete',
+  initialize: 'Initialize',
+  select_preset: 'Select preset',
+  select_config: 'Select config',
+  code_completions_mode_unavailable_with_text_selection:
+    'Code completions mode unavailable with text selection',
+  code_completions_mode_unavailable_without_active_editor:
+    'Code completions mode unavailable without active editor'
+}
+
 export const Empty = () => (
   <ChatInput
     value=""
@@ -16,12 +30,15 @@ export const Empty = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    has_active_editor={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    translations={translations}
+    on_at_sign_click={() => console.log('@ clicked')}
     on_submit_with_control={() => {}}
   />
 )
 
-// Input with some text
 export const WithText = () => (
   <ChatInput
     value="Hello, this is a sample message"
@@ -33,12 +50,15 @@ export const WithText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    has_active_editor={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    translations={translations}
+    on_at_sign_click={() => console.log('@ clicked')}
     on_submit_with_control={() => {}}
   />
 )
 
-// Disabled submit button
 export const DisabledSubmit = () => (
   <ChatInput
     value="Cannot submit this message"
@@ -51,12 +71,15 @@ export const DisabledSubmit = () => (
     submit_disabled_title="Cannot submit at this time"
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    has_active_editor={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    translations={translations}
+    on_at_sign_click={() => console.log('@ clicked')}
     on_submit_with_control={() => {}}
   />
 )
 
-// Multiline text
 export const MultilineText = () => (
   <ChatInput
     value="This is a message\nwith multiple\nlines of text"
@@ -68,12 +91,15 @@ export const MultilineText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    has_active_editor={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    translations={translations}
+    on_at_sign_click={() => console.log('@ clicked')}
     on_submit_with_control={() => {}}
   />
 )
 
-// Long text that should trigger scrolling
 export const LongText = () => (
   <ChatInput
     value="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
@@ -85,12 +111,15 @@ export const LongText = () => (
     is_connected={true}
     is_in_code_completions_mode={false}
     has_active_selection={false}
+    has_active_editor={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    translations={translations}
+    on_at_sign_click={() => console.log('@ clicked')}
     on_submit_with_control={() => {}}
   />
 )
 
-// With token count
 export const WithTokenCount = () => (
   <ChatInput
     value="This message has a token count."
@@ -102,13 +131,16 @@ export const WithTokenCount = () => (
     is_connected={true}
     token_count={15}
     is_in_code_completions_mode={false}
+    has_active_editor={true}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    on_at_sign_click={() => console.log('@ clicked')}
+    translations={translations}
     on_submit_with_control={() => {}}
   />
 )
 
-// With large token count
 export const WithLargeTokenCount = () => (
   <ChatInput
     value="This message has a large token count."
@@ -120,13 +152,16 @@ export const WithLargeTokenCount = () => (
     is_connected={true}
     token_count={12345}
     is_in_code_completions_mode={false}
+    has_active_editor={true}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    is_web_mode={false}
+    on_at_sign_click={() => console.log('@ clicked')}
+    translations={translations}
     on_submit_with_control={() => {}}
   />
 )
 
-// In code completions mode
 export const CodeCompletionsMode = () => (
   <ChatInput
     value="Suggest some code..."
@@ -137,13 +172,16 @@ export const CodeCompletionsMode = () => (
     on_copy={() => console.log('Copied')}
     is_connected={true}
     is_in_code_completions_mode={true}
+    has_active_editor={true}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_at_sign_click={() => console.log('@ clicked')}
+    is_web_mode={false}
+    translations={translations}
     on_submit_with_control={() => {}}
   />
 )
 
-// With active selection
 export const WithActiveSelection = () => (
   <ChatInput
     value="Ask about the "
@@ -154,13 +192,16 @@ export const WithActiveSelection = () => (
     on_copy={() => console.log('Copied')}
     is_connected={true}
     is_in_code_completions_mode={false}
+    has_active_editor={true}
     has_active_selection={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_at_sign_click={() => console.log('@ clicked')}
+    is_web_mode={false}
     on_submit_with_control={() => {}}
+    translations={translations}
   />
 )
 
-// With active selection and @selection already present
 export const WithActiveSelectionAndPlaceholder = () => (
   <ChatInput
     value="Ask about the @selection"
@@ -171,13 +212,16 @@ export const WithActiveSelectionAndPlaceholder = () => (
     on_copy={() => console.log('Copied')}
     is_connected={true}
     is_in_code_completions_mode={false}
+    has_active_editor={true}
     has_active_selection={true}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_at_sign_click={() => console.log('@ clicked')}
+    is_web_mode={false}
     on_submit_with_control={() => {}}
+    translations={translations}
   />
 )
 
-// With @selection placeholder but no active selection
 export const WithPlaceholderNoSelection = () => (
   <ChatInput
     value="Ask about the @selection"
@@ -188,8 +232,12 @@ export const WithPlaceholderNoSelection = () => (
     on_copy={() => console.log('Copied')}
     is_connected={true}
     is_in_code_completions_mode={false}
+    has_active_editor={true}
     has_active_selection={false}
     on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_at_sign_click={() => console.log('@ clicked')}
+    is_web_mode={false}
     on_submit_with_control={() => {}}
+    translations={translations}
   />
 )

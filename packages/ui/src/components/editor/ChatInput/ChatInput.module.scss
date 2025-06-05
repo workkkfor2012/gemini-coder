@@ -89,6 +89,11 @@
   &--error {
     background-color: var(--vscode-diffEditor-removedLineBackground);
   }
+
+  &--clickable {
+    cursor: pointer;
+    text-decoration: underline;
+  }
 }
 
 .footer {
@@ -103,41 +108,22 @@
     gap: var(--padding-4px);
     overflow: hidden;
 
-    &__button {
+    &__at-sign-button {
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: var(--padding-4px);
-      padding: 0 var(--padding-6px);
       height: 20px;
+      width: 20px;
       border-radius: 5px;
       color: var(--vscode-icon-foreground);
-      font-size: var(--font-size-12px);
-      overflow: hidden;
 
       &:hover {
         background-color: var(--vscode-toolbar-hoverBackground);
       }
 
-      &--selection > span {
+      > span {
         padding-bottom: var(--padding-2px);
-      }
-
-      &--disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-
-        &:hover {
-          background-color: transparent;
-        }
-      }
-
-      &--active {
-        background-color: var(--vscode-button-background);
-        color: var(--vscode-button-foreground);
-
-        &:hover {
-          background-color: var(--vscode-button-hoverBackground);
-        }
       }
     }
   }
@@ -196,7 +182,7 @@
       font-size: 12px;
 
       > svg {
-        width: 9px;
+        width: 10px;
         fill: var(--vscode-icon-foreground);
       }
 
@@ -210,18 +196,20 @@
         letter-spacing: -0.6px;
       }
 
-      @media (max-width: 380px) {
-        > span {
-          display: none;
-        }
-      }
-
       &:disabled {
         opacity: 0.5;
         cursor: not-allowed;
 
         &:hover {
           background-color: none;
+        }
+      }
+
+      &--secondary {
+        @media (max-width: 320px) {
+          > span {
+            display: none;
+          }
         }
       }
     }

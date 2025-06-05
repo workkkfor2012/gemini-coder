@@ -16,16 +16,3 @@ export const Default = () => (
     ]}
   />
 )
-
-export const LongDescription = () => (
-  <ApiTool
-    top_line="API TOOL"
-    bottom_line="Advanced Code Analysis"
-    description="This is a very long description that exceeds 100 characters and should be truncated with a Read more/Read less toggle functionality to improve the user experience and prevent overwhelming the interface with too much text at once."
-    checkmarks={[
-      'Advanced analysis capabilities',
-      'Multi-language support',
-      'Real-time feedback'
-    ]}
-  />
-)
