@@ -16,6 +16,13 @@ export const handle_at_sign_quick_pick = async (
   })
 
   if (selected?.label == '@selection') {
-    provider.add_text_at_cursor_position('@selection ')
+    const current_text = provider.instructions
+
+    const is_after_at_sign = current_text
+      .slice(0, provider.caret_position)
+      .endsWith('@')
+
+    const text_to_insert = is_after_at_sign ? 'selection ' : '@selection '
+    provider.add_text_at_cursor_position(text_to_insert)
   }
 }

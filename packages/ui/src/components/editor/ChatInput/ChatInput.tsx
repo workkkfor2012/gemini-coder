@@ -107,6 +107,12 @@ export const ChatInput: React.FC<Props> = (props) => {
     // Reset history navigation state
     set_history_index(-1)
 
+    const textarea = e.target
+    const caret_position = textarea.selectionStart
+    if (new_value.charAt(caret_position - 1) == '@' && props.on_at_sign_click) {
+      props.on_at_sign_click()
+    }
+
     if (!new_value) {
       set_is_history_enabled(true)
     }
