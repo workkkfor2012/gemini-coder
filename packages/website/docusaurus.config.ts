@@ -69,12 +69,12 @@ const config: Config = {
         },
         {
           href: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder',
-          label: 'Install Extension',
+          label: 'VS Code Marketplace',
           position: 'right'
         },
         {
           href: 'https://buymeacoffee.com/robertpiosik',
-          label: 'Buy me a coffee',
+          label: 'Donate',
           position: 'right'
         }
       ]
