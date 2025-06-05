@@ -194,11 +194,54 @@ export const Home: React.FC<Props> = (props) => {
     }
   }
 
+  const update_chat_history = (instruction: string) => {
+    if (is_in_code_completions_mode) {
+      const is_duplicate =
+        chat_history_fim_mode &&
+        chat_history_fim_mode.length > 0 &&
+        chat_history_fim_mode[0] == instruction
+
+      if (!is_duplicate) {
+        const new_history = [
+          instruction,
+          ...(chat_history_fim_mode || [])
+        ].slice(0, 100)
+        set_chat_history_fim_mode(new_history)
+
+        props.vscode.postMessage({
+          command: 'SAVE_HISTORY',
+          messages: new_history,
+          is_fim_mode: true
+        } as WebviewMessage)
+      }
+    } else {
+      const is_duplicate =
+        chat_history &&
+        chat_history.length > 0 &&
+        chat_history[0] == instruction
+
+      if (!is_duplicate) {
+        const new_history = [instruction, ...(chat_history || [])].slice(0, 100)
+        set_chat_history(new_history)
+
+        props.vscode.postMessage({
+          command: 'SAVE_HISTORY',
+          messages: new_history,
+          is_fim_mode: false
+        } as WebviewMessage)
+      }
+    }
+  }
+
   const handle_copy_to_clipboard = (instruction: string) => {
     props.vscode.postMessage({
       command: 'COPY_PROMPT',
       instruction
     } as WebviewMessage)
+
+    if (instruction.trim()) {
+      update_chat_history(instruction)
+    }
   }
 
   const handle_code_completions_mode_click = (is_enabled: boolean) => {
@@ -291,31 +334,59 @@ export const Home: React.FC<Props> = (props) => {
   }
 
   const handle_refactor_click = () => {
+    const instruction = is_in_code_completions_mode
+      ? props.code_completion_suggestions
+      : props.normal_instructions
+
     props.vscode.postMessage({
       command: 'REFACTOR',
       use_quick_pick: false
     } as WebviewMessage)
+
+    update_chat_history(instruction)
   }
 
   const handle_refactor_with_quick_pick_click = () => {
+    const instruction = is_in_code_completions_mode
+      ? props.code_completion_suggestions
+      : props.normal_instructions
+
     props.vscode.postMessage({
       command: 'REFACTOR',
       use_quick_pick: true
     } as WebviewMessage)
+
+    update_chat_history(instruction)
   }
 
   const handle_code_completion_click = () => {
+    const instruction = is_in_code_completions_mode
+      ? props.code_completion_suggestions
+      : props.normal_instructions
+
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
       use_quick_pick: false
     } as WebviewMessage)
+
+    if (instruction.trim()) {
+      update_chat_history(instruction)
+    }
   }
 
   const handle_code_completion_with_quick_pick_click = () => {
+    const instruction = is_in_code_completions_mode
+      ? props.code_completion_suggestions
+      : props.normal_instructions
+
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
       use_quick_pick: true
     } as WebviewMessage)
+
+    if (instruction.trim()) {
+      update_chat_history(instruction)
+    }
   }
 
   const handle_at_sign_click = () => {
