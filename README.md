@@ -67,21 +67,7 @@ Prompts with context and instructions can be copied to clipboard or sent directl
 
 ### Supported chatbots
 
-_(alphabetically)_
-
-- AI Studio
-- ChatGPT
-- Claude
-- DeepSeek
-- Doubao
-- Gemini
-- Grok
-- HuggingChat
-- Mistral
-- Open WebUI
-- OpenRouter Chat
-- Qwen
-- Yuanbao
+**AI Studio**, **ChatGPT**, **Claude**, **DeepSeek**, **Doubao**, **Gemini**, **Grok**, **HuggingChat**, **Mistral**, **Open WebUI**, **OpenRouter Chat**, **Qwen**, **Yuanbao**
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
 
@@ -94,26 +80,6 @@ Chat conversations are only a construct of product interfaces, they hurt the qua
 ## API Tools
 
 CWC will elevate your workflow with must-have API features.
-
-### Predefined providers
-
-_(alphabetically)_
-
-- Anthropic
-- Cerebras
-- Chutes
-- DeepInfra
-- DeepSeek
-- Fireworks
-- Gemini
-- Hyperbolic
-- Mistral
-- OpenAI
-- OpenRouter
-- TogetherAI
-
-ℹ️ Any OpenAI-API compatible endpoint works with CWC.<br/>
-🔒️ API keys are stored securely in the [Secret Storage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage).
 
 ### Code Completions
 
@@ -143,6 +109,13 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ✓ Includes affected files in full<br />
 ✓ Customizable instructions
+
+### Predefined providers
+
+**Anthropic**, **Cerebras**, **Chutes**, **DeepInfra**, **DeepSeek**, **Fireworks**, **Gemini**, **Hyperbolic**, **Mistral**, **OpenAI**, **OpenRouter**, **TogetherAI**
+
+ℹ️ Any OpenAI-API compatible endpoint works with CWC.<br/>
+🔒️ API keys are stored securely in the [Secret Storage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage).
 
 ## Commands
 
