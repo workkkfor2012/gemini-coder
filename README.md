@@ -114,8 +114,8 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 **Anthropic**, **Cerebras**, **Chutes**, **DeepInfra**, **DeepSeek**, **Fireworks**, **Gemini**, **Hyperbolic**, **Mistral**, **OpenAI**, **OpenRouter**, **TogetherAI**
 
-ℹ️ Any OpenAI-API compatible endpoint works with CWC.<br/>
-🔒️ API keys are stored securely in the [Secret Storage](https://code.visualstudio.com/api/references/vscode-api#SecretStorage).
+ℹ️ Any OpenAI-API compatible endpoint works with CWC<br/>
+🔒️ API keys are stored encrypted with the [SecretStorage utility](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
 
 ## Commands
 
@@ -170,6 +170,6 @@ All contributions are welcome. Feel free to submit pull requests, feature reques
 ## License
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
-<br/>📨 `robertpiosik@gmail.com`
-<br/>Telegram: `@robertpiosik`
+<br/>📨 robertpiosik@gmail.com
+<br/>Telegram: @robertpiosik
 <br/>📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
