@@ -296,7 +296,7 @@ export const ChatInput: React.FC<Props> = (props) => {
               <button
                 onClick={props.on_at_sign_click}
                 className={cn(styles['footer__left__at-sign-button'])}
-                title="Insert placeholder"
+                title="Insert symbol"
               >
                 <span>@</span>
               </button>
