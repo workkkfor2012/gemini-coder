@@ -7,6 +7,7 @@ import {
 } from '@/services/api-providers-manager'
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
+import { COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY } from '@/constants/state-keys'
 
 type SupportedTool = 'commit-messages' | 'some-other-introduced-later'
 
@@ -14,6 +15,8 @@ const DEFAULT_TEMPERATURE: { [key in SupportedTool]: number } = {
   'commit-messages': 0.3,
   'some-other-introduced-later': 0.3
 }
+
+const DEFAULT_CONFIRMATION_THRESHOLD = 20000
 
 export const handle_setup_api_tool = async (params: {
   provider: ViewProvider
@@ -46,6 +49,14 @@ export const handle_setup_api_tool = async (params: {
     }
 
     await providers_manager.save_commit_messages_tool_config(config)
+
+    if (params.tool == 'commit-messages') {
+      await params.provider.context.globalState.update(
+        COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY,
+        DEFAULT_CONFIRMATION_THRESHOLD
+      )
+    }
+
     vscode.window.showInformationMessage(
       'Commit Messages tool configuration completed successfully.'
     )
@@ -56,8 +67,14 @@ export const handle_setup_api_tool = async (params: {
     const model_label = 'Model'
     const temperature_label = 'Temperature'
     const edit_instructions_label = 'Instructions'
+    const confirmation_threshold_label = 'Ask for confirmation above'
 
     const show_config_options = async () => {
+      const current_threshold = params.provider.context.globalState.get<number>(
+        COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY,
+        DEFAULT_CONFIRMATION_THRESHOLD
+      )
+
       const options: vscode.QuickPickItem[] = [
         { label: api_provider_label, description: config.provider_name },
         { label: model_label, description: config.model },
@@ -79,6 +96,15 @@ export const handle_setup_api_tool = async (params: {
         options.push({
           label: edit_instructions_label,
           detail: current_prompt
+        })
+
+        options.push({
+          label: confirmation_threshold_label,
+          description: `${current_threshold.toString()} tokens${
+            current_threshold == DEFAULT_CONFIRMATION_THRESHOLD
+              ? ' (default)'
+              : ''
+          }`
         })
       }
 
@@ -142,6 +168,16 @@ export const handle_setup_api_tool = async (params: {
           'codeWebChat.commitMessageInstructions'
         )
         return
+      } else if (selection.label == confirmation_threshold_label) {
+        const new_threshold = await set_confirmation_threshold(
+          current_threshold
+        )
+        if (new_threshold !== undefined) {
+          await params.provider.context.globalState.update(
+            COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY,
+            new_threshold
+          )
+        }
       }
 
       if (updated) {
@@ -255,5 +291,29 @@ export const handle_setup_api_tool = async (params: {
     }
 
     return Number(temperature_input)
+  }
+
+  async function set_confirmation_threshold(
+    current_threshold: number
+  ): Promise<number | undefined> {
+    const threshold_input = await vscode.window.showInputBox({
+      title: 'Set Confirmation Threshold',
+      prompt: 'Enter token count above which to ask for confirmation',
+      value: current_threshold.toString(),
+      placeHolder: 'e.g., 20000',
+      validateInput: (value) => {
+        const num = Number(value)
+        if (isNaN(num)) return 'Please enter a valid number'
+        if (num < 0) return 'Threshold must be 0 or greater'
+        if (num > 1000000) return 'Threshold seems too large'
+        return null
+      }
+    })
+
+    if (threshold_input === undefined || threshold_input === '') {
+      return undefined
+    }
+
+    return Number(threshold_input)
   }
 }

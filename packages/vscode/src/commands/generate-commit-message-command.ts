@@ -10,6 +10,7 @@ import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot
 import { ApiProvidersManager } from '../services/api-providers-manager'
 import { ignored_extensions } from '@/context/constants/ignored-extensions'
 import { PROVIDERS } from '@shared/constants/providers'
+import { COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY } from '../constants/state-keys'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext
@@ -42,12 +43,10 @@ export function generate_commit_message_command(
       }
 
       try {
-        // Check for staged changes first
         const staged_changes = repository.state.indexChanges || []
 
-        // If 0 staged changes, stage all changes
         if (staged_changes.length == 0) {
-          await repository.add([]) // Stage all changes
+          await repository.add([])
           await new Promise((resolve) => setTimeout(resolve, 500))
         }
 
@@ -61,7 +60,9 @@ export function generate_commit_message_command(
         }
 
         const config = vscode.workspace.getConfiguration('codeWebChat')
-        const commit_message_prompt = config.get<string>('commitMessageInstructions')
+        const commit_message_prompt = config.get<string>(
+          'commitMessageInstructions'
+        )
         const config_ignored_extensions = new Set(
           config
             .get<string[]>('ignoredExtensions', [])
@@ -117,12 +118,36 @@ export function generate_commit_message_command(
           endpoint_url = provider.base_url
         }
 
-        // Collect the changed files with their original, unmodified content
-        const affected_files = await collect_affected_files(
+        const affected_files_data = await collect_affected_files_with_metadata(
           repository,
           all_ignored_extensions
         )
 
+        const threshold = context.globalState.get<number>(
+          COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY,
+          20000
+        )
+
+        const total_tokens = affected_files_data.reduce(
+          (sum, file) => sum + file.estimated_tokens,
+          0
+        )
+
+        let selected_files: FileData[] | undefined = affected_files_data
+        if (total_tokens > threshold) {
+          selected_files = await show_file_selection_dialog(
+            affected_files_data,
+            threshold
+          )
+          if (!selected_files || selected_files.length === 0) {
+            vscode.window.showInformationMessage(
+              'No files selected for commit message generation.'
+            )
+            return
+          }
+        }
+
+        const affected_files = build_files_content(selected_files)
         const message = `${affected_files}\n${commit_message_prompt}\n${diff}`
 
         Logger.log({
@@ -138,11 +163,10 @@ export function generate_commit_message_command(
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: `Waiting for a commit message... (Sent ~${formatted_token_count} tokens)`,
+            title: `Waiting for a commit message... (Sent about ${formatted_token_count} tokens)`,
             cancellable: true
           },
           async (_, token) => {
-            // Prepare request to AI model
             const messages = [
               {
                 role: 'user',
@@ -210,19 +234,28 @@ export function generate_commit_message_command(
   )
 }
 
-async function collect_affected_files(
+interface FileData {
+  path: string
+  relative_path: string
+  content: string
+  estimated_tokens: number
+  status: number
+  is_large_file: boolean
+}
+
+async function collect_affected_files_with_metadata(
   repository: any,
   ignored_extensions: Set<string>
-): Promise<string> {
+): Promise<FileData[]> {
   try {
     const root_path = repository.rootUri.fsPath
     const staged_changes = repository.state.indexChanges || []
 
     if (!staged_changes.length) {
-      return ''
+      return []
     }
 
-    let files_content = '<files>\n'
+    const files_data: FileData[] = []
 
     for (const change of staged_changes) {
       const file_path = change.uri.fsPath
@@ -234,42 +267,154 @@ async function collect_affected_files(
 
       try {
         let content = ''
+        let is_large_file = false
+
         if (change.status != 6) {
           try {
             content = fs.readFileSync(file_path, 'utf8')
-            const estimated_tokens = Math.ceil(content.length / 4)
-            if (estimated_tokens > 20000) {
+            const estimated_tokens_raw = Math.ceil(content.length / 4)
+
+            if (estimated_tokens_raw > 20000) {
               content = `[Large file not included]\n`
+              is_large_file = true
             }
           } catch (err) {
             Logger.error({
-              function_name: 'collect_affected_files',
+              function_name: 'collect_affected_files_with_metadata',
               message: `Error reading file ${file_path}`,
               data: err
             })
           }
         }
 
-        files_content += `<file path="${relative_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
+        const estimated_tokens = Math.ceil(content.length / 4)
+
+        files_data.push({
+          path: file_path,
+          relative_path,
+          content,
+          estimated_tokens,
+          status: change.status,
+          is_large_file
+        })
       } catch (err) {
         Logger.error({
-          function_name: 'collect_affected_files',
+          function_name: 'collect_affected_files_with_metadata',
           message: `Error processing file ${file_path}`,
           data: err
         })
       }
     }
 
-    files_content += '</files>'
-    return files_content
+    return files_data
   } catch (error) {
     Logger.error({
-      function_name: 'collect_affected_files',
+      function_name: 'collect_affected_files_with_metadata',
       message: 'Error collecting changed files',
       data: error
     })
+    return []
+  }
+}
+
+async function show_file_selection_dialog(
+  files_data: FileData[],
+  threshold: number
+): Promise<FileData[] | undefined> {
+  // Filter out large files from the quick pick
+  const files_for_selection = files_data.filter((file) => !file.is_large_file)
+
+  if (files_for_selection.length == 0) {
+    vscode.window.showInformationMessage(
+      'All files are too large to include in commit message context.'
+    )
+    return []
+  }
+
+  const quick_pick_items = files_for_selection.map((file) => {
+    const filename = path.basename(file.relative_path)
+    const directory = path.dirname(file.relative_path)
+    const dir_path = directory == '.' ? '' : directory
+
+    const format_tokens = (tokens: number): string => {
+      if (tokens >= 1000) {
+        return Math.ceil(tokens / 1000) + 'k'
+      }
+      return tokens.toString()
+    }
+
+    return {
+      label: filename,
+      description: `${format_tokens(file.estimated_tokens)} ${dir_path}`,
+      picked: true,
+      file_data: file
+    }
+  })
+
+  const total_tokens = files_for_selection.reduce(
+    (sum, file) => sum + file.estimated_tokens,
+    0
+  )
+  const formatted_total =
+    total_tokens > 1000 ? Math.ceil(total_tokens / 1000) + 'k' : total_tokens
+
+  const large_files_count = files_data.length - files_for_selection.length
+
+  const format_threshold = (tokens: number): string => {
+    if (tokens >= 1000) {
+      return Math.ceil(tokens / 1000) + 'k'
+    }
+    return tokens.toString()
+  }
+
+  const formatted_threshold = format_threshold(threshold)
+
+  const threshold_message =
+    large_files_count > 0
+      ? `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens: ${formatted_total} tokens across ${
+          files_for_selection.length
+        } file${
+          files_for_selection.length == 1 ? '' : 's'
+        } (excl. ${large_files_count} large file${
+          large_files_count == 1 ? '' : 's'
+        }).`
+      : `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens: ${formatted_total} tokens across ${
+          files_for_selection.length
+        } file${files_for_selection.length == 1 ? '' : 's'}.`
+
+  vscode.window.showInformationMessage(threshold_message)
+
+  const placeholder = `Select affected files to include in context for the commit message`
+
+  const selected_items = await vscode.window.showQuickPick(quick_pick_items, {
+    canPickMany: true,
+    placeHolder: placeholder,
+    title: `Select Affected Files`
+  })
+
+  if (!selected_items) {
+    return undefined
+  }
+
+  const selected_files = selected_items.map((item) => item.file_data)
+  const large_files = files_data.filter((file) => file.is_large_file)
+
+  return [...selected_files, ...large_files]
+}
+
+function build_files_content(files_data: FileData[]): string {
+  if (!files_data.length) {
     return ''
   }
+
+  let files_content = '<files>\n'
+
+  for (const file of files_data) {
+    files_content += `<file path="${file.relative_path}">\n<![CDATA[\n${file.content}\n]]>\n</file>\n`
+  }
+
+  files_content += '</files>'
+  return files_content
 }
 
 function strip_wrapping_quotes(text: string): string {

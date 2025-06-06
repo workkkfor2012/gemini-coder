@@ -8,11 +8,12 @@ export const LAST_CONTEXT_SAVE_LOCATION_STATE_KEY = 'lastSaveLocation'
 export const LAST_CONTEXT_READ_LOCATION_STATE_KEY = 'lastReadLocation'
 export const TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY =
   'toolConfigCodeCompletions'
-export const TOOL_CONFIG_REFACTORING_STATE_KEY =
-  'toolConfigFileRefactoring'
+export const TOOL_CONFIG_REFACTORING_STATE_KEY = 'toolConfigFileRefactoring'
 export const TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY =
   'toolConfigIntelligentUpdate'
 export const TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY = 'toolConfigCommitMessages'
+export const COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY =
+  'commitMessagesConfirmationThreshold'
 export const DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY =
   'defaultCodeCompletionsConfiguration'
 export const DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY =
