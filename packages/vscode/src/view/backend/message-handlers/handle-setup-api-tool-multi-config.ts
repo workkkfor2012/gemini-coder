@@ -656,7 +656,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
   ): Promise<number | undefined> {
     const temperature_input = await vscode.window.showInputBox({
       title: 'Set Temperature',
-      prompt: 'Enter a value between 0 and 1 (required)',
+      prompt: 'Enter a value between 0 and 1',
       value: temperature.toString(),
       placeHolder: '',
       validateInput: (value) => {

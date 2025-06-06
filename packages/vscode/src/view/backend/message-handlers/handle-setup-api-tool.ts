@@ -275,7 +275,7 @@ export const handle_setup_api_tool = async (params: {
   ): Promise<number | undefined> {
     const temperature_input = await vscode.window.showInputBox({
       title: 'Set Temperature',
-      prompt: 'Enter a value between 0 and 1 (required)',
+      prompt: 'Enter a value between 0 and 1',
       value: temperature.toString(),
       placeHolder: '',
       validateInput: (value) => {
@@ -298,10 +298,13 @@ export const handle_setup_api_tool = async (params: {
   ): Promise<number | undefined> {
     const threshold_input = await vscode.window.showInputBox({
       title: 'Set Confirmation Threshold',
-      prompt: 'Enter token count above which to ask for confirmation',
+      prompt:
+        'Enter token count above which to show affected fiels picker',
       value: current_threshold.toString(),
-      placeHolder: 'e.g., 20000',
       validateInput: (value) => {
+        // Allow empty value to restore default
+        if (value == '') return null
+
         const num = Number(value)
         if (isNaN(num)) return 'Please enter a valid number'
         if (num < 0) return 'Threshold must be 0 or greater'
@@ -310,8 +313,13 @@ export const handle_setup_api_tool = async (params: {
       }
     })
 
-    if (threshold_input === undefined || threshold_input === '') {
+    if (threshold_input === undefined) {
       return undefined
+    }
+
+    // If input is empty, return default threshold
+    if (threshold_input === '') {
+      return DEFAULT_CONFIRMATION_THRESHOLD
     }
 
     return Number(threshold_input)
