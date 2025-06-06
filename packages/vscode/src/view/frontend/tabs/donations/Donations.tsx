@@ -47,7 +47,11 @@ export const Donations: React.FC<Props> = (props) => {
         }
       </span>
 
-      <UiSeparator size="medium" />
+      <UiSeparator size="large" />
+
+      <UiBuyMeACoffee username="robertpiosik" />
+
+      <UiSeparator size="large" />
 
       {!is_initialized ? (
         <>Fetching recent donations...</>
@@ -61,10 +65,6 @@ export const Donations: React.FC<Props> = (props) => {
               heading="Top supporters from the last 90 days"
             />
           </div>
-
-          <UiBuyMeACoffee username="robertpiosik" />
-
-          <UiSeparator size="large" />
 
           <UiRecentDonations donations={donations} />
           {is_loading_more && (
