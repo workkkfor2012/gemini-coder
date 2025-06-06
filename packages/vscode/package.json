@@ -290,7 +290,7 @@
       },
       {
         "command": "codeWebChat.generateCommitMessage",
-        "title": "Generate Commit Message with Code Web Chat",
+        "title": "Generate Commit Message with CWC",
         "category": "Code Web Chat",
         "icon": "$(sparkle)"
       },
