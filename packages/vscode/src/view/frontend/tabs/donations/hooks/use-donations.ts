@@ -130,6 +130,7 @@ export const use_donations = (is_visible: boolean) => {
   return {
     donations,
     top_supporters,
+    is_loading,
     is_loading_more,
     is_initialized,
     error,

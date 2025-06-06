@@ -16,6 +16,7 @@ export const Donations: React.FC<Props> = (props) => {
   const {
     donations,
     top_supporters,
+    is_loading,
     is_loading_more,
     is_initialized,
     error,
@@ -58,7 +59,7 @@ export const Donations: React.FC<Props> = (props) => {
       ) : error ? (
         error
       ) : (
-        <>
+        <div className={is_loading ? styles.dimmed : undefined}>
           <div className={styles['top-supporters']}>
             <UiTopSupporters
               top_supporters={top_supporters}
@@ -77,7 +78,7 @@ export const Donations: React.FC<Props> = (props) => {
               No more donations to load
             </div>
           )}
-        </>
+        </div>
       )}
     </div>
   )
