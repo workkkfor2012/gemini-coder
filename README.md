@@ -63,7 +63,7 @@ Use your favorite chatbot without tedious copy-pasting contents of files you wan
 
 Prompts with context and instructions can be copied to clipboard or sent directly to any supported chatbot.
 
-**Apply Chat Response** is a smart tool that automatically integrates multi-file changes with the codebase by modyfing exisitng files or creating new ones. Works with chat responses in three edit formats: truncated, whole and diff.
+**Apply chat response from clipboard** is a smart tool that automatically integrates multi-file changes with the codebase by modyfing exisitng files or creating new ones. Works with chat responses in three edit formats: truncated, whole and diff.
 
 ### Supported chatbots
 
@@ -79,7 +79,7 @@ Chat conversations are only a construct of product interfaces, they hurt the qua
 
 ## API Tools
 
-CWC will elevate your workflow with must-have API features.
+CWC will elevate your workflow with battle-tested must-have API tools.
 
 ### Code Completions
 
