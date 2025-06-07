@@ -35,9 +35,7 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 - you're a student or hobbyist who thrives on the intricate aspects of coding
 - you love open source software! 🫶
 
-<p>
-<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" width="900" height="522" />
-</p>
+<p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" /></p>
 
 ## Context
 
