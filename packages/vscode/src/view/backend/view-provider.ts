@@ -96,7 +96,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     // Initialize edit format from workspace state
     this.edit_format = this.context.workspaceState.get<EditFormat>(
       'editFormat',
-      'truncated'
+      'whole'
     )
 
     // Initialize home view type from workspace state
