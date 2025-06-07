@@ -191,6 +191,25 @@ export const HomeView: React.FC<Props> = (props) => {
 
       <UiSeparator size="small" />
 
+      {!props.is_connected && props.home_view_type == HOME_VIEW_TYPES.WEB && (
+        <>
+          <div className={styles['browser-extension-message']}>
+            <span>
+              Get the Connector browser extension for hands-free chat
+              inititalizations
+            </span>
+            <a href="https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
+              Chrome Web Store ↗
+            </a>
+            <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
+              Add-ons for Firefox ↗
+            </a>
+          </div>
+
+          <UiSeparator size="small" />
+        </>
+      )}
+
       <div className={styles['chat-input']}>
         <UiChatInput
           value={current_prompt}
@@ -298,25 +317,6 @@ export const HomeView: React.FC<Props> = (props) => {
         )}
 
       <UiSeparator size="large" />
-
-      {!props.is_connected && props.home_view_type == HOME_VIEW_TYPES.WEB && (
-        <>
-          <div className={styles['browser-extension-message']}>
-            <span>
-              Get the connector browser extension for hands-free chat
-              inititalizations.
-            </span>
-            <a href="https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-              Install for Chrome
-            </a>
-            <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
-              Install for Firefox
-            </a>
-          </div>
-
-          <UiSeparator size="large" />
-        </>
-      )}
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <UiPresets
