@@ -1,16 +1,16 @@
 <div align="center">
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="128" />
-  <br/>
+  <br />
   <h1>Code Web Chat</h1>
   <strong>👉 Select context, ask anything and initialize any web chat hands-free!</strong>
-  <br/>
+  <br />
   <strong>👉 Apply chat responses in truncated, whole or diff edit formats</strong>
-  <br/>
+  <br />
   <strong>👉 API tools for code completions, refactorings and commit messages</strong>
-  <br/>
-  <br/>
+  <br />
+  <br />
 
-<a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder" target="_blank"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace" /></a>&nbsp;<a href="https://github.com/robertpiosik/CodeWebChat/blob/dev/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-GPL--3.0-blue" alt="Download from Visual Studio Code Marketplace" /></a>&nbsp;<a href="https://github.com/robertpiosik/CodeWebChat" target="_blank"><img src="https://img.shields.io/github/stars/robertpiosik/CodeWebChat" alt="stars" /></a><br/><a href="https://x.com/robertpiosik" target="_blank"><img src="https://img.shields.io/badge/Created_by-@robertpiosik-black?logo=x" alt="X" /></a>&nbsp;<a href="https://x.com/CodeWebChat" target="_blank"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x" alt="X" /></a>&nbsp;<a href="https://www.reddit.com/r/CodeWebChat" target="_blank"><img src="https://img.shields.io/badge/Join-r%2FCodeWebChat-orange?logo=reddit&logoColor=white" alt="Join r/CodeWebChat" /></a><br/>
+<a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder" target="_blank"><img src="https://img.shields.io/badge/Download-VS_Code_Marketplace-blue" alt="Download from Visual Studio Code Marketplace" /></a>&nbsp;<a href="https://github.com/robertpiosik/CodeWebChat/blob/dev/LICENSE" target="_blank"><img src="https://img.shields.io/badge/License-GPL--3.0-blue" alt="Download from Visual Studio Code Marketplace" /></a>&nbsp;<a href="https://github.com/robertpiosik/CodeWebChat" target="_blank"><img src="https://img.shields.io/github/stars/robertpiosik/CodeWebChat" alt="stars" /></a><br /><a href="https://x.com/robertpiosik" target="_blank"><img src="https://img.shields.io/badge/Created_by-@robertpiosik-black?logo=x" alt="X" /></a>&nbsp;<a href="https://x.com/CodeWebChat" target="_blank"><img src="https://img.shields.io/badge/Follow-@CodeWebChat-black?logo=x" alt="X" /></a>&nbsp;<a href="https://www.reddit.com/r/CodeWebChat" target="_blank"><img src="https://img.shields.io/badge/Join-r%2FCodeWebChat-orange?logo=reddit&logoColor=white" alt="Join r/CodeWebChat" /></a><br />
 <a href="https://codeweb.chat/" target="_blank"><strong>Documentation</strong></a>
 
 </div>
@@ -19,7 +19,7 @@
 
 CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
-🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)
+🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
 ✌️ 100% free and open source!
 
 **Guiding Principles:**
@@ -58,8 +58,8 @@ Use your favorite chatbot without tedious copy-pasting contents of files you wan
 
 **Operates in two modes:**
 
-- General<br/>_Ask anything_
-- Code Completions <br/>_Ask what fits the cursor position_
+- General<br />_Ask anything_
+- Code Completions <br />_Ask what fits the cursor position_
 
 Prompts with context and instructions can be copied to clipboard or sent directly to any supported chatbot.
 
@@ -114,7 +114,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 **Anthropic**, **Cerebras**, **Chutes**, **DeepInfra**, **DeepSeek**, **Fireworks**, **Gemini**, **Hyperbolic**, **Mistral**, **OpenAI**, **OpenRouter**, **TogetherAI**
 
-ℹ️ Any OpenAI-API compatible endpoint works with CWC<br/>
+ℹ️ Any OpenAI-API compatible endpoint works with CWC<br />
 🔒️ API keys are stored encrypted with the [SecretStorage utility](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
 
 ## Commands
@@ -170,6 +170,6 @@ All contributions are welcome. Feel free to submit pull requests, feature reques
 ## License
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
-<br/>📨 robertpiosik@gmail.com
-<br/>Telegram: @robertpiosik
-<br/>📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
+<br />📨 robertpiosik@gmail.com
+<br />Telegram: @robertpiosik
+<br />📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
