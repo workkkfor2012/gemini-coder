@@ -19,7 +19,7 @@
 
 CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
-🧩 Compatible with VS Code, Cursor and Windsurf<br/>
+🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)
 ✌️ 100% free and open source!
 
 **Guiding Principles:**
@@ -32,11 +32,11 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 **CWC is for you if:**
 
 - you're an experienced engineer working on a large codebase
-- you're a student or hobbyist on a budget
+- you're a student or hobbyist who thrives on the intricate aspects of coding
 - you love open source software! 🫶
 
 <p>
-<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/walkthrough.gif" alt="Walkthrough" />
+<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" width="900" height="522" />
 </p>
 
 ## Context
@@ -73,9 +73,9 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
-**TIP: Practice single-turns**
+**TIP: Practice single-turn interactions**
 
-Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it will not recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and re-initialize a chat**.
+Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it won't recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and reinitialize**.
 
 ## API Tools
 
@@ -157,11 +157,11 @@ If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/r
 
 **BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
 
+**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
+
 **LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
 
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
-
-**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
 
 ## Contributing
 

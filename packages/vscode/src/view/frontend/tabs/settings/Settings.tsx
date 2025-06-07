@@ -74,7 +74,7 @@ export const Settings: React.FC<Props> = (props) => {
     >
       <div className={styles.configure}>
         <span>
-          CWC ships with battle-tested API tools. API keys are stored encrypted
+          CWC ships with battle-tested must-have API tools. API keys are stored encrypted
           with the&nbsp;
           <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
             SecretStorage utility
