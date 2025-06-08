@@ -1,5 +1,6 @@
 import { Chatbot } from '../types/chatbot'
 import { Message } from '@/types/messages'
+import { CHATBOTS } from '@shared/constants/chatbots'
 import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import {
@@ -66,6 +67,39 @@ export const ai_studio: Chatbot = {
     )
     assignment_button.click()
     await new Promise((r) => requestAnimationFrame(r))
+  },
+  set_options: async (options: string[]) => {
+    const supported_options = CHATBOTS['AI Studio'].supported_options
+    for (const option of options) {
+      if (
+        option == 'disable-thinking' &&
+        supported_options['disable-thinking']
+      ) {
+        const thinking_toggle = document.querySelector(
+          'mat-slide-toggle[data-test-toggle="enable-thinking"] button'
+        ) as HTMLElement
+        thinking_toggle.click()
+      } else if (
+        option == 'hide-left-side-panel' &&
+        supported_options['hide-left-side-panel']
+      ) {
+        const button = document.querySelector(
+          'ms-navbar > div > div:last-child > div > div:last-child button'
+        ) as HTMLButtonElement
+        button.click()
+      } else if (
+        option == 'hide-right-side-panel' &&
+        supported_options['hide-right-side-panel']
+      ) {
+        const panel = document.querySelector(
+          'ms-right-side-panel'
+        ) as HTMLElement
+        const button = Array.from(panel.querySelectorAll('button')).find(
+          (button) => button.textContent?.trim() == 'tune'
+        ) as HTMLButtonElement
+        button.click()
+      }
+    }
   },
   set_temperature: async (temperature: number) => {
     if (window.innerWidth <= 768) {

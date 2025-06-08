@@ -28,9 +28,9 @@ export const CHATBOTS = {
     default_system_instructions: "You're a helpful coding assistant.",
     default_top_p: 0.95,
     supported_options: {
-      // TODO
-      // close sidebar
-      // close settings
+      'hide-left-side-panel': 'Hide left side panel',
+      'hide-right-side-panel': 'Hide right side panel',
+      'disable-thinking': 'Disable thinking'
     },
     models: {
       'gemini-2.5-flash-preview-04-17': 'Gemini 2.5 Flash Preview 04-17',
