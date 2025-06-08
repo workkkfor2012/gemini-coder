@@ -1,7 +1,6 @@
 import { Chatbot } from '../types/chatbot'
 import { Message } from '@/types/messages'
 import { CHATBOTS } from '@shared/constants/chatbots'
-import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import {
   apply_chat_response_button_style,
@@ -150,7 +149,7 @@ export const ai_studio: Chatbot = {
     }
   },
   inject_apply_response_button: (client_id: number) => {
-    const debounced_add_buttons = debounce((params: { footer: Element }) => {
+    const add_buttons = (params: { footer: Element }) => {
       const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
@@ -221,7 +220,7 @@ export const ai_studio: Chatbot = {
       }
 
       create_apply_response_button()
-    }, 100)
+    }
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
@@ -232,7 +231,7 @@ export const ai_studio: Chatbot = {
           if (
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {
-            debounced_add_buttons({
+            add_buttons({
               footer
             })
           }

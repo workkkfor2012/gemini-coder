@@ -1,6 +1,5 @@
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { Chatbot } from '../types/chatbot'
-import { debounce } from '@/utils/debounce'
 import browser from 'webextension-polyfill'
 import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-line-of-code'
 import {
@@ -79,7 +78,7 @@ export const yuanbao: Chatbot = {
     await new Promise((r) => requestAnimationFrame(r))
   },
   inject_apply_response_button: (client_id: number) => {
-    const debounced_add_buttons = debounce((params: { footer: Element }) => {
+    const add_buttons = (params: { footer: Element }) => {
       const apply_response_button_text = 'Apply response with CWC'
 
       // Check if buttons already exist by text content to avoid duplicates
@@ -135,7 +134,7 @@ export const yuanbao: Chatbot = {
       }
 
       create_apply_response_button()
-    }, 100)
+    }
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
@@ -150,7 +149,7 @@ export const yuanbao: Chatbot = {
           '.agent-chat__toolbar__right'
         )
         all_footers.forEach((footer) => {
-          debounced_add_buttons({
+          add_buttons({
             footer
           })
         })
