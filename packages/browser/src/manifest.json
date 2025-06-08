@@ -3,8 +3,8 @@
   "author": "Robert Piosik",
   "name": "Code Web Chat Connector",
   "short_name": "CWC",
-  "description": "Initialize any web chat with your code",
-  "version": "1.1.0",
+  "description": "Initialize chatbots and apply responses.",
+  "version": "1.2.0",
   "homepage_url": "https://github.com/robertpiosik/CodeWebChat",
   "icons": {
     "16": "icons/icon-16.png",

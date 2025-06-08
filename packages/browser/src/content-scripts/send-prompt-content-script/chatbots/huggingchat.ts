@@ -9,6 +9,9 @@ import {
 import { Message } from '@/types/messages'
 
 export const huggingchat: Chatbot = {
+  wait_until_ready: async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500))
+  },
   inject_apply_response_button: (client_id: number) => {
     const debounced_add_buttons = debounce((params: { footer: Element }) => {
       const apply_response_button_text = 'Apply response with CWC'

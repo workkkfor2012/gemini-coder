@@ -7,11 +7,24 @@ export type Chat = {
   options?: string[]
 }
 
+// Deprecated, used by browser clients older than 1.2.0
 export type InitializeChatsMessage = {
   action: 'initialize-chats'
   text: string
   chats: Chat[]
   client_id: number // Client ID to identify which editor sent this message
+}
+
+export type InitializeChatMessage = {
+  action: 'initialize-chat'
+  text: string
+  url: string
+  client_id: number // Client ID to identify which editor sent this message
+  model?: string
+  temperature?: number
+  top_p?: number
+  system_instructions?: string
+  options?: string[]
 }
 
 export type Website = {
@@ -43,6 +56,7 @@ export type ClientIdAssignmentMessage = {
 
 export type WebSocketMessage =
   | InitializeChatsMessage
+  | InitializeChatMessage
   | UpdateSavedWebsitesMessage
   | BrowserConnectionStatusMessage
   | ClientIdAssignmentMessage

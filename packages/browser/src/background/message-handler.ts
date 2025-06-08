@@ -1,6 +1,7 @@
 import {
   WebSocketMessage,
   InitializeChatsMessage,
+  InitializeChatMessage,
   ApplyChatResponseMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
@@ -9,7 +10,6 @@ import { is_message } from '@/utils/is-message'
 import { GetTabDataResponse } from '@/types/responses'
 import { image_url_to_base64 } from '@/utils/image-url-to-base64'
 
-// Queue to manage multiple chat initialization
 interface ChatQueueItem {
   message: InitializeChatsMessage
   remaining_chats: number
@@ -26,6 +26,8 @@ const CHAT_INITIALIZATION_TIMEOUT = 5000
 export const handle_messages = (message: WebSocketMessage) => {
   if (message.action == 'initialize-chats') {
     handle_initialize_chats_message(message as InitializeChatsMessage)
+  } else if (message.action == 'initialize-chat') {
+    handle_initialize_chat_message(message as InitializeChatMessage)
   }
 }
 
@@ -140,6 +142,7 @@ const start_processing = async () => {
   }
 }
 
+// Will be deprecated
 const handle_initialize_chats_message = async (
   message: InitializeChatsMessage
 ) => {
@@ -154,6 +157,28 @@ const handle_initialize_chats_message = async (
     // Start processing if not already doing so
     await start_processing()
   }
+}
+
+const handle_initialize_chat_message = async (
+  message: InitializeChatMessage
+) => {
+  const chat_config = {
+    url: message.url,
+    model: message.model,
+    temperature: message.temperature,
+    top_p: message.top_p,
+    system_instructions: message.system_instructions,
+    options: message.options
+  }
+
+  const chats_message: InitializeChatsMessage = {
+    action: 'initialize-chats',
+    text: message.text,
+    chats: [chat_config],
+    client_id: message.client_id
+  }
+
+  handle_initialize_chats_message(chats_message)
 }
 
 const handle_chat_initialized = async () => {

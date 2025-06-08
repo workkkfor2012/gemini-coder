@@ -4,7 +4,7 @@ import * as child_process from 'child_process'
 import * as path from 'path'
 import * as net from 'net'
 import {
-  InitializeChatsMessage,
+  InitializeChatMessage,
   UpdateSavedWebsitesMessage
 } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
@@ -296,19 +296,15 @@ export class WebSocketManager {
         url = chatbot.url
       }
 
-      const message: InitializeChatsMessage = {
-        action: 'initialize-chats',
+      const message: InitializeChatMessage = {
+        action: 'initialize-chat',
         text: chat.text,
-        chats: [
-          {
-            url,
-            model: preset.model,
-            temperature: preset.temperature,
-            top_p: preset.top_p,
-            system_instructions: preset.systemInstructions,
-            options: preset.options
-          }
-        ],
+        url,
+        model: preset.model,
+        temperature: preset.temperature,
+        top_p: preset.top_p,
+        system_instructions: preset.systemInstructions,
+        options: preset.options,
         client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
       }
 
@@ -342,19 +338,15 @@ export class WebSocketManager {
       url = chatbot.url
     }
 
-    const message: InitializeChatsMessage = {
-      action: 'initialize-chats',
+    const message: InitializeChatMessage = {
+      action: 'initialize-chat',
       text: instruction,
-      chats: [
-        {
-          url,
-          model: preset.model,
-          temperature: preset.temperature,
-          top_p: preset.top_p,
-          system_instructions: preset.system_instructions,
-          options: preset.options
-        }
-      ],
+      url,
+      model: preset.model,
+      temperature: preset.temperature,
+      top_p: preset.top_p,
+      system_instructions: preset.system_instructions,
+      options: preset.options,
       client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
     }
 
