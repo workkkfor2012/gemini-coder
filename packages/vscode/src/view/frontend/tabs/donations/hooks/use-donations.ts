@@ -8,6 +8,21 @@ type Donation = {
   is_monthly?: boolean
 }
 
+type BuyMeACoffeeDonationsResponse = {
+  data: {
+    supporter_name: string
+    support_created_on: string
+    support_note: string | undefined
+    support_type: 'Supporter' | 'Monthly Supporter'
+  }[]
+}
+
+type BuyMeACoffeeTopSupportersResponse = {
+  data: {
+    profile_full_name: string
+  }[]
+}
+
 export const use_donations = (is_visible: boolean) => {
   const [donations, set_donations] = useState<Donation[]>([])
   const [top_supporters, set_top_supporters] = useState<string[]>([])
@@ -28,7 +43,7 @@ export const use_donations = (is_visible: boolean) => {
       throw new Error('Failed to fetch donations')
     }
 
-    const data = await response.json()
+    const data: BuyMeACoffeeDonationsResponse = await response.json()
     const new_donations = data.data.map((coffee: any) => ({
       name: coffee.supporter_name,
       date: new Date(coffee.support_created_on),
@@ -55,7 +70,7 @@ export const use_donations = (is_visible: boolean) => {
       throw new Error('Failed to fetch top supporters')
     }
 
-    const data = await response.json()
+    const data: BuyMeACoffeeTopSupportersResponse = await response.json()
     set_top_supporters(
       data.data.map((supporter: any) => supporter.profile_full_name)
     )
