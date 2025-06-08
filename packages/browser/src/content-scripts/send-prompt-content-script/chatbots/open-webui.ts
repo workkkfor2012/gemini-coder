@@ -12,7 +12,10 @@ export const open_webui: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (document.querySelector('#messages-container')) {
+        if (
+          document.querySelector('#messages-container') &&
+          document.visibilityState == 'visible'
+        ) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
@@ -20,6 +23,7 @@ export const open_webui: Chatbot = {
       }
       check_for_element()
     })
+    await new Promise((resolve) => setTimeout(resolve, 500))
   },
   enter_system_instructions: async (system_instructions: string) => {
     const controls_button = document.querySelector(
