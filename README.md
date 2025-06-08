@@ -113,7 +113,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 **Anthropic**, **Cerebras**, **Chutes**, **DeepInfra**, **DeepSeek**, **Fireworks**, **Gemini**, **Hyperbolic**, **Mistral**, **OpenAI**, **OpenRouter**, **TogetherAI**
 
 ℹ️ Any OpenAI-API compatible endpoint works with CWC<br />
-🔒️ API keys are stored encrypted with the [SecretStorage utility](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
+🔒️ API keys are [stored encrypted](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
 
 ## Commands
 

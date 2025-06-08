@@ -5,6 +5,7 @@ type Donation = {
   name: string
   date: Date
   note?: string
+  is_monthly?: boolean
 }
 
 export const use_donations = (is_visible: boolean) => {
@@ -30,8 +31,9 @@ export const use_donations = (is_visible: boolean) => {
     const data = await response.json()
     const new_donations = data.data.map((coffee: any) => ({
       name: coffee.supporter_name,
+      date: new Date(coffee.support_created_on),
       note: coffee.support_note,
-      date: new Date(coffee.support_created_on)
+      is_monthly: coffee.support_type == 'Monthly Supporter'
     }))
 
     if (append) {
