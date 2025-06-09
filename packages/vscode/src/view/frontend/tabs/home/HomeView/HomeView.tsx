@@ -202,7 +202,7 @@ export const HomeView: React.FC<Props> = (props) => {
               Chrome Web Store ↗
             </a>
             <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
-              Add-ons for Firefox ↗
+              Firefox Add-ons ↗
             </a>
           </div>
 
