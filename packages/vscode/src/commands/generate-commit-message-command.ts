@@ -158,7 +158,7 @@ export function generate_commit_message_command(
 
         const token_count = Math.ceil(message.length / 4)
         const formatted_token_count =
-          token_count > 1000 ? Math.ceil(token_count / 1000) + 'K' : token_count
+          token_count > 1000 ? Math.ceil(token_count / 1000) + 'k' : token_count
 
         await vscode.window.withProgress(
           {
