@@ -207,6 +207,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
     const quick_pick = vscode.window.createQuickPick()
     quick_pick.items = create_config_items()
     quick_pick.title = `${tool_methods.get_display_name()} Configurations`
+    quick_pick.matchOnDescription = true
     quick_pick.placeholder = 'Select a configuration to edit or add another one'
 
     return new Promise<void>((resolve) => {
@@ -582,7 +583,7 @@ export const handle_setup_api_tool_multi_config = async (params: {
     }))
 
     const selected = await vscode.window.showQuickPick(provider_items, {
-      title: 'Select API Provider',
+      title: 'Configured API Providers',
       placeHolder: 'Choose an API provider'
     })
 

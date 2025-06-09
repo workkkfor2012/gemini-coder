@@ -188,6 +188,7 @@ async function validate_presets(params: {
     const items = create_items()
     quick_pick.items = items
     quick_pick.placeholder = 'Select preset'
+    quick_pick.matchOnDescription = true
 
     if (last_selected_item) {
       const last_item = items.find(
