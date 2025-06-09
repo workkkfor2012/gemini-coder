@@ -6,6 +6,10 @@ import {
   set_button_disabled_state
 } from '../utils/apply-response-styles'
 import { is_eligible_code_block } from '../utils/is-eligible-code-block'
+import {
+  apply_response_button_text,
+  apply_response_button_title
+} from '../constants/ui-text'
 
 export const openrouter: Chatbot = {
   wait_until_ready: async () => {
@@ -135,8 +139,6 @@ export const openrouter: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const add_buttons = (params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response with CWC'
-
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
         params.footer.querySelectorAll('button')
@@ -159,8 +161,7 @@ export const openrouter: Chatbot = {
       const create_apply_response_button = () => {
         const apply_response_button = document.createElement('button')
         apply_response_button.textContent = apply_response_button_text
-        apply_response_button.title =
-          'Integrate changes with the codebase. You can fully revert this operation.'
+        apply_response_button.title = apply_response_button_title
         apply_chat_response_button_style(apply_response_button)
 
         apply_response_button.addEventListener('click', async () => {
@@ -195,7 +196,6 @@ export const openrouter: Chatbot = {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
         if (
-          // Stop icon of a stopping response generation button
           document.querySelector(
             'path[d="M4.5 7.5a3 3 0 0 1 3-3h9a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3h-9a3 3 0 0 1-3-3v-9Z"]'
           )

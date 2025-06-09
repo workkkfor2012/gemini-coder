@@ -7,6 +7,10 @@ import {
 } from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 import { is_eligible_code_block } from '../utils/is-eligible-code-block'
+import {
+  apply_response_button_text,
+  apply_response_button_title
+} from '../constants/ui-text'
 
 export const grok: Chatbot = {
   wait_until_ready: async () => {
@@ -36,8 +40,6 @@ export const grok: Chatbot = {
   },
   inject_apply_response_button: (client_id: number) => {
     const add_buttons = (params: { footer: Element }) => {
-      const apply_response_button_text = 'Apply response with CWC'
-
       // Check if buttons already exist by text content to avoid duplicates
       const existing_apply_response_button = Array.from(
         params.footer.querySelectorAll('button')
@@ -60,8 +62,7 @@ export const grok: Chatbot = {
       const create_apply_response_button = () => {
         const apply_response_button = document.createElement('button')
         apply_response_button.textContent = apply_response_button_text
-        apply_response_button.title =
-          'Integrate changes with the codebase. You can fully revert this operation.'
+        apply_response_button.title = apply_response_button_title
         apply_chat_response_button_style(apply_response_button)
 
         apply_response_button.addEventListener('click', async () => {
@@ -91,7 +92,6 @@ export const grok: Chatbot = {
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
         if (
-          // Stop icon of a stopping response generation button
           document.querySelector(
             'patch[d="M4 9.2v5.6c0 1.116 0 1.673.11 2.134a4 4 0 0 0 2.956 2.956c.46.11 1.018.11 2.134.11h5.6c1.116 0 1.673 0 2.134-.11a4 4 0 0 0 2.956-2.956c.11-.46.11-1.018.11-2.134V9.2c0-1.116 0-1.673-.11-2.134a4 4 0 0 0-2.956-2.955C16.474 4 15.916 4 14.8 4H9.2c-1.116 0-1.673 0-2.134.11a4 4 0 0 0-2.955 2.956C4 7.526 4 8.084 4 9.2Z"]'
           )
