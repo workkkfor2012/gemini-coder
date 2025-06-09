@@ -623,7 +623,7 @@
           "type": "string",
           "scope": "resource",
           "description": "The instructions used when generating a commit message.",
-          "default": "Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
+          "default": "Write a brief and precise summary for the changes, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose."
         },
         "codeWebChat.ignoredExtensions": {
           "type": "array",

@@ -148,7 +148,7 @@ export function generate_commit_message_command(
         }
 
         const affected_files = build_files_content(selected_files)
-        const message = `${affected_files}\n${commit_message_prompt}\n${diff}`
+        const message = `${commit_message_prompt}\n${affected_files}\n${diff}\n${commit_message_prompt}`
 
         Logger.log({
           function_name: 'generate_commit_message_command',
