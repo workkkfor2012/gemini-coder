@@ -15,7 +15,7 @@
 
 </div>
 
-## What is CWC?
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">What is CWC?</span>
 
 CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
@@ -37,7 +37,7 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 
 <p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" /></p>
 
-## Context
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context</span>
 
 Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context hurting model's performance and your wallet.
 
@@ -50,7 +50,7 @@ The result? Unmatched in accuracy and cost AI assistance.
 
 > Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
 
-## Web chats
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
 Use your favorite chatbot without tedious copy-pasting contents of files you want to include with your instructions.
 
@@ -75,7 +75,7 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it won't recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and reinitialize**.
 
-## API Tools
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">API Tools</span>
 
 CWC will elevate your workflow with battle-tested must-have API tools.
 
@@ -115,7 +115,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 ℹ️ Any OpenAI-API compatible endpoint works with CWC<br />
 🔒️ API keys are [stored encrypted](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
 
-## Commands
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Commands</span>
 
 ### Code completions
 
@@ -145,27 +145,24 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 - `Code Web Chat: Copy Context` - Copy selected folders/files and websites to clipboard.
 
-## Community
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Community</span>
 
 Please be welcomed in [discussions](https://github.com/robertpiosik/CodeWebChat/discussions) and in our subreddit [/r/CodeWebChat](https://www.reddit.com/r/CodeWebChat).
 
-## Donations
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Donations</span>
 
 If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you!
 
 **BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
-
 **XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
-
 **LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
-
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
 
-## Contributing
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Contributing</span>
 
 All contributions are welcome. Feel free to submit pull requests, feature requests and bug reports.
 
-## License
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">License</span>
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
 <br />📨 robertpiosik@gmail.com
