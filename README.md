@@ -13,16 +13,14 @@
    <a href="https://codeweb.chat/" target="_blank"><strong>Documentation</strong></a>
 </div>
 
-<br/>
-
-<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" />
-
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">What is CWC?</span>
 
 CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
 🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
 ✌️ 100% free and open source!
+
+<p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" /></p>
 
 **Guiding Principles:**
 
