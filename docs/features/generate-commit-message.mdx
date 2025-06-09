@@ -3,18 +3,21 @@ title: Generate Commit Message
 sidebar_position: 5
 ---
 
-Code Web Chat's Generate Commit Message feature automatically creates meaningful commit messages. This saves you time and ensures your commit history remains descriptive and consistent.
+Generate meaningful commit messages precisely adhering to your preffered style.
 
 ## API message structure
 
 ```
+[INSTRUCTIONS]
 <files>
   <file path="...">...</file>
-  // other affected files...
+  // other affected files
 </files>
-Write a brief and precise summary for the following diff, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose.
-[DIFF OF CHANGES]
+[DIFFS]
+[INSTRUCTIONS]
 ```
+
+**Default instructions:** Write a brief and precise summary for the changes, limited to a single sentence if possible and nothing else. Use an imperative tone to ensure clarity and focus on the primary change or purpose.
 
 ## Settings
 
