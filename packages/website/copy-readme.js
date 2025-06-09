@@ -15,7 +15,31 @@ const docs_index_path = path.join(__dirname, '../../docs/index.md')
 
 function copy_readme() {
   try {
-    const readme_content = fs.readFileSync(readme_path, 'utf8')
+    let readme_content = fs.readFileSync(readme_path, 'utf8')
+
+    // Convert HTML style attributes to JSX style objects
+    readme_content = readme_content.replace(
+      /style="([^"]*)"/g,
+      (_match, styleString) => {
+        const stylePairs = styleString
+          .split(';')
+          .filter((s) => s.trim())
+          .map((style) => {
+            const [key, value] = style.split(':').map((s) => s.trim())
+            if (key && value) {
+              const camelCaseKey = key.replace(/-(\w)/g, (_, c) =>
+                c.toUpperCase()
+              )
+              return `${camelCaseKey}: '${value}'`
+            }
+            return null
+          })
+          .filter(Boolean)
+
+        return `style={{${stylePairs.join(', ')}}}`
+      }
+    )
+
     const final_content = header + readme_content
 
     const docs_dir = path.dirname(docs_index_path)
