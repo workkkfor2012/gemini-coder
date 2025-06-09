@@ -9,7 +9,7 @@ import { is_eligible_code_block } from '../utils/is-eligible-code-block'
 import {
   apply_response_button_text,
   apply_response_button_title
-} from '../constants/ui-text'
+} from '../constants/copy'
 
 export const claude: Chatbot = {
   wait_until_ready: async () => {
