@@ -39,19 +39,13 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 
 <p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" /></p>
 
-## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context</span>
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context selection</span>
 
-While coding agents are
-Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context or making excessive number of API calls.
+Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is very successful in its work bringing undeniable gains in speed software development can be done. For some it is too fast too keep up though. Over time they lose confidence in their own knowledge about the codebase they work on, veryfing AI-suggested changes becomes challenging, bugs and unintended behaviors are much more likely to be introduced.
 
-CWC works differently:
+CWC does not prompt-engineer its functionality and expects programmer to be constantly in the loop with the evolving codebase by requiring accurate context selectios to the task.
 
-- **You select** which folders and files are relevant to the task
-- **You know** exactly how many tokens you have in the context
-
-The result? Unmatched in accuracy and cost AI assistance.
-
-> Too many tokens fighting for attention may _decrease_ performance due to being too "distracting", diffusing attention too broadly and decreasing a signal to noise ratio in the features. ~Andrej Karpathy
+This friction rewards in building mental model about the codebase, faster code generations and AI-related cost savings.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
@@ -65,13 +59,9 @@ The Connector extension is available in [Chrome Web Store](https://chromewebstor
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
-**TIP: Practice single-turn interactions**
-
-Chat conversations are only a construct of product interfaces, they hurt the quality of responses from the model and once your context is "poisoned" it won't recover. Whenever you're not satisfied with a reponse, **the best practice is to alawys refine your initial instructions and reinitialize**.
-
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">API Tools</span>
 
-CWC will elevate your workflow with battle-tested must-have API tools.
+CWC includes battle-tested must-have API tools.
 
 ### Code Completions
 
@@ -145,11 +135,14 @@ Please be welcomed in [discussions](https://github.com/robertpiosik/CodeWebChat/
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Donations</span>
 
-If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you!
+If you find CWC helpful, please consider [supporting the project](https://buymeacoffee.com/robertpiosik). Thank you!
 
-**BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te<br />
-**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R<br />
-**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx<br />
+**BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
+
+**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
+
+**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
+
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Contributing</span>
