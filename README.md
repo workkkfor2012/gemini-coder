@@ -22,6 +22,8 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
 ✌️ 100% free and open source!
 
+<p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" /></p>
+
 **Guiding Principles:**
 
 - initialize popular chatbots—but don't game them
@@ -39,7 +41,8 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context</span>
 
-Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context hurting model's performance and your wallet.
+While coding agents are 
+Other tools try to "guess" what pieces of the codebase matter for the given task, often struggling to get it right. They workaround this by overloading context or making excessive number of API calls.
 
 CWC works differently:
 
