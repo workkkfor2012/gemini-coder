@@ -213,7 +213,7 @@
       },
       {
         "command": "codeWebChat.codeCompletionToClipboard",
-        "title": "Code Completion Prompt to Clipboard",
+        "title": "Code Completion to Clipboard",
         "category": "Code Web Chat"
       },
       {

@@ -55,16 +55,7 @@ The result? Unmatched in accuracy and cost AI assistance.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
-Use your favorite chatbot without tedious copy-pasting contents of files you want to include with your instructions.
-
-**Operates in two modes:**
-
-- General<br />_Ask anything_
-- Code Completions <br />_Ask what fits the cursor position_
-
-Prompts with context and instructions can be copied to clipboard or sent directly to any supported chatbot.
-
-**Apply chat response from clipboard** is a smart tool that automatically integrates multi-file changes with the codebase by modyfing exisitng files or creating new ones. Works with chat responses in three edit formats: truncated, whole and diff.
+Code with your favorite chatbot without tedious copy-pasting and apply responses with a single click.
 
 ### Supported chatbots
 
@@ -122,12 +113,12 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ### Code completions
 
-- `Code Web Chat: Code Completion` - Get code completion.
-- `Code Web Chat: Code Completion with Suggestions` - Get code completion that follows given suggestions.
-- `Code Web Chat: Code Completion to Clipboard` - Copy code completion prompt to clipboard.
-- `Code Web Chat: Code Completion with Suggestions to Clipboard` - Copy code completion with suggestions prompt to clipboard.
-- `Code Web Chat: Code Completion in Chat` - Send code completion prompt to web chat using default preset.
-- `Code Web Chat: Code Completion in Chat with...` - Send code completion prompt to web chat with preset selection.
+- `Code Web Chat: Code Completion` - Get inline autocompletion at the cursor position.
+- `Code Web Chat: Code Completion with Suggestions` - Get inline autocompletion at the cursor position that follows given suggestions.
+- `Code Web Chat: Code Completion to Clipboard` - Copy inline autocompletion prompt to clipboard.
+- `Code Web Chat: Code Completion with Suggestions to Clipboard` - Copy inline autocompletion with suggestions prompt to clipboard.
+- `Code Web Chat: Code Completion in Chat` - Use chatbot for code completion.
+- `Code Web Chat: Code Completion in Chat with...` - Use chatbot for code completion with selected preset.
 
 ### Refactoring
 
@@ -135,13 +126,13 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ### Applying chat responses
 
-- `Code Web Chat: Apply Chat Response` - Apply changes suggested by AI using clipboard content.
+- `Code Web Chat: Apply Chat Response` - Apply changes suggested by AI using clipboard content of an overall chat response or a single code block.
 - `Code Web Chat: Revert Last Applied Changes` - Revert the last applied changes.
 
 ### Chat
 
-- `Code Web Chat: Chat` - Open web chat with default preset.
-- `Code Web Chat: Chat using...` - Open web chat with preset selection.
+- `Code Web Chat: Chat` - Open chatbot with default preset.
+- `Code Web Chat: Chat using...` - Open chatbot with preset selection.
 - `Code Web Chat: Chat to Clipboard` - Enter instructions and copy to clipboard.
 
 ### Context
@@ -156,9 +147,9 @@ Please be welcomed in [discussions](https://github.com/robertpiosik/CodeWebChat/
 
 If you find CWC helpful, please consider a [donation](https://buymeacoffee.com/robertpiosik). Thank you!
 
-**BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
-**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
-**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
+**BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te<br />
+**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R<br />
+**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx<br />
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Contributing</span>
@@ -169,5 +160,5 @@ All contributions are welcome. Feel free to submit pull requests, feature reques
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
 <br />📨 robertpiosik@gmail.com
-<br />Telegram: @robertpiosik
+<br />📱 Telegram: @robertpiosik
 <br />📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
