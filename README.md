@@ -53,7 +53,7 @@ Code with your favorite chatbot without tedious copy-pasting and apply responses
 
 **AI Studio**, **ChatGPT**, **Claude**, **DeepSeek**, **Doubao**, **Gemini**, **Grok**, **HuggingChat**, **Mistral**, **Open WebUI**, **OpenRouter Chat**, **Qwen**, **Yuanbao**
 
-The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/).
+The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/). Source code is published in [the repository](https://github.com/robertpiosik/CodeWebChat/tree/dev/packages/browser).
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
