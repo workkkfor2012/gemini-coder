@@ -1,0 +1,27 @@
+---
+title: Refactoring
+sidebar_position: 2
+---
+
+Modify files based on natural language instructions.
+
+✓ Includes selected context<br />
+✓ Multi-file updates in a single API call<br />
+✓ Efficient in output tokens—requests diffs
+
+## API message structure
+
+```
+[INSTRUCTIONS] // User's natural language instructions (and optional selected text)
+Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch. Do not send explanations.
+<files>
+  <file path="...">...</file> // context, including current editor
+  ...
+</files>
+[INSTRUCTIONS] // User's natural language instructions (and optional selected text)
+Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch. Do not send explanations.
+```
+
+## Available commands
+
+- `Code Web Chat: Refactor` - Modify files based on natural language instructions.

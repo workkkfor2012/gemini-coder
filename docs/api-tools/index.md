@@ -1,0 +1,24 @@
+---
+sidebar_position: 3
+hide_table_of_contents: true
+---
+
+# API tools
+
+CWC includes battle-tested must-have API tools.
+
+### [Code completions](./code-completions)
+
+The best quality inline suggestions at the cost of latency. Designed to be used on demand.
+
+### [Refactoring](./refactoring)
+
+Modify files based on natural language instructions.
+
+### [Intelligent update]('./intelligent-update)
+
+Update files based on code blocks in truncated edit format and fix malformed diffs.
+
+### [Commit messages](./commit-messages)
+
+Generate meaningful commit messages precisely adhering to your preffered style.

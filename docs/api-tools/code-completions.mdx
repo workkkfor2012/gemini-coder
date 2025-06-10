@@ -1,6 +1,6 @@
 ---
-title: Code Completions
-sidebar_position: 2
+title: Code completions
+sidebar_position: 1
 ---
 
 import Tabs from '@theme/Tabs'
@@ -8,16 +8,28 @@ import TabItem from '@theme/TabItem'
 
 # Code completions
 
-The tool is designed to provide you with the highest quality autocomplete suggestions at the cost of latency. Intented to be used on-demand through the Tools tab, via the command palette or a keybinding. Setup multiple configurations and choose between them based on difficulty of the completion.
+The best quality inline suggestions at the cost of latency. Designed to be used on demand.
+
+✓ Includes selected context<br />
+✓ Works with any model
+
+Designed to be used:
+
+- on-demand in the Home tab,
+- via the command palette,
+- keybindings you set up for<br/>
+  `Code Web Chat: Code Completion` and<br/>
+  `Code Web Chat: Code Completion using...` commands.
 
 ## API message structure
 
 ```
+Find correct replacement for <missing text> symbol. Respond with replacement text in "replacement" XML tags, without explanations or any other text.
 <files>
-  <text title="...">...</text>
-  // other websites...
-  <file path="...">...</file>
-  // other files excl. current editor...
+  <text title="...">...</text> // selected websites
+  ...
+  <file path="...">...</file> // selected workspace files excluding current editor
+  ...
   <file path="..."> // current editor
     ...
     <missing text> // cursor position

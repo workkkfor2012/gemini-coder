@@ -13,21 +13,17 @@
    <a href="https://codeweb.chat/" target="_blank"><strong>Documentation</strong></a>
 </div>
 
-## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">What is CWC?</span>
-
-CWC is a non-agentic coding tool for AI-assisted programming built by an independent developer.
+Meet CWC, a non-agentic coding tool for AI-assisted programming built by an independent developer.
 
 🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
 ✌️ 100% free and open source!
 
-<p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" /></p>
-
 **Guiding Principles:**
 
-- initialize popular chatbots—but don't game them
+- initialize popular chatbots—don't scrape responses
 - API tools—battle-tested must-haves
-- respect privacy—zero tracking
-- lightweight—under 2MB
+- respect privacy—don't track users
+- lightweight—about ~1MB of code
 
 **CWC is for you if:**
 
@@ -35,7 +31,11 @@ CWC is a non-agentic coding tool for AI-assisted programming built by an indepen
 - you're a student or hobbyist who thrives on the intricate aspects of coding
 - you love open source software! 🫶
 
-<p><img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" /></p>
+<p>
+<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" />
+</p>
+
+<img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" />
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context selection</span>
 
