@@ -13,7 +13,11 @@
    <a href="https://codeweb.chat/" target="_blank"><strong>Documentation</strong></a>
 </div>
 
-Meet CWC, a non-agentic coding tool for AI-assisted programming built by an independent developer.
+<br />
+
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
+
+A **non-agentic** coding tool for **AI-assisted programming** built by an independent developer.
 
 🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
 ✌️ 100% free and open source!
@@ -22,7 +26,7 @@ Meet CWC, a non-agentic coding tool for AI-assisted programming built by an inde
 
 - initialize popular chatbots—don't scrape responses
 - API tools—battle-tested must-haves
-- respect privacy—don't track users
+- respect privacy—zero tracking
 - lightweight—about ~1MB of code
 
 **CWC is for you if:**
@@ -31,19 +35,29 @@ Meet CWC, a non-agentic coding tool for AI-assisted programming built by an inde
 - you're a student or hobbyist who thrives on the intricate aspects of coding
 - you love open source software! 🫶
 
+**See how simple it is to implement a feature with ChatGPT:**
+
 <p>
 <img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/demo.gif" alt="Walkthrough" />
 </p>
+
+**Workflow with CWC is simple and effective:**
 
 <img src="https://github.com/robertpiosik/CodeWebChat/raw/HEAD/packages/shared/src/media/flow.png" alt="Flow" />
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context selection</span>
 
-Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is very successful in its work bringing undeniable gains in speed software development can be done. For some it is too fast too keep up though. Over time they lose confidence in their own knowledge about the codebase they work on, veryfing AI-suggested changes becomes challenging, bugs and unintended behaviors are much more likely to be introduced.
+Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is dramatically accelerating the pace a new code is created. For some it is too fast too keep up though. Over time, they lose confidence in their knowledge of the codebase they work on. Verifying AI-suggested changes becomes challenging, and bugs or unintended behaviors slip in more easily than ever.
 
-CWC does not prompt-engineer its functionality and expects programmer to be constantly in the loop with the evolving codebase by requiring accurate context selectios to the task.
+CWC does not prompt-engineer any form of autonomous AI assistance, instead, it expects programmer to be constantly in the loop with the evolving codebase by requiring careful context selections and precise instructions.
 
-This friction rewards in building mental model about the codebase, faster code generations and AI-related cost savings.
+This friction rewards in:
+
+- building mental model of the codebase,
+- zero idle waiting for the AI to figure things out,
+- 10X ai-related spending reduction.
+
+Non-agentic approach to coding is suggested but not enforced. CWC is flexible enough to allow building custom agentic workflows as shown in the [community post written by @illumineawake](https://github.com/robertpiosik/CodeWebChat/discussions/316).
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
@@ -51,7 +65,7 @@ Code with your favorite chatbot without tedious copy-pasting and apply responses
 
 ### Supported chatbots
 
-**AI Studio**, **ChatGPT**, **Claude**, **DeepSeek**, **Doubao**, **Gemini**, **Grok**, **HuggingChat**, **Mistral**, **Open WebUI**, **OpenRouter Chat**, **Qwen**, **Yuanbao**
+**AI Studio** • **ChatGPT** • **Claude** • **DeepSeek** • **Doubao** • **Gemini** • **Grok** • **HuggingChat** • **Mistral** • **Open WebUI** • **OpenRouter Chat** • **Qwen** • **Yuanbao**
 
 The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/). Source code is published in [the repository](https://github.com/robertpiosik/CodeWebChat/tree/dev/packages/browser).
 
@@ -90,9 +104,11 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 ✓ Includes affected files in full<br />
 ✓ Customizable instructions
 
-### Predefined providers
+<hr />
 
-**Anthropic**, **Cerebras**, **Chutes**, **DeepInfra**, **DeepSeek**, **Fireworks**, **Gemini**, **Hyperbolic**, **Mistral**, **OpenAI**, **OpenRouter**, **TogetherAI**
+### Predefined API providers
+
+**Anthropic** • **Cerebras** • **Chutes** • **DeepInfra** • **DeepSeek** • **Fireworks** • **Gemini** • **Hyperbolic** • **Mistral** • **OpenAI** • **OpenRouter** • **TogetherAI**
 
 ℹ️ Any OpenAI-API compatible endpoint works with CWC<br />
 🔒️ API keys are [stored encrypted](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
@@ -110,22 +126,36 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ### Refactoring
 
-- `Code Web Chat: Refactor` - Modify files based on natural language instructions.
+- `Code Web Chat: Refactor` - Modify files in context based on natural language instructions.
 
 ### Applying chat responses
 
-- `Code Web Chat: Apply Chat Response` - Apply changes suggested by AI using clipboard content of an overall chat response or a single code block.
+- `Code Web Chat: Apply Chat Response` - Integrate overall copied chat response or a single code block.
 - `Code Web Chat: Revert Last Applied Changes` - Revert the last applied changes.
 
 ### Chat
 
-- `Code Web Chat: Chat` - Open chatbot with default preset.
-- `Code Web Chat: Chat using...` - Open chatbot with preset selection.
-- `Code Web Chat: Chat to Clipboard` - Enter instructions and copy to clipboard.
+- `Code Web Chat: Chat` - Type instructions and open chatbot with default preset.
+- `Code Web Chat: Chat using...` - Type instructions and open chatbot with preset selection.
+- `Code Web Chat: Chat to Clipboard` - Enter instructions and copy prompt to clipboard.
 
 ### Context
 
-- `Code Web Chat: Copy Context` - Copy selected folders/files and websites to clipboard.
+- `Code Web Chat: Copy Context` - Copy selected files and websites to clipboard.
+
+## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Settings</span>
+
+### Chatbot initialization
+
+- `Code Web Chat: Edit Format Instructions Truncated` - Style instructions for chat responses when using truncated format.
+
+- `Code Web Chat: Edit Format Instructions Whole` - Style instructions for chat responses when showing complete files.
+
+- `Code Web Chat: Edit Format Instructions Diff` - Style instructions for chat responses when using diff format.
+
+### Commit Messages
+
+- `Code Web Chat: Commit Message Instructions` - The instructions used when generating a commit message.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Community</span>
 

@@ -28,8 +28,7 @@ export const CHATBOTS = {
     default_system_instructions: "You're a helpful coding assistant.",
     default_top_p: 0.95,
     supported_options: {
-      'hide-left-side-panel': 'Hide left side panel',
-      'hide-right-side-panel': 'Hide right side panel',
+      'hide-panel': 'Hide panel',
       'disable-thinking': 'Disable thinking'
     },
     models: {

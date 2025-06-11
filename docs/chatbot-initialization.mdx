@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem'
 
 Code with your favorite chatbot without tedious copy-pasting and apply responses with a single click.
 
-## Prompts in modes of operation
+Generated prompts depend on mode:
 
 <Tabs groupId="mode">
   <TabItem value="general" label="General">
@@ -92,39 +92,3 @@ Strategy depends on detected edit format:
 - **truncated:** Uses Intelligent Update API tool placing the original file before changes which serve as instructions for a full file rewrite.
 - **whole:** Simply replaces original files in place.
 - **diff:** Uses the `git apply` utility before falling back to a custom diff processor.
-
-## Available commands
-
-##### `Code Web Chat: Web Chat`
-
-Opens a chat session in your browser with the current context and prompt.
-
-##### `Code Web Chat: Web Chat with...`
-
-Lets you select which AI platform to use for your chat session.
-
-##### `Code Web Chat: Chat to Clipboard`
-
-Instead of opening a chat directly, copies the context and prompt to your clipboard for manual pasting.
-
-##### `Code Web Chat: Apply Chat Response`
-
-Applies changes to the current file using the default model.
-
-##### `Code Web Chat: Revert Last Applied Changes`
-
-Reverts files to their state before the last application of changes.
-
-## Settings
-
-##### `Code Web Chat: Edit Format Instructions Truncated`
-
-Style instructions for chat responses when using truncated format.
-
-##### `Code Web Chat: Edit Format Instructions Whole`
-
-Style instructions for chat responses when showing complete files.
-
-##### `Code Web Chat: Edit Format Instructions Diff`
-
-Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch.

@@ -82,18 +82,7 @@ export const ai_studio: Chatbot = {
           'mat-slide-toggle[data-test-toggle="enable-thinking"] button'
         ) as HTMLElement
         thinking_toggle.click()
-      } else if (
-        option == 'hide-left-side-panel' &&
-        supported_options['hide-left-side-panel']
-      ) {
-        const button = document.querySelector(
-          'ms-navbar > div > div:last-child > div > div:last-child button'
-        ) as HTMLButtonElement
-        button.click()
-      } else if (
-        option == 'hide-right-side-panel' &&
-        supported_options['hide-right-side-panel']
-      ) {
+      } else if (option == 'hide-panel' && supported_options['hide-panel']) {
         const panel = document.querySelector(
           'ms-right-side-panel'
         ) as HTMLElement
