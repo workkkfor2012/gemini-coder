@@ -2,7 +2,6 @@ import { RecentDonations as UiRecentDonations } from '@ui/components/editor/Rece
 import styles from './Donations.module.scss'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { BuyMeACoffee as UiBuyMeACoffee } from '@ui/components/editor/BuyMeACoffee'
-import { TopSupporters as UiTopSupporters } from '@ui/components/editor/TopSupporters'
 import { useEffect } from 'react'
 import { use_donations } from './hooks/use-donations'
 import { use_infinite_scroll } from './hooks/use-infinite-scroll'
@@ -15,7 +14,6 @@ type Props = {
 export const Donations: React.FC<Props> = (props) => {
   const {
     donations,
-    top_supporters,
     is_loading,
     is_loading_more,
     is_initialized,
@@ -60,13 +58,6 @@ export const Donations: React.FC<Props> = (props) => {
         error
       ) : (
         <div className={is_loading ? styles.dimmed : undefined}>
-          <div className={styles['top-supporters']}>
-            <UiTopSupporters
-              top_supporters={top_supporters}
-              heading="Top supporters from the last 90 days"
-            />
-          </div>
-
           <UiRecentDonations donations={donations} />
           {is_loading_more && (
             <div style={{ textAlign: 'center', padding: '1rem' }}>

@@ -17,15 +17,8 @@ type BuyMeACoffeeDonationsResponse = {
   }[]
 }
 
-type BuyMeACoffeeTopSupportersResponse = {
-  data: {
-    profile_full_name: string
-  }[]
-}
-
 export const use_donations = (is_visible: boolean) => {
   const [donations, set_donations] = useState<Donation[]>([])
-  const [top_supporters, set_top_supporters] = useState<string[]>([])
   const [is_loading, set_is_loading] = useState(false)
   const [is_loading_more, set_is_loading_more] = useState(false)
   const [error, set_error] = useState<string | null>(null)
@@ -61,21 +54,6 @@ export const use_donations = (is_visible: boolean) => {
     return new_donations.length
   }
 
-  const fetch_top_supporters = async () => {
-    const response = await fetch(
-      'https://app.buymeacoffee.com/api/creators/slug/robertpiosik/top-supporters'
-    )
-
-    if (!response.ok) {
-      throw new Error('Failed to fetch top supporters')
-    }
-
-    const data: BuyMeACoffeeTopSupportersResponse = await response.json()
-    set_top_supporters(
-      data.data.map((supporter: any) => supporter.profile_full_name)
-    )
-  }
-
   const fetch_initial_data = async () => {
     set_is_loading(true)
     set_error(null)
@@ -83,10 +61,7 @@ export const use_donations = (is_visible: boolean) => {
     set_has_more(true)
 
     try {
-      await Promise.all([
-        fetch_donations_page(1, false),
-        fetch_top_supporters()
-      ])
+      await fetch_donations_page(1, false)
     } catch (err) {
       set_error('Failed to fetch recent donations. Please try again later.')
       Logger.error({
@@ -146,7 +121,6 @@ export const use_donations = (is_visible: boolean) => {
 
   return {
     donations,
-    top_supporters,
     is_loading,
     is_loading_more,
     is_initialized,
