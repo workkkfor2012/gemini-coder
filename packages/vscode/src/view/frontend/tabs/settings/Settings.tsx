@@ -112,7 +112,8 @@ export const Settings: React.FC<Props> = (props) => {
           'Update files based on code blocks in truncated edit format and fix malformed diffs.',
         checkmarks: [
           'Regnerates whole files in concurrent API calls',
-          'Smaller models like Gemini Flash are sufficient'
+          'Smaller models like Gemini Flash are sufficient',
+          'Can fix malformed diff patches'
         ],
         on_setup_click: handle_setup_intelligent_update_click,
         button_label: 'Setup Intelligent Update API Tool'
