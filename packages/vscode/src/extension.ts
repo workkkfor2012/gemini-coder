@@ -35,7 +35,7 @@ import {
   open_settings_command,
   open_url_command,
   refactor_commands,
-  select_files_found_in_clipboard_command
+  apply_context_from_clipboard_command
 } from './commands'
 
 // Store WebSocketServer instance at module level
@@ -177,6 +177,6 @@ export async function activate(context: vscode.ExtensionContext) {
       url: 'https://buymeacoffee.com/robertpiosik'
     }),
     open_settings_command(),
-    select_files_found_in_clipboard_command(workspace_provider)
+    apply_context_from_clipboard_command(workspace_provider)
   )
 }

@@ -10,32 +10,25 @@ import {
 import { SavedContext } from '@/types/context'
 import { Logger } from '../helpers/logger'
 
-// Function to resolve glob patterns to file paths using the workspace provider's cache
 async function resolve_glob_patterns(
   patterns: string[],
   workspace_provider: WorkspaceProvider
 ): Promise<string[]> {
   const all_files_in_cache = new Set<string>()
 
-  // Get all files from workspace provider's cache
   for (const root of workspace_provider.getWorkspaceRoots()) {
     const files = workspace_provider.find_all_files(root)
     files.forEach((file) => all_files_in_cache.add(file))
   }
 
   let resolved_final_paths: Set<string>
-  // Check if there are any positive include patterns (not starting with '!')
   const has_positive_include_directives = patterns.some(
     (p) => !p.startsWith('!')
   )
 
   if (!has_positive_include_directives) {
-    // If no positive includes are specified (e.g., only excludes or empty list),
-    // start with all files from the cache. Excludes will then remove from this set.
     resolved_final_paths = new Set(all_files_in_cache)
   } else {
-    // If there's at least one positive include, start with an empty set.
-    // Includes will add to this set, and excludes will remove from it.
     resolved_final_paths = new Set<string>()
   }
 
@@ -47,9 +40,6 @@ async function resolve_glob_patterns(
 
     const files_this_rule_applies_to = new Set<string>()
 
-    // Determine the set of files this specific rule/pattern applies to.
-    // This logic is adapted from the original function's way of resolving individual patterns:
-    // prioritize direct file matches, then try glob, with a fallback for glob errors.
     let direct_match_found_for_current_pattern = false
     if (all_files_in_cache.has(current_actual_pattern)) {
       files_this_rule_applies_to.add(current_actual_pattern)
@@ -57,23 +47,16 @@ async function resolve_glob_patterns(
     }
 
     if (!direct_match_found_for_current_pattern) {
-      // Only attempt glob resolution if it wasn't a direct file match
       try {
         const glob_matches = glob.sync(current_actual_pattern, {
-          // nodir: true,
-          // Assuming patterns are absolute at this stage, as per original function's context
           cwd: process.cwd(),
           absolute: true,
           matchBase: true
         })
         glob_matches.forEach((match) => {
-          // Check if the glob match is a file directly present in the cache
           if (all_files_in_cache.has(match)) {
             files_this_rule_applies_to.add(match)
           } else {
-            // If not a direct file match, 'match' might be a directory returned by glob.sync.
-            // We find all files in our cache that are within this directory.
-            // Ensure 'match' ends with a path separator for correct startsWith comparison.
             const directory_path_prefix = match.endsWith(path.sep)
               ? match
               : match + path.sep
@@ -89,21 +72,17 @@ async function resolve_glob_patterns(
           `Failed to resolve glob pattern "${current_actual_pattern}" (during sequential processing):`,
           error
         )
-        // Fallback: If glob resolution fails, re-check if the pattern itself is a literal file path in the cache.
-        // This covers cases where a pattern might be a valid file path but also a malformed glob.
         if (all_files_in_cache.has(current_actual_pattern)) {
           files_this_rule_applies_to.add(current_actual_pattern)
         }
       }
     }
 
-    // Apply the rule to the resolved_final_paths set
     if (is_exclude) {
       files_this_rule_applies_to.forEach((file) =>
         resolved_final_paths.delete(file)
       )
     } else {
-      // Is an include pattern
       files_this_rule_applies_to.forEach((file) =>
         resolved_final_paths.add(file)
       )
@@ -120,7 +99,6 @@ async function resolve_glob_patterns(
     message: `Resolved final paths: ${resolved_final_paths.size}`
   })
 
-  // Return the final list of included paths
   return [...resolved_final_paths]
 }
 
@@ -136,31 +114,26 @@ async function apply_saved_context(
     workspace_map.set(folder.name, folder.uri.fsPath)
   }
 
-  // Convert workspace-prefixed paths to absolute paths
   const absolute_paths = context.paths.map((prefixed_path) => {
     const is_exclude = prefixed_path.startsWith('!')
     const path_part = is_exclude ? prefixed_path.substring(1) : prefixed_path
 
     let resolved_path_part: string
 
-    // Check if path has workspace prefix
     if (path_part.includes(':')) {
       const [prefix, relative_path] = path_part.split(':', 2)
 
-      // Find the root for the given prefix
       const root = workspace_map.get(prefix)
 
       if (root) {
         resolved_path_part = path.join(root, relative_path)
       } else {
-        // Fallback if prefix doesn't match any workspace folder name - treat as a path in the current workspace
         console.warn(
           `Unknown workspace prefix "${prefix}" in path "${path_part}". Treating as relative to current workspace root.`
         )
         resolved_path_part = path.join(workspace_root, relative_path)
       }
     } else {
-      // Legacy support for paths without workspace prefix or non-prefixed paths
       resolved_path_part = path.isAbsolute(path_part)
         ? path_part
         : path.join(workspace_root, path_part)
@@ -169,14 +142,11 @@ async function apply_saved_context(
     return is_exclude ? `!${resolved_path_part}` : resolved_path_part
   })
 
-  // Resolve any glob patterns within the absolute paths, filtering against the cache
   const resolved_paths = await resolve_glob_patterns(
     absolute_paths,
     workspace_provider
   )
 
-  // The resolved_glob_patterns function now filters for existing paths using the cache,
-  // so we don't need an extra fs.existsSync filter here.
   const existing_paths = resolved_paths
 
   if (existing_paths.length == 0) {
@@ -190,19 +160,16 @@ async function apply_saved_context(
   vscode.window.showInformationMessage(`Applied context "${context.name}".`)
 }
 
-// Helper function to save contexts to JSON file
 async function save_contexts_to_file(
   contexts: SavedContext[],
   file_path: string
 ): Promise<void> {
   try {
-    // Ensure the .vscode directory exists
     const dir_path = path.dirname(file_path)
     if (!fs.existsSync(dir_path)) {
       fs.mkdirSync(dir_path, { recursive: true })
     }
 
-    // Write the contexts to the file
     fs.writeFileSync(file_path, JSON.stringify(contexts, null, 2), 'utf8')
   } catch (error: any) {
     throw new Error(`Failed to save contexts to file: ${error.message}`)
@@ -228,16 +195,13 @@ export function apply_context_command(
         return
       }
 
-      // Get the last used read location from extension context
       const last_read_location = extension_context.workspaceState.get<
         'internal' | 'file'
       >(LAST_CONTEXT_READ_LOCATION_STATE_KEY, 'internal')
 
-      // Get saved contexts from workspace state
       let internal_contexts: SavedContext[] =
         extension_context.workspaceState.get(SAVED_CONTEXTS_STATE_KEY, [])
 
-      // Check if .vscode/contexts.json exists
       const contexts_file_path = path.join(
         workspace_root,
         '.vscode',
@@ -248,10 +212,8 @@ export function apply_context_command(
       try {
         if (fs.existsSync(contexts_file_path)) {
           const content = fs.readFileSync(contexts_file_path, 'utf8')
-          // Basic validation: ensure it's an array
           const parsed = JSON.parse(content)
           if (Array.isArray(parsed)) {
-            // Further validation: check if items look like SavedContext
             file_contexts = parsed.filter(
               (item) =>
                 typeof item == 'object' &&
@@ -271,17 +233,17 @@ export function apply_context_command(
         console.error('Error reading contexts file:', error)
       }
 
-      // Always show the main quick pick with clipboard option first
       const main_quick_pick_options: (vscode.QuickPickItem & {
         value: 'clipboard' | 'internal' | 'file'
       })[] = [
         {
-          label: 'Select files found in clipboard',
+          label: 'Apply context by parsing file paths from clipboard text',
+          description:
+            'Useful when asking AI to generate a list of relevant files',
           value: 'clipboard'
         }
       ]
 
-      // Add storage options only if they have contexts
       if (internal_contexts.length > 0) {
         main_quick_pick_options.push({
           label: 'Workspace State',
@@ -302,9 +264,7 @@ export function apply_context_command(
         })
       }
 
-      // If no contexts found anywhere, still show clipboard option
       if (internal_contexts.length == 0 && file_contexts.length == 0) {
-        // Only clipboard option available
         const main_selection = await vscode.window.showQuickPick(
           main_quick_pick_options,
           {
@@ -312,17 +272,16 @@ export function apply_context_command(
           }
         )
 
-        if (!main_selection) return // User cancelled
+        if (!main_selection) return
 
         if (main_selection.value == 'clipboard') {
           await vscode.commands.executeCommand(
-            'codeWebChat.selectFilesFoundInClipboard'
+            'codeWebChat.applyContextFromClipboard'
           )
         }
         return
       }
 
-      // Reorder storage options to put the last used option first (after clipboard)
       const storage_options = main_quick_pick_options.slice(1) // Get all except clipboard
       if (storage_options.length > 1) {
         if (last_read_location == 'file') {
@@ -334,7 +293,6 @@ export function apply_context_command(
             storage_options.unshift(file_option)
           }
         } else {
-          // last_read_location == 'internal' or default
           const internal_option_index = storage_options.findIndex(
             (opt) => opt.value == 'internal'
           )
@@ -348,9 +306,8 @@ export function apply_context_command(
         }
       }
 
-      // Reconstruct the full options list with clipboard first
       const final_quick_pick_options = [
-        main_quick_pick_options[0], // clipboard option
+        main_quick_pick_options[0],
         ...storage_options
       ]
 
@@ -361,21 +318,19 @@ export function apply_context_command(
         }
       )
 
-      if (!main_selection) return // User cancelled
+      if (!main_selection) return
 
       if (main_selection.value == 'clipboard') {
         await vscode.commands.executeCommand(
-          'codeWebChat.selectFilesFoundInClipboard'
+          'codeWebChat.applyContextFromClipboard'
         )
         return
       }
 
-      // Handle context source selection
       const context_source = main_selection.value as 'internal' | 'file'
       const contexts_to_use =
         context_source == 'internal' ? internal_contexts : file_contexts
 
-      // Save the selected option as the last used option
       await extension_context.workspaceState.update(
         LAST_CONTEXT_READ_LOCATION_STATE_KEY,
         context_source
@@ -404,7 +359,6 @@ export function apply_context_command(
           return context_items
         }
 
-        // Create QuickPick with buttons
         const quick_pick = vscode.window.createQuickPick()
         quick_pick.items = create_quick_pick_items(contexts_to_use)
         quick_pick.placeholder = `Select saved context (from ${
@@ -413,7 +367,6 @@ export function apply_context_command(
             : '.vscode/contexts.json'
         })`
 
-        // Create a promise to be resolved when an item is picked or the quick pick is hidden
         const quick_pick_promise = new Promise<
           | (vscode.QuickPickItem & {
               context?: SavedContext
@@ -449,7 +402,6 @@ export function apply_context_command(
                     return 'Name cannot be empty'
                   }
 
-                  // Check for duplicate names, excluding the current item's original name
                   const duplicate = current_contexts.find(
                     (c) => c.name == value.trim() && c.name != item.context.name
                   )
@@ -469,27 +421,24 @@ export function apply_context_command(
 
                 if (context_source == 'internal') {
                   if (trimmed_name != item.context.name) {
-                    // Update the context in the internal state
                     updated_contexts = internal_contexts.map((c) =>
                       c.name == item.context.name
                         ? { ...c, name: trimmed_name }
                         : c
                     )
 
-                    // Update workspace state
                     await extension_context.workspaceState.update(
                       SAVED_CONTEXTS_STATE_KEY,
                       updated_contexts
                     )
-                    internal_contexts = updated_contexts // Update the cached array
+                    internal_contexts = updated_contexts
                     context_updated = true
                   } else {
-                    updated_contexts = internal_contexts // No change needed
+                    updated_contexts = internal_contexts
                   }
 
-                  // Update quick pick items
                   quick_pick.items = create_quick_pick_items(internal_contexts)
-                  quick_pick.show() // Ensure quick pick is visible
+                  quick_pick.show()
                 } else if (context_source == 'file') {
                   if (trimmed_name != item.context.name) {
                     updated_contexts = file_contexts.map((c) =>
@@ -499,7 +448,7 @@ export function apply_context_command(
                     )
                     context_updated = true
                   } else {
-                    updated_contexts = file_contexts // No change needed
+                    updated_contexts = file_contexts
                   }
 
                   if (context_updated) {
@@ -508,7 +457,7 @@ export function apply_context_command(
                         updated_contexts,
                         contexts_file_path
                       )
-                      file_contexts = updated_contexts // Update the cached file contexts
+                      file_contexts = updated_contexts
                     } catch (error: any) {
                       vscode.window.showErrorMessage(
                         `Error updating context name in file: ${error.message}`
@@ -517,15 +466,13 @@ export function apply_context_command(
                         'Error updating context name in file:',
                         error
                       )
-                      // Revert if save failed
                       updated_contexts = file_contexts
                       context_updated = false
                     }
                   }
 
-                  // Update quick pick items
                   quick_pick.items = create_quick_pick_items(file_contexts)
-                  quick_pick.show() // Ensure quick pick is visible
+                  quick_pick.show()
                 }
 
                 if (context_updated) {
@@ -546,36 +493,31 @@ export function apply_context_command(
 
               if (confirm_delete == 'Delete') {
                 if (context_source == 'internal') {
-                  // Remove the context from the state
                   const updated_contexts = internal_contexts.filter(
                     (c) => c.name != item.context.name
                   )
 
-                  // Update workspace state
                   await extension_context.workspaceState.update(
                     SAVED_CONTEXTS_STATE_KEY,
                     updated_contexts
                   )
-                  internal_contexts = updated_contexts // Update the cached array
+                  internal_contexts = updated_contexts
 
                   vscode.window.showInformationMessage(
                     `Deleted context "${item.context.name}" from workspace state`
                   )
 
-                  // Update the quick pick items
                   if (internal_contexts.length == 0) {
                     quick_pick.hide()
                     vscode.window.showInformationMessage(
                       'No saved contexts remaining in the Workspace State.'
                     )
                   } else {
-                    // Update items and ensure the quick pick stays visible
                     quick_pick.items =
                       create_quick_pick_items(internal_contexts)
-                    quick_pick.show() // Ensure quick pick is visible
+                    quick_pick.show()
                   }
                 } else if (context_source == 'file') {
-                  // Remove the context from the file
                   const updated_contexts = file_contexts.filter(
                     (c) => c.name != item.context.name
                   )
@@ -588,19 +530,17 @@ export function apply_context_command(
                     vscode.window.showInformationMessage(
                       `Deleted context "${item.context.name}" from the JSON file`
                     )
-                    file_contexts = updated_contexts // Update the cached file contexts
+                    file_contexts = updated_contexts
 
-                    // Update the quick pick items
                     if (updated_contexts.length == 0) {
                       quick_pick.hide()
                       vscode.window.showInformationMessage(
                         'No saved contexts remaining in the JSON file.'
                       )
                     } else {
-                      // Update items and ensure the quick pick stays visible
                       quick_pick.items =
                         create_quick_pick_items(updated_contexts)
-                      quick_pick.show() // Ensure quick pick is visible
+                      quick_pick.show()
                     }
                   } catch (error: any) {
                     vscode.window.showErrorMessage(
@@ -619,21 +559,16 @@ export function apply_context_command(
         const selected = await quick_pick_promise
         if (!selected) return
 
-        // Find the potentially updated context object before applying
-        // This handles the case where the context was renamed just before selection
         let context_to_apply: SavedContext | undefined
         if (context_source == 'internal') {
           context_to_apply = internal_contexts.find(
-            (c) => c.name == selected.label // Use label as it reflects the current name
+            (c) => c.name == selected.label
           )
         } else {
-          context_to_apply = file_contexts.find(
-            (c) => c.name == selected.label // Use label as it reflects the current name
-          )
+          context_to_apply = file_contexts.find((c) => c.name == selected.label)
         }
 
         if (!context_to_apply) {
-          // This should ideally not happen if the quick pick items are updated correctly
           vscode.window.showErrorMessage(
             `Could not find the selected context "${selected.label}" after potential edits.`
           )
@@ -650,18 +585,16 @@ export function apply_context_command(
           workspace_provider
         )
 
-        // Only update recent contexts list for internal contexts
         if (context_source == 'internal') {
-          // Move the selected context (using its current name) to the top of the list
           const updated_contexts = internal_contexts.filter(
             (c) => c.name != context_to_apply!.name
           )
-          updated_contexts.unshift(context_to_apply!) // Add the applied context to the beginning
+          updated_contexts.unshift(context_to_apply!)
           await extension_context.workspaceState.update(
             SAVED_CONTEXTS_STATE_KEY,
             updated_contexts
           )
-          internal_contexts = updated_contexts // Update cache
+          internal_contexts = updated_contexts
         }
 
         on_context_selected()

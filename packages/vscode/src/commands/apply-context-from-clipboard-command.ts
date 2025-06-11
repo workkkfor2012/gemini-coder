@@ -12,11 +12,11 @@ enum ParserState {
   IN_PATH = 'IN_PATH'
 }
 
-export function select_files_found_in_clipboard_command(
+export function apply_context_from_clipboard_command(
   workspace_provider: WorkspaceProvider | undefined
 ): vscode.Disposable {
   return vscode.commands.registerCommand(
-    'codeWebChat.selectFilesFoundInClipboard',
+    'codeWebChat.applyContextFromClipboard',
     async () => {
       if (!workspace_provider) {
         return
@@ -70,13 +70,17 @@ export function select_files_found_in_clipboard_command(
         }
 
         Logger.log({
-          message: `Selected ${existing_paths.length} files from clipboard`,
+          message: `Found ${existing_paths.length} valid path${
+            existing_paths.length == 1 ? '' : 's'
+          }.`,
           data: { paths: existing_paths }
         })
 
         await workspace_provider.set_checked_files(existing_paths)
         vscode.window.showInformationMessage(
-          `Selected ${existing_paths.length} files from clipboard.`
+          `Found ${existing_paths.length} valid path${
+            existing_paths.length == 1 ? '' : 's'
+          }.`
         )
       } catch (error) {
         vscode.window.showErrorMessage(

@@ -142,7 +142,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 ### Context
 
 - `Code Web Chat: Copy Context` - Copy selected files and websites to clipboard.
-- `Code Web Chat: Select Files found in Clipboard` - When asked AI to generate list of relevant files, use this command to select them for context.
+- `Code Web Chat: Apply Context from Clipboard` - Sets the context by parsing file paths from clipboard text.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Settings</span>
 

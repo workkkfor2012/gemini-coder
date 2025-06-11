@@ -112,8 +112,8 @@
         "icon": "$(copy)"
       },
       {
-        "command": "codeWebChat.selectFilesFoundInClipboard",
-        "title": "Select Files found in Clipboard",
+        "command": "codeWebChat.applyContextFromClipboard",
+        "title": "Apply Context from Clipboard",
         "category": "Code Web Chat"
       },
       {
