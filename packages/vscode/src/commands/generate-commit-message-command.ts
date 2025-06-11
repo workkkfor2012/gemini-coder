@@ -371,14 +371,14 @@ async function show_file_selection_dialog(
 
   const threshold_message =
     large_files_count > 0
-      ? `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens: ${formatted_total} tokens across ${
+      ? `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens. ${formatted_total} tokens across ${
           files_for_selection.length
         } file${
           files_for_selection.length == 1 ? '' : 's'
         } (excl. ${large_files_count} large file${
           large_files_count == 1 ? '' : 's'
         }).`
-      : `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens: ${formatted_total} tokens across ${
+      : `Reached token threshold for affected files included as context for the commit message set at ${formatted_threshold} tokens. ${formatted_total} tokens across ${
           files_for_selection.length
         } file${files_for_selection.length == 1 ? '' : 's'}.`
 
