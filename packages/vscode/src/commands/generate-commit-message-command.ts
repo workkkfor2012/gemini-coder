@@ -163,7 +163,7 @@ export function generate_commit_message_command(
         await vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
-            title: `Waiting for a commit message... (Sent about ${formatted_token_count} tokens)`,
+            title: `Waiting for a commit message... Sent about ${formatted_token_count} tokens.`,
             cancellable: true
           },
           async (_, token) => {
