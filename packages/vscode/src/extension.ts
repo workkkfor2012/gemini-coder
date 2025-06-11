@@ -34,7 +34,8 @@ import {
   reference_in_chat_command,
   open_settings_command,
   open_url_command,
-  refactor_commands
+  refactor_commands,
+  select_files_found_in_clipboard_command
 } from './commands'
 
 // Store WebSocketServer instance at module level
@@ -175,6 +176,7 @@ export async function activate(context: vscode.ExtensionContext) {
       command: 'codeWebChat.donate',
       url: 'https://buymeacoffee.com/robertpiosik'
     }),
-    open_settings_command()
+    open_settings_command(),
+    select_files_found_in_clipboard_command(workspace_provider)
   )
 }

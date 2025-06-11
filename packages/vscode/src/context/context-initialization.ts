@@ -7,7 +7,7 @@ import { WebsitesProvider, WebsiteItem } from './providers/websites-provider'
 import { SharedFileState } from './shared-file-state'
 import { marked } from 'marked'
 import { EventEmitter } from 'events'
-import { select_saved_context_command } from '../commands/select-saved-context-command'
+import { apply_context_command } from '../commands/apply-context-command'
 
 export const token_count_emitter = new EventEmitter()
 
@@ -238,7 +238,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
           `
       }
     ),
-    select_saved_context_command(
+    apply_context_command(
       workspace_provider,
       () => {
         update_activity_bar_badge_token_count()

@@ -112,8 +112,13 @@
         "icon": "$(copy)"
       },
       {
-        "command": "codeWebChat.selectSavedContext",
-        "title": "Select Saved Context",
+        "command": "codeWebChat.selectFilesFoundInClipboard",
+        "title": "Select Files found in Clipboard",
+        "category": "Code Web Chat"
+      },
+      {
+        "command": "codeWebChat.applyContext",
+        "title": "Apply Context",
         "category": "Code Web Chat",
         "icon": "$(checklist)"
       },
@@ -403,7 +408,7 @@
           "when": "false"
         },
         {
-          "command": "codeWebChat.selectSavedContext",
+          "command": "codeWebChat.applyContext",
           "when": "false"
         },
         {
@@ -465,7 +470,7 @@
       ],
       "view/title": [
         {
-          "command": "codeWebChat.selectSavedContext",
+          "command": "codeWebChat.applyContext",
           "when": "view == codeWebChatViewWorkspace",
           "group": "navigation@1"
         },

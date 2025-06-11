@@ -17,9 +17,9 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-A **non-agentic** coding tool for **AI-assisted programming** built by an independent developer.
+A community-driven, **non-agentic** coding tool for **AI-assisted programming** built by an independent developer.
 
-🧩 Works with VS Code and its derivatives (e.g., Cursor, Windsurf)<br />
+🧩 Works with VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
 ✌️ 100% free and open source!
 
 **Guiding Principles:**
@@ -142,6 +142,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 ### Context
 
 - `Code Web Chat: Copy Context` - Copy selected files and websites to clipboard.
+- `Code Web Chat: Select Files found in Clipboard` - When asked AI to generate list of relevant files, use this command to select them for context.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Settings</span>
 

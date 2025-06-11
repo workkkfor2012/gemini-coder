@@ -209,13 +209,13 @@ async function save_contexts_to_file(
   }
 }
 
-export function select_saved_context_command(
+export function apply_context_command(
   workspace_provider: WorkspaceProvider | undefined,
   on_context_selected: () => void,
   extension_context: vscode.ExtensionContext
 ): vscode.Disposable {
   return vscode.commands.registerCommand(
-    'codeWebChat.selectSavedContext',
+    'codeWebChat.applyContext',
     async () => {
       if (!workspace_provider) {
         vscode.window.showErrorMessage('No workspace provider available')
@@ -271,104 +271,115 @@ export function select_saved_context_command(
         console.error('Error reading contexts file:', error)
       }
 
-      // If no contexts found in either location, show message
+      // Always show the main quick pick with clipboard option first
+      const main_quick_pick_options: (vscode.QuickPickItem & {
+        value: 'clipboard' | 'internal' | 'file'
+      })[] = [
+        {
+          label: 'Select files found in clipboard',
+          value: 'clipboard'
+        }
+      ]
+
+      // Add storage options only if they have contexts
+      if (internal_contexts.length > 0) {
+        main_quick_pick_options.push({
+          label: 'Workspace State',
+          description: `${internal_contexts.length} ${
+            internal_contexts.length == 1 ? 'context' : 'contexts'
+          }`,
+          value: 'internal'
+        })
+      }
+
+      if (file_contexts.length > 0) {
+        main_quick_pick_options.push({
+          label: 'JSON File (.vscode/contexts.json)',
+          description: `${file_contexts.length} ${
+            file_contexts.length == 1 ? 'context' : 'contexts'
+          }`,
+          value: 'file'
+        })
+      }
+
+      // If no contexts found anywhere, still show clipboard option
       if (internal_contexts.length == 0 && file_contexts.length == 0) {
-        vscode.window.showInformationMessage('No saved contexts found.')
+        // Only clipboard option available
+        const main_selection = await vscode.window.showQuickPick(
+          main_quick_pick_options,
+          {
+            placeHolder: 'Select option'
+          }
+        )
+
+        if (!main_selection) return // User cancelled
+
+        if (main_selection.value == 'clipboard') {
+          await vscode.commands.executeCommand(
+            'codeWebChat.selectFilesFoundInClipboard'
+          )
+        }
         return
       }
 
-      let contexts_to_use: SavedContext[] = []
-      let context_source: 'internal' | 'file' | undefined = undefined
-
-      // If both sources have contexts, ask user which one to use
-      if (internal_contexts.length > 0 && file_contexts.length > 0) {
-        // Create quick pick items with last used option first
-        const quick_pick_storage_options = [
-          {
-            label: 'Workspace State',
-            description: `${internal_contexts.length} ${
-              internal_contexts.length == 1 ? 'context' : 'contexts'
-            }`,
-            value: 'internal'
-          },
-          {
-            label: 'JSON File (.vscode/contexts.json)',
-            description: `${file_contexts.length} ${
-              file_contexts.length == 1 ? 'context' : 'contexts'
-            }`,
-            value: 'file'
-          }
-        ]
-
-        // Reorder to put the last used option first
+      // Reorder storage options to put the last used option first (after clipboard)
+      const storage_options = main_quick_pick_options.slice(1) // Get all except clipboard
+      if (storage_options.length > 1) {
         if (last_read_location == 'file') {
-          // Find the 'file' option and move it to the front
-          const fileOptionIndex = quick_pick_storage_options.findIndex(
+          const file_option_index = storage_options.findIndex(
             (opt) => opt.value == 'file'
           )
-          if (fileOptionIndex > -1) {
-            const [fileOption] = quick_pick_storage_options.splice(
-              fileOptionIndex,
-              1
-            )
-            quick_pick_storage_options.unshift(fileOption)
+          if (file_option_index > -1) {
+            const [file_option] = storage_options.splice(file_option_index, 1)
+            storage_options.unshift(file_option)
           }
         } else {
-          // Find the 'internal' option and move it to the front (default behavior, but explicit)
-          const internalOptionIndex = quick_pick_storage_options.findIndex(
+          // last_read_location == 'internal' or default
+          const internal_option_index = storage_options.findIndex(
             (opt) => opt.value == 'internal'
           )
-          if (internalOptionIndex > -1) {
-            const [internalOption] = quick_pick_storage_options.splice(
-              internalOptionIndex,
+          if (internal_option_index > -1) {
+            const [internal_option] = storage_options.splice(
+              internal_option_index,
               1
             )
-            quick_pick_storage_options.unshift(internalOption)
+            storage_options.unshift(internal_option)
           }
         }
-
-        const source = await vscode.window.showQuickPick(
-          quick_pick_storage_options,
-          {
-            placeHolder: 'Select contexts location'
-          }
-        )
-
-        if (!source) return // User cancelled
-
-        context_source = source.value as 'internal' | 'file'
-        contexts_to_use =
-          context_source == 'internal' ? internal_contexts : file_contexts
-
-        // Save the selected option as the last used option
-        await extension_context.workspaceState.update(
-          LAST_CONTEXT_READ_LOCATION_STATE_KEY,
-          context_source
-        )
-      } else if (internal_contexts.length > 0) {
-        contexts_to_use = internal_contexts
-        context_source = 'internal'
-        // If only internal exists, set it as last used
-        await extension_context.workspaceState.update(
-          LAST_CONTEXT_READ_LOCATION_STATE_KEY,
-          context_source
-        )
-      } else if (file_contexts.length > 0) {
-        contexts_to_use = file_contexts
-        context_source = 'file'
-        // If only file exists, set it as last used
-        await extension_context.workspaceState.update(
-          LAST_CONTEXT_READ_LOCATION_STATE_KEY,
-          context_source
-        )
       }
 
-      if (!context_source || contexts_to_use.length == 0) {
-        vscode.window.showInformationMessage(
-          'No saved contexts found in the selected source.'
+      // Reconstruct the full options list with clipboard first
+      const final_quick_pick_options = [
+        main_quick_pick_options[0], // clipboard option
+        ...storage_options
+      ]
+
+      const main_selection = await vscode.window.showQuickPick(
+        final_quick_pick_options,
+        {
+          placeHolder: 'Select option'
+        }
+      )
+
+      if (!main_selection) return // User cancelled
+
+      if (main_selection.value == 'clipboard') {
+        await vscode.commands.executeCommand(
+          'codeWebChat.selectFilesFoundInClipboard'
         )
         return
       }
+
+      // Handle context source selection
+      const context_source = main_selection.value as 'internal' | 'file'
+      const contexts_to_use =
+        context_source == 'internal' ? internal_contexts : file_contexts
+
+      // Save the selected option as the last used option
+      await extension_context.workspaceState.update(
+        LAST_CONTEXT_READ_LOCATION_STATE_KEY,
+        context_source
+      )
 
       try {
         const edit_button = {
@@ -380,9 +391,8 @@ export function select_saved_context_command(
           tooltip: 'Delete'
         }
 
-        // Function to create quickpick items from contexts
         const create_quick_pick_items = (contexts: SavedContext[]) => {
-          return contexts.map((context) => ({
+          const context_items = contexts.map((context) => ({
             label: context.name,
             description: `${context.paths.length} ${
               context.paths.length == 1 ? 'path' : 'paths'
@@ -390,6 +400,8 @@ export function select_saved_context_command(
             context,
             buttons: [edit_button, delete_button]
           }))
+
+          return context_items
         }
 
         // Create QuickPick with buttons
@@ -403,12 +415,15 @@ export function select_saved_context_command(
 
         // Create a promise to be resolved when an item is picked or the quick pick is hidden
         const quick_pick_promise = new Promise<
-          (vscode.QuickPickItem & { context: SavedContext }) | undefined
+          | (vscode.QuickPickItem & {
+              context?: SavedContext
+            })
+          | undefined
         >((resolve) => {
           quick_pick.onDidAccept(() => {
             const selectedItem = quick_pick
               .activeItems[0] as vscode.QuickPickItem & {
-              context: SavedContext
+              context?: SavedContext
             }
             quick_pick.hide()
             resolve(selectedItem)
