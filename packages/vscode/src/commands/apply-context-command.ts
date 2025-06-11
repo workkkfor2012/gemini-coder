@@ -239,7 +239,7 @@ export function apply_context_command(
         {
           label: 'Apply context by parsing file paths from clipboard text',
           description:
-            'Useful when asking AI to generate a list of relevant files',
+            'Use when asking AI to generate a list of relevant files',
           value: 'clipboard'
         }
       ]
