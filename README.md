@@ -183,6 +183,6 @@ All contributions are welcome. Feel free to submit pull requests, feature reques
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">License</span>
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
-<br />���� robertpiosik@gmail.com
-<br />📱 Telegram: @robertpiosik
-<br />📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
+<br />E-mail: robertpiosik@gmail.com
+<br />Telegram: @robertpiosik
+<br />License: [GPL-3.0](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
