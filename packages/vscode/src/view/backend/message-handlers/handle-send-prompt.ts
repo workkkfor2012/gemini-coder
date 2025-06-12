@@ -85,22 +85,23 @@ export const handle_send_prompt = async (
       active_path
     })
 
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const edit_format_instructions = config.get<string>(
-      `editFormatInstructions${
-        provider.edit_format.charAt(0).toUpperCase() +
-        provider.edit_format.slice(1)
-      }`
-    )
-
     const chats = valid_preset_names.map((preset_name) => {
       let instructions = apply_preset_affixes_to_instruction(
         base_instructions,
         preset_name
       )
 
-      if (edit_format_instructions) {
-        instructions += `\n${edit_format_instructions}`
+      if (provider.web_mode == 'edit') {
+        const config = vscode.workspace.getConfiguration('codeWebChat')
+        const edit_format_instructions = config.get<string>(
+          `editFormatInstructions${
+            provider.edit_format.charAt(0).toUpperCase() +
+            provider.edit_format.slice(1)
+          }`
+        )
+        if (edit_format_instructions) {
+          instructions += `\n${edit_format_instructions}`
+        }
       }
 
       return {

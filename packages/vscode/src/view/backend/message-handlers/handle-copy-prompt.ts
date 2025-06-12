@@ -57,16 +57,17 @@ export const handle_copy_prompt = async (
 
     let instructions = replace_selection_placeholder(current_instruction)
 
-    // Always include edit format instructions when copying
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const edit_format_instructions = config.get<string>(
-      `editFormatInstructions${
-        provider.edit_format.charAt(0).toUpperCase() +
-        provider.edit_format.slice(1)
-      }`
-    )
-    if (edit_format_instructions) {
-      instructions += `\n${edit_format_instructions}`
+    if (provider.web_mode == 'edit') {
+      const config = vscode.workspace.getConfiguration('codeWebChat')
+      const edit_format_instructions = config.get<string>(
+        `editFormatInstructions${
+          provider.edit_format.charAt(0).toUpperCase() +
+          provider.edit_format.slice(1)
+        }`
+      )
+      if (edit_format_instructions) {
+        instructions += `\n${edit_format_instructions}`
+      }
     }
 
     const text = `${
