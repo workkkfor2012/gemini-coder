@@ -17,7 +17,7 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-A community-driven, **non-agentic** coding tool for **AI-assisted programming** built by an independent developer.
+A community-driven, **non-agentic** coding tool for **AI-assisted programming** created by an independent developer.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
 ✌️ 100% free and open source!
@@ -61,11 +61,16 @@ This friction rewards in:
 
 Code with your favorite chatbot without tedious copy-pasting and apply responses with a single click.
 
+The [open source](https://github.com/robertpiosik/CodeWebChat/tree/dev/packages/browser) browser extension bridges your editor and the browser. Available for all Chrome and Firefox based browsers.
+
+- [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp)
+- [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/)
+
+<hr />
+
 ### Supported chatbots
 
 **AI Studio** • **ChatGPT** • **Claude** • **DeepSeek** • **Doubao** • **Gemini** • **Grok** • **HuggingChat** • **Mistral** • **Open WebUI** • **OpenRouter Chat** • **Qwen** • **Yuanbao**
-
-The Connector extension is available in [Chrome Web Store](https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp) and [Firefox Add-ons](https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/). Source code is published in [the repository](https://github.com/robertpiosik/CodeWebChat/tree/dev/packages/browser).
 
 > <small>**Legal Disclaimer:** After chat initialization, the extension does not read the incoming message. The injected _Apply response_ button is not a means of automatic output extraction, it's an alias for the original _copy to clipboard_ button.</small>
 
@@ -77,30 +82,30 @@ CWC includes battle-tested must-have API tools.
 
 The best quality inline suggestions at the cost of latency. Designed to be used on demand.
 
-✓ Includes selected context<br />
-✓ Works with any model
+✅ Includes selected context<br />
+✅ Works with any model
 
 ### Refactoring
 
 Modify files based on natural language instructions.
 
-✓ Includes selected context<br />
-✓ Multi-file updates in a single API call<br />
-✓ Efficient in output tokens—requests diffs
+✅ Includes selected context<br />
+✅ Multi-file updates in a single API call<br />
+✅ Efficient in output tokens—requests diffs
 
 ### Intelligent Update
 
 Update files based on code blocks in truncated edit format and fix malformed diffs.
 
-✓ Regenerates whole files in concurrent API calls<br />
-✓ Smaller models like Gemini Flash are sufficient
+✅ Regenerates whole files in concurrent API calls<br />
+✅ Smaller models like Gemini Flash are sufficient
 
 ### Commit Messages
 
 Generate meaningful commit messages precisely adhering to your preferred style.
 
-✓ Includes affected files in full<br />
-✓ Customizable instructions
+✅ Includes affected files in full<br />
+✅ Customizable instructions
 
 <hr />
 

@@ -41,7 +41,7 @@ export function commit_changes_command(context: vscode.ExtensionContext) {
           })
 
           vscode.window.showInformationMessage(
-            `Committed: "${commit_message}".`
+            `New commit: "${commit_message}".`
           )
 
           await repository.status()
