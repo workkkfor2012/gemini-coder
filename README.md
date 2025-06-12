@@ -49,15 +49,15 @@ A community-driven, **non-agentic** coding tool for **AI-assisted programming** 
 
 Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is dramatically accelerating the pace a new code is created. For some it is too fast too keep up though. Over time, they lose confidence in their knowledge of the codebase they work on. Verifying AI-suggested changes becomes challenging, and bugs or unintended behaviors slip in more easily than ever.
 
-CWC does not prompt-engineer any form of autonomous AI assistance, instead, it expects programmer to be constantly in the loop with the evolving codebase by requiring careful context selections and precise instructions.
+CWC does not prompt-engineer any form of autonomous AI assistance, instead, it expects programmer to be constantly in the loop with the evolving codebase by requiring careful context selections.
 
 This friction rewards in:
 
 - building mental model of the codebase,
 - zero idle waiting for the AI to figure things out,
-- 10X ai-related spending reduction.
+- efficiency and afforability of AI-assistance.
 
-Non-agentic approach to coding is suggested but not enforced. CWC is flexible enough to allow building custom agentic workflows as shown in the [community post written by @illumineawake](https://github.com/robertpiosik/CodeWebChat/discussions/316).
+The extension's unique desing allows building powerful agentic workflows as shown in the [community post written by @illumineawake](https://github.com/robertpiosik/CodeWebChat/discussions/316).
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
