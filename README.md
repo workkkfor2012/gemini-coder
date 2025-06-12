@@ -55,7 +55,7 @@ This friction rewards in:
 
 - building mental model of the codebase,
 - zero idle time waiting for the AI to figure things out,
-- quality and cost efficiency of AI-assistance.
+- speed, quality and cost efficiency of AI-assistance.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
