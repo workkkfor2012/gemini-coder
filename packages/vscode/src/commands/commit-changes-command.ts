@@ -27,28 +27,23 @@ export function commit_changes_command(context: vscode.ExtensionContext) {
         const diff = await prepare_staged_changes(repository)
         if (!diff) return
 
-        // Generate commit message using helper functions
         const commit_message = await generate_commit_message(
           context,
           repository,
           diff
         )
 
-        if (!commit_message) {
-          return // Error already shown in generate_commit_message
-        }
+        if (!commit_message) return
 
-        // Commit the changes with the generated message
         try {
           execSync(`git commit -m "${commit_message.replace(/"/g, '\\"')}"`, {
             cwd: repository.rootUri.fsPath
           })
 
           vscode.window.showInformationMessage(
-            `Successfully committed changes: "${commit_message}"`
+            `Committed: "${commit_message}".`
           )
 
-          // Refresh the repository state
           await repository.status()
         } catch (commit_error) {
           Logger.error({
