@@ -11,6 +11,7 @@ import {
   apply_response_button_text,
   apply_response_button_title
 } from '../constants/copy'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 
 export const gemini: Chatbot = {
   wait_until_ready: async () => {
@@ -82,6 +83,8 @@ export const gemini: Chatbot = {
       ).find((btn) => btn.textContent == apply_response_button_text)
 
       if (existing_apply_response_button) return
+
+      show_response_ready_notification({ chatbot_name: 'Gemini' })
 
       const chat_turn = params.footer.closest(
         'response-container'

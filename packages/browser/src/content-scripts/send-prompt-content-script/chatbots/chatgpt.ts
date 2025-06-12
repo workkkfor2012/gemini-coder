@@ -11,6 +11,7 @@ import {
   apply_response_button_text,
   apply_response_button_title
 } from '../constants/copy'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 
 export const chatgpt: Chatbot = {
   wait_until_ready: async () => {
@@ -69,6 +70,8 @@ export const chatgpt: Chatbot = {
       ).find((btn) => btn.textContent == apply_response_button_text)
 
       if (existing_apply_response_button) return
+
+      show_response_ready_notification({ chatbot_name: 'ChatGPT' })
 
       const chat_turn = params.footer.closest('.agent-turn') as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('code')

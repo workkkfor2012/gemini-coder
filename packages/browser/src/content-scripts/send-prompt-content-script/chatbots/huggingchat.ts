@@ -10,6 +10,7 @@ import {
   apply_response_button_text,
   apply_response_button_title
 } from '../constants/copy'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 
 export const huggingchat: Chatbot = {
   wait_until_ready: async () => {
@@ -23,6 +24,8 @@ export const huggingchat: Chatbot = {
       ).find((btn) => btn.textContent == apply_response_button_text)
 
       if (existing_apply_response_button) return
+
+      show_response_ready_notification({ chatbot_name: 'HuggingChat' })
 
       const chat_turn = params.footer.closest(
         'div[data-message-role="assistant"]'
