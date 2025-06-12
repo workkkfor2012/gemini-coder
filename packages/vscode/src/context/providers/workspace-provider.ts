@@ -572,7 +572,7 @@ export class WorkspaceProvider
           selected_token_count < total_token_count
         ) {
           const formatted_selected = format_token_count(selected_token_count)
-          display_description = `${formatted_total} • ${formatted_selected} selected`
+          display_description = `${formatted_total} · ${formatted_selected} selected`
         } else {
           display_description = formatted_total
         }
@@ -591,7 +591,7 @@ export class WorkspaceProvider
     const tooltip_parts = [element.resourceUri.fsPath]
     if (total_token_count !== undefined) {
       tooltip_parts.push(
-        `• About ${format_token_count(total_token_count)} tokens`
+        `· About ${format_token_count(total_token_count)} tokens`
       )
     }
     if (
@@ -604,10 +604,10 @@ export class WorkspaceProvider
         selected_token_count == total_token_count &&
         total_token_count > 0
       ) {
-        tooltip_parts.push('(Fully selected)')
+        tooltip_parts.push('· Fully selected')
       } else {
         tooltip_parts.push(
-          `(${format_token_count(selected_token_count)} selected)`
+          `· ${format_token_count(selected_token_count)} selected`
         )
       }
     }
