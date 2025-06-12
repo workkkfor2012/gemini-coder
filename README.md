@@ -144,6 +144,10 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 - `Code Web Chat: Copy Context` - Copy selected files and websites to clipboard.
 - `Code Web Chat: Apply Context from Clipboard` - Sets the context by parsing file paths from clipboard text.
 
+### Version Control
+
+- `Code Web Chat: Commit Changes` - Generate a commit message for staged changes and commit.
+
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Settings</span>
 
 ### Chatbot initialization
@@ -181,6 +185,6 @@ All contributions are welcome. Feel free to submit pull requests, feature reques
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">License</span>
 
 Copyright © 2025-present [Robert Piosik](https://x.com/robertpiosik)
-<br />📨 robertpiosik@gmail.com
+<br />���� robertpiosik@gmail.com
 <br />📱 Telegram: @robertpiosik
 <br />📃 [GPL-3.0 license](https://github.com/robertpiosik/CodeWebChat/blob/master/LICENSE)
