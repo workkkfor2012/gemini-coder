@@ -24,7 +24,7 @@ export namespace Presets {
     selected_presets: string[]
     selected_code_completion_presets: string[]
     on_create_preset: () => void
-    is_code_completions_mode: boolean
+    is_in_code_completions_mode: boolean
     on_preset_copy: (name: string) => void
     on_presets_reorder: (reordered_presets: Preset[]) => void
     on_preset_edit: (name: string) => void
@@ -106,7 +106,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
         >
           {props.presets.map((preset, i) => {
             const is_disabled_in_code_completion_mode =
-              props.is_code_completions_mode && preset.has_affixes
+              props.is_in_code_completions_mode && preset.has_affixes
 
             return (
               <div
@@ -133,7 +133,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                   <ChatbotIcon
                     chatbot={preset.chatbot}
                     is_selected={
-                      !props.is_code_completions_mode
+                      !props.is_in_code_completions_mode
                         ? props.selected_presets.includes(preset.name)
                         : props.selected_code_completion_presets.includes(
                             preset.name
@@ -145,7 +145,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                   <div
                     className={cn(styles.presets__item__left__title, {
                       [styles['presets__item__left__title--selected']]:
-                        !props.is_code_completions_mode
+                        !props.is_in_code_completions_mode
                           ? props.selected_presets.includes(preset.name)
                           : props.selected_code_completion_presets.includes(
                               preset.name

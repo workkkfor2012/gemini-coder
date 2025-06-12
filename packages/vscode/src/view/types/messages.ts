@@ -4,6 +4,7 @@ import { Preset } from '@shared/types/preset'
 import { EditFormatSelectorVisibility } from './edit-format-selector-visibility'
 import { PROVIDERS } from '@shared/constants/providers'
 import { HomeViewType } from './home-view-type'
+import { ApiMode, WebMode } from '@shared/types/modes'
 
 export interface BaseMessage {
   command: string
@@ -80,15 +81,6 @@ export interface CopyPromptMessage extends BaseMessage {
 
 export interface ShowPresetPickerMessage extends BaseMessage {
   command: 'SHOW_PRESET_PICKER'
-}
-
-export interface GetCodeCompletionsModeMessage extends BaseMessage {
-  command: 'GET_CODE_COMPLETIONS_MODE'
-}
-
-export interface SaveCodeCompletionsModeMessage extends BaseMessage {
-  command: 'SAVE_CODE_COMPLETIONS_MODE'
-  enabled: boolean
 }
 
 export interface RequestEditorStateMessage extends BaseMessage {
@@ -215,6 +207,24 @@ export interface CodeCompletionMessage extends BaseMessage {
 
 export interface ShowAtSignQuickPickMessage extends BaseMessage {
   command: 'SHOW_AT_SIGN_QUICK_PICK'
+}
+
+export interface GetWebModeMessage extends BaseMessage {
+  command: 'GET_WEB_MODE'
+}
+
+export interface SaveWebModeMessage extends BaseMessage {
+  command: 'SAVE_WEB_MODE'
+  mode: WebMode
+}
+
+export interface GetApiModeMessage extends BaseMessage {
+  command: 'GET_API_MODE'
+}
+
+export interface SaveApiModeMessage extends BaseMessage {
+  command: 'SAVE_API_MODE'
+  mode: ApiMode
 }
 
 // Messages from extension to webview:
@@ -357,6 +367,16 @@ export interface HomeViewTypeMessage extends BaseMessage {
   view_type: HomeViewType
 }
 
+export interface WebModeMessage extends BaseMessage {
+  command: 'WEB_MODE'
+  mode: WebMode
+}
+
+export interface ApiModeMessage extends BaseMessage {
+  command: 'API_MODE'
+  mode: ApiMode
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetInstructionsMessage
@@ -375,8 +395,6 @@ export type WebviewMessage =
   | SendPromptMessage
   | CopyPromptMessage
   | ShowPresetPickerMessage
-  | GetCodeCompletionsModeMessage
-  | SaveCodeCompletionsModeMessage
   | RequestEditorStateMessage
   | RequestEditorSelectionStateMessage
   | GetHistoryMessage
@@ -404,6 +422,10 @@ export type WebviewMessage =
   | RefactorMessage
   | CodeCompletionMessage
   | ShowAtSignQuickPickMessage
+  | SaveWebModeMessage
+  | GetWebModeMessage
+  | GetApiModeMessage
+  | SaveApiModeMessage
 
 export type ExtensionMessage =
   | InstructionsMessage
@@ -430,3 +452,5 @@ export type ExtensionMessage =
   | ExecuteCommandMessage
   | ApiProvidersMessage
   | HomeViewTypeMessage
+  | WebModeMessage
+  | ApiModeMessage

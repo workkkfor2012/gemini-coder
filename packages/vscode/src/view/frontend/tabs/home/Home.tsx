@@ -8,6 +8,7 @@ import {
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
+import { ApiMode, WebMode } from '@shared/types/modes'
 
 type Props = {
   vscode: any
@@ -35,14 +36,18 @@ export const Home: React.FC<Props> = (props) => {
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
   const [active_file_length, set_active_file_length] = useState<number>(0)
-  const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
-    useState<boolean>()
+  const [web_mode, set_web_mode] = useState<WebMode>()
+  const [api_mode, set_api_mode] = useState<ApiMode>()
   const [edit_format, set_edit_format] = useState<EditFormat>()
   const [edit_format_selector_visibility, set_edit_format_selector_visibility] =
     useState<'visible' | 'hidden'>('visible')
   const [home_view_type, set_home_view_type] = useState<HomeViewType>(
     HOME_VIEW_TYPES.WEB
   )
+
+  const is_in_code_completions_mode =
+    (home_view_type == 'Web' && web_mode == 'code-completions') ||
+    (home_view_type == 'API' && api_mode == 'code-completions')
 
   useEffect(() => {
     const handle_message = async (event: MessageEvent) => {
@@ -63,18 +68,8 @@ export const Home: React.FC<Props> = (props) => {
         case 'PRESETS_SELECTED_FROM_PICKER':
           set_selected_presets(message.names)
           break
-        case 'CODE_COMPLETIONS_MODE':
-          set_is_in_code_completions_mode(message.enabled)
-          break
         case 'EDITOR_STATE_CHANGED':
           set_has_active_editor(message.has_active_editor)
-          if (!message.has_active_editor) {
-            set_is_in_code_completions_mode(false)
-            props.vscode.postMessage({
-              command: 'SAVE_CODE_COMPLETIONS_MODE',
-              enabled: false
-            } as WebviewMessage)
-          }
           break
         case 'EDITOR_SELECTION_CHANGED':
           set_has_active_selection(message.has_selection)
@@ -112,6 +107,12 @@ export const Home: React.FC<Props> = (props) => {
         case 'HOME_VIEW_TYPE':
           set_home_view_type(message.view_type)
           break
+        case 'WEB_MODE':
+          set_web_mode(message.mode)
+          break
+        case 'API_MODE':
+          set_api_mode(message.mode)
+          break
       }
     }
 
@@ -122,7 +123,6 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_PRESETS' },
       { command: 'GET_SELECTED_PRESETS' },
       { command: 'GET_SELECTED_CODE_COMPLETION_PRESETS' },
-      { command: 'GET_CODE_COMPLETIONS_MODE' },
       { command: 'REQUEST_EDITOR_STATE' },
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
       { command: 'GET_HISTORY' },
@@ -132,12 +132,30 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
       { command: 'GET_EDIT_FORMAT' },
       { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' },
-      { command: 'GET_HOME_VIEW_TYPE' }
+      { command: 'GET_HOME_VIEW_TYPE' },
+      { command: 'GET_WEB_MODE' },
+      { command: 'GET_API_MODE' }
     ]
     initial_messages.forEach((message) => props.vscode.postMessage(message))
 
     return () => window.removeEventListener('message', handle_message)
   }, [])
+
+  const handle_web_mode_change = (new_mode: WebMode) => {
+    set_web_mode(new_mode)
+    props.vscode.postMessage({
+      command: 'SAVE_WEB_MODE',
+      mode: new_mode
+    } as WebviewMessage)
+  }
+
+  const handle_api_mode_change = (new_mode: ApiMode) => {
+    set_api_mode(new_mode)
+    props.vscode.postMessage({
+      command: 'SAVE_API_MODE',
+      mode: new_mode
+    } as WebviewMessage)
+  }
 
   const handle_initialize_chats = async (params: {
     prompt: string
@@ -242,13 +260,6 @@ export const Home: React.FC<Props> = (props) => {
     if (instruction.trim()) {
       update_chat_history(instruction)
     }
-  }
-
-  const handle_code_completions_mode_click = (is_enabled: boolean) => {
-    props.vscode.postMessage({
-      command: 'SAVE_CODE_COMPLETIONS_MODE',
-      enabled: is_enabled
-    } as WebviewMessage)
   }
 
   const handle_presets_reorder = (reordered_presets: Preset[]) => {
@@ -407,7 +418,9 @@ export const Home: React.FC<Props> = (props) => {
     props.code_completion_suggestions === undefined ||
     edit_format === undefined ||
     edit_format_selector_visibility === undefined ||
-    home_view_type === undefined
+    home_view_type === undefined ||
+    web_mode === undefined ||
+    api_mode === undefined
   ) {
     return <></>
   }
@@ -425,14 +438,16 @@ export const Home: React.FC<Props> = (props) => {
       on_create_preset={handle_create_preset}
       on_apply_copied_chat_response_click={handle_apply_copied_chat_response}
       has_active_editor={has_active_editor}
-      is_in_code_completions_mode={is_in_code_completions_mode}
-      on_code_completions_mode_click={handle_code_completions_mode_click}
       has_active_selection={has_active_selection}
       chat_history={chat_history}
       chat_history_fim_mode={chat_history_fim_mode}
       token_count={token_count}
       selection_text={selection_text}
       active_file_length={active_file_length}
+      web_mode={web_mode}
+      api_mode={api_mode}
+      on_web_mode_change={handle_web_mode_change}
+      on_api_mode_change={handle_api_mode_change}
       edit_format={edit_format}
       on_edit_format_change={handle_edit_format_change}
       on_presets_reorder={handle_presets_reorder}

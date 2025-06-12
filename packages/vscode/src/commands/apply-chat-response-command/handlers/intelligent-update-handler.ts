@@ -5,10 +5,7 @@ import * as fs from 'fs'
 import { make_api_request } from '../../../helpers/make-api-request'
 import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
 import { get_refactoring_instruction } from '../../../constants/instructions'
-import {
-  ClipboardFile,
-  parse_multiple_files
-} from '../utils/clipboard-parser'
+import { ClipboardFile, parse_multiple_files } from '../utils/clipboard-parser'
 import {
   sanitize_file_name,
   create_safe_path
@@ -304,7 +301,7 @@ export async function handle_intelligent_update(params: {
       existing_files.length > 1 ? 's' : ''
     } and creating ${new_files.length} new file${
       new_files.length > 1 ? 's' : ''
-    }`
+    }.`
   } else if (existing_files.length > 0) {
     progress_title = `Updating ${existing_files.length} file${
       existing_files.length > 1 ? 's' : ''
@@ -312,7 +309,7 @@ export async function handle_intelligent_update(params: {
   } else {
     progress_title = `Creating ${new_files.length} new file${
       new_files.length > 1 ? 's' : ''
-    }`
+    }.`
   }
 
   // Store original file states for reversion

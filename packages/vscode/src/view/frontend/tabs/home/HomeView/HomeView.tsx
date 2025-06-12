@@ -10,6 +10,7 @@ import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-
 import { Switch as UiSwitch } from '@ui/components/editor/Switch'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
+import { ApiMode, WebMode } from '@shared/types/modes'
 
 type Props = {
   is_visible: boolean
@@ -22,8 +23,6 @@ type Props = {
   presets: Preset[]
   selected_presets: string[]
   selected_code_completion_presets: string[]
-  on_code_completions_mode_click: (is_enabled: boolean) => void
-  is_in_code_completions_mode: boolean
   has_active_editor: boolean
   has_active_selection: boolean
   chat_history: string[]
@@ -31,6 +30,10 @@ type Props = {
   token_count: number
   selection_text?: string
   active_file_length?: number
+  web_mode: WebMode
+  api_mode: ApiMode
+  on_web_mode_change: (mode: WebMode) => void
+  on_api_mode_change: (mode: ApiMode) => void
   edit_format_selector_visibility: EditFormatSelectorVisibility
   edit_format: EditFormat
   on_edit_format_change: (edit_format: EditFormat) => void
@@ -56,7 +59,11 @@ export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
   const container_ref = useRef<HTMLDivElement>(null)
 
-  const current_prompt = props.is_in_code_completions_mode
+  const is_in_code_completions_mode =
+    (props.home_view_type == 'Web' && props.web_mode == 'code-completions') ||
+    (props.home_view_type == 'API' && props.api_mode == 'code-completions')
+
+  const current_prompt = is_in_code_completions_mode
     ? props.code_completion_suggestions
     : props.normal_instructions
 
@@ -74,7 +81,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
     estimated_tokens = Math.ceil(text.length / 4)
 
-    if (props.is_in_code_completions_mode && props.active_file_length) {
+    if (is_in_code_completions_mode && props.active_file_length) {
       const file_tokens = Math.ceil(props.active_file_length / 4)
       estimated_tokens += file_tokens
     }
@@ -84,13 +91,12 @@ export const HomeView: React.FC<Props> = (props) => {
     current_prompt,
     props.has_active_selection,
     props.selection_text,
-    props.is_in_code_completions_mode,
     props.active_file_length
   ])
 
   const handle_input_change = (value: string) => {
     // Update the appropriate instruction based on current mode
-    if (props.is_in_code_completions_mode) {
+    if (is_in_code_completions_mode) {
       props.set_code_completion_suggestions(value)
     } else {
       props.set_normal_instructions(value)
@@ -101,12 +107,12 @@ export const HomeView: React.FC<Props> = (props) => {
     if (props.home_view_type == HOME_VIEW_TYPES.WEB) {
       props.initialize_chats({
         prompt: current_prompt,
-        preset_names: !props.is_in_code_completions_mode
+        preset_names: !is_in_code_completions_mode
           ? props.selected_presets
           : props.selected_code_completion_presets
       })
     } else {
-      if (props.is_in_code_completions_mode) {
+      if (is_in_code_completions_mode) {
         props.on_code_completion_click()
       } else {
         props.on_refactor_click()
@@ -121,7 +127,7 @@ export const HomeView: React.FC<Props> = (props) => {
         preset_names: []
       })
     } else {
-      if (props.is_in_code_completions_mode) {
+      if (is_in_code_completions_mode) {
         props.on_code_completion_with_quick_pick_click()
       } else {
         props.on_refactor_with_quick_pick_click()
@@ -146,14 +152,6 @@ export const HomeView: React.FC<Props> = (props) => {
       }
 
       props.copy_to_clipboard(modified_instruction)
-    }
-  }
-
-  const handle_mode_click = (mode: 'general' | 'code-completions') => {
-    if (mode == 'code-completions' && !props.is_in_code_completions_mode) {
-      props.on_code_completions_mode_click(true)
-    } else if (mode == 'general' && props.is_in_code_completions_mode) {
-      props.on_code_completions_mode_click(false)
     }
   }
 
@@ -232,7 +230,7 @@ export const HomeView: React.FC<Props> = (props) => {
               ? 'WebSocket connection not established. Please install the browser extension.'
               : 'Type something'
           }
-          is_in_code_completions_mode={props.is_in_code_completions_mode}
+          is_in_code_completions_mode={is_in_code_completions_mode}
           has_active_selection={props.has_active_selection}
           has_active_editor={props.has_active_editor}
           on_caret_position_change={props.on_caret_position_change}
@@ -255,33 +253,53 @@ export const HomeView: React.FC<Props> = (props) => {
 
       <UiSeparator size="small" />
 
-      <UiHorizontalSelector
-        heading="Mode"
-        options={[
-          {
-            value: 'general',
-            label:
-              props.home_view_type == HOME_VIEW_TYPES.WEB
-                ? 'General'
-                : 'Refactoring',
-            title:
-              props.home_view_type == HOME_VIEW_TYPES.WEB
-                ? 'Ask anything and integrate chat responses with the codebase'
-                : 'Modify files based on natural language instructions'
-          },
-          {
-            value: 'code-completions',
-            label: 'Code Completions',
-            title: 'Ask for code at cursor position'
-          }
-        ]}
-        selected_value={
-          props.is_in_code_completions_mode ? 'code-completions' : 'general'
-        }
-        on_select={handle_mode_click}
-      />
+      {props.home_view_type == 'Web' && (
+        <UiHorizontalSelector
+          heading="Mode"
+          options={[
+            {
+              value: 'ask',
+              label: 'Ask',
+              title: "Don't include edit format instructions"
+            },
+            {
+              value: 'edit',
+              label: 'Edit',
+              title: 'Include edit format instructions'
+            },
+            {
+              value: 'code-completions',
+              label: 'Code Completions',
+              title: 'Ask for code at cursor position'
+            }
+          ]}
+          selected_value={props.web_mode}
+          on_select={props.on_web_mode_change}
+        />
+      )}
 
-      {props.edit_format_selector_visibility == 'visible' &&
+      {props.home_view_type == 'API' && (
+        <UiHorizontalSelector
+          heading="Mode"
+          options={[
+            {
+              value: 'edit',
+              label: 'Edit',
+              title: 'Modify files based on natural language instructions'
+            },
+            {
+              value: 'code-completions',
+              label: 'Code Completions',
+              title: 'Ask for code at cursor position'
+            }
+          ]}
+          selected_value={props.api_mode}
+          on_select={props.on_api_mode_change}
+        />
+      )}
+
+      {props.home_view_type == HOME_VIEW_TYPES.WEB &&
+        props.edit_format_selector_visibility == 'visible' &&
         props.home_view_type == HOME_VIEW_TYPES.WEB && (
           <>
             <UiSeparator size="small" />
@@ -305,13 +323,11 @@ export const HomeView: React.FC<Props> = (props) => {
                 }
               ]}
               selected_value={
-                !props.is_in_code_completions_mode
-                  ? props.edit_format
-                  : undefined
+                props.web_mode == 'edit' ? props.edit_format : undefined
               }
               on_select={props.on_edit_format_change}
-              is_disabled={props.is_in_code_completions_mode}
-              disabled_state_title="Edit format selection is only available in General mode"
+              is_disabled={props.web_mode != 'edit'}
+              disabled_state_title="Available only in edit mode"
             />
           </>
         )}
@@ -340,7 +356,7 @@ export const HomeView: React.FC<Props> = (props) => {
           }}
           on_preset_copy={handle_preset_copy}
           on_preset_edit={props.on_preset_edit}
-          is_code_completions_mode={props.is_in_code_completions_mode}
+          is_in_code_completions_mode={is_in_code_completions_mode}
           on_presets_reorder={props.on_presets_reorder}
           on_preset_duplicate={props.on_preset_duplicate}
           on_preset_delete={props.on_preset_delete}

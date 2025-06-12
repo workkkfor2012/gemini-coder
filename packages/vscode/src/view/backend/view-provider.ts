@@ -42,8 +42,6 @@ import {
   handle_get_code_completion_suggestions,
   handle_save_instructions,
   handle_get_instructions,
-  handle_get_code_completions_mode,
-  handle_save_code_completions_mode,
   handle_request_editor_state,
   handle_request_editor_selection_state,
   handle_configure_api_providers,
@@ -55,7 +53,11 @@ import {
   handle_refactor,
   handle_code_completion,
   handle_get_edit_format,
-  handle_at_sign_quick_pick
+  handle_at_sign_quick_pick,
+  handle_get_mode_web,
+  handle_save_mode_web,
+  handle_get_mode_api,
+  handle_save_mode_api
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -63,6 +65,7 @@ import {
 } from '@/view/backend/helpers/preset-format-converters'
 import { HOME_VIEW_TYPE_STATE_KEY } from '@/constants/state-keys'
 import { HOME_VIEW_TYPES, HomeViewType } from '../types/home-view-type'
+import { ApiMode, WebMode } from '@shared/types/modes'
 
 export class ViewProvider implements vscode.WebviewViewProvider {
   private _webview_view: vscode.WebviewView | undefined
@@ -73,6 +76,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public caret_position: number = 0
   public instructions: string = ''
   public code_completion_suggestions: string = ''
+  public web_mode: WebMode
+  public api_mode: ApiMode
   public edit_format: EditFormat
   public home_view_type: HomeViewType = HOME_VIEW_TYPES.WEB
 
@@ -93,19 +98,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       }
     })
 
-    // Initialize edit format from workspace state
     this.edit_format = this.context.workspaceState.get<EditFormat>(
-      'editFormat',
+      'edit-format',
       'whole'
     )
-
-    // Initialize home view type from workspace state
+    this.web_mode = this.context.workspaceState.get<WebMode>('web-mode', 'edit')
+    this.api_mode = this.context.workspaceState.get<ApiMode>('api-mode', 'edit')
     this.home_view_type = this.context.workspaceState.get<HomeViewType>(
       HOME_VIEW_TYPE_STATE_KEY,
       HOME_VIEW_TYPES.WEB
     )
 
-    // Listen for changes to the new configuration keys
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
         if (!this._webview_view) return
@@ -334,10 +337,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await handle_copy_prompt(this)
           } else if (message.command == 'SHOW_PRESET_PICKER') {
             await handle_show_preset_picker(this, this.is_code_completions_mode)
-          } else if (message.command == 'GET_CODE_COMPLETIONS_MODE') {
-            handle_get_code_completions_mode(this)
-          } else if (message.command == 'SAVE_CODE_COMPLETIONS_MODE') {
-            await handle_save_code_completions_mode(this, message)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             handle_request_editor_state(this)
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
@@ -362,6 +361,14 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await handle_code_completion(this, message)
           } else if (message.command == 'SHOW_QUICK_PICK') {
             await handle_show_quick_pick(message)
+          } else if (message.command == 'GET_WEB_MODE') {
+            handle_get_mode_web(this)
+          } else if (message.command == 'SAVE_WEB_MODE') {
+            await handle_save_mode_web(this, message.mode)
+          } else if (message.command == 'GET_API_MODE') {
+            handle_get_mode_api(this)
+          } else if (message.command == 'SAVE_API_MODE') {
+            await handle_save_mode_api(this, message.mode)
           } else if (message.command == 'GET_EDIT_FORMAT') {
             handle_get_edit_format(this)
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
