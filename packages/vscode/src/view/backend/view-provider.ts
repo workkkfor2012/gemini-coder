@@ -72,7 +72,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   private _config_listener: vscode.Disposable | undefined
   public has_active_editor: boolean = false
   public has_active_selection: boolean = false
-  public is_code_completions_mode: boolean = false
   public caret_position: number = 0
   public instructions: string = ''
   public code_completion_suggestions: string = ''
@@ -229,7 +228,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         this._update_active_file_info()
 
         // Also recalculate token count when active file changes in FIM mode
-        if (this.is_code_completions_mode && this._webview_view) {
+        if (
+          ((this.home_view_type == 'Web' &&
+            this.web_mode == 'code-completions') ||
+            (this.home_view_type == 'API' &&
+              this.api_mode == 'code-completions')) &&
+          this._webview_view
+        ) {
           this.calculate_token_count()
         }
       }
@@ -246,7 +251,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       .then(([workspace_tokens, websites_tokens]) => {
         let current_token_count = workspace_tokens + websites_tokens
 
-        if (active_editor && this.is_code_completions_mode) {
+        if (
+          active_editor &&
+          ((this.home_view_type == 'Web' &&
+            this.web_mode == 'code-completions') ||
+            (this.home_view_type == 'API' &&
+              this.api_mode == 'code-completions'))
+        ) {
           const document = active_editor.document
           const text = document.getText()
           const file_token_count = Math.floor(text.length / 4)
@@ -336,7 +347,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'COPY_PROMPT') {
             await handle_copy_prompt(this)
           } else if (message.command == 'SHOW_PRESET_PICKER') {
-            await handle_show_preset_picker(this, this.is_code_completions_mode)
+            await handle_show_preset_picker(this)
           } else if (message.command == 'REQUEST_EDITOR_STATE') {
             handle_request_editor_state(this)
           } else if (message.command == 'REQUEST_EDITOR_SELECTION_STATE') {
@@ -506,7 +517,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   public add_text_at_cursor_position(text: string) {
-    if (this.is_code_completions_mode) {
+    if (
+      (this.home_view_type == 'Web' && this.web_mode == 'code-completions') ||
+      (this.home_view_type == 'API' && this.api_mode == 'code-completions')
+    ) {
       // Insert text at caret position for code completions
       const before_caret = this.code_completion_suggestions.slice(
         0,

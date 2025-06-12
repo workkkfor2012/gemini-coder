@@ -11,7 +11,7 @@ export const handle_send_prompt = async (
 ): Promise<void> => {
   const valid_preset_names = await validate_presets({
     preset_names: preset_names,
-    is_code_completions_mode: provider.is_code_completions_mode,
+    is_code_completions_mode: provider.web_mode == 'code-completions',
     context: provider.context,
     instructions: provider.instructions
   })
@@ -29,7 +29,7 @@ export const handle_send_prompt = async (
   const active_editor = vscode.window.activeTextEditor
   const active_path = active_editor?.document.uri.fsPath
 
-  if (provider.is_code_completions_mode && active_editor) {
+  if (provider.web_mode == 'code-completions' && active_editor) {
     const document = active_editor.document
     const position = active_editor.selection.active
 
@@ -68,7 +68,7 @@ export const handle_send_prompt = async (
     })
 
     provider.websocket_server_instance.initialize_chats(chats)
-  } else if (!provider.is_code_completions_mode) {
+  } else if (provider.web_mode != 'code-completions') {
     if (!provider.instructions) return
 
     const editor = vscode.window.activeTextEditor

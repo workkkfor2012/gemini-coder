@@ -4,20 +4,20 @@ import { ExtensionMessage } from '@/view/types/messages'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
 
 export const handle_show_preset_picker = async (
-  provider: ViewProvider,
-  is_code_completions_mode: boolean
+  provider: ViewProvider
 ): Promise<void> => {
   const config = vscode.workspace.getConfiguration('codeWebChat')
   const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
   // Determine which global state key to use based on mode
-  const selected_preset_names_state_key = is_code_completions_mode
-    ? 'selectedCodeCompletionPresets'
-    : 'selectedPresets'
+  const selected_preset_names_state_key =
+    provider.web_mode == 'code-completions'
+      ? 'selectedCodeCompletionPresets'
+      : 'selectedPresets'
 
   const available_preset_names = web_chat_presets
     .filter((preset) =>
-      !is_code_completions_mode
+      provider.web_mode != 'code-completions'
         ? preset
         : !preset.promptPrefix && !preset.promptSuffix
     )
@@ -38,7 +38,7 @@ export const handle_show_preset_picker = async (
 
   const preset_quick_pick_items = web_chat_presets
     .filter((preset) =>
-      !is_code_completions_mode
+      provider.web_mode != 'code-completions'
         ? preset
         : !preset.promptPrefix && !preset.promptSuffix
     )
@@ -50,9 +50,10 @@ export const handle_show_preset_picker = async (
       picked: selected_preset_names.includes(preset.name)
     }))
 
-  const placeholder = is_code_completions_mode
-    ? 'Select one or more code completion presets'
-    : 'Select one or more chat presets'
+  const placeholder =
+    provider.web_mode == 'code-completions'
+      ? 'Select one or more code completion presets'
+      : 'Select one or more chat presets'
 
   const selected_presets = await vscode.window.showQuickPick(
     preset_quick_pick_items,
@@ -69,7 +70,7 @@ export const handle_show_preset_picker = async (
       selected_names
     )
 
-    if (is_code_completions_mode) {
+    if (provider.web_mode == 'code-completions') {
       provider.send_message<ExtensionMessage>({
         command: 'SELECTED_CODE_COMPLETION_PRESETS',
         names: selected_names

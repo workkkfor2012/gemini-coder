@@ -95,7 +95,6 @@ export const HomeView: React.FC<Props> = (props) => {
   ])
 
   const handle_input_change = (value: string) => {
-    // Update the appropriate instruction based on current mode
     if (is_in_code_completions_mode) {
       props.set_code_completion_suggestions(value)
     } else {
