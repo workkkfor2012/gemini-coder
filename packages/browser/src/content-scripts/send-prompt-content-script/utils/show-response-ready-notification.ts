@@ -13,11 +13,10 @@ export const show_response_ready_notification = async (params: {
 
   if (permission == 'granted') {
     const notification = new Notification(
-      `${params.chatbot_name} finished responding`,
+      `CWC - ${params.chatbot_name} finished responding`,
       {
-        body: 'The chat response is ready for review.',
-        requireInteraction: false,
-        silent: false
+        body: 'Your response is ready. Click to view.',
+        tag: 'cwc'
       }
     )
 
