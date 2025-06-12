@@ -7,6 +7,7 @@ import {
   set_button_disabled_state
 } from '../utils/apply-response-styles'
 import { is_eligible_code_block } from '../utils/is-eligible-code-block'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 import {
   apply_response_button_text,
   apply_response_button_title
@@ -149,6 +150,8 @@ export const ai_studio: Chatbot = {
       ).find((btn) => btn.textContent == apply_response_button_text)
 
       if (existing_apply_response_button) return
+
+      show_response_ready_notification({ chatbot_name: 'AI Studio' })
 
       // Find the parent chat-turn-container
       const chat_turn = params.footer.closest('ms-chat-turn') as HTMLElement

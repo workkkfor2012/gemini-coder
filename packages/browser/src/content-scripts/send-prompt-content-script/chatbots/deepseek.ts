@@ -7,6 +7,7 @@ import {
 } from '../utils/apply-response-styles'
 import { Message } from '@/types/messages'
 import { is_eligible_code_block } from '../utils/is-eligible-code-block'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 import {
   apply_response_button_text,
   apply_response_button_title
@@ -106,6 +107,10 @@ export const deepseek: Chatbot = {
       ).find((btn) => btn.textContent == apply_response_button_text)
 
       if (existing_apply_response_button) return
+
+      show_response_ready_notification({
+        chatbot_name: 'DeepSeek'
+      })
 
       const chat_turn =
         params.footer.parentElement?.parentElement?.querySelector(
