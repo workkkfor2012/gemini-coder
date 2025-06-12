@@ -68,8 +68,6 @@ export const Presets: React.FC<Presets.Props> = (props) => {
   const [highlighted_preset_name, set_highlighted_preset_name] =
     useState<string>()
 
-  if (props.presets.length == 0) return null
-
   return (
     <div
       className={cn(styles.container, {
