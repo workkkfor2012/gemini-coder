@@ -57,8 +57,6 @@ This friction rewards in:
 - zero idle time waiting for the AI to figure things out,
 - quality and cost efficiency of AI-assistance.
 
-With the extension's flexible presets, users can build powerful agentic workflows as shown in the [community post written by @illumineawake](https://github.com/robertpiosik/CodeWebChat/discussions/316).
-
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
 Code with your favorite chatbot without tedious copy-pasting and apply responses with a single click.
