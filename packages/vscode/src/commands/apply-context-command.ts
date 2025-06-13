@@ -237,9 +237,8 @@ export function apply_context_command(
         value: 'clipboard' | 'internal' | 'file'
       })[] = [
         {
-          label: 'Apply context by parsing file paths from clipboard text',
-          description:
-            'Use when asking AI to generate a list of relevant files',
+          label: 'Find file paths in the clipboard text',
+          description: 'Useful when asking AI for a list of relevant files',
           value: 'clipboard'
         }
       ]
