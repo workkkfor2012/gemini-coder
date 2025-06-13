@@ -96,7 +96,7 @@ export const Settings: React.FC<Props> = (props) => {
 
       {render_api_tool_settings({
         title: 'Refactoring',
-        description: 'Modify files in context based on natural language instructions.',
+        description: 'Modify and create files based on natural language instructions.',
         checkmarks: [
           'Includes selected context',
           'Multi-file updates in a single API call',

@@ -87,7 +87,7 @@ The best quality inline suggestions at the cost of latency. Designed to be used 
 
 ### Refactoring
 
-Modify files in context based on natural language instructions.
+Modify and create files based on natural language instructions.
 
 ✅ Includes selected context<br />
 ✅ Multi-file updates in a single API call<br />
@@ -129,7 +129,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ### Refactoring
 
-- `Code Web Chat: Refactor` - Modify files in context based on natural language instructions.
+- `Code Web Chat: Refactor` - Modify and create files based on natural language instructions.
 
 ### Applying chat responses
 

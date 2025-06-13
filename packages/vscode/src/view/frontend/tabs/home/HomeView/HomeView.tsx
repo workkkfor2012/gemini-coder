@@ -284,7 +284,7 @@ export const HomeView: React.FC<Props> = (props) => {
             {
               value: 'edit',
               label: 'Edit',
-              title: 'Modify files in context based on natural language instructions'
+              title: 'Modify and create files based on natural language instructions'
             },
             {
               value: 'code-completions',
