@@ -17,7 +17,7 @@ export class OpenEditorsProvider
     FileItem | undefined | null | void
   > = this._on_did_change_tree_data.event
 
-  private _workspace_roots: string[] = [] // Store all workspace roots
+  private _workspace_roots: string[] = []
   private _checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
   private _file_token_counts: Map<string, number> = new Map() // Cache token counts
   private _tab_change_handler: vscode.Disposable
@@ -34,11 +34,9 @@ export class OpenEditorsProvider
   readonly onDidChangeCheckedFiles = this._on_did_change_checked_files.event
   // Reference to SharedFileState for checking workspace file states
   private _shared_state: SharedFileState
-  // Config change handler
   private _config_change_handler: vscode.Disposable
   private workspace_provider: WorkspaceProvider
 
-  // Updated constructor to take workspace folders and workspace provider
   constructor(
     workspace_folders: vscode.WorkspaceFolder[],
     workspace_provider: WorkspaceProvider
@@ -47,19 +45,15 @@ export class OpenEditorsProvider
     this._shared_state = SharedFileState.get_instance()
     this.workspace_provider = workspace_provider
 
-    // Load ignored extensions
     this._load_ignored_extensions()
 
-    // Initialize the preview tabs map with current tabs
     this._update_preview_tabs_state()
 
-    // Listen for tab changes to update open file checks
     this._tab_change_handler = vscode.window.tabGroups.onDidChangeTabs((e) => {
       this._handle_tab_changes(e)
       this.refresh()
     })
 
-    // Listen for file content changes
     this._file_change_watcher = vscode.workspace.onDidChangeTextDocument(
       (e) => {
         if (e.document.isDirty) return // Only process saved changes
@@ -71,7 +65,6 @@ export class OpenEditorsProvider
       }
     )
 
-    // Listen for configuration changes
     this._config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
         if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
@@ -87,25 +80,21 @@ export class OpenEditorsProvider
     // We'll use setTimeout to ensure VS Code has fully loaded editors
     setTimeout(() => {
       this._initialized = true
-      this._on_did_change_tree_data.fire() // Fire event to refresh view
+      this._on_did_change_tree_data.fire()
     }, 500) // Small delay to ensure VS Code has loaded all editors
   }
 
-  // Check if a file belongs to any workspace root
   private _is_file_in_any_workspace(file_path: string): boolean {
     return this._workspace_roots.some((root) => file_path.startsWith(root))
   }
 
-  // Get the workspace root that contains this file
   private _get_containing_workspace_root(
     file_path: string
   ): string | undefined {
     return this._workspace_roots.find((root) => file_path.startsWith(root))
   }
 
-  // New method to uncheck files that are now ignored
   private _uncheck_ignored_files(old_ignored_extensions?: Set<string>): void {
-    // Get list of checked files
     const checked_files = this.get_checked_files()
 
     // Find files that now match ignored extensions but didn't before
@@ -121,26 +110,21 @@ export class OpenEditorsProvider
       return should_ignore_file(file_path, this._ignored_extensions)
     })
 
-    // Uncheck the files
     for (const file_path of files_to_uncheck) {
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
     }
 
-    // If any files were unchecked, notify listeners
     if (files_to_uncheck.length > 0) {
       this._on_did_change_checked_files.fire()
     }
   }
 
-  // Load ignored extensions from configuration
   private _load_ignored_extensions() {
-    // Get additional extensions from config
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
       .map((ext) => ext.toLowerCase().replace(/^\./, ''))
 
-    // Combine hardcoded and configured extensions
     this._ignored_extensions = new Set([
       ...ignored_extensions,
       ...additional_extensions
@@ -149,12 +133,9 @@ export class OpenEditorsProvider
     this._file_token_counts.clear()
   }
 
-  // New method to update the preview tabs state
   private _update_preview_tabs_state(): void {
-    // Clear the current state
     this._preview_tabs.clear()
 
-    // Get current state of all tabs
     vscode.window.tabGroups.all.forEach((tab_group) => {
       tab_group.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
@@ -165,28 +146,22 @@ export class OpenEditorsProvider
     })
   }
 
-  // New method to handle tab changes and detect preview to normal transitions
   private _handle_tab_changes(e: vscode.TabChangeEvent): void {
-    // Process tabs that were changed
     for (const tab of e.changed) {
-      // Only track text tabs
       if (tab.input instanceof vscode.TabInputText) {
         const file_path = tab.input.uri.fsPath
         const is_now_preview = !!tab.isPreview
 
-        // Update preview state
         this._preview_tabs.set(file_path, is_now_preview)
       }
     }
 
-    // Process tabs that were opened
     for (const tab of e.opened) {
       if (tab.input instanceof vscode.TabInputText) {
         this._preview_tabs.set(tab.input.uri.fsPath, !!tab.isPreview)
       }
     }
 
-    // Remove closed tabs from tracking
     for (const tab of e.closed) {
       if (tab.input instanceof vscode.TabInputText) {
         this._preview_tabs.delete(tab.input.uri.fsPath)
@@ -194,7 +169,6 @@ export class OpenEditorsProvider
     }
   }
 
-  // Mark files opened from workspace view
   mark_opened_from_workspace_view(file_path: string): void {
     this._opened_from_workspace_view.add(file_path)
   }
@@ -207,27 +181,21 @@ export class OpenEditorsProvider
   }
 
   refresh(): void {
-    // Clean up closed files from checked_items
     this._clean_up_closed_files()
-
-    // Trigger view update
     this._on_did_change_tree_data.fire()
   }
 
-  // New method to check if a file is checked in workspace view
   private _is_file_checked_in_workspace(file_path: string): boolean {
     // Get checked files from workspace provider through SharedFileState
     const workspace_checked_files = this._shared_state.get_checked_files()
     return workspace_checked_files.includes(file_path)
   }
 
-  // New method to clean up closed files from workspace view tracking
   private _clean_up_closed_files(): void {
     const open_file_paths = new Set(
       this._get_open_editors().map((uri) => uri.fsPath)
     )
 
-    // Filter out entries that are no longer open
     const keys_to_delete: string[] = []
     this._checked_items.forEach((state, file_path) => {
       if (!open_file_paths.has(file_path)) {
@@ -235,7 +203,6 @@ export class OpenEditorsProvider
       }
     })
 
-    // Remove closed files from checked_items
     keys_to_delete.forEach((key) => {
       this._checked_items.delete(key)
       // Also remove from workspace view tracking
@@ -259,7 +226,6 @@ export class OpenEditorsProvider
 
     element.checkboxState = checkbox_state
 
-    // Get token count and add it to description
     const token_count = element.tokenCount
 
     if (token_count !== undefined) {
@@ -269,7 +235,6 @@ export class OpenEditorsProvider
           ? `${Math.floor(token_count / 1000)}k`
           : `${token_count}`
 
-      // Add token count to description
       if (element.description) {
         element.description = `${formatted_token_count} ${element.description}`
       } else {
@@ -293,14 +258,12 @@ export class OpenEditorsProvider
     // Use a Map to track unique file paths and their URIs
     const open_files_map = new Map<string, vscode.Uri>()
 
-    // Add files from all tab groups
     vscode.window.tabGroups.all.forEach((tab_group) => {
       tab_group.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
           const uri = tab.input.uri
           const file_path = uri.fsPath
 
-          // Only add if not already in the map
           if (!open_files_map.has(file_path)) {
             open_files_map.set(file_path, uri)
           }
@@ -311,7 +274,6 @@ export class OpenEditorsProvider
       })
     })
 
-    // Return just the values (URIs) from the map
     return Array.from(open_files_map.values())
   }
 
@@ -323,19 +285,16 @@ export class OpenEditorsProvider
     for (const file_uri of open_files) {
       const file_path = file_uri.fsPath
 
-      // Skip files not in any workspace
       if (!this._is_file_in_any_workspace(file_path)) {
         continue
       }
 
       const file_name = path.basename(file_path)
 
-      // Skip files with ignored extensions
       if (should_ignore_file(file_path, this._ignored_extensions)) {
         continue
       }
 
-      // Get checkbox state, respect attach_open_files setting
       let checkbox_state = this._checked_items.get(file_path)
 
       if (checkbox_state === undefined) {
@@ -344,7 +303,6 @@ export class OpenEditorsProvider
           this._is_file_checked_in_workspace(file_path)
 
         if (is_checked_in_workspace) {
-          // If it's checked in workspace view, use that state
           checkbox_state = vscode.TreeItemCheckboxState.Checked
         } else {
           checkbox_state = vscode.TreeItemCheckboxState.Unchecked
@@ -353,7 +311,6 @@ export class OpenEditorsProvider
         this._checked_items.set(file_path, checkbox_state)
       }
 
-      // Calculate relative path from the appropriate workspace root
       const workspace_root = this._get_containing_workspace_root(file_path)
       const relative_path = workspace_root
         ? path.relative(workspace_root, path.dirname(file_path))
@@ -362,17 +319,13 @@ export class OpenEditorsProvider
       // Create description with workspace folder name and relative path if multiple workspaces
       let description = relative_path ? `${relative_path}` : ''
 
-      // Add workspace folder name if multiple workspaces exist
       if (this._workspace_roots.length > 1 && workspace_root) {
-        // Extract the workspace folder name from the path
         const workspace_folder_name = path.basename(workspace_root)
-        // Add the workspace name with a large dot separator
         description = relative_path
           ? `${workspace_folder_name} • ${relative_path}`
           : workspace_folder_name
       }
 
-      // Calculate token count using workspace provider
       const token_count = await this.workspace_provider.calculate_file_tokens(
         file_path
       )
@@ -410,7 +363,6 @@ export class OpenEditorsProvider
     this._non_preview_files.add(file_path)
 
     try {
-      // Open the file in non-preview mode
       await vscode.window.showTextDocument(uri, { preview: false })
     } catch (error) {
       console.error(
@@ -448,10 +400,8 @@ export class OpenEditorsProvider
     for (const uri of open_files) {
       const file_path = uri.fsPath
 
-      // Skip files not in any workspace
       if (!this._is_file_in_any_workspace(file_path)) continue
 
-      // Explicitly set to unchecked state
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
     }
 
@@ -471,7 +421,6 @@ export class OpenEditorsProvider
     for (const uri of open_files) {
       const file_path = uri.fsPath
 
-      // Skip files not in any workspace
       if (!this._is_file_in_any_workspace(file_path)) continue
 
       if (should_ignore_file(file_path, this._ignored_extensions)) continue
@@ -507,10 +456,8 @@ export class OpenEditorsProvider
   }
 
   async set_checked_files(file_paths: string[]): Promise<void> {
-    // Clear existing checks
     this._checked_items.clear()
 
-    // For each file in filePaths, set its checkboxState to Checked
     for (const file_path of file_paths) {
       if (!fs.existsSync(file_path)) continue
 
