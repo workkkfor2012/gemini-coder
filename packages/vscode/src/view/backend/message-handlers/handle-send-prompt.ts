@@ -174,7 +174,7 @@ async function validate_presets(params: {
         return {
           label: preset.name,
           description: `${preset.chatbot}${
-            preset.model ? ` • ${preset.model}` : ''
+            preset.model ? ` · ${preset.model}` : ''
           }`,
           index,
           buttons,

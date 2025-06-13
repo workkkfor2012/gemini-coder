@@ -621,7 +621,7 @@ export class WorkspaceProvider
       // Workspace root tooltip is primarily its name and role, token info is appended if available
       let root_tooltip = `${element.label} (Workspace Root)`
       if (total_token_count !== undefined) {
-        root_tooltip += ` • About ${format_token_count(
+        root_tooltip += ` · About ${format_token_count(
           total_token_count
         )} tokens`
         if (selected_token_count !== undefined && selected_token_count > 0) {

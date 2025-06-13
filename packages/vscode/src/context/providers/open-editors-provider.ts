@@ -322,7 +322,7 @@ export class OpenEditorsProvider
       if (this._workspace_roots.length > 1 && workspace_root) {
         const workspace_folder_name = path.basename(workspace_root)
         description = relative_path
-          ? `${workspace_folder_name} • ${relative_path}`
+          ? `· ${workspace_folder_name}/${relative_path}`
           : workspace_folder_name
       }
 
