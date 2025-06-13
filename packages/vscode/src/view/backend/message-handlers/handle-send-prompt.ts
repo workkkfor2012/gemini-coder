@@ -178,7 +178,6 @@ async function validate_presets(params: {
           }`,
           index,
           buttons,
-          type: 'preset'
         }
       })
 
@@ -258,26 +257,11 @@ async function validate_presets(params: {
 
         if (selected) {
           const selected_name = selected.label
-
           params.context.globalState.update(
             LAST_SELECTED_PRESET_KEY,
             selected_name
           )
-
-          if (selected.type == 'refactoring' && selected.command) {
-            const instructions = replace_selection_placeholder(
-              params.instructions
-            )
-            vscode.commands.executeCommand(`codeWebChat.${selected.command}`, {
-              instructions
-            })
-
-            resolve([])
-          } else if (selected.type == 'preset') {
-            resolve([selected_name])
-          } else {
-            resolve([])
-          }
+          resolve([selected_name])
         } else {
           resolve([])
         }

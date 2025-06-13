@@ -257,13 +257,13 @@
         "category": "Code Web Chat"
       },
       {
-        "command": "codeWebChat.refactor",
-        "title": "Refactor",
+        "command": "codeWebChat.editContext",
+        "title": "Edit Context",
         "category": "Code Web Chat"
       },
       {
-        "command": "codeWebChat.refactorUsing",
-        "title": "Refactor using...",
+        "command": "codeWebChat.editContextUsing",
+        "title": "Edit Context using...",
         "category": "Code Web Chat"
       },
       {

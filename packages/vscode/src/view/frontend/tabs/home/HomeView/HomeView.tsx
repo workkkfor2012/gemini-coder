@@ -49,8 +49,8 @@ type Props = {
   on_caret_position_change: (caret_position: number) => void
   home_view_type: HomeViewType
   on_home_view_type_change: (value: HomeViewType) => void
-  on_refactor_click: () => void
-  on_refactor_with_quick_pick_click: () => void
+  on_edit_context_click: () => void
+  on_edit_context_with_quick_pick_click: () => void
   on_code_completion_click: () => void
   on_code_completion_with_quick_pick_click: () => void
 }
@@ -114,7 +114,7 @@ export const HomeView: React.FC<Props> = (props) => {
       if (is_in_code_completions_mode) {
         props.on_code_completion_click()
       } else {
-        props.on_refactor_click()
+        props.on_edit_context_click()
       }
     }
   }
@@ -129,7 +129,7 @@ export const HomeView: React.FC<Props> = (props) => {
       if (is_in_code_completions_mode) {
         props.on_code_completion_with_quick_pick_click()
       } else {
-        props.on_refactor_with_quick_pick_click()
+        props.on_edit_context_with_quick_pick_click()
       }
     }
   }
@@ -235,9 +235,8 @@ export const HomeView: React.FC<Props> = (props) => {
           on_caret_position_change={props.on_caret_position_change}
           translations={{
             ask_anything: 'Ask anything',
-            refactoring_instructions: 'Refactoring instructions',
             optional_suggestions: 'Optional suggestions',
-            edit_files: 'Edit files',
+            send_request: 'Send request',
             autocomplete: 'Autocomplete',
             initialize: 'Initialize',
             select_preset: 'Select preset',

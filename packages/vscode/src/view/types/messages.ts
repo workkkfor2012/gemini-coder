@@ -170,8 +170,8 @@ export interface SetupApiToolCodeCompletionsMessage extends BaseMessage {
   command: 'SETUP_API_TOOL_CODE_COMPLETIONS'
 }
 
-export interface SetupApiToolRefactoringMessage extends BaseMessage {
-  command: 'SETUP_API_TOOL_REFACTORING'
+export interface SetupApiToolEditContextMessage extends BaseMessage {
+  command: 'SETUP_API_TOOL_EDIT_CONTEXT'
 }
 
 export interface SetupApiToolIntelligentUpdateMessage extends BaseMessage {
@@ -195,8 +195,8 @@ export interface GetHomeViewTypeMessage extends BaseMessage {
   command: 'GET_HOME_VIEW_TYPE'
 }
 
-export interface RefactorMessage extends BaseMessage {
-  command: 'REFACTOR'
+export interface EditContextMessage extends BaseMessage {
+  command: 'EDIT_CONTEXT'
   use_quick_pick: boolean
 }
 
@@ -413,13 +413,13 @@ export type WebviewMessage =
   | CaretPositionChangedWebviewMessage
   | ConfigureApiProvidersMessage
   | SetupApiToolCodeCompletionsMessage
-  | SetupApiToolRefactoringMessage
+  | SetupApiToolEditContextMessage
   | SetupApiToolIntelligentUpdateMessage
   | SetupApiToolCommitMessagesMessage
   | PickOpenRouterModel
   | SaveHomeViewTypeMessage
   | GetHomeViewTypeMessage
-  | RefactorMessage
+  | EditContextMessage
   | CodeCompletionMessage
   | ShowAtSignQuickPickMessage
   | SaveWebModeMessage

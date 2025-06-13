@@ -1,9 +1,9 @@
 import * as vscode from 'vscode'
 import { Logger } from '../helpers/logger'
 import {
-  TOOL_CONFIG_REFACTORING_STATE_KEY,
+  TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
   TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY,
-  DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY,
+  DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY,
   DEFAULT_INTELLIGENT_UPDATE_CONFIGURATION_STATE_KEY
 } from '../constants/state-keys'
 
@@ -36,7 +36,7 @@ export async function migrate_refactoring_to_intelligent_update(
     }
 
     const refactoring_configs = context.globalState.get<ToolConfig[]>(
-      TOOL_CONFIG_REFACTORING_STATE_KEY,
+      TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
       []
     )
 
@@ -64,7 +64,7 @@ export async function migrate_refactoring_to_intelligent_update(
       })
 
       const default_refactoring_config = context.globalState.get<ToolConfig>(
-        DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY
+        DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY
       )
 
       if (default_refactoring_config) {

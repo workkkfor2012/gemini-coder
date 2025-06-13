@@ -85,11 +85,10 @@ The best quality inline suggestions at the cost of latency. Designed to be used 
 ✅ Includes selected context<br />
 ✅ Works with any model
 
-### Refactoring
+### Edit Context
 
-Modify and create files based on natural language instructions.
+Create and modify files in context based on natural language instructions.
 
-✅ Includes selected context<br />
 ✅ Multi-file updates in a single API call<br />
 ✅ Efficient in output tokens—requests diffs
 
@@ -127,9 +126,9 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 - `Code Web Chat: Code Completion in Chat` - Use chatbot for code completion.
 - `Code Web Chat: Code Completion in Chat with...` - Use chatbot for code completion with selected preset.
 
-### Refactoring
+### Editing context
 
-- `Code Web Chat: Refactor` - Modify and create files based on natural language instructions.
+- `Code Web Chat: Edit Context` - Create and modify files in context based on natural language instructions.
 
 ### Applying chat responses
 

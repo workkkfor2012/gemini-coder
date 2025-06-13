@@ -5,10 +5,9 @@ export default {
 }
 
 const translations = {
-  ask_anything: 'Ask anything...',
-  refactoring_instructions: 'Refactoring instructions...',
-  optional_suggestions: 'Optional suggestions...',
-  edit_files: 'Edit files',
+  ask_anything: 'Ask anything',
+  optional_suggestions: 'Optional suggestions',
+  send_request: 'Send request',
   autocomplete: 'Autocomplete',
   initialize: 'Initialize',
   select_preset: 'Select preset',

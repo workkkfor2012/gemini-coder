@@ -5,23 +5,23 @@ import { ApiProvidersManager } from '../services/api-providers-manager'
 import { make_api_request } from '../helpers/make-api-request'
 import axios from 'axios'
 import { PROVIDERS } from '@shared/constants/providers'
-import { LAST_SELECTED_REFACTORING_CONFIG_INDEX_STATE_KEY } from '@/constants/state-keys'
+import { LAST_SELECTED_EDIT_CONTEXT_CONFIG_INDEX_STATE_KEY } from '@/constants/state-keys'
 
-const get_refactor_config = async (
+const get_edit_context_config = async (
   api_providers_manager: ApiProvidersManager,
   show_quick_pick: boolean = false,
   context: vscode.ExtensionContext
 ): Promise<{ provider: any; config: any } | undefined> => {
-  const refactor_configs =
-    await api_providers_manager.get_file_refactoring_tool_configs()
+  const edit_context_configs =
+    await api_providers_manager.get_edit_context_tool_configs()
 
-  if (refactor_configs.length === 0) {
+  if (edit_context_configs.length === 0) {
     vscode.window.showErrorMessage(
-      'Refactoring API tool is not configured. Navigate to the Settings tab, configure API providers and setup the API tool.'
+      'Edit Context API tool is not configured. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
-      function_name: 'get_refactor_config',
-      message: 'Refactoring API tool is not configured.'
+      function_name: 'get_edit_context_config',
+      message: 'Edit Context API tool is not configured.'
     })
     return
   }
@@ -30,7 +30,7 @@ const get_refactor_config = async (
 
   if (!show_quick_pick) {
     selected_config =
-      await api_providers_manager.get_default_file_refactoring_config()
+      await api_providers_manager.get_default_edit_context_config()
   }
 
   if (!selected_config || show_quick_pick) {
@@ -56,9 +56,9 @@ const get_refactor_config = async (
 
     const create_items = async () => {
       const default_config =
-        await api_providers_manager.get_default_file_refactoring_config()
+        await api_providers_manager.get_default_edit_context_config()
 
-      return refactor_configs.map((config, index) => {
+      return edit_context_configs.map((config, index) => {
         const buttons = []
 
         const is_default =
@@ -67,12 +67,12 @@ const get_refactor_config = async (
           default_config.provider_name == config.provider_name &&
           default_config.model == config.model
 
-        if (refactor_configs.length > 1) {
+        if (edit_context_configs.length > 1) {
           if (index > 0) {
             buttons.push(move_up_button)
           }
 
-          if (index < refactor_configs.length - 1) {
+          if (index < edit_context_configs.length - 1) {
             buttons.push(move_down_button)
           }
         }
@@ -98,11 +98,11 @@ const get_refactor_config = async (
     const quick_pick = vscode.window.createQuickPick()
     const items = await create_items()
     quick_pick.items = items
-    quick_pick.placeholder = 'Select refactoring configuration'
+    quick_pick.placeholder = 'Select configuration'
     quick_pick.matchOnDescription = true
 
     const last_selected_index = context.globalState.get<number>(
-      LAST_SELECTED_REFACTORING_CONFIG_INDEX_STATE_KEY,
+      LAST_SELECTED_EDIT_CONTEXT_CONFIG_INDEX_STATE_KEY,
       0
     )
 
@@ -120,35 +120,35 @@ const get_refactor_config = async (
           const index = item.index
 
           if (button === set_default_button) {
-            await api_providers_manager.set_default_file_refactoring_config(
-              refactor_configs[index]
+            await api_providers_manager.set_default_edit_context_config(
+              edit_context_configs[index]
             )
             quick_pick.items = await create_items()
           } else if (button === unset_default_button) {
-            await api_providers_manager.set_default_file_refactoring_config(
+            await api_providers_manager.set_default_edit_context_config(
               null as any
             )
             quick_pick.items = await create_items()
           } else if (button.tooltip == 'Move up' && index > 0) {
-            const temp = refactor_configs[index]
-            refactor_configs[index] = refactor_configs[index - 1]
-            refactor_configs[index - 1] = temp
+            const temp = edit_context_configs[index]
+            edit_context_configs[index] = edit_context_configs[index - 1]
+            edit_context_configs[index - 1] = temp
 
-            await api_providers_manager.save_file_refactoring_tool_configs(
-              refactor_configs
+            await api_providers_manager.save_edit_context_tool_configs(
+              edit_context_configs
             )
 
             quick_pick.items = await create_items()
           } else if (
             button.tooltip == 'Move down' &&
-            index < refactor_configs.length - 1
+            index < edit_context_configs.length - 1
           ) {
-            const temp = refactor_configs[index]
-            refactor_configs[index] = refactor_configs[index + 1]
-            refactor_configs[index + 1] = temp
+            const temp = edit_context_configs[index]
+            edit_context_configs[index] = edit_context_configs[index + 1]
+            edit_context_configs[index + 1] = temp
 
-            await api_providers_manager.save_file_refactoring_tool_configs(
-              refactor_configs
+            await api_providers_manager.save_edit_context_tool_configs(
+              edit_context_configs
             )
 
             quick_pick.items = await create_items()
@@ -165,7 +165,7 @@ const get_refactor_config = async (
           }
 
           context.globalState.update(
-            LAST_SELECTED_REFACTORING_CONFIG_INDEX_STATE_KEY,
+            LAST_SELECTED_EDIT_CONTEXT_CONFIG_INDEX_STATE_KEY,
             selected.index
           )
 
@@ -174,11 +174,11 @@ const get_refactor_config = async (
           )
           if (!provider) {
             vscode.window.showErrorMessage(
-              'API provider not found for Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
+              'API provider not found for Edit Context tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
             )
             Logger.warn({
-              function_name: 'get_refactor_config',
-              message: 'API provider not found for Refactoring tool.'
+              function_name: 'get_edit_context_config',
+              message: 'API provider not found for Edit Context tool.'
             })
             resolve(undefined)
             return
@@ -206,11 +206,11 @@ const get_refactor_config = async (
 
   if (!provider) {
     vscode.window.showErrorMessage(
-      'API provider not found for Refactoring tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
+      'API provider not found for Edit Context tool. Navigate to the Settings tab, configure API providers and setup the API tool.'
     )
     Logger.warn({
-      function_name: 'get_refactor_config',
-      message: 'API provider not found for Refactoring tool.'
+      function_name: 'get_edit_context_config',
+      message: 'API provider not found for Edit Context tool.'
     })
     return
   }
@@ -221,14 +221,13 @@ const get_refactor_config = async (
   }
 }
 
-const perform_refactoring = async (params: {
+const perform_context_editing = async (params: {
   context: vscode.ExtensionContext
   file_tree_provider: any
   open_editors_provider?: any
   show_quick_pick?: boolean
   instructions?: string
 }) => {
-  console.log(params)
   const api_providers_manager = new ApiProvidersManager(params.context)
 
   const editor = vscode.window.activeTextEditor
@@ -292,7 +291,7 @@ const perform_refactoring = async (params: {
     return
   }
 
-  const config_result = await get_refactor_config(
+  const config_result = await get_edit_context_config(
     api_providers_manager,
     params.show_quick_pick,
     params.context
@@ -302,7 +301,7 @@ const perform_refactoring = async (params: {
     return
   }
 
-  const { provider, config: refactor_settings } = config_result
+  const { provider, config: edit_context_config } = config_result
 
   if (!provider.api_key) {
     vscode.window.showErrorMessage(
@@ -319,7 +318,7 @@ const perform_refactoring = async (params: {
         `Built-in provider "${provider.name}" not found. Navigate to the Settings tab, configure API providers and setup the API tool.`
       )
       Logger.warn({
-        function_name: 'perform_refactor_task',
+        function_name: 'perform_context_editing',
         message: `Built-in provider "${provider.name}" not found.`
       })
       return
@@ -329,16 +328,16 @@ const perform_refactoring = async (params: {
     endpoint_url = provider.base_url
   }
 
-  let refactor_instructions = ''
+  let edit_context_instructions = ''
   if (selected_text) {
-    refactor_instructions += `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
+    edit_context_instructions += `\`${current_file_path}\`\n\`\`\`\n${selected_text}\n\`\`\`\n`
   }
-  refactor_instructions += instructions
+  edit_context_instructions += instructions
 
   const files = `<files>${collected_files}\n</files>`
   const edit_format_instructions =
     'Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch. Do not send explanations.'
-  const content = `${refactor_instructions}\n${edit_format_instructions}\n${files}\n${refactor_instructions}\n${edit_format_instructions}`
+  const content = `${edit_context_instructions}\n${edit_format_instructions}\n${files}\n${edit_context_instructions}\n${edit_format_instructions}`
 
   const messages = [
     {
@@ -349,12 +348,12 @@ const perform_refactoring = async (params: {
 
   const body = {
     messages,
-    model: refactor_settings.model,
-    temperature: refactor_settings.temperature
+    model: edit_context_config.model,
+    temperature: edit_context_config.temperature
   }
 
   Logger.log({
-    function_name: 'perform_refactor_task',
+    function_name: 'perform_context_editing',
     message: 'refactor Prompt:',
     data: content
   })
@@ -398,7 +397,7 @@ const perform_refactoring = async (params: {
   } catch (error) {
     if (axios.isCancel(error)) return
     Logger.error({
-      function_name: 'perform_refactor_task',
+      function_name: 'perform_context_editing',
       message: 'refactor task error',
       data: error
     })
@@ -408,16 +407,16 @@ const perform_refactoring = async (params: {
   }
 }
 
-export const refactor_commands = (params: {
+export const edit_context_commands = (params: {
   context: vscode.ExtensionContext
   workspace_provider: any
   open_editors_provider?: any
 }) => {
   return [
     vscode.commands.registerCommand(
-      'codeWebChat.refactor',
+      'codeWebChat.editContext',
       async (args?: { instructions?: string }) =>
-        perform_refactoring({
+        perform_context_editing({
           context: params.context,
           file_tree_provider: params.workspace_provider,
           open_editors_provider: params.open_editors_provider,
@@ -426,9 +425,9 @@ export const refactor_commands = (params: {
         })
     ),
     vscode.commands.registerCommand(
-      'codeWebChat.refactorUsing',
+      'codeWebChat.editContextUsing',
       async (args?: { instructions?: string }) =>
-        perform_refactoring({
+        perform_context_editing({
           context: params.context,
           file_tree_provider: params.workspace_provider,
           open_editors_provider: params.open_editors_provider,

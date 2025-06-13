@@ -23,9 +23,8 @@ type Props = {
   on_at_sign_click: () => void
   translations: {
     ask_anything: string
-    refactoring_instructions: string
     optional_suggestions: string
-    edit_files: string
+    send_request: string
     autocomplete: string
     initialize: string
     select_preset: string
@@ -224,14 +223,8 @@ export const ChatInput: React.FC<Props> = (props) => {
     }
 
     return active_history.length > 0 && is_history_enabled
-      ? `${
-          props.is_web_mode
-            ? props.translations.ask_anything
-            : props.translations.refactoring_instructions
-        } (⇅ for history)`
-      : props.is_web_mode
-      ? props.translations.ask_anything
-      : props.translations.refactoring_instructions
+      ? `${props.translations.ask_anything} (⇅ for history)`
+      : props.translations.ask_anything
   }, [
     props.is_in_code_completions_mode,
     props.chat_history,
@@ -378,7 +371,7 @@ export const ChatInput: React.FC<Props> = (props) => {
                   ? props.translations.initialize
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
-                  : props.translations.edit_files
+                  : props.translations.send_request
               }
             >
               <Icon variant="ENTER" />
@@ -387,7 +380,7 @@ export const ChatInput: React.FC<Props> = (props) => {
                   ? props.translations.initialize
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
-                  : props.translations.edit_files}
+                  : props.translations.send_request}
               </span>
             </button>
           </div>

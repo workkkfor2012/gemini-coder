@@ -50,7 +50,7 @@ import {
   handle_pick_open_router_model,
   handle_save_home_view_type,
   handle_get_home_view_type,
-  handle_refactor,
+  handle_edit_context,
   handle_code_completion,
   handle_get_edit_format,
   handle_at_sign_quick_pick,
@@ -366,8 +366,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await handle_create_preset(this)
           } else if (message.command == 'EXECUTE_COMMAND') {
             vscode.commands.executeCommand(message.command_id)
-          } else if (message.command == 'REFACTOR') {
-            await handle_refactor(this, message)
+          } else if (message.command == 'EDIT_CONTEXT') {
+            await handle_edit_context(this, message)
           } else if (message.command == 'CODE_COMPLETION') {
             await handle_code_completion(this, message)
           } else if (message.command == 'SHOW_QUICK_PICK') {
@@ -399,10 +399,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
               provider: this,
               tool: 'code-completions'
             })
-          } else if (message.command == 'SETUP_API_TOOL_REFACTORING') {
+          } else if (message.command == 'SETUP_API_TOOL_EDIT_CONTEXT') {
             await handle_setup_api_tool_multi_config({
               provider: this,
-              tool: 'refactoring'
+              tool: 'edit-context'
             })
           } else if (message.command == 'SETUP_API_TOOL_INTELLIGENT_UPDATE') {
             await handle_setup_api_tool_multi_config({

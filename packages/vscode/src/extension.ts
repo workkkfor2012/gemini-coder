@@ -29,13 +29,13 @@ import {
   save_context_command,
   revert_command,
   generate_commit_message_command,
-  commit_changes_command, // Added this import
+  commit_changes_command,
   code_completion_to_clipboard_command,
   code_completion_with_suggestions_to_clipboard_command,
   reference_in_chat_command,
   open_settings_command,
   open_url_command,
-  refactor_commands,
+  edit_context_commands,
   apply_context_from_clipboard_command
 } from './commands'
 
@@ -96,7 +96,7 @@ export async function activate(context: vscode.ExtensionContext) {
   context.subscriptions.push(
     open_file_from_workspace_command(open_editors_provider),
     apply_chat_response_command(context),
-    ...refactor_commands({
+    ...edit_context_commands({
       context,
       workspace_provider,
       open_editors_provider

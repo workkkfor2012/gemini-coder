@@ -7,7 +7,7 @@ export const handle_at_sign_quick_pick = async (
   const items = [
     {
       label: '@selection',
-      description: 'Current text selection in the active editor'
+      description: 'Inject file path and text selection of the active editor'
     }
   ]
 

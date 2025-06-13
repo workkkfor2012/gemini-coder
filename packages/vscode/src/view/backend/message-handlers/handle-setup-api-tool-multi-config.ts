@@ -5,18 +5,18 @@ import {
   Provider,
   ToolConfig,
   CodeCompletionsConfigs,
-  FileRefactoringConfigs,
+  EditContextConfigs,
   IntelligentUpdateConfigs
 } from '@/services/api-providers-manager'
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
 import { Logger } from '@/helpers/logger'
 
-type SupportedTool = 'code-completions' | 'refactoring' | 'intelligent-update'
+type SupportedTool = 'code-completions' | 'edit-context' | 'intelligent-update'
 
 const DEFAULT_TEMPERATURE: { [key in SupportedTool]: number } = {
   'code-completions': 0.3,
-  refactoring: 0.3,
+  'edit-context': 0.3,
   'intelligent-update': 0
 }
 
@@ -51,19 +51,19 @@ export const handle_setup_api_tool_multi_config = async (params: {
             ),
           get_display_name: () => 'Code Completions'
         }
-      case 'refactoring':
+      case 'edit-context':
         return {
           get_configs: () =>
-            providers_manager.get_file_refactoring_tool_configs(),
-          save_configs: (configs: FileRefactoringConfigs) =>
-            providers_manager.save_file_refactoring_tool_configs(configs),
+            providers_manager.get_edit_context_tool_configs(),
+          save_configs: (configs: EditContextConfigs) =>
+            providers_manager.save_edit_context_tool_configs(configs),
           get_default_config: () =>
-            providers_manager.get_default_file_refactoring_config(),
+            providers_manager.get_default_edit_context_config(),
           set_default_config: (config: ToolConfig | null) =>
-            providers_manager.set_default_file_refactoring_config(
+            providers_manager.set_default_edit_context_config(
               config as any
             ),
-          get_display_name: () => 'Refactoring'
+          get_display_name: () => 'Edit Context'
         }
       case 'intelligent-update':
         return {

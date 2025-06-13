@@ -1,11 +1,11 @@
 import * as vscode from 'vscode'
 import { PROVIDERS } from '@shared/constants/providers'
 import {
-  TOOL_CONFIG_REFACTORING_STATE_KEY,
+  TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
   TOOL_CONFIG_COMMIT_MESSAGES_STATE_KEY,
   TOOL_CONFIG_CODE_COMPLETIONS_STATE_KEY,
   DEFAULT_CODE_COMPLETIONS_CONFIGURATION_STATE_KEY,
-  DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY,
+  DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY,
   TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY,
   DEFAULT_INTELLIGENT_UPDATE_CONFIGURATION_STATE_KEY
 } from '@/constants/state-keys'
@@ -34,7 +34,7 @@ export type ToolConfig = {
 }
 
 export type CodeCompletionsConfigs = ToolConfig[]
-export type FileRefactoringConfigs = ToolConfig[]
+export type EditContextConfigs = ToolConfig[]
 export type IntelligentUpdateConfigs = ToolConfig[]
 
 export class ApiProvidersManager {
@@ -138,37 +138,35 @@ export class ApiProvidersManager {
     )
   }
 
-  public async get_file_refactoring_tool_configs(): Promise<FileRefactoringConfigs> {
+  public async get_edit_context_tool_configs(): Promise<EditContextConfigs> {
     await this._load_promise
-    const configs = this._vscode.globalState.get<FileRefactoringConfigs>(
-      TOOL_CONFIG_REFACTORING_STATE_KEY,
+    const configs = this._vscode.globalState.get<EditContextConfigs>(
+      TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
       []
     )
     return configs.filter((c) => this._validate_tool_config(c) !== undefined)
   }
 
-  public async get_default_file_refactoring_config(): Promise<
+  public async get_default_edit_context_config(): Promise<
     ToolConfig | undefined
   > {
     await this._load_promise
     const config = this._vscode.globalState.get<ToolConfig>(
-      DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY
+      DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY
     )
     return this._validate_tool_config(config)
   }
 
-  public async set_default_file_refactoring_config(config: ToolConfig) {
+  public async set_default_edit_context_config(config: ToolConfig) {
     await this._vscode.globalState.update(
-      DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY,
+      DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY,
       config
     )
   }
 
-  public async save_file_refactoring_tool_configs(
-    configs: FileRefactoringConfigs
-  ) {
+  public async save_edit_context_tool_configs(configs: EditContextConfigs) {
     await this._vscode.globalState.update(
-      TOOL_CONFIG_REFACTORING_STATE_KEY,
+      TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
       configs
     )
   }
@@ -190,9 +188,9 @@ export class ApiProvidersManager {
     )
   }
 
-  public async get_intelligent_update_tool_configs(): Promise<FileRefactoringConfigs> {
+  public async get_intelligent_update_tool_configs(): Promise<EditContextConfigs> {
     await this._load_promise
-    const configs = this._vscode.globalState.get<FileRefactoringConfigs>(
+    const configs = this._vscode.globalState.get<EditContextConfigs>(
       TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY,
       []
     )
@@ -217,7 +215,7 @@ export class ApiProvidersManager {
   }
 
   public async save_intelligent_update_tool_configs(
-    configs: FileRefactoringConfigs
+    configs: EditContextConfigs
   ) {
     await this._vscode.globalState.update(
       TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY,
@@ -270,47 +268,45 @@ export class ApiProvidersManager {
       )
     }
 
-    const file_refactoring_configs =
-      this._vscode.globalState.get<FileRefactoringConfigs>(
-        TOOL_CONFIG_REFACTORING_STATE_KEY,
+    const edit_context_configs =
+      this._vscode.globalState.get<EditContextConfigs>(
+        TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
         []
       )
 
-    const updated_file_refactoring_configs = file_refactoring_configs.map(
-      (config) => {
-        if (
-          config.provider_type == 'custom' &&
-          config.provider_name == old_name
-        ) {
-          return { ...config, provider_name: new_name }
-        }
-        return config
+    const updated_edit_context_configs = edit_context_configs.map((config) => {
+      if (
+        config.provider_type == 'custom' &&
+        config.provider_name == old_name
+      ) {
+        return { ...config, provider_name: new_name }
       }
-    )
+      return config
+    })
 
     await this._vscode.globalState.update(
-      TOOL_CONFIG_REFACTORING_STATE_KEY,
-      updated_file_refactoring_configs
+      TOOL_CONFIG_EDIT_CONTEXT_STATE_KEY,
+      updated_edit_context_configs
     )
 
-    const default_file_refactoring_config =
+    const default_edit_context_config =
       this._vscode.globalState.get<ToolConfig>(
-        DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY
+        DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY
       )
 
     if (
-      default_file_refactoring_config &&
-      default_file_refactoring_config.provider_type == 'custom' &&
-      default_file_refactoring_config.provider_name == old_name
+      default_edit_context_config &&
+      default_edit_context_config.provider_type == 'custom' &&
+      default_edit_context_config.provider_name == old_name
     ) {
       await this._vscode.globalState.update(
-        DEFAULT_REFACTORING_CONFIGURATION_STATE_KEY,
-        { ...default_file_refactoring_config, provider_name: new_name }
+        DEFAULT_EDIT_CONTEXT_CONFIGURATION_STATE_KEY,
+        { ...default_edit_context_config, provider_name: new_name }
       )
     }
 
     const intelligent_update_configs =
-      this._vscode.globalState.get<FileRefactoringConfigs>(
+      this._vscode.globalState.get<EditContextConfigs>(
         TOOL_CONFIG_INTELLIGENT_UPDATE_STATE_KEY,
         []
       )

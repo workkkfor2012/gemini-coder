@@ -28,9 +28,9 @@ export const Settings: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_setup_refactoring_click = () => {
+  const handle_setup_edit_context_click = () => {
     props.vscode.postMessage({
-      command: 'SETUP_API_TOOL_REFACTORING'
+      command: 'SETUP_API_TOOL_EDIT_CONTEXT'
     } as WebviewMessage)
   }
 
@@ -95,15 +95,14 @@ export const Settings: React.FC<Props> = (props) => {
       })}
 
       {render_api_tool_settings({
-        title: 'Refactoring',
-        description: 'Modify and create files based on natural language instructions.',
+        title: 'Edit Context',
+        description: 'Create and modify files in context based on natural language instructions.',
         checkmarks: [
-          'Includes selected context',
           'Multi-file updates in a single API call',
           'Efficient in output tokens—requests diffs'
         ],
-        on_setup_click: handle_setup_refactoring_click,
-        button_label: 'Setup Refactoring API Tool'
+        on_setup_click: handle_setup_edit_context_click,
+        button_label: 'Setup Edit Context API Tool'
       })}
 
       {render_api_tool_settings({

@@ -344,26 +344,26 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_refactor_click = () => {
+  const handle_edit_context_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
       : props.normal_instructions
 
     props.vscode.postMessage({
-      command: 'REFACTOR',
+      command: 'EDIT_CONTEXT',
       use_quick_pick: false
     } as WebviewMessage)
 
     update_chat_history(instruction)
   }
 
-  const handle_refactor_with_quick_pick_click = () => {
+  const handle_edit_context_with_quick_pick_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
       : props.normal_instructions
 
     props.vscode.postMessage({
-      command: 'REFACTOR',
+      command: 'EDIT_CONTEXT',
       use_quick_pick: true
     } as WebviewMessage)
 
@@ -463,8 +463,10 @@ export const Home: React.FC<Props> = (props) => {
       on_caret_position_change={handle_caret_position_change}
       home_view_type={home_view_type}
       on_home_view_type_change={handle_home_view_type_change}
-      on_refactor_click={handle_refactor_click}
-      on_refactor_with_quick_pick_click={handle_refactor_with_quick_pick_click}
+      on_edit_context_click={handle_edit_context_click}
+      on_edit_context_with_quick_pick_click={
+        handle_edit_context_with_quick_pick_click
+      }
       on_code_completion_click={handle_code_completion_click}
       on_code_completion_with_quick_pick_click={
         handle_code_completion_with_quick_pick_click

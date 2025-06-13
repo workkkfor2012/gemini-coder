@@ -63,7 +63,7 @@ export async function migrate_api_tool_configs(
     }
 
     if (refactoring_settings?.provider && refactoring_settings.model) {
-      await api_providers_manager.save_file_refactoring_tool_configs([
+      await api_providers_manager.save_edit_context_tool_configs([
         {
           provider_type: 'built-in',
           provider_name:
