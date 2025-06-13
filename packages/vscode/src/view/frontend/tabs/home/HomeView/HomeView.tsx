@@ -298,8 +298,7 @@ export const HomeView: React.FC<Props> = (props) => {
       )}
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB &&
-        props.edit_format_selector_visibility == 'visible' &&
-        props.home_view_type == HOME_VIEW_TYPES.WEB && (
+        props.edit_format_selector_visibility == 'visible' && (
           <>
             <UiSeparator size="small" />
             <UiHorizontalSelector
