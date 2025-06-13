@@ -35,15 +35,48 @@ export function apply_context_from_clipboard_command(
         const workspace_roots = workspace_provider.getWorkspaceRoots()
         const absolute_paths: string[] = []
 
+        // Create a map of workspace folder names to their root paths for multi-root workspaces
+        const workspace_map = new Map<string, string>()
+        if (vscode.workspace.workspaceFolders) {
+          vscode.workspace.workspaceFolders.forEach((folder) => {
+            workspace_map.set(folder.name, folder.uri.fsPath)
+          })
+        }
+
         for (const raw_path of paths) {
           if (path.isAbsolute(raw_path)) {
             absolute_paths.push(raw_path)
             continue
           }
 
-          for (const root of workspace_roots) {
-            const potential_path = path.join(root, raw_path)
-            absolute_paths.push(potential_path)
+          // Check if path is prefixed with a workspace folder name (for multi-root workspaces)
+          let resolved_path: string | null = null
+
+          if (workspace_map.size > 1) {
+            // Multi-root workspace
+            for (const [workspace_name, workspace_root] of workspace_map) {
+              if (
+                raw_path.startsWith(workspace_name + '/') ||
+                raw_path.startsWith(workspace_name + '\\')
+              ) {
+                // Remove the workspace name prefix and resolve relative to that workspace
+                const relative_path = raw_path.substring(
+                  workspace_name.length + 1
+                )
+                resolved_path = path.join(workspace_root, relative_path)
+                break
+              }
+            }
+          }
+
+          if (resolved_path) {
+            absolute_paths.push(resolved_path)
+          } else {
+            // Fall back to trying each workspace root for relative paths
+            for (const root of workspace_roots) {
+              const potential_path = path.join(root, raw_path)
+              absolute_paths.push(potential_path)
+            }
           }
         }
 
