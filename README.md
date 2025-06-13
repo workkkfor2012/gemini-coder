@@ -87,7 +87,7 @@ The best quality inline suggestions at the cost of latency. Designed to be used 
 
 ### Refactoring
 
-Modify files based on natural language instructions.
+Modify files in context based on natural language instructions.
 
 ✅ Includes selected context<br />
 ✅ Multi-file updates in a single API call<br />
