@@ -25,13 +25,13 @@ export class WorkspaceProvider
   private workspace_roots: string[] = []
   private workspace_names: string[] = []
   private checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
-  private combined_gitignore = ignore() // To hold all .gitignore rules
+  private combined_gitignore = ignore()
   private ignored_extensions: Set<string> = new Set()
   private watcher: vscode.FileSystemWatcher
   private gitignore_watcher: vscode.FileSystemWatcher
-  private file_token_counts: Map<string, number> = new Map() // Cache token counts
-  private directory_token_counts: Map<string, number> = new Map() // Cache directory token counts
-  private directory_selected_token_counts: Map<string, number> = new Map() // Cache directory selected token counts
+  private file_token_counts: Map<string, number> = new Map()
+  private directory_token_counts: Map<string, number> = new Map()
+  private directory_selected_token_counts: Map<string, number> = new Map()
   private config_change_handler: vscode.Disposable
   private _on_did_change_checked_files = new vscode.EventEmitter<void>()
   readonly onDidChangeCheckedFiles = this._on_did_change_checked_files.event
@@ -48,26 +48,23 @@ export class WorkspaceProvider
   constructor(workspace_folders: vscode.WorkspaceFolder[]) {
     this.workspace_roots = workspace_folders.map((folder) => folder.uri.fsPath)
     this.workspace_names = workspace_folders.map((folder) => folder.name)
-    this.load_all_gitignore_files() // Load all .gitignore files on initialization
+    this.load_all_gitignore_files()
     this.load_ignored_extensions()
 
     // Initialize file to workspace mapping
     this.update_file_workspace_mapping()
 
-    // Create a file system watcher for general file changes
     this.watcher = vscode.workspace.createFileSystemWatcher('**/*')
     this.watcher.onDidCreate((uri) => this.handle_file_create(uri.fsPath))
     this.watcher.onDidChange((uri) => this.on_file_system_changed(uri.fsPath))
     this.watcher.onDidDelete((uri) => this.on_file_system_changed(uri.fsPath))
 
-    // Watch for .gitignore changes specifically
     this.gitignore_watcher =
       vscode.workspace.createFileSystemWatcher('**/.gitignore')
     this.gitignore_watcher.onDidCreate(() => this.load_all_gitignore_files())
     this.gitignore_watcher.onDidChange(() => this.load_all_gitignore_files())
     this.gitignore_watcher.onDidDelete(() => this.load_all_gitignore_files())
 
-    // Listen for configuration changes
     this.config_change_handler = vscode.workspace.onDidChangeConfiguration(
       (event) => {
         if (event.affectsConfiguration('codeWebChat.ignoredExtensions')) {
@@ -79,10 +76,8 @@ export class WorkspaceProvider
       }
     )
 
-    // Initialize the preview tabs map with current tabs
     this.update_preview_tabs_state()
 
-    // Listen for tab changes to update the preview tabs state
     this.tab_change_handler = vscode.window.tabGroups.onDidChangeTabs((e) => {
       this.handle_tab_changes(e)
     })
@@ -116,7 +111,6 @@ export class WorkspaceProvider
     }
   }
 
-  // New method to update the file to workspace mapping
   private update_file_workspace_mapping(): void {
     this.file_workspace_map.clear()
 
@@ -137,7 +131,6 @@ export class WorkspaceProvider
     }
   }
 
-  // Helper method to find all files recursively in a directory
   public find_all_files(dir_path: string): string[] {
     let results: string[] = []
     try {
@@ -146,7 +139,6 @@ export class WorkspaceProvider
       for (const entry of entries) {
         const full_path = path.join(dir_path, entry.name)
 
-        // Skip .git directories and other ignored paths
         const relative_path = path.relative(
           this.get_workspace_root_for_file(full_path) || dir_path,
           full_path
@@ -156,7 +148,6 @@ export class WorkspaceProvider
         }
 
         if (entry.isDirectory()) {
-          // Recursively search subdirectories
           results = results.concat(this.find_all_files(full_path))
         } else if (entry.isFile()) {
           results.push(full_path)
@@ -173,9 +164,7 @@ export class WorkspaceProvider
     return results
   }
 
-  // Get workspace root for a specific file path
   public get_workspace_root_for_file(file_path: string): string | undefined {
-    // First check the cached mapping
     if (this.file_workspace_map.has(file_path)) {
       return this.file_workspace_map.get(file_path)
     }
@@ -193,7 +182,6 @@ export class WorkspaceProvider
       }
     }
 
-    // Update the cache with the result
     if (matching_root) {
       this.file_workspace_map.set(file_path, matching_root)
     }
@@ -201,12 +189,9 @@ export class WorkspaceProvider
     return matching_root
   }
 
-  // New method to uncheck files that are now ignored
   private uncheck_ignored_files(old_ignored_extensions?: Set<string>): void {
-    // Get list of checked files
     const checked_files = this.get_checked_files()
 
-    // Find files that now match ignored extensions but didn't before
     const files_to_uncheck = checked_files.filter((file_path) => {
       if (old_ignored_extensions) {
         // Only uncheck if it wasn't ignored before but is now
@@ -219,11 +204,9 @@ export class WorkspaceProvider
       return should_ignore_file(file_path, this.ignored_extensions)
     })
 
-    // Uncheck the files
     for (const file_path of files_to_uncheck) {
       this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Unchecked)
 
-      // Update parent directories
       let dir_path = path.dirname(file_path)
       const workspace_root = this.get_workspace_root_for_file(file_path)
       while (workspace_root && dir_path.startsWith(workspace_root)) {
@@ -232,7 +215,6 @@ export class WorkspaceProvider
       }
     }
 
-    // If any files were unchecked, notify listeners
     if (files_to_uncheck.length > 0) {
       this._on_did_change_checked_files.fire()
     }
@@ -248,12 +230,9 @@ export class WorkspaceProvider
     }
   }
 
-  // Update the preview tabs state
   private update_preview_tabs_state(): void {
-    // Clear the current state
     this.preview_tabs.clear()
 
-    // Get current state of all tabs
     vscode.window.tabGroups.all.forEach((tabGroup) => {
       tabGroup.tabs.forEach((tab) => {
         if (tab.input instanceof vscode.TabInputText) {
@@ -264,27 +243,21 @@ export class WorkspaceProvider
     })
   }
 
-  // Handle tab changes and detect preview to normal transitions
   private handle_tab_changes(e: vscode.TabChangeEvent): void {
-    // Process tabs that were changed
     for (const tab of e.changed) {
-      // Only track text tabs
       if (tab.input instanceof vscode.TabInputText) {
         const file_path = tab.input.uri.fsPath
         const was_preview = this.preview_tabs.get(file_path)
         const is_now_preview = !!tab.isPreview
 
-        // If the file was in preview mode and now is not
         if (was_preview && !is_now_preview) {
           this.handle_file_out_preview(file_path)
         }
 
-        // Update preview state
         this.preview_tabs.set(file_path, is_now_preview)
       }
     }
 
-    // Process tabs that were opened
     for (const tab of e.opened) {
       if (tab.input instanceof vscode.TabInputText) {
         this.preview_tabs.set(tab.input.uri.fsPath, !!tab.isPreview)
@@ -293,38 +266,31 @@ export class WorkspaceProvider
   }
 
   private handle_file_out_preview(file_path: string): void {
-    // Skip files not in any workspace
     const workspace_root = this.get_workspace_root_for_file(file_path)
     if (!workspace_root) return
 
-    // Get relative path to check gitignore
     const relative_path = path.relative(workspace_root, file_path)
     if (this.is_excluded(relative_path)) return
 
     if (should_ignore_file(file_path, this.ignored_extensions)) return
 
-    // Skip if already checked
     if (
       this.checked_items.get(file_path) === vscode.TreeItemCheckboxState.Checked
     )
       return
 
-    // Check if this file was opened from workspace view
     const was_opened_from_workspace_view =
       this.opened_from_workspace_view.has(file_path)
 
-    // Remove from tracking set - we'll process it now regardless
     if (was_opened_from_workspace_view) {
       this.opened_from_workspace_view.delete(file_path)
     }
   }
 
-  // Mark files opened from workspace view
   mark_opened_from_workspace_view(file_path: string): void {
     this.opened_from_workspace_view.add(file_path)
   }
 
-  // Get all currently open editor URIs
   private get_open_editors(): vscode.Uri[] {
     const open_uris: vscode.Uri[] = []
 
@@ -339,7 +305,6 @@ export class WorkspaceProvider
     return open_uris
   }
 
-  // Returns all workspace roots
   public getWorkspaceRoots(): string[] {
     return this.workspace_roots
   }
@@ -349,7 +314,6 @@ export class WorkspaceProvider
     return this.workspace_roots.length > 0 ? this.workspace_roots[0] : ''
   }
 
-  // Get workspace name for a specific root
   public get_workspace_name(root_path: string): string {
     const index = this.workspace_roots.indexOf(root_path)
     if (index !== -1) {
@@ -360,14 +324,11 @@ export class WorkspaceProvider
 
   private on_file_system_changed(changed_file_path?: string): void {
     if (changed_file_path) {
-      // Clear token count for the specific file
       this.file_token_counts.delete(changed_file_path)
 
-      // Clear token counts only for parent directories
       let dir_path = path.dirname(changed_file_path)
       const workspace_root = this.get_workspace_root_for_file(changed_file_path)
 
-      // Traverse up the directory tree and clear cache for each parent
       while (workspace_root && dir_path.startsWith(workspace_root)) {
         this.directory_token_counts.delete(dir_path)
         this.directory_selected_token_counts.delete(dir_path)
@@ -385,14 +346,11 @@ export class WorkspaceProvider
 
   private async handle_file_create(created_file_path?: string): Promise<void> {
     if (created_file_path) {
-      // Clear token count for the specific file
       this.file_token_counts.delete(created_file_path)
 
-      // Clear token counts only for parent directories
       let dir_path = path.dirname(created_file_path)
       const workspace_root = this.get_workspace_root_for_file(created_file_path)
 
-      // Traverse up the directory tree and clear cache for each parent
       while (workspace_root && dir_path.startsWith(workspace_root)) {
         this.directory_token_counts.delete(dir_path)
         this.directory_selected_token_counts.delete(dir_path)
@@ -405,10 +363,8 @@ export class WorkspaceProvider
       this.directory_selected_token_counts.clear()
     }
 
-    // Update the file to workspace mapping
     this.update_file_workspace_mapping()
 
-    // Refresh the tree view first to update its structure
     await this.refresh()
 
     let internal_check_state_changed = false
@@ -457,7 +413,6 @@ export class WorkspaceProvider
       }
     }
 
-    // After potential modifications, check if the actual state of `this.checked_items` has changed.
     if (this.checked_items.size !== initial_checked_items_state.size) {
       internal_check_state_changed = true
     } else {
@@ -494,7 +449,6 @@ export class WorkspaceProvider
     // Get a list of currently open files to preserve their check state
     const open_files = new Set(this.get_open_editors().map((uri) => uri.fsPath))
 
-    // Find which open files are currently checked
     const checked_open_files = Array.from(this.checked_items.entries())
       .filter(
         ([path, state]) =>
@@ -502,24 +456,19 @@ export class WorkspaceProvider
       )
       .map(([path]) => path)
 
-    // Create a new map to hold only the open files' check states
     const new_checked_items = new Map<string, vscode.TreeItemCheckboxState>()
 
-    // Preserve open files' check states
     for (const [path, state] of this.checked_items.entries()) {
       if (open_files.has(path)) {
         new_checked_items.set(path, state)
       }
     }
 
-    // Replace the checked_items map with our filtered version
     this.checked_items = new_checked_items
 
-    // Clear partially checked directories
     this.partially_checked_dirs.clear()
     this.directory_selected_token_counts.clear()
 
-    // Update parent directories for open files
     for (const file_path of open_files) {
       if (this.checked_items.has(file_path)) {
         let dir_path = path.dirname(file_path)
@@ -531,7 +480,6 @@ export class WorkspaceProvider
       }
     }
 
-    // Show info message if there are still checked open files
     if (checked_open_files.length > 0) {
       vscode.window
         .showInformationMessage(
@@ -587,7 +535,6 @@ export class WorkspaceProvider
     element.description =
       trimmed_description == '' ? undefined : trimmed_description
 
-    // Tooltip updates
     const tooltip_parts = [element.resourceUri.fsPath]
     if (total_token_count !== undefined) {
       tooltip_parts.push(
@@ -614,14 +561,13 @@ export class WorkspaceProvider
 
     element.tooltip = tooltip_parts.join(' ')
 
-    // For workspace root items, add a special context value and icon
     if (element.isWorkspaceRoot) {
       element.contextValue = 'workspaceRoot'
       element.iconPath = new vscode.ThemeIcon('root-folder')
       // Workspace root tooltip is primarily its name and role, token info is appended if available
       let root_tooltip = `${element.label} (Workspace Root)`
       if (total_token_count !== undefined) {
-        root_tooltip += ` · About ${format_token_count(
+        root_tooltip += ` • About ${format_token_count(
           total_token_count
         )} tokens`
         if (selected_token_count !== undefined && selected_token_count > 0) {
@@ -642,7 +588,6 @@ export class WorkspaceProvider
       return []
     }
 
-    // If no element is provided, we're at the root level
     if (!element) {
       // If there's only one workspace root, show its contents directly
       if (this.workspace_roots.length == 1) {
@@ -657,10 +602,8 @@ export class WorkspaceProvider
       )
     }
 
-    // For workspace roots or directories, show their contents
     const dir_path = element.resourceUri.fsPath
 
-    // If this directory is excluded by gitignore, don't show its contents
     if (element.isDirectory) {
       const workspace_root = this.get_workspace_root_for_file(dir_path)
       if (workspace_root) {
@@ -674,7 +617,6 @@ export class WorkspaceProvider
     return this.get_files_and_directories(dir_path)
   }
 
-  // Create top-level workspace folder items
   private async getWorkspaceFolderItems(): Promise<FileItem[]> {
     const items: FileItem[] = []
     for (let i = 0; i < this.workspace_roots.length; i++) {
@@ -743,9 +685,7 @@ export class WorkspaceProvider
     }
   }
 
-  // Calculate token count for a directory (sum of all contained files)
   private async calculate_directory_tokens(dir_path: string): Promise<number> {
-    // Check cache first
     if (this.directory_token_counts.has(dir_path)) {
       return this.directory_token_counts.get(dir_path)!
     }
@@ -756,7 +696,6 @@ export class WorkspaceProvider
         return 0
       }
 
-      // Check if the directory itself is excluded
       const relative_dir_path = path.relative(workspace_root, dir_path)
       if (this.is_excluded(relative_dir_path)) {
         // Directory is excluded, return 0 tokens
@@ -773,7 +712,6 @@ export class WorkspaceProvider
         const full_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(workspace_root, full_path)
 
-        // Skip excluded files/directories
         if (this.is_excluded(relative_path)) {
           continue
         }
@@ -809,7 +747,6 @@ export class WorkspaceProvider
         }
       }
 
-      // Cache the result
       this.directory_token_counts.set(dir_path, total_tokens)
 
       return total_tokens
@@ -907,7 +844,6 @@ export class WorkspaceProvider
         return []
       }
 
-      // Check if the directory itself is excluded by gitignore
       const relative_dir_path = path.relative(workspace_root, dir_path)
       if (
         dir_path !== workspace_root && // Don't exclude workspace roots
@@ -920,7 +856,6 @@ export class WorkspaceProvider
         withFileTypes: true
       })
 
-      // Sort directories above files and alphabetically with natural sort
       dir_entries.sort((a, b) => {
         const a_is_dir = a.isDirectory() || a.isSymbolicLink()
         const b_is_dir = b.isDirectory() || b.isSymbolicLink()
@@ -933,10 +868,8 @@ export class WorkspaceProvider
         const full_path = path.join(dir_path, entry.name)
         const relative_path = path.relative(workspace_root, full_path)
 
-        // Check if excluded by .gitignore or other rules
         const is_excluded = this.is_excluded(relative_path)
 
-        // Skip excluded files and directories completely
         if (is_excluded) {
           continue
         }
@@ -946,7 +879,6 @@ export class WorkspaceProvider
           this.ignored_extensions
         )
 
-        // Skip files with ignored extensions
         if (is_ignored_extension && !entry.isDirectory()) {
           continue
         }
@@ -966,14 +898,12 @@ export class WorkspaceProvider
           }
         }
 
-        // Skip broken symlinks
         if (is_broken_link) {
           continue
         }
 
         const key = full_path
 
-        // Check path against checked_items
         let checkbox_state = this.checked_items.get(key)
         if (checkbox_state === undefined) {
           const parent_path = path.dirname(full_path)
@@ -989,7 +919,6 @@ export class WorkspaceProvider
           }
         }
 
-        // Calculate token count
         const token_count = is_directory
           ? await this.calculate_directory_tokens(full_path)
           : await this.calculate_file_tokens(full_path)
@@ -1045,7 +974,6 @@ export class WorkspaceProvider
       await this.update_directory_check_state(key, state, false)
     }
 
-    // Update parent directories' states
     let dir_path = path.dirname(key)
     const workspace_root = this.get_workspace_root_for_file(key)
     while (workspace_root && dir_path.startsWith(workspace_root)) {
@@ -1064,7 +992,6 @@ export class WorkspaceProvider
       const workspace_root = this.get_workspace_root_for_file(dir_path)
       if (!workspace_root) return
 
-      // Check if the directory itself is excluded
       const relative_dir_path = path.relative(workspace_root, dir_path)
       if (this.is_excluded(relative_dir_path)) {
         // If directory is excluded, ensure it's unchecked
@@ -1089,7 +1016,6 @@ export class WorkspaceProvider
           this.ignored_extensions
         )
 
-        // Check if the child is excluded
         if (this.is_excluded(relative_path) || is_ignored_extension) {
           continue
         }
@@ -1156,7 +1082,6 @@ export class WorkspaceProvider
       const workspace_root = this.get_workspace_root_for_file(dir_path)
       if (!workspace_root) return
 
-      // Check if this directory itself is excluded
       const relative_dir_path = path.relative(workspace_root, dir_path)
       if (this.is_excluded(relative_dir_path) || parent_is_excluded) {
         // Don't recursively check excluded directories
@@ -1180,7 +1105,6 @@ export class WorkspaceProvider
           this.ignored_extensions
         )
 
-        // Skip excluded items
         if (this.is_excluded(relative_path) || is_ignored_extension) {
           continue
         }
@@ -1233,7 +1157,6 @@ export class WorkspaceProvider
   }
 
   public async set_checked_files(file_paths: string[]): Promise<void> {
-    // Clear existing checks
     this.checked_items.clear()
     this.partially_checked_dirs.clear()
     this.directory_selected_token_counts.clear()
@@ -1247,14 +1170,11 @@ export class WorkspaceProvider
       const workspace_root = this.get_workspace_root_for_file(file_path)
       if (!workspace_root) continue
 
-      // Skip files that are excluded by gitignore
       const relative_path = path.relative(workspace_root, file_path)
       if (this.is_excluded(relative_path)) continue
 
-      // Check if this is a directory
       const stats = fs.lstatSync(file_path)
       if (stats.isDirectory()) {
-        // For directories, recursively process contents
         this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
         await this.update_directory_check_state(
           file_path,
@@ -1262,7 +1182,6 @@ export class WorkspaceProvider
           false
         )
       } else {
-        // For files, just add them to the list
         all_files_to_check.push(file_path)
       }
     }
@@ -1272,7 +1191,6 @@ export class WorkspaceProvider
       this.checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
     }
 
-    // Update parent directories' checkbox states
     for (const file_path of [...file_paths, ...all_files_to_check]) {
       let dir_path = path.dirname(file_path)
       const workspace_root = this.get_workspace_root_for_file(file_path)
@@ -1345,18 +1263,15 @@ export class WorkspaceProvider
       return true
     }
 
-    // Use the ignore package to check if the path is ignored
     return this.combined_gitignore.ignores(relative_path)
   }
 
   private load_ignored_extensions() {
-    // Get additional extensions from config
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const additional_extensions = config
       .get<string[]>('ignoredExtensions', [])
       .map((ext) => ext.toLowerCase().replace(/^\./, ''))
 
-    // Combine hardcoded and configured extensions
     this.ignored_extensions = new Set([
       ...ignored_extensions,
       ...additional_extensions
@@ -1369,7 +1284,6 @@ export class WorkspaceProvider
   }
 
   public async check_all(): Promise<void> {
-    // Check all workspace roots
     for (const workspace_root of this.workspace_roots) {
       this.checked_items.set(
         workspace_root,
@@ -1378,10 +1292,8 @@ export class WorkspaceProvider
       this.partially_checked_dirs.delete(workspace_root)
       this.directory_selected_token_counts.delete(workspace_root)
 
-      // Get all files and directories in this workspace root
       const items = await this.get_files_and_directories(workspace_root)
 
-      // Check each top-level item and its children
       for (const item of items) {
         const key = item.resourceUri.fsPath
         this.checked_items.set(key, vscode.TreeItemCheckboxState.Checked)
@@ -1448,7 +1360,6 @@ export class FileItem extends vscode.TreeItem {
     this.tooltip = this.resourceUri.fsPath
     this.description = description
 
-    // Adjust icon based on directory/workspace root status
     if (this.isWorkspaceRoot) {
       this.iconPath = new vscode.ThemeIcon('root-folder')
       this.contextValue = 'workspaceRoot'
