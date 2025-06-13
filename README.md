@@ -47,15 +47,15 @@ A community-driven, **non-agentic** coding tool for **AI-assisted programming** 
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Context selection</span>
 
-Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is dramatically accelerating the pace a new code is created. For some it is too fast too keep up though. Over time, they lose confidence in their knowledge of the codebase they work on. Verifying AI-suggested changes becomes challenging, and bugs or unintended behaviors slip in more easily than ever.
+Coding agents are designed to offload the burden of relevant context selection from the programmer. With today's advancements in LLMs capabilities, the technology is dramatically accelerating the pace a new code is created. For some it is too fast too keep up though. Over time, they lose confidence in their understanding of the codebase they work on. Verifying AI-suggested changes can become challenging, making it easier for bugs or unintended behaviors to slip in.
 
 CWC does not prompt-engineer any form of autonomous AI assistance, instead, it expects programmer to be constantly in the loop with the evolving codebase by requiring careful context selection.
 
-This friction rewards in:
+The benefits of this friction include:
 
-- building mental model of the codebase,
-- zero idle time waiting for the AI to figure things out,
-- speed, quality and cost efficiency of AI-assistance.
+- developing a mental model of the codebase
+- eliminating idle time while waiting for the AI to figure things out,
+- improved speed, quality, and cost efficiency of AI assistance.
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Chatbot initialization</span>
 
