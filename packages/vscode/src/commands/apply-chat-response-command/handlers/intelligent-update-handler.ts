@@ -3,7 +3,7 @@ import axios, { CancelToken } from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
 import { make_api_request } from '../../../utils/make-api-request'
-import { cleanup_api_response } from '../../../helpers/cleanup-api-response'
+import { cleanup_api_response } from '../../../utils/cleanup-api-response'
 import { get_refactoring_instruction } from '../../../constants/instructions'
 import { ClipboardFile, parse_multiple_files } from '../utils/clipboard-parser'
 import {

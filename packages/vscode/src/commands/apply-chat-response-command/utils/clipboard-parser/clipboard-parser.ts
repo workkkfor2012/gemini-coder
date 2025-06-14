@@ -1,4 +1,4 @@
-import { cleanup_api_response } from '@/helpers/cleanup-api-response'
+import { cleanup_api_response } from '@/utils/cleanup-api-response'
 import { extract_path_from_line_of_code } from '@shared/utils/extract-path-from-line-of-code'
 import { DiffPatch, extract_diff_patches } from './extract-diff-patches'
 
