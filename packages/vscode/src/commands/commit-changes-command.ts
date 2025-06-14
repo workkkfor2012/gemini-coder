@@ -14,7 +14,7 @@ import {
   build_files_content,
   generate_commit_message_with_api,
   build_commit_message_prompt
-} from '../helpers/commit-message-generator'
+} from '../utils/commit-message-generator'
 
 export function commit_changes_command(context: vscode.ExtensionContext) {
   return vscode.commands.registerCommand(

@@ -12,7 +12,7 @@ import {
   build_files_content,
   generate_commit_message_with_api,
   build_commit_message_prompt
-} from '../helpers/commit-message-generator'
+} from '../utils/commit-message-generator'
 
 export function generate_commit_message_command(
   context: vscode.ExtensionContext

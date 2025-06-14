@@ -2,15 +2,15 @@ import * as vscode from 'vscode'
 import axios from 'axios'
 import * as path from 'path'
 import * as fs from 'fs'
-import { make_api_request } from '../utils/make-api-request'
-import { Logger } from '../utils/logger'
+import { make_api_request } from './make-api-request'
+import { Logger } from './logger'
 import { should_ignore_file } from '../context/utils/extension-utils'
 import { process_single_trailing_dot } from '@/utils/process-single-trailing-dot/process-single-trailing-dot'
 import { ApiProvidersManager } from '../services/api-providers-manager'
 import { ignored_extensions } from '@/context/constants/ignored-extensions'
 import { PROVIDERS } from '@shared/constants/providers'
 import { COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY } from '../constants/state-keys'
-import { GitRepository } from '../utils/git-repository-utils'
+import { GitRepository } from './git-repository-utils'
 
 export interface FileData {
   path: string
