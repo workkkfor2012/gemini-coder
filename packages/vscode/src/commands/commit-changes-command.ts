@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import { execSync } from 'child_process'
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 import {
   get_git_repository,
   prepare_staged_changes,

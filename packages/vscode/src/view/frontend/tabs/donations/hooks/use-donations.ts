@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 
 type Donation = {
   name: string

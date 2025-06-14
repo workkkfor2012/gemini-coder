@@ -10,7 +10,7 @@ import {
 } from '@/services/api-providers-manager'
 import { ModelFetcher } from '@/services/model-fetcher'
 import { PROVIDERS } from '@shared/constants/providers'
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 
 type SupportedTool = 'code-completions' | 'edit-context' | 'intelligent-update'
 

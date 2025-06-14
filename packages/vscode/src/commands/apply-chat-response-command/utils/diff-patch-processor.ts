@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 
 class SearchBlock {
   public search_lines: string[]

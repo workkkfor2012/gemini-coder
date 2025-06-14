@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { Logger } from '../helpers/logger'
+import { Logger } from '../utils/logger'
 import { ApiProvidersManager } from '../services/api-providers-manager'
 
 const MIGRATION_ID = 'api-tool-config-migration-170525'

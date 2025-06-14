@@ -1,4 +1,4 @@
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 
 export type DiffPatch = {
   file_path: string

@@ -8,7 +8,7 @@ import {
   LAST_CONTEXT_READ_LOCATION_STATE_KEY
 } from '../constants/state-keys'
 import { SavedContext } from '@/types/context'
-import { Logger } from '../helpers/logger'
+import { Logger } from '../utils/logger'
 
 async function resolve_glob_patterns(
   patterns: string[],

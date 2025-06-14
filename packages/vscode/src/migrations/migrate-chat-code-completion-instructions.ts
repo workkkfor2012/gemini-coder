@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { Logger } from '../helpers/logger'
+import { Logger } from '../utils/logger'
 
 const MIGRATION_ID = 'chat-code-completion-instructions-migration-20240625'
 const OLD_SETTING_KEY = 'codeWebChat.chatCodeCompletionInstructions'

@@ -10,7 +10,7 @@ import {
   sanitize_file_name,
   create_safe_path
 } from '../../../utils/path-sanitizer'
-import { Logger } from '../../../helpers/logger'
+import { Logger } from '../../../utils/logger'
 import { format_document } from '../utils/format-document'
 import { OriginalFileState } from '../../../types/common'
 import { create_file_if_needed } from '../utils/file-operations'

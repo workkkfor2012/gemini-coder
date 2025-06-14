@@ -5,7 +5,7 @@ import ignore from 'ignore'
 import { ignored_extensions } from '../constants/ignored-extensions'
 import { should_ignore_file } from '../utils/extension-utils'
 import { natural_sort } from '../../utils/natural-sort'
-import { Logger } from '@/helpers/logger'
+import { Logger } from '@/utils/logger'
 
 function format_token_count(count: number): string {
   return count >= 1000 ? `${Math.floor(count / 1000)}k` : `${count}`

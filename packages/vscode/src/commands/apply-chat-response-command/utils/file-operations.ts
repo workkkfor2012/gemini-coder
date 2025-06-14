@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import * as path from 'path'
 import * as fs from 'fs'
 import { create_safe_path } from '../../../utils/path-sanitizer'
-import { Logger } from '../../../helpers/logger'
+import { Logger } from '../../../utils/logger'
 import { format_document } from './format-document'
 import { OriginalFileState } from '../../../types/common'
 
