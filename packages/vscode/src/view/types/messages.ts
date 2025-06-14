@@ -138,7 +138,8 @@ export interface ShowQuickPickMessage extends BaseMessage {
   title: string
   items: {
     label: string
-    description: string
+    description?: string
+    detail?: string
     command: string
   }[]
 }

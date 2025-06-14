@@ -36,14 +36,14 @@ export const Home: React.FC<Props> = (props) => {
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
   const [active_file_length, set_active_file_length] = useState<number>(0)
+  const [home_view_type, set_home_view_type] = useState<HomeViewType>(
+    HOME_VIEW_TYPES.WEB
+  )
   const [web_mode, set_web_mode] = useState<WebMode>()
   const [api_mode, set_api_mode] = useState<ApiMode>()
   const [edit_format, set_edit_format] = useState<EditFormat>()
   const [edit_format_selector_visibility, set_edit_format_selector_visibility] =
     useState<'visible' | 'hidden'>('visible')
-  const [home_view_type, set_home_view_type] = useState<HomeViewType>(
-    HOME_VIEW_TYPES.WEB
-  )
 
   const is_in_code_completions_mode =
     (home_view_type == 'Web' && web_mode == 'code-completions') ||
@@ -330,10 +330,41 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_apply_copied_chat_response = () => {
+  const handle_quick_actions = () => {
     props.vscode.postMessage({
-      command: 'EXECUTE_COMMAND',
-      command_id: 'codeWebChat.applyChatResponse'
+      command: 'SHOW_QUICK_PICK',
+      title: 'Quick Actions',
+      items: [
+        ...(home_view_type == 'Web'
+          ? [
+              {
+                label: 'Apply chat response',
+                detail:
+                  'Integrate with the codebase an overall chat response or just a single code block',
+                command: 'codeWebChat.applyChatResponse'
+              },
+              {
+                label: 'Revert last changes',
+                detail: 'Undo last changes applied from a chat response',
+                command: 'codeWebChat.revert'
+              }
+            ]
+          : []),
+        ...(home_view_type == 'API'
+          ? [
+              {
+                label: 'Revert last changes',
+                detail: 'Undo last changes applied from an API response',
+                command: 'codeWebChat.revert'
+              }
+            ]
+          : []),
+        {
+          label: 'Commit changes',
+          detail: 'Generate commit message and create a commit',
+          command: 'codeWebChat.commitChanges'
+        }
+      ]
     } as WebviewMessage)
   }
 
@@ -436,7 +467,7 @@ export const Home: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
-      on_apply_copied_chat_response_click={handle_apply_copied_chat_response}
+      on_quick_actions_click={handle_quick_actions}
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
       chat_history={chat_history}

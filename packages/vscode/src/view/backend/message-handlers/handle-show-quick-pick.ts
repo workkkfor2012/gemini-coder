@@ -6,11 +6,13 @@ export const handle_show_quick_pick = async (
 ): Promise<void> => {
   const quick_pick_items = message.items.map((item) => ({
     label: item.label,
-    description: item.description
+    description: item.description,
+    detail: item.detail
   }))
 
   const selected_item = await vscode.window.showQuickPick(quick_pick_items, {
-    placeHolder: message.title
+    placeHolder: message.title,
+    matchOnDescription: true
   })
 
   if (selected_item) {

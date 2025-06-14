@@ -17,7 +17,7 @@ type Props = {
   initialize_chats: (params: { prompt: string; preset_names: string[] }) => void
   copy_to_clipboard: (instruction: string) => void
   on_create_preset: () => void
-  on_apply_copied_chat_response_click: () => void
+  on_quick_actions_click: () => void
   on_at_sign_click: () => void
   is_connected: boolean
   presets: Preset[]
@@ -174,16 +174,11 @@ export const HomeView: React.FC<Props> = (props) => {
           title="Initialize web chats hands-free or update files right away"
         />
 
-        {props.home_view_type == HOME_VIEW_TYPES.WEB && (
-          <div className={styles.top__right}>
-            <UiTextButton
-              on_click={props.on_apply_copied_chat_response_click}
-              title="To use this smart tool, copy an overall chat response or just a single code block"
-            >
-              Apply chat response from clipboard
-            </UiTextButton>
-          </div>
-        )}
+        <div className={styles.top__right}>
+          <UiTextButton on_click={props.on_quick_actions_click}>
+            Quick actions
+          </UiTextButton>
+        </div>
       </div>
 
       <UiSeparator size="small" />
@@ -238,7 +233,7 @@ export const HomeView: React.FC<Props> = (props) => {
             optional_suggestions: 'Optional suggestions',
             send_request: 'Send request',
             autocomplete: 'Autocomplete',
-            initialize_chat: 'Initialize',
+            initialize_chat: 'Initialize chat',
             select_preset: 'Select preset',
             select_config: 'Select config',
             code_completions_mode_unavailable_with_text_selection:
@@ -283,7 +278,8 @@ export const HomeView: React.FC<Props> = (props) => {
             {
               value: 'edit',
               label: 'Edit',
-              title: 'Modify and create files based on natural language instructions'
+              title:
+                'Modify and create files based on natural language instructions'
             },
             {
               value: 'code-completions',
