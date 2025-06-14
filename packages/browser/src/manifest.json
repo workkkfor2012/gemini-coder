@@ -4,7 +4,7 @@
   "name": "Code Web Chat Connector",
   "short_name": "CWC",
   "description": "Initialize popular chatbots and apply responses with a single click.",
-  "version": "1.3.1",
+  "version": "1.4.0",
   "homepage_url": "https://github.com/robertpiosik/CodeWebChat",
   "icons": {
     "16": "icons/icon-16.png",
