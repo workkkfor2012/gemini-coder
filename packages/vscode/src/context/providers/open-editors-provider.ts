@@ -19,7 +19,7 @@ export class OpenEditorsProvider
 
   private _workspace_roots: string[] = []
   private _checked_items: Map<string, vscode.TreeItemCheckboxState> = new Map()
-  private _file_token_counts: Map<string, number> = new Map() // Cache token counts
+  private _file_token_counts: Map<string, number> = new Map()
   private _tab_change_handler: vscode.Disposable
   private _file_change_watcher: vscode.Disposable
   private _ignored_extensions: Set<string> = new Set()
@@ -81,7 +81,7 @@ export class OpenEditorsProvider
     setTimeout(() => {
       this._initialized = true
       this._on_did_change_tree_data.fire()
-    }, 500) // Small delay to ensure VS Code has loaded all editors
+    }, 500)
   }
 
   private _is_file_in_any_workspace(file_path: string): boolean {
@@ -186,7 +186,6 @@ export class OpenEditorsProvider
   }
 
   private _is_file_checked_in_workspace(file_path: string): boolean {
-    // Get checked files from workspace provider through SharedFileState
     const workspace_checked_files = this._shared_state.get_checked_files()
     return workspace_checked_files.includes(file_path)
   }
@@ -205,15 +204,11 @@ export class OpenEditorsProvider
 
     keys_to_delete.forEach((key) => {
       this._checked_items.delete(key)
-      // Also remove from workspace view tracking
       this._opened_from_workspace_view.delete(key)
-      // Remove from non-preview files tracking
       this._non_preview_files.delete(key)
-      // Remove from preview tabs tracking
       this._preview_tabs.delete(key)
     })
 
-    // Clear token count for closed files
     keys_to_delete.forEach((key) => {
       this._file_token_counts.delete(key)
     })
@@ -277,7 +272,6 @@ export class OpenEditorsProvider
     return Array.from(open_files_map.values())
   }
 
-  // Modified to check all workspace roots and add workspace folder name to description
   async create_open_editor_items(): Promise<FileItem[]> {
     const items: FileItem[] = []
     const open_files = this._get_open_editors()
@@ -298,7 +292,6 @@ export class OpenEditorsProvider
       let checkbox_state = this._checked_items.get(file_path)
 
       if (checkbox_state === undefined) {
-        // Check if the file is checked in the workspace view
         const is_checked_in_workspace =
           this._is_file_checked_in_workspace(file_path)
 
@@ -334,11 +327,11 @@ export class OpenEditorsProvider
         file_name,
         file_uri,
         vscode.TreeItemCollapsibleState.None,
-        false, // not a directory
+        false,
         checkbox_state,
         false, // isGitIgnored is now irrelevant as we're skipping ignored files
-        false, // not a symlink
-        true, // is an open file
+        false,
+        true,
         token_count,
         undefined, // selectedTokenCount is undefined for open editor files
         description
@@ -350,7 +343,6 @@ export class OpenEditorsProvider
     return items
   }
 
-  // Modified helper method to open a file in non-preview mode without pinning
   private async _open_file_in_non_preview_mode(uri: vscode.Uri): Promise<void> {
     const file_path = uri.fsPath
 
@@ -359,7 +351,6 @@ export class OpenEditorsProvider
       return
     }
 
-    // Mark that we've tried to open this file in non-preview mode
     this._non_preview_files.add(file_path)
 
     try {
@@ -372,7 +363,6 @@ export class OpenEditorsProvider
     }
   }
 
-  // Modified updateCheckState method to handle preview mode conversion
   async update_check_state(
     item: FileItem,
     state: vscode.TreeItemCheckboxState
