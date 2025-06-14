@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../utils/files-collector'
 
 // Core function that contains the shared logic
 async function perform_fim_completion_to_clipboard(

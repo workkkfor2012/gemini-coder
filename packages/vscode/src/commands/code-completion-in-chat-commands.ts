@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../utils/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 
 async function handle_code_completion_in_chat_command(

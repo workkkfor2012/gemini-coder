@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { ViewProvider } from '@/view/backend/view-provider'
 import { PreviewPresetMessage } from '@/view/types/messages'
-import { FilesCollector } from '@/helpers/files-collector'
+import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 
 export const handle_preview_preset = async (

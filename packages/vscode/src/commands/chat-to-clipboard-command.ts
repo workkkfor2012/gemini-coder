@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../utils/files-collector'
 import { EditFormat } from '@shared/types/edit-format'
 
 export function chat_to_clipboard_command(

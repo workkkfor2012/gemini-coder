@@ -1,5 +1,5 @@
 import * as vscode from 'vscode'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../utils/files-collector'
 import { Logger } from '../utils/logger'
 import { ApiProvidersManager } from '../services/api-providers-manager'
 import { make_api_request } from '../utils/make-api-request'

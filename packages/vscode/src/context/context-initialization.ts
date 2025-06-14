@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { WorkspaceProvider } from './providers/workspace-provider'
 import { FileItem } from './providers/workspace-provider'
-import { FilesCollector } from '../helpers/files-collector'
+import { FilesCollector } from '../utils/files-collector'
 import { OpenEditorsProvider } from './providers/open-editors-provider'
 import { WebsitesProvider, WebsiteItem } from './providers/websites-provider'
 import { SharedFileState } from './shared-file-state'
