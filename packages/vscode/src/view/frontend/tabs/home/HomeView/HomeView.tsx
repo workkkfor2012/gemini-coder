@@ -238,7 +238,7 @@ export const HomeView: React.FC<Props> = (props) => {
             optional_suggestions: 'Optional suggestions',
             send_request: 'Send request',
             autocomplete: 'Autocomplete',
-            initialize: 'Initialize',
+            initialize_chat: 'Initialize',
             select_preset: 'Select preset',
             select_config: 'Select config',
             code_completions_mode_unavailable_with_text_selection:

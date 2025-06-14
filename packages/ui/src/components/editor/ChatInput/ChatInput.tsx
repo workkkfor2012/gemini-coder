@@ -26,7 +26,7 @@ type Props = {
     optional_suggestions: string
     send_request: string
     autocomplete: string
-    initialize: string
+    initialize_chat: string
     select_preset: string
     select_config: string
     code_completions_mode_unavailable_with_text_selection: string
@@ -368,7 +368,7 @@ export const ChatInput: React.FC<Props> = (props) => {
                 (!props.is_in_code_completions_mode && !props.value)
                   ? props.submit_disabled_title
                   : props.is_web_mode
-                  ? props.translations.initialize
+                  ? props.translations.initialize_chat
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
                   : props.translations.send_request
@@ -377,7 +377,7 @@ export const ChatInput: React.FC<Props> = (props) => {
               <Icon variant="ENTER" />
               <span>
                 {props.is_web_mode
-                  ? props.translations.initialize
+                  ? props.translations.initialize_chat
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
                   : props.translations.send_request}
