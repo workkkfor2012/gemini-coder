@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../utils/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
-import { apply_preset_affixes_to_instruction } from '../helpers/apply-preset-affixes'
+import { apply_preset_affixes_to_instruction } from '../utils/apply-preset-affixes'
 import { EditFormat } from '@shared/types/edit-format'
 
 async function handle_chat_command(

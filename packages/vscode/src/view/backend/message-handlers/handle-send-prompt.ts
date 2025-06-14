@@ -2,7 +2,7 @@ import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
-import { apply_preset_affixes_to_instruction } from '@/helpers/apply-preset-affixes'
+import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 
 export const handle_send_prompt = async (
