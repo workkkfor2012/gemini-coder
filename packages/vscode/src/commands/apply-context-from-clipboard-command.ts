@@ -3,7 +3,7 @@ import * as path from 'path'
 import * as fs from 'fs'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
 import { Logger } from '../utils/logger'
-import { extract_paths_from_text } from '../helpers/path-parser'
+import { extract_paths_from_text } from '../utils/path-parser'
 
 export function apply_context_from_clipboard_command(
   workspace_provider: WorkspaceProvider | undefined
