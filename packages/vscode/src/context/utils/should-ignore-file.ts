@@ -2,7 +2,7 @@
  * Utility to extract all possible extension variations from a file path
  * For example, "file.scss.d.ts" would return ["ts", "d.ts", "scss.d.ts"]
  */
-function extract_extension_variations(file_path: string): string[] {
+export function extract_extension_variations(file_path: string): string[] {
   const filename = file_path.split(/[\\/]/).pop() || ''
   const parts = filename.split('.')
 

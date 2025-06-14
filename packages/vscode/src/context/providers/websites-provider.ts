@@ -24,16 +24,12 @@ export class WebsiteItem extends vscode.TreeItem {
     this.tooltip = `${title} - About ${formatted_token_count} tokens`
     this.description = formatted_token_count
 
-    // Set icon based on favicon if available, otherwise use generic icon
     if (favicon) {
-      // Create a proper Uri from the data URI
       this.iconPath = vscode.Uri.parse(favicon)
     } else {
-      // Use generic web icon
       this.iconPath = new vscode.ThemeIcon('globe')
     }
 
-    // Add command to preview website content
     this.command = {
       command: 'codeWebChat.previewWebsite',
       title: 'Preview Website Content',
@@ -44,7 +40,6 @@ export class WebsiteItem extends vscode.TreeItem {
   }
 }
 
-// Message item for empty state
 export class EmptyMessageItem extends vscode.TreeItem {
   constructor() {
     super(
@@ -76,12 +71,9 @@ export class WebsitesProvider
 
   constructor() {}
 
-  // Update websites from WebSocket message
   update_websites(websites: Website[]): void {
-    // Create a set of URLs in the new list of websites
     const new_website_urls = new Set(websites.map((website) => website.url))
 
-    // Remove checkbox states for websites that are no longer in the list
     for (const url of this._checked_websites.keys()) {
       if (!new_website_urls.has(url)) {
         this._checked_websites.delete(url)
@@ -90,16 +82,14 @@ export class WebsitesProvider
 
     this._websites = websites
     this._onDidChangeTreeData.fire()
-    this._onDidChangeCheckedWebsites.fire() // Notify about potential checkbox changes
+    this._onDidChangeCheckedWebsites.fire()
   }
 
-  // TreeDataProvider implementation
   getTreeItem(element: WebsiteItem | EmptyMessageItem): vscode.TreeItem {
     if (element instanceof EmptyMessageItem) {
       return element
     }
 
-    // Get the checkbox state or default to unchecked
     const checkbox_state =
       this._checked_websites.get(element.url) ??
       vscode.TreeItemCheckboxState.Unchecked
@@ -153,7 +143,6 @@ export class WebsitesProvider
     this._onDidChangeTreeData.fire()
   }
 
-  // Dispose of event emitters
   dispose(): void {
     this._onDidChangeTreeData.dispose()
     this._onDidChangeCheckedWebsites.dispose()
