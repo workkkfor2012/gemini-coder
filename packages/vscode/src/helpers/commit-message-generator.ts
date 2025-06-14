@@ -10,7 +10,7 @@ import { ApiProvidersManager } from '../services/api-providers-manager'
 import { ignored_extensions } from '@/context/constants/ignored-extensions'
 import { PROVIDERS } from '@shared/constants/providers'
 import { COMMIT_MESSAGES_CONFIRMATION_THRESHOLD_STATE_KEY } from '../constants/state-keys'
-import { GitRepository } from './git-repository-utils'
+import { GitRepository } from '../utils/git-repository-utils'
 
 export interface FileData {
   path: string

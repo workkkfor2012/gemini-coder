@@ -3,7 +3,7 @@ import { Logger } from '@/utils/logger'
 import {
   get_git_repository,
   prepare_staged_changes
-} from '../helpers/git-repository-utils'
+} from '../utils/git-repository-utils'
 import {
   get_commit_message_config,
   get_ignored_extensions,
