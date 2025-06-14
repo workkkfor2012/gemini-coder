@@ -147,8 +147,6 @@ export const openrouter: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'OpenRouter' })
-
       const chat_turn = params.footer.closest('.duration-200') as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('code')
       let has_eligible_block = false
@@ -205,6 +203,8 @@ export const openrouter: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'OpenRouter' })
 
         const all_footers = document.querySelectorAll(
           '.items-start.gap-2.flex-col.flex.group + div'

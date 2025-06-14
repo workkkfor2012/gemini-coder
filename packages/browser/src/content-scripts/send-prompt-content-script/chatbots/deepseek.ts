@@ -108,10 +108,6 @@ export const deepseek: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({
-        chatbot_name: 'DeepSeek'
-      })
-
       const chat_turn =
         params.footer.parentElement?.parentElement?.querySelector(
           '.ds-markdown'
@@ -169,6 +165,10 @@ export const deepseek: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({
+          chatbot_name: 'DeepSeek'
+        })
 
         const all_footers = document.querySelectorAll(
           '.ds-flex[style="align-items: center; gap: 16px;"]'

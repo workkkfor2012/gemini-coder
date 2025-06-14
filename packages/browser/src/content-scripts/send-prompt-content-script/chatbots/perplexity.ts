@@ -25,8 +25,6 @@ export const perplexity: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Perplexity' })
-
       const chat_turn = params.footer.closest(
         '.max-w-threadContentWidth'
       ) as HTMLElement
@@ -84,6 +82,8 @@ export const perplexity: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Perplexity' })
 
         const all_footers = document.querySelectorAll(
           '.max-w-threadContentWidth > .relative > div > div > div > div > div + div > div + div'

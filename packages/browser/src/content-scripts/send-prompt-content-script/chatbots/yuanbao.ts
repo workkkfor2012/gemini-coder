@@ -91,8 +91,6 @@ export const yuanbao: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Yuanbao' })
-
       const chat_turn = params.footer.closest(
         '.agent-chat__bubble__content'
       ) as HTMLElement
@@ -139,9 +137,9 @@ export const yuanbao: Chatbot = {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
-        if (document.querySelector('rect[x="7.71448"]')) {
-          return
-        }
+        if (document.querySelector('rect[x="7.71448"]')) return
+
+        show_response_ready_notification({ chatbot_name: 'Yuanbao' })
 
         const all_footers = document.querySelectorAll(
           '.agent-chat__toolbar__right'

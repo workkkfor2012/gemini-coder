@@ -160,8 +160,6 @@ export const qwen: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Qwen' })
-
       const chat_turn =
         params.footer.parentElement?.parentElement?.querySelector(
           '#response-content-container'
@@ -211,9 +209,9 @@ export const qwen: Chatbot = {
 
     const observer = new MutationObserver((mutations) => {
       mutations.forEach(() => {
-        if (document.querySelector('i.icon-StopIcon')) {
-          return
-        }
+        if (document.querySelector('i.icon-StopIcon')) return
+
+        show_response_ready_notification({ chatbot_name: 'Qwen' })
 
         const all_footers = document.querySelectorAll('.message-footer-buttons')
         all_footers.forEach((footer) => {

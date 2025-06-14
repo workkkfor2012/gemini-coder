@@ -25,8 +25,6 @@ export const huggingchat: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'HuggingChat' })
-
       const chat_turn = params.footer.closest(
         'div[data-message-role="assistant"]'
       ) as HTMLElement
@@ -78,6 +76,8 @@ export const huggingchat: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'HuggingChat' })
 
         const all_footers = document.querySelectorAll(
           'div[data-message-role="assistant"] > div:last-child'

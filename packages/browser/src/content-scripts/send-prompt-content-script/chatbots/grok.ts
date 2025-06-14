@@ -48,8 +48,6 @@ export const grok: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Grok' })
-
       const chat_turn = params.footer.closest('.items-start') as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('code')
       let has_eligible_block = false
@@ -101,6 +99,8 @@ export const grok: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Grok' })
 
         const all_footers = document.querySelectorAll(
           'div.items-start div.action-buttons > div'

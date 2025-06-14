@@ -151,8 +151,6 @@ export const ai_studio: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'AI Studio' })
-
       // Find the parent chat-turn-container
       const chat_turn = params.footer.closest('ms-chat-turn') as HTMLElement
 
@@ -224,6 +222,7 @@ export const ai_studio: Chatbot = {
           if (
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {
+            show_response_ready_notification({ chatbot_name: 'AI Studio' })
             add_buttons({
               footer
             })

@@ -11,6 +11,7 @@ import {
   apply_response_button_text,
   apply_response_button_title
 } from '../constants/copy'
+import { show_response_ready_notification } from '../utils/show-response-ready-notification'
 
 export const doubao: Chatbot = {
   wait_until_ready: async () => {
@@ -122,6 +123,8 @@ export const doubao: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Doubao' })
 
         const all_footers = document.querySelectorAll(
           'div[data-testid="message_action_bar"] > div > div > div'

@@ -34,8 +34,6 @@ export const claude: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Claude' })
-
       const chat_turn = params.footer.closest(
         'div[data-is-streaming="false"]'
       ) as HTMLElement
@@ -89,6 +87,8 @@ export const claude: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Claude' })
 
         const all_footers = document.querySelectorAll(
           'div[data-is-streaming="false"] > div:nth-child(2) > div > div'

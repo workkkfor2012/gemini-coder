@@ -38,8 +38,6 @@ export const mistral: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Mistral' })
-
       const chat_turn =
         params.footer.parentElement?.parentElement?.querySelector(
           '.prose'
@@ -95,6 +93,8 @@ export const mistral: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Mistral' })
 
         const all_footers = document.querySelectorAll(
           'div.group:nth-child(even) > div > div:last-child > div:last-child'

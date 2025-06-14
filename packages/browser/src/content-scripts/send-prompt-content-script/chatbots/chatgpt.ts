@@ -71,8 +71,6 @@ export const chatgpt: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'ChatGPT' })
-
       const chat_turn = params.footer.closest('.agent-turn') as HTMLElement
       const code_blocks = chat_turn.querySelectorAll('code')
       let has_eligible_block = false
@@ -120,6 +118,8 @@ export const chatgpt: Chatbot = {
         if (document.querySelector('button[data-testid="stop-button"]')) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'ChatGPT' })
 
         const all_footers = document.querySelectorAll(
           '.agent-turn > div > div:nth-of-type(2) > div'

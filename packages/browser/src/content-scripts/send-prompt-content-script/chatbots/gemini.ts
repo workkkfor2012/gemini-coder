@@ -84,8 +84,6 @@ export const gemini: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Gemini' })
-
       const chat_turn = params.footer.closest(
         'response-container'
       ) as HTMLElement
@@ -140,6 +138,8 @@ export const gemini: Chatbot = {
         if (document.querySelector('mat-icon[data-mat-icon-name="stop"]')) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Gemini' })
 
         const all_footers = document.querySelectorAll(
           'message-actions > div > div'

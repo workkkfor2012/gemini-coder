@@ -137,8 +137,6 @@ export const open_webui: Chatbot = {
 
       if (existing_apply_response_button) return
 
-      show_response_ready_notification({ chatbot_name: 'Open WebUI' })
-
       const chat_turn = params.footer.parentElement?.querySelector(
         '#response-content-container'
       ) as HTMLElement
@@ -194,6 +192,8 @@ export const open_webui: Chatbot = {
         ) {
           return
         }
+
+        show_response_ready_notification({ chatbot_name: 'Open WebUI' })
 
         const all_footers = document.querySelectorAll('.chat-assistant + div')
         all_footers.forEach((footer) => {
