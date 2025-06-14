@@ -333,7 +333,7 @@ export const Home: React.FC<Props> = (props) => {
   const handle_quick_actions = () => {
     props.vscode.postMessage({
       command: 'SHOW_QUICK_PICK',
-      title: 'Quick Actions',
+      title: 'Commands',
       items: [
         ...(home_view_type == 'Web'
           ? [
@@ -344,8 +344,8 @@ export const Home: React.FC<Props> = (props) => {
                 command: 'codeWebChat.applyChatResponse'
               },
               {
-                label: 'Revert last changes',
-                detail: 'Undo last changes applied from a chat response',
+                label: 'Revert Last Changes',
+                detail: 'Undo applied chat response',
                 command: 'codeWebChat.revert'
               }
             ]
@@ -353,14 +353,14 @@ export const Home: React.FC<Props> = (props) => {
         ...(home_view_type == 'API'
           ? [
               {
-                label: 'Revert last changes',
-                detail: 'Undo last changes applied from an API response',
+                label: 'Revert Last Changes',
+                detail: 'Undo API request',
                 command: 'codeWebChat.revert'
               }
             ]
           : []),
         {
-          label: 'Commit changes',
+          label: 'Commit Changes',
           detail: 'Generate commit message and create a commit',
           command: 'codeWebChat.commitChanges'
         }

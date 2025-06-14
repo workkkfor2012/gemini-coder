@@ -290,7 +290,7 @@
       },
       {
         "command": "codeWebChat.revert",
-        "title": "Revert Last Applied Chat Response",
+        "title": "Revert Last Changes",
         "category": "Code Web Chat"
       },
       {
