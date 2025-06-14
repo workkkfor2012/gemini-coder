@@ -1,7 +1,7 @@
 {
   "name": "gemini-coder",
   "displayName": "Code Web Chat (CWC)",
-  "description": "Initialize chatbots with your code and apply responses with a single click",
+  "description": "Initialize popular chatbots and apply responses with a single click",
   "version": "1.75.0",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
