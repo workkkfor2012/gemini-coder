@@ -354,7 +354,7 @@ export const Home: React.FC<Props> = (props) => {
           ? [
               {
                 label: 'Revert Last Changes',
-                detail: 'Undo API request',
+                detail: 'Undo the Edit Context API tool use',
                 command: 'codeWebChat.revert'
               }
             ]

@@ -24,7 +24,7 @@ type Props = {
   translations: {
     ask_anything: string
     optional_suggestions: string
-    send_request: string
+    edit_context: string
     autocomplete: string
     initialize_chat: string
     select_preset: string
@@ -371,7 +371,7 @@ export const ChatInput: React.FC<Props> = (props) => {
                   ? props.translations.initialize_chat
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
-                  : props.translations.send_request
+                  : props.translations.edit_context
               }
             >
               <Icon variant="ENTER" />
@@ -380,7 +380,7 @@ export const ChatInput: React.FC<Props> = (props) => {
                   ? props.translations.initialize_chat
                   : props.is_in_code_completions_mode
                   ? props.translations.autocomplete
-                  : props.translations.send_request}
+                  : props.translations.edit_context}
               </span>
             </button>
           </div>

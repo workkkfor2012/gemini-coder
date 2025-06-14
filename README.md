@@ -132,8 +132,8 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 ### Applying chat responses
 
-- `Code Web Chat: Apply Chat Response` - Integrate overall copied chat response or a single code block.
-- `Code Web Chat: Revert Last Applied Changes` - Revert the last applied changes.
+- `Code Web Chat: Apply Chat Response` - Integrate with the codebase copied overall chat response or a single code block.
+- `Code Web Chat: Revert Last Changes` - Revert last applied chat response or the Edit Context API tool use.
 
 ### Chat
 

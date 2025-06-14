@@ -7,7 +7,7 @@ export default {
 const translations = {
   ask_anything: 'Ask anything',
   optional_suggestions: 'Optional suggestions',
-  send_request: 'Send request',
+  edit_context: 'Send request',
   autocomplete: 'Autocomplete',
   initialize_chat: 'Initialize chat',
   select_preset: 'Select preset',
