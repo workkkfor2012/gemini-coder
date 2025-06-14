@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import axios, { AxiosResponse } from 'axios'
-import { Logger } from '../utils/logger'
+import { Logger } from './logger'
 
 type StreamCallback = (chunk: string) => void
 

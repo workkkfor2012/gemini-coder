@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 import axios from 'axios'
-import { make_api_request } from '../helpers/make-api-request'
+import { make_api_request } from '../utils/make-api-request'
 import { code_completion_instruction } from '../constants/instructions'
 import { FilesCollector } from '../helpers/files-collector'
 import { ApiProvidersManager } from '../services/api-providers-manager'
