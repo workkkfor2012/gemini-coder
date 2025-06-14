@@ -32,7 +32,7 @@ A community-driven, **non-agentic** coding tool for **AI-assisted programming** 
 **CWC is for you if:**
 
 - you're an experienced engineer working on a large codebase
-- you're a student or hobbyist who thrives on the intricate aspects of coding
+- you're a student or hobbyist on a budget
 - you love open source software! 🫶
 
 **See how simple it is to implement a feature with ChatGPT:**
