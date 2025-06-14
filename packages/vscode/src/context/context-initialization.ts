@@ -26,17 +26,14 @@ export function context_initialization(context: vscode.ExtensionContext): {
     return {}
   }
 
-  // Pass all workspace folders to the workspace provider
   workspace_provider = new WorkspaceProvider(workspace_folders as any)
 
-  // Use the first workspace folder for open editors provider
   const open_editors_provider = new OpenEditorsProvider(
     workspace_folders as any,
     workspace_provider
   )
   const websites_provider = new WebsitesProvider()
 
-  // Create websites tree view
   const websites_view = vscode.window.createTreeView(
     'codeWebChatViewWebsites',
     {
@@ -72,12 +69,9 @@ export function context_initialization(context: vscode.ExtensionContext): {
           : ''
       }
     }
-
-    // Emit the token count event for chat box
     token_count_emitter.emit('token-count-updated')
   }
 
-  // Handle checkbox state changes for websites
   websites_view.onDidChangeCheckboxState(async (e) => {
     for (const [item, state] of e.items) {
       await websites_provider!.update_check_state(item as WebsiteItem, state)
@@ -85,20 +79,16 @@ export function context_initialization(context: vscode.ExtensionContext): {
     update_activity_bar_badge_token_count()
   })
 
-  // Initialize shared state
   const shared_state = SharedFileState.get_instance()
   shared_state.set_providers(workspace_provider, open_editors_provider)
 
-  // Add shared state to disposables
   context.subscriptions.push({
     dispose: () => shared_state.dispose()
   })
 
-  // Function to register workspace tree view checkbox handlers
   const register_workspace_view_handlers = (
     view: vscode.TreeView<FileItem>
   ) => {
-    // Handle checkbox state changes asynchronously for file tree
     view.onDidChangeCheckboxState(async (e) => {
       for (const [item, state] of e.items) {
         await workspace_provider!.update_check_state(item, state)
@@ -111,13 +101,11 @@ export function context_initialization(context: vscode.ExtensionContext): {
     })
   }
 
-  // Create two separate tree views
   workspace_view = vscode.window.createTreeView('codeWebChatViewWorkspace', {
     treeDataProvider: workspace_provider,
     manageCheckboxStateManually: true
   })
 
-  // Register handlers for workspace view
   register_workspace_view_handlers(workspace_view)
 
   const open_editors_view = vscode.window.createTreeView(
@@ -128,7 +116,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
     }
   )
 
-  // Add providers and treeViews to ensure proper disposal
   context.subscriptions.push(
     workspace_provider,
     open_editors_provider,
@@ -136,7 +123,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
     open_editors_view
   )
 
-  // Register the commands
   context.subscriptions.push(
     vscode.commands.registerCommand('codeWebChat.copyContext', async () => {
       let context_text = ''
@@ -166,7 +152,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
       workspace_view.dispose()
       await new Promise((resolve) => setTimeout(resolve, 0))
 
-      // Recreate the tree view
       workspace_view = vscode.window.createTreeView(
         'codeWebChatViewWorkspace',
         {
@@ -175,10 +160,7 @@ export function context_initialization(context: vscode.ExtensionContext): {
         }
       )
 
-      // Re-register event handlers for the new view
       register_workspace_view_handlers(workspace_view)
-
-      // Add the new view to subscriptions
       context.subscriptions.push(workspace_view)
     }),
     vscode.commands.registerCommand('codeWebChat.clearChecks', () => {
@@ -211,7 +193,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
 
         const rendered_content = marked.parse(website.content)
 
-        // Create a simple HTML preview
         panel.webview.html = `
             <!DOCTYPE html>
             <html lang="en">
@@ -247,14 +228,12 @@ export function context_initialization(context: vscode.ExtensionContext): {
     )
   )
 
-  // Handle checkbox state changes asynchronously for open editors
   open_editors_view.onDidChangeCheckboxState(async (e) => {
     for (const [item, state] of e.items) {
       await open_editors_provider!.update_check_state(item, state)
     }
   })
 
-  // Subscribe to the onDidChangeCheckedFiles events from both providers
   context.subscriptions.push(
     workspace_provider.onDidChangeCheckedFiles(() => {
       update_activity_bar_badge_token_count()
@@ -262,7 +241,6 @@ export function context_initialization(context: vscode.ExtensionContext): {
     open_editors_provider.onDidChangeCheckedFiles(() => {
       update_activity_bar_badge_token_count()
     }),
-    // Also subscribe to websites provider changes
     websites_provider.onDidChangeCheckedWebsites(() => {
       update_activity_bar_badge_token_count()
     }),
@@ -276,11 +254,9 @@ export function context_initialization(context: vscode.ExtensionContext): {
   let tab_change_timeout: NodeJS.Timeout | null = null
   context.subscriptions.push(
     vscode.window.tabGroups.onDidChangeTabs(() => {
-      // Clear previous timeout if it exists
       if (tab_change_timeout) {
         clearTimeout(tab_change_timeout)
       }
-      // Set a new timeout to update after a short delay
       tab_change_timeout = setTimeout(() => {
         update_activity_bar_badge_token_count()
         tab_change_timeout = null
@@ -288,28 +264,17 @@ export function context_initialization(context: vscode.ExtensionContext): {
     })
   )
 
-  // Update when workspace folders change
   context.subscriptions.push(
     vscode.workspace.onDidChangeWorkspaceFolders(() => {
-      // Reinitialize the workspace provider with the new workspace folders
       if (vscode.workspace.workspaceFolders) {
-        // Create a new provider with the updated workspace folders
         const new_workspace_provider = new WorkspaceProvider(
           vscode.workspace.workspaceFolders as any
         )
 
-        // Transfer checked state if possible
         if (workspace_provider) {
-          // Get currently checked files to restore them after refresh
           const checked_files = workspace_provider.get_checked_files()
-
-          // Dispose the old provider
           workspace_provider.dispose()
-
-          // Replace with the new provider
           workspace_provider = new_workspace_provider
-
-          // Restore checked files state
           if (checked_files.length > 0) {
             workspace_provider.set_checked_files(checked_files)
           }
@@ -317,10 +282,8 @@ export function context_initialization(context: vscode.ExtensionContext): {
           workspace_provider = new_workspace_provider
         }
 
-        // Update the tree data provider
         const old_view = workspace_view
 
-        // Create a new tree view with the updated provider
         workspace_view = vscode.window.createTreeView(
           'codeWebChatViewWorkspace',
           {
@@ -329,35 +292,24 @@ export function context_initialization(context: vscode.ExtensionContext): {
           }
         )
 
-        // Re-register event handlers for the new view
         register_workspace_view_handlers(workspace_view)
-
-        // Dispose the old view
         old_view.dispose()
-
-        // Add the new view to subscriptions
         context.subscriptions.push(workspace_view)
 
-        // Update the shared file state
         if (open_editors_provider) {
           shared_state.set_providers(workspace_provider, open_editors_provider)
         }
-
-        // Update token count
         update_activity_bar_badge_token_count()
       }
     })
   )
 
-  // Fix for issue when the collapsed item has some of its children selected
   workspace_view.onDidCollapseElement(() => {
     workspace_provider!.refresh()
   })
 
-  // Set up event listener for when the open editors provider initializes
   context.subscriptions.push(
     open_editors_provider.onDidChangeTreeData(() => {
-      // Update the badge after the open editors provider refreshes
       if (open_editors_provider!.is_initialized()) {
         update_activity_bar_badge_token_count()
       }

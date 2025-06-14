@@ -4,7 +4,7 @@ import * as path from 'path'
 import { FileItem } from './workspace-provider'
 import { SharedFileState } from '../shared-file-state'
 import { ignored_extensions } from '../constants/ignored-extensions'
-import { should_ignore_file } from '../utils/extension-utils'
+import { should_ignore_file } from '../utils/should-ignore-file'
 import { WorkspaceProvider } from './workspace-provider'
 
 export class OpenEditorsProvider

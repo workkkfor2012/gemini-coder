@@ -2,7 +2,7 @@ import * as vscode from 'vscode'
 import * as fs from 'fs'
 import * as path from 'path'
 import { WorkspaceProvider } from '../context/providers/workspace-provider'
-import { should_ignore_file } from '../context/utils/extension-utils'
+import { should_ignore_file } from '../context/utils/should-ignore-file'
 import { ignored_extensions } from '../context/constants/ignored-extensions'
 import {
   SAVED_CONTEXTS_STATE_KEY,

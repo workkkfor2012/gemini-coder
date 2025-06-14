@@ -3,7 +3,7 @@ import * as fs from 'fs'
 import * as path from 'path'
 import ignore from 'ignore'
 import { ignored_extensions } from '../constants/ignored-extensions'
-import { should_ignore_file } from '../utils/extension-utils'
+import { should_ignore_file } from '../utils/should-ignore-file'
 import { natural_sort } from '../../utils/natural-sort'
 import { Logger } from '@/utils/logger'
 
