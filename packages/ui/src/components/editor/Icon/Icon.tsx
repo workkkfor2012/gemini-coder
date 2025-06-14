@@ -14,6 +14,7 @@ import Yuanbao from '../../../assets/icons/yuanbao.svg'
 import Doubao from '../../../assets/icons/doubao.svg'
 import Command from '../../../assets/icons/command.svg'
 import Enter from '../../../assets/icons/enter.svg'
+import Perplexity from '../../../assets/icons/perplexity.svg'
 
 export namespace Icon {
   export type Variant =
@@ -33,6 +34,7 @@ export namespace Icon {
     | 'DOUBAO'
     | 'COMMAND'
     | 'ENTER'
+    | 'PERPLEXITY'
 
   export type Props = {
     variant: Variant
@@ -90,6 +92,9 @@ export const Icon: React.FC<Icon.Props> = ({ variant }) => {
       break
     case 'ENTER':
       icon = <Enter />
+      break
+    case 'PERPLEXITY':
+      icon = <Perplexity />
       break
     default:
       // Handle cases where variant might not match any known icon

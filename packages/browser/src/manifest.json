@@ -36,6 +36,7 @@
         "https://chat.qwen.ai/",
         "https://yuanbao.tencent.com/chat*",
         "https://www.doubao.com/chat/",
+        "https://www.perplexity.ai/",
         "http://localhost/",
         "http://openwebui/"
       ],
