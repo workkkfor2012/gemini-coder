@@ -52,7 +52,7 @@ export const handle_show_quick_actions = async (
   }))
 
   quick_pick.items = quick_pick_items
-  quick_pick.placeholder = 'Commands'
+  quick_pick.placeholder = 'Select quick action'
   quick_pick.matchOnDescription = true
   quick_pick.matchOnDetail = true
 
