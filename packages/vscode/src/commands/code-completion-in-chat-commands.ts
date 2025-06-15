@@ -23,11 +23,11 @@ async function handle_code_completion_in_chat_command(
     return
   }
 
-  // Get optional suggestions from user
+  // Get Type suggestions from user
   const last_fim_prompt =
     context.workspaceState.get<string>('lastFimPrompt') || ''
   const suggestions = await vscode.window.showInputBox({
-    placeHolder: 'Enter optional suggestions',
+    placeHolder: 'Enter Type suggestions',
     prompt: 'e.g., "Avoid writing comments"',
     value: last_fim_prompt
   })

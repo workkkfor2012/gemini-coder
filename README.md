@@ -2,7 +2,7 @@
   <img src="https://raw.githubusercontent.com/robertpiosik/CodeWebChat/refs/heads/master/packages/vscode/media/logo.png" alt="logo" width="128" />
   <br />
   <h1>Code Web Chat</h1>
-  <strong>👉 Select context, ask anything and initialize chatbots hands-free!</strong>
+  <strong>👉 Select context, Type something and initialize chatbots hands-free!</strong>
   <br />
   <strong>👉 Apply chat responses in truncated, whole or diff edit formats</strong>
   <br />

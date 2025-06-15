@@ -14,7 +14,7 @@ export function chat_to_clipboard_command(
         context.workspaceState.get<string>('last-chat-prompt') || ''
 
       const input_box = vscode.window.createInputBox()
-      input_box.placeholder = 'Ask anything'
+      input_box.placeholder = 'Type something'
       input_box.value = last_chat_prompt
 
       input_box.onDidChangeValue(async (value) => {

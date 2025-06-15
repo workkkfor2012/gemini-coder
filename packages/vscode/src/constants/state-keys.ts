@@ -24,3 +24,5 @@ export const LAST_SELECTED_INTELLIGENT_UPDATE_CONFIG_INDEX_STATE_KEY =
   'lastSelectedIntelligentUpdateConfigIndex'
 export const LAST_SELECTED_PRESET_KEY = 'lastSelectedPreset'
 export const HOME_VIEW_TYPE_STATE_KEY = 'homeViewType'
+export const LAST_CHOSEN_COMMAND_BY_VIEW_TYPE_STATE_KEY =
+  'lastChosenCommandByViewType'

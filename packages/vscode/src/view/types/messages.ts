@@ -228,6 +228,10 @@ export interface SaveApiModeMessage extends BaseMessage {
   mode: ApiMode
 }
 
+export interface ShowQuickActionsMessage extends BaseMessage {
+  command: 'SHOW_QUICK_ACTIONS'
+}
+
 // Messages from extension to webview:
 export interface InstructionsMessage extends BaseMessage {
   command: 'INSTRUCTIONS'
@@ -427,6 +431,7 @@ export type WebviewMessage =
   | GetWebModeMessage
   | GetApiModeMessage
   | SaveApiModeMessage
+  | ShowQuickActionsMessage
 
 export type ExtensionMessage =
   | InstructionsMessage

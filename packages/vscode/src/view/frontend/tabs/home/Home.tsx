@@ -332,39 +332,7 @@ export const Home: React.FC<Props> = (props) => {
 
   const handle_quick_actions = () => {
     props.vscode.postMessage({
-      command: 'SHOW_QUICK_PICK',
-      title: 'Commands',
-      items: [
-        ...(home_view_type == 'Web'
-          ? [
-              {
-                label: 'Apply chat response',
-                detail:
-                  'Integrate with the codebase an overall chat response or just a single code block',
-                command: 'codeWebChat.applyChatResponse'
-              },
-              {
-                label: 'Revert Last Changes',
-                detail: 'Undo applied chat response',
-                command: 'codeWebChat.revert'
-              }
-            ]
-          : []),
-        ...(home_view_type == 'API'
-          ? [
-              {
-                label: 'Revert Last Changes',
-                detail: 'Undo the Edit Context API tool use',
-                command: 'codeWebChat.revert'
-              }
-            ]
-          : []),
-        {
-          label: 'Commit Changes',
-          detail: 'Generate commit message and create a commit',
-          command: 'codeWebChat.commitChanges'
-        }
-      ]
+      command: 'SHOW_QUICK_ACTIONS'
     } as WebviewMessage)
   }
 

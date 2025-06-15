@@ -229,8 +229,8 @@ export const HomeView: React.FC<Props> = (props) => {
           has_active_editor={props.has_active_editor}
           on_caret_position_change={props.on_caret_position_change}
           translations={{
-            ask_anything: 'Ask anything',
-            optional_suggestions: 'Optional suggestions',
+            type_something: 'Type something',
+            type_suggestions: 'Type suggestions',
             edit_context: 'Edit context',
             autocomplete: 'Autocomplete',
             initialize_chat: 'Initialize chat',

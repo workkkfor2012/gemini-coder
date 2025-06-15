@@ -5,8 +5,8 @@ export default {
 }
 
 const translations = {
-  ask_anything: 'Ask anything',
-  optional_suggestions: 'Optional suggestions',
+  type_something: 'Type something',
+  type_suggestions: 'Type suggestions',
   edit_context: 'Send request',
   autocomplete: 'Autocomplete',
   initialize_chat: 'Initialize chat',

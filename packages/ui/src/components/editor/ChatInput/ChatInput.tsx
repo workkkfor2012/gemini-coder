@@ -22,8 +22,8 @@ type Props = {
   is_web_mode: boolean
   on_at_sign_click: () => void
   translations: {
-    ask_anything: string
-    optional_suggestions: string
+    type_something: string
+    type_suggestions: string
     edit_context: string
     autocomplete: string
     initialize_chat: string
@@ -216,15 +216,15 @@ export const ChatInput: React.FC<Props> = (props) => {
 
     if (props.is_in_code_completions_mode) {
       if (active_history.length > 0 && is_history_enabled) {
-        return `${props.translations.optional_suggestions} (⇅ for history)`
+        return `${props.translations.type_suggestions} (⇅ for history)`
       } else {
-        return props.translations.optional_suggestions
+        return props.translations.type_suggestions
       }
     }
 
     return active_history.length > 0 && is_history_enabled
-      ? `${props.translations.ask_anything} (⇅ for history)`
-      : props.translations.ask_anything
+      ? `${props.translations.type_something} (⇅ for history)`
+      : props.translations.type_something
   }, [
     props.is_in_code_completions_mode,
     props.chat_history,
