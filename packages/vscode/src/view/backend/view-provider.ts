@@ -1,4 +1,5 @@
 import * as vscode from 'vscode'
+import * as path from 'path'
 import { WebSocketManager } from '@/services/websocket-manager'
 import {
   WebviewMessage,
@@ -6,7 +7,6 @@ import {
   PresetsMessage,
   TokenCountMessage,
   SelectionTextMessage,
-  ActiveFileInfoMessage,
   InstructionsMessage,
   CodeCompletionSuggestionsMessage,
   EditFormatSelectorVisibilityMessage
@@ -217,24 +217,15 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     )
     update_selection_text()
 
-    vscode.window.onDidChangeActiveTextEditor(() => {
-      this._update_active_file_info()
-    })
-
     vscode.workspace.onDidChangeTextDocument((event) => {
       if (
         vscode.window.activeTextEditor &&
         event.document === vscode.window.activeTextEditor.document
       ) {
-        this._update_active_file_info()
-
-        // Also recalculate token count when active file changes in FIM mode
         if (
-          ((this.home_view_type == 'Web' &&
+          (this.home_view_type == 'Web' &&
             this.web_mode == 'code-completions') ||
-            (this.home_view_type == 'API' &&
-              this.api_mode == 'code-completions')) &&
-          this._webview_view
+          (this.home_view_type == 'API' && this.api_mode == 'code-completions')
         ) {
           this.calculate_token_count()
         }
@@ -245,29 +236,49 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public calculate_token_count() {
     const active_editor = vscode.window.activeTextEditor
 
+    const is_code_completions_mode =
+      (this.home_view_type == 'Web' && this.web_mode == 'code-completions') ||
+      (this.home_view_type == 'API' && this.api_mode == 'code-completions')
+
     Promise.all([
-      this.workspace_provider.get_checked_files_token_count(),
+      this.workspace_provider.get_checked_files_token_count({
+        exclude_file_path:
+          is_code_completions_mode && active_editor
+            ? active_editor.document.uri.fsPath
+            : undefined
+      }),
       this.websites_provider.get_checked_websites_token_count()
     ])
       .then(([workspace_tokens, websites_tokens]) => {
         let current_token_count = workspace_tokens + websites_tokens
 
-        if (
-          active_editor &&
-          ((this.home_view_type == 'Web' &&
-            this.web_mode == 'code-completions') ||
-            (this.home_view_type == 'API' &&
-              this.api_mode == 'code-completions'))
-        ) {
+        if (active_editor && is_code_completions_mode) {
           const document = active_editor.document
           const text = document.getText()
-          const file_token_count = Math.floor(text.length / 4)
+          const file_path = document.uri.fsPath
+          const workspace_root =
+            this.workspace_provider.get_workspace_root_for_file(file_path)
+          let content_xml = ''
+
+          if (!workspace_root) {
+            content_xml = `<file path="${file_path}">\n<![CDATA[\n${text}\n]]>\n</file>\n`
+          } else {
+            const relative_path = path.relative(workspace_root, file_path)
+            if (this.workspace_provider.getWorkspaceRoots().length > 1) {
+              const workspace_name =
+                this.workspace_provider.get_workspace_name(workspace_root)
+              content_xml = `<file path="${workspace_name}/${relative_path}">\n<![CDATA[\n${text}\n]]>\n</file>\n`
+            } else {
+              content_xml = `<file path="${relative_path}">\n<![CDATA[\n${text}\n]]>\n</file>\n`
+            }
+          }
+          const file_token_count = Math.floor(content_xml.length / 4)
           current_token_count += file_token_count
         }
 
         this.send_message<TokenCountMessage>({
           command: 'TOKEN_COUNT_UPDATED',
-          tokenCount: current_token_count
+          token_count: current_token_count
         })
       })
       .catch((error) => {
@@ -277,7 +288,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         )
         this.send_message<TokenCountMessage>({
           command: 'TOKEN_COUNT_UPDATED',
-          tokenCount: 0
+          token_count: 0
         })
       })
   }
@@ -446,24 +457,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       visibility: initial_visibility
     })
 
-    this._update_active_file_info()
     this.send_presets_to_webview(webview_view.webview)
-  }
-
-  // Add this method to the ChatViewProvider class
-  private _update_active_file_info() {
-    if (!this._webview_view) return
-
-    const active_editor = vscode.window.activeTextEditor
-    if (active_editor) {
-      const document = active_editor.document
-      const text_length = document.getText().length
-
-      this.send_message<ActiveFileInfoMessage>({
-        command: 'ACTIVE_FILE_INFO_UPDATED',
-        fileLength: text_length
-      })
-    }
   }
 
   public send_presets_to_webview(_: vscode.Webview) {

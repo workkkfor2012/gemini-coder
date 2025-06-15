@@ -1314,12 +1314,21 @@ export class WorkspaceProvider
     this._on_did_change_checked_files.fire()
   }
 
-  public async get_checked_files_token_count(): Promise<number> {
+  public async get_checked_files_token_count(options?: {
+    exclude_file_path?: string
+  }): Promise<number> {
     const checked_files = this.get_checked_files()
     let total = 0
 
     for (const file_path of checked_files) {
       try {
+        if (
+          options?.exclude_file_path &&
+          file_path == options.exclude_file_path
+        ) {
+          continue
+        }
+
         if (fs.statSync(file_path).isFile()) {
           if (this.file_token_counts.has(file_path)) {
             total += this.file_token_counts.get(file_path)!

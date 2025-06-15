@@ -35,7 +35,6 @@ export const Home: React.FC<Props> = (props) => {
     useState<string[]>()
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
-  const [active_file_length, set_active_file_length] = useState<number>(0)
   const [home_view_type, set_home_view_type] = useState<HomeViewType>(
     HOME_VIEW_TYPES.WEB
   )
@@ -81,13 +80,10 @@ export const Home: React.FC<Props> = (props) => {
           set_chat_history_fim_mode(message.messages || [])
           break
         case 'TOKEN_COUNT_UPDATED':
-          set_token_count(message.tokenCount)
+          set_token_count(message.token_count)
           break
         case 'SELECTION_TEXT_UPDATED':
           set_selection_text(message.text)
-          break
-        case 'ACTIVE_FILE_INFO_UPDATED':
-          set_active_file_length(message.fileLength)
           break
         case 'PRESET_CREATED':
           props.on_preset_edit(message.preset)
@@ -442,7 +438,6 @@ export const Home: React.FC<Props> = (props) => {
       chat_history_fim_mode={chat_history_fim_mode}
       token_count={token_count}
       selection_text={selection_text}
-      active_file_length={active_file_length}
       web_mode={web_mode}
       api_mode={api_mode}
       on_web_mode_change={handle_web_mode_change}

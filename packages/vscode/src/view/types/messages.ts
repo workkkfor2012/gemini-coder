@@ -318,17 +318,12 @@ export interface FimChatHistoryMessage extends BaseMessage {
 
 export interface TokenCountMessage extends BaseMessage {
   command: 'TOKEN_COUNT_UPDATED'
-  tokenCount: number
+  token_count: number
 }
 
 export interface SelectionTextMessage extends BaseMessage {
   command: 'SELECTION_TEXT_UPDATED'
   text: string
-}
-
-export interface ActiveFileInfoMessage extends BaseMessage {
-  command: 'ACTIVE_FILE_INFO_UPDATED'
-  fileLength: number
 }
 
 export interface PresetCreatedMessage extends BaseMessage {
@@ -450,7 +445,6 @@ export type ExtensionMessage =
   | FimChatHistoryMessage
   | TokenCountMessage
   | SelectionTextMessage
-  | ActiveFileInfoMessage
   | PresetCreatedMessage
   | PresetUpdatedMessage
   | NewlyPickedOpenRouterModelMessage

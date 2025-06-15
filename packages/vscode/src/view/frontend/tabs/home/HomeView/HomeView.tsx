@@ -29,7 +29,6 @@ type Props = {
   chat_history_fim_mode: string[]
   token_count: number
   selection_text?: string
-  active_file_length?: number
   web_mode: WebMode
   api_mode: ApiMode
   on_web_mode_change: (mode: WebMode) => void
@@ -81,17 +80,15 @@ export const HomeView: React.FC<Props> = (props) => {
 
     estimated_tokens = Math.ceil(text.length / 4)
 
-    if (is_in_code_completions_mode && props.active_file_length) {
-      const file_tokens = Math.ceil(props.active_file_length / 4)
-      estimated_tokens += file_tokens
-    }
-
-    set_estimated_input_tokens(estimated_tokens)
+    set_estimated_input_tokens(props.token_count + estimated_tokens)
   }, [
     current_prompt,
+    props.home_view_type,
+    props.web_mode,
+    props.api_mode,
     props.has_active_selection,
     props.selection_text,
-    props.active_file_length
+    props.token_count
   ])
 
   const handle_input_change = (value: string) => {
@@ -153,8 +150,6 @@ export const HomeView: React.FC<Props> = (props) => {
       props.copy_to_clipboard(modified_instruction)
     }
   }
-
-  const total_token_count = props.token_count + estimated_input_tokens
 
   useEffect(() => {
     container_ref.current!.scrollTop = 0
@@ -218,7 +213,7 @@ export const HomeView: React.FC<Props> = (props) => {
           on_at_sign_click={props.on_at_sign_click}
           is_web_mode={props.home_view_type == HOME_VIEW_TYPES.WEB}
           is_connected={props.is_connected}
-          token_count={total_token_count}
+          token_count={estimated_input_tokens}
           submit_disabled_title={
             !props.is_connected
               ? 'WebSocket connection not established. Please install the browser extension.'
