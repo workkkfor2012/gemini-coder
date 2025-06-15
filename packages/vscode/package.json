@@ -712,6 +712,10 @@
               ]
             },
             {
+              "name": "Perplexity",
+              "chatbot": "Perplexity"
+            },
+            {
               "name": "DeepSeek",
               "chatbot": "DeepSeek"
             },
