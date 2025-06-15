@@ -143,6 +143,9 @@ export const Home: React.FC<Props> = (props) => {
       command: 'SAVE_WEB_MODE',
       mode: new_mode
     } as WebviewMessage)
+    props.vscode.postMessage({
+      command: 'GET_CURRENT_TOKEN_COUNT'
+    } as WebviewMessage)
   }
 
   const handle_api_mode_change = (new_mode: ApiMode) => {
@@ -150,6 +153,9 @@ export const Home: React.FC<Props> = (props) => {
     props.vscode.postMessage({
       command: 'SAVE_API_MODE',
       mode: new_mode
+    } as WebviewMessage)
+    props.vscode.postMessage({
+      command: 'GET_CURRENT_TOKEN_COUNT'
     } as WebviewMessage)
   }
 

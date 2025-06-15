@@ -282,6 +282,10 @@ export const ChatInput: React.FC<Props> = (props) => {
           autoFocus
           className={styles.textarea}
           minRows={2}
+          disabled={
+            props.is_in_code_completions_mode &&
+            (props.has_active_selection || !props.has_active_editor)
+          }
         />
         <div className={styles.footer}>
           <div className={styles.footer__left}>

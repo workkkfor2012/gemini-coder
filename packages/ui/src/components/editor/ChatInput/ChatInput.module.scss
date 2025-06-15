@@ -31,9 +31,8 @@
     }
 
     &--disabled {
-      opacity: var(--disabled-opacity);
+      opacity: 0.2;
       pointer-events: none;
-      filter: blur(1px);
     }
   }
 }

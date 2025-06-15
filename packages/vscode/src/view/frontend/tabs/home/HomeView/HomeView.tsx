@@ -79,13 +79,10 @@ export const HomeView: React.FC<Props> = (props) => {
     }
 
     estimated_tokens = Math.ceil(text.length / 4)
-
     set_estimated_input_tokens(props.token_count + estimated_tokens)
   }, [
     current_prompt,
     props.home_view_type,
-    props.web_mode,
-    props.api_mode,
     props.has_active_selection,
     props.selection_text,
     props.token_count
@@ -232,9 +229,9 @@ export const HomeView: React.FC<Props> = (props) => {
             select_preset: 'Select preset',
             select_config: 'Select config',
             code_completions_mode_unavailable_with_text_selection:
-              'Unavailable with text selection',
+              'Remove text selection',
             code_completions_mode_unavailable_without_active_editor:
-              'Unavailable without active editor'
+              'Open any file to proceed'
           }}
         />
       </div>
