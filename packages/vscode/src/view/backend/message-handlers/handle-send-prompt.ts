@@ -4,6 +4,7 @@ import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
+import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 
 export const handle_send_prompt = async (
   provider: ViewProvider,
@@ -79,6 +80,10 @@ export const handle_send_prompt = async (
       if (base_instructions.includes('@selection')) {
         base_instructions = replace_selection_placeholder(base_instructions)
       }
+    }
+
+    if (base_instructions.includes('@changes:')) {
+      base_instructions = await replace_changes_placeholder(base_instructions)
     }
 
     const context_text = await files_collector.collect_files({
@@ -177,7 +182,7 @@ async function validate_presets(params: {
             preset.model ? ` · ${preset.model}` : ''
           }`,
           index,
-          buttons,
+          buttons
         }
       })
 

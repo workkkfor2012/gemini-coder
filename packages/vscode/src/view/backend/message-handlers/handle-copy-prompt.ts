@@ -2,6 +2,7 @@ import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
+import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 
 export const handle_copy_prompt = async (
   provider: ViewProvider
@@ -13,11 +14,12 @@ export const handle_copy_prompt = async (
   )
 
   const active_editor = vscode.window.activeTextEditor
-  const current_instruction = provider.is_code_completions_mode
-    ? provider.code_completion_suggestions
-    : provider.instructions
+  const current_instruction =
+    provider.web_mode == 'code-completions'
+      ? provider.code_completion_suggestions
+      : provider.instructions
 
-  if (provider.is_code_completions_mode && active_editor) {
+  if (provider.web_mode == 'code-completions' && active_editor) {
     const document = active_editor.document
     const position = active_editor.selection.active
     const active_path = document.uri.fsPath
@@ -49,13 +51,17 @@ export const handle_copy_prompt = async (
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
     vscode.env.clipboard.writeText(text)
-  } else if (!provider.is_code_completions_mode) {
+  } else if (provider.web_mode != 'code-completions') {
     const active_path = active_editor?.document.uri.fsPath
     const context_text = await files_collector.collect_files({
       active_path
     })
 
     let instructions = replace_selection_placeholder(current_instruction)
+
+    if (instructions.includes('@changes:')) {
+      instructions = await replace_changes_placeholder(instructions)
+    }
 
     if (provider.web_mode == 'edit') {
       const config = vscode.workspace.getConfiguration('codeWebChat')

@@ -3,6 +3,7 @@ import { ViewProvider } from '@/view/backend/view-provider'
 import { PreviewPresetMessage } from '@/view/types/messages'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
+import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 
 export const handle_preview_preset = async (
   provider: ViewProvider,
@@ -20,11 +21,12 @@ export const handle_preview_preset = async (
   const active_path = active_editor?.document.uri.fsPath
 
   let text_to_send: string
-  const current_instructions = !provider.is_code_completions_mode
-    ? provider.instructions
-    : provider.code_completion_suggestions
+  const current_instructions =
+    provider.web_mode != 'code-completions'
+      ? provider.instructions
+      : provider.code_completion_suggestions
 
-  if (provider.is_code_completions_mode && active_editor) {
+  if (provider.web_mode == 'code-completions' && active_editor) {
     const document = active_editor.document
     const position = active_editor.selection.active
 
@@ -52,14 +54,17 @@ export const handle_preview_preset = async (
     }`
 
     text_to_send = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
-  } else if (!provider.is_code_completions_mode) {
+  } else if (provider.web_mode != 'code-completions') {
     const context_text = await files_collector.collect_files({
       active_path
     })
 
     let instructions = replace_selection_placeholder(current_instructions)
 
-    // Apply affixes from the PREVIEW preset, not default selected ones
+    if (instructions.includes('@changes:')) {
+      instructions = await replace_changes_placeholder(instructions)
+    }
+
     if (message.preset.prompt_prefix) {
       instructions = message.preset.prompt_prefix + '\n' + instructions
     }
