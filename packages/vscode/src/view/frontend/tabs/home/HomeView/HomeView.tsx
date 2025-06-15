@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect } from 'react'
 import styles from './HomeView.module.scss'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
@@ -56,7 +56,6 @@ type Props = {
 
 export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
-  const container_ref = useRef<HTMLDivElement>(null)
 
   const is_in_code_completions_mode =
     (props.home_view_type == 'Web' && props.web_mode == 'code-completions') ||
@@ -148,14 +147,9 @@ export const HomeView: React.FC<Props> = (props) => {
     }
   }
 
-  useEffect(() => {
-    container_ref.current!.scrollTop = 0
-  }, [props.is_visible])
-
   return (
     <div
       className={styles.container}
-      ref={container_ref}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       <div className={styles.top}>
