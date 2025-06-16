@@ -10,7 +10,11 @@
 .configure {
   display: flex;
   flex-direction: column;
-  gap: var(--padding-12px);
+  gap: var(--padding-6px);
+
+  > span {
+    font-size: 12px;
+  }
 }
 
 .api-tool {

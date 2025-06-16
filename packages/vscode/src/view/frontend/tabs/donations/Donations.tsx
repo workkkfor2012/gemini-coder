@@ -40,13 +40,15 @@ export const Donations: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      <span>Say something nice to the author...</span>
+      <div className={styles.button}>
+        <UiBuyMeACoffee username="robertpiosik" />
+        <span>
+          You can also send <a href="https://codeweb.chat/#donations">crypto</a>
+          . Thank you.
+        </span>
+      </div>
 
-      <UiSeparator size="large" />
-
-      <UiBuyMeACoffee username="robertpiosik" />
-
-      <UiSeparator size="large" />
+      <UiSeparator size={24} />
 
       {!is_initialized ? (
         <>Fetching recent donations...</>

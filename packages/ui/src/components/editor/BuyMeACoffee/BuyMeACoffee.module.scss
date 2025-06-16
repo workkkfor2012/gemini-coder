@@ -1,9 +1,7 @@
-.container {
+.button {
   display: flex;
   justify-content: center;
-}
-
-.button {
+  width: 100%;
   padding: var(--padding-6px) var(--padding-12px);
   border-radius: 999px;
   color: black;
@@ -11,7 +9,7 @@
   transition: all 0.15s ease-out;
 
   > svg {
-    width: 120px;
+    height: 21px;
   }
 
   &:hover {

@@ -65,16 +65,16 @@ export const Settings: React.FC<Props> = (props) => {
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       <div className={styles.configure}>
+        <UiButton on_click={handle_configure_api_providers_click}>
+          Configure API Providers
+        </UiButton>
         <span>
-          CWC includes battle-tested must-have API tools. API keys are&nbsp;
+          API keys are&nbsp;
           <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
             stored encrypted
           </a>
           .
         </span>
-        <UiButton on_click={handle_configure_api_providers_click}>
-          Configure API Providers
-        </UiButton>
       </div>
 
       {render_api_tool_settings({

@@ -8,14 +8,12 @@ type Props = {
 
 export const BuyMeACoffee: React.FC<Props> = (props) => {
   return (
-    <div className={styles.container}>
-      <a
-        href={`https://buymeacoffee.com/${props.username}`}
-        className={styles.button}
-        title="Buy me a coffee"
-      >
-        <Icon variant="BUY_ME_A_COFFEE" />
-      </a>
-    </div>
+    <a
+      href={`https://buymeacoffee.com/${props.username}`}
+      className={styles.button}
+      title="Buy me a coffee"
+    >
+      <Icon variant="BUY_ME_A_COFFEE" />
+    </a>
   )
 }

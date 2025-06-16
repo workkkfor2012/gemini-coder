@@ -3,7 +3,7 @@ import cn from 'classnames'
 
 export namespace Separator {
   export type Props = {
-    size: 'small' | 'medium' | 'large'
+    size: 'small' | 'medium' | 'large' | 24
   }
 }
 
@@ -13,7 +13,8 @@ export const Separator: React.FC<Separator.Props> = (props) => {
       className={cn(styles.separator, {
         [styles['separator--small']]: props.size == 'small',
         [styles['separator--medium']]: props.size == 'medium',
-        [styles['separator--large']]: props.size == 'large'
+        [styles['separator--large']]: props.size == 'large',
+        [styles['separator--24']]: props.size == 24
       })}
     />
   )
