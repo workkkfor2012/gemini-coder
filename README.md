@@ -22,7 +22,7 @@ A community-driven, **non-agentic** coding tool for **AI-assisted programming** 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
 ✌️ 100% free and open source!
 
-**Guiding Principles:**
+**Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
 - API tools—battle-tested must-haves
