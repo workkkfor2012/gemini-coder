@@ -1082,6 +1082,8 @@ export class WorkspaceProvider
       const workspace_root = this.get_workspace_root_for_file(dir_path)
       if (!workspace_root) return
 
+      this.directory_selected_token_counts.delete(dir_path)
+
       const relative_dir_path = path.relative(workspace_root, dir_path)
       if (this.is_excluded(relative_dir_path) || parent_is_excluded) {
         // Don't recursively check excluded directories
