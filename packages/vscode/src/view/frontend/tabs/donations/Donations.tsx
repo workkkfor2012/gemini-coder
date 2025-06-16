@@ -40,11 +40,7 @@ export const Donations: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      <span>
-        {
-          'CWC is a work of an independent developer aimed at making cost effective, top-accuracy AI coding tools freely available to everyone.'
-        }
-      </span>
+      <span>Say something nice to the author...</span>
 
       <UiSeparator size="large" />
 
