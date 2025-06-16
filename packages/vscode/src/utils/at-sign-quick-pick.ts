@@ -14,7 +14,8 @@ export async function at_sign_quick_pick(): Promise<string | undefined> {
   ]
 
   const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select symbol to insert'
+    placeHolder: 'Select symbol to insert',
+    matchOnDescription: true
   })
 
   if (!selected) {

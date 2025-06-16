@@ -64,7 +64,8 @@ export const ChatInput: React.FC<Props> = (props) => {
       return <span>{text}</span>
     }
 
-    const parts = text.split(/(@selection)/g)
+    const regex = /(@selection|@changes:\S+(?:\/\S+)?)/g
+    const parts = text.split(regex)
     return parts.map((part, index) => {
       if (part == '@selection') {
         const is_clickable = !!props.on_at_sign_click
@@ -87,6 +88,13 @@ export const ChatInput: React.FC<Props> = (props) => {
                 : undefined
             }
           >
+            {part}
+          </span>
+        )
+      }
+      if (part && part.startsWith('@changes:')) {
+        return (
+          <span key={index} className={styles['selection-keyword']}>
             {part}
           </span>
         )
