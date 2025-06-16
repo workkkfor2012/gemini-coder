@@ -13,23 +13,14 @@ export const handle_show_quick_actions = async (
             detail:
               'Integrate with the codebase an overall chat response or just a single code block',
             command: 'codeWebChat.applyChatResponse'
-          },
-          {
-            label: 'Revert Last Changes',
-            detail: 'Undo applied chat response',
-            command: 'codeWebChat.revert'
           }
         ]
       : []),
-    ...(provider.home_view_type == 'API'
-      ? [
-          {
-            label: 'Revert Last Changes',
-            detail: 'Undo the Edit Context API tool use',
-            command: 'codeWebChat.revert'
-          }
-        ]
-      : []),
+    {
+      label: 'Revert Last Changes',
+      detail: 'Restore saved state of the codebase',
+      command: 'codeWebChat.revert'
+    },
     {
       label: 'Commit Changes',
       detail: 'Generate commit message and create a commit',
