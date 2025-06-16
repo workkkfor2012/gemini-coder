@@ -5,7 +5,7 @@ import { replace_selection_placeholder } from '../utils/replace-selection-placeh
 import { apply_preset_affixes_to_instruction } from '../utils/apply-preset-affixes'
 import { EditFormat } from '@shared/types/edit-format'
 import { replace_changes_placeholder } from '../utils/replace-changes-placeholder'
-import { execSync } from 'child_process'
+import { at_sign_quick_pick } from '../utils/at-sign-quick-pick'
 
 async function handle_at_sign_in_chat_input(
   input_box: vscode.InputBox,
@@ -13,133 +13,26 @@ async function handle_at_sign_in_chat_input(
   cursor_position: number,
   context: vscode.ExtensionContext
 ): Promise<string | undefined> {
-  const items = [
-    {
-      label: '@selection',
-      description: 'Inject text selection of the active editor'
-    },
-    {
-      label: '@changes',
-      description: 'Inject changes between current branch and selected branch'
-    }
-  ]
+  const replacement = await at_sign_quick_pick()
 
-  const selected = await vscode.window.showQuickPick(items, {
-    placeHolder: 'Select symbol to insert'
-  })
-
-  if (!selected) {
+  if (!replacement) {
     input_box.show()
+    input_box.valueSelection = [cursor_position, cursor_position]
     return current_value
   }
 
-  if (selected.label == '@selection') {
-    const is_after_at_sign = current_value
-      .slice(0, cursor_position)
-      .endsWith('@')
-    const text_to_insert = is_after_at_sign ? 'selection ' : '@selection '
-    const new_value =
-      current_value.slice(0, cursor_position) +
-      text_to_insert +
-      current_value.slice(cursor_position)
+  const is_after_at_sign = current_value.slice(0, cursor_position).endsWith('@')
+  const text_to_insert = is_after_at_sign ? replacement : `@${replacement}`
 
-    await context.workspaceState.update('last-chat-prompt', new_value)
+  const new_value =
+    current_value.slice(0, cursor_position) +
+    text_to_insert +
+    current_value.slice(cursor_position)
 
-    input_box.show()
-    return new_value
-  } else if (selected.label == '@changes') {
-    try {
-      const workspace_folders = vscode.workspace.workspaceFolders
-      if (!workspace_folders || workspace_folders.length === 0) {
-        vscode.window.showErrorMessage('No workspace folders found')
-        input_box.show()
-        return current_value
-      }
-
-      const all_branches = new Set<string>()
-      const workspace_with_branches: Array<{
-        folder: vscode.WorkspaceFolder
-        branches: string[]
-      }> = []
-
-      for (const folder of workspace_folders) {
-        try {
-          const branches = execSync('git branch --sort=-committerdate', {
-            encoding: 'utf-8',
-            cwd: folder.uri.fsPath
-          })
-            .split('\n')
-            .map((b) => b.trim().replace(/^\* /, ''))
-            .filter((b) => b.length > 0)
-
-          if (branches.length > 0) {
-            workspace_with_branches.push({ folder, branches })
-            branches.forEach((branch) => all_branches.add(branch))
-          }
-        } catch (error) {
-          console.log(`Skipping ${folder.name}: not a Git repository`)
-        }
-      }
-
-      if (all_branches.size === 0) {
-        vscode.window.showErrorMessage(
-          'No Git branches found in any workspace folder'
-        )
-        input_box.show()
-        return current_value
-      }
-
-      const branch_items: vscode.QuickPickItem[] = []
-
-      if (workspace_with_branches.length === 1) {
-        const { branches } = workspace_with_branches[0]
-        branch_items.push(
-          ...branches.map((branch) => ({
-            label: branch,
-            description: `Compare with ${branch}`
-          }))
-        )
-      } else {
-        for (const { folder, branches } of workspace_with_branches) {
-          branch_items.push(
-            ...branches.map((branch) => ({
-              label: branch,
-              description: `Compare with ${branch} (${folder.name})`
-            }))
-          )
-        }
-      }
-
-      const selected_branch = await vscode.window.showQuickPick(branch_items, {
-        placeHolder: 'Select branch to compare with'
-      })
-
-      if (selected_branch) {
-        const is_after_at_sign = current_value
-          .slice(0, cursor_position)
-          .endsWith('@')
-        const text_to_insert = is_after_at_sign
-          ? `changes:${selected_branch.label} `
-          : `@changes:${selected_branch.label} `
-        const new_value =
-          current_value.slice(0, cursor_position) +
-          text_to_insert +
-          current_value.slice(cursor_position)
-
-        await context.workspaceState.update('last-chat-prompt', new_value)
-
-        input_box.show()
-        return new_value
-      }
-    } catch (error) {
-      vscode.window.showErrorMessage(
-        'Failed to get Git branches. Make sure you are in a Git repository.'
-      )
-    }
-  }
+  await context.workspaceState.update('last-chat-prompt', new_value)
 
   input_box.show()
-  return current_value
+  return new_value
 }
 
 async function get_chat_instructions(
@@ -158,9 +51,8 @@ async function get_chat_instructions(
   input_box.onDidChangeValue(async (value) => {
     await context.workspaceState.update('last-chat-prompt', value)
 
-    // Check if user typed '@' at the end (not revealed by backspace)
     const typed_at_sign =
-      value.endsWith('@') && value.length > previous_value.length
+      value.endsWith('@') && value.length + 1 != previous_value.length
 
     if (typed_at_sign) {
       current_cursor_position = value.length
