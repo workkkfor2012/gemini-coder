@@ -13,6 +13,8 @@ async function handle_at_sign_in_chat_input(
   cursor_position: number,
   context: vscode.ExtensionContext
 ): Promise<string | undefined> {
+  input_box.hide()
+
   const replacement = await at_sign_quick_pick()
 
   if (!replacement) {
@@ -31,7 +33,6 @@ async function handle_at_sign_in_chat_input(
 
   await context.workspaceState.update('last-chat-prompt', new_value)
 
-  input_box.show()
   return new_value
 }
 
@@ -47,25 +48,42 @@ async function get_chat_instructions(
 
   let current_cursor_position = last_chat_prompt.length
   let previous_value = last_chat_prompt
+  let is_handling_at_sign = false
 
   input_box.onDidChangeValue(async (value) => {
+    if (is_handling_at_sign) {
+      return
+    }
+
     await context.workspaceState.update('last-chat-prompt', value)
 
     const typed_at_sign =
       value.endsWith('@') && value.length + 1 != previous_value.length
 
     if (typed_at_sign) {
+      is_handling_at_sign = true
       current_cursor_position = value.length
+
       const new_value = await handle_at_sign_in_chat_input(
         input_box,
         value,
         current_cursor_position,
         context
       )
+
       if (new_value !== undefined && new_value !== value) {
         input_box.value = new_value
         current_cursor_position = new_value.length
+        setTimeout(() => {
+          input_box.valueSelection = [
+            current_cursor_position,
+            current_cursor_position
+          ]
+        }, 0)
       }
+
+      input_box.show()
+      is_handling_at_sign = false
     }
 
     previous_value = value
@@ -76,7 +94,11 @@ async function get_chat_instructions(
       resolve(input_box.value)
       input_box.hide()
     })
-    input_box.onDidHide(() => resolve(undefined))
+    input_box.onDidHide(() => {
+      if (!is_handling_at_sign) {
+        resolve(undefined)
+      }
+    })
     input_box.show()
   })
 }
