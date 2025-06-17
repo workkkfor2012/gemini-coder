@@ -166,7 +166,7 @@ export const HomeView: React.FC<Props> = (props) => {
             options={[
               { value: 'ask', label: 'Ask' },
               { value: 'edit', label: 'Edit' },
-              { value: 'code-completions', label: 'Code Completions' }
+              { value: 'code-completions', label: 'Completions' }
             ]}
             selected_value={props.web_mode}
             on_change={props.on_web_mode_change}
@@ -177,7 +177,7 @@ export const HomeView: React.FC<Props> = (props) => {
           <UiDropdown
             options={[
               { value: 'edit', label: 'Edit' },
-              { value: 'code-completions', label: 'Code Completions' }
+              { value: 'code-completions', label: 'Completions' }
             ]}
             selected_value={props.api_mode}
             on_change={props.on_api_mode_change}
@@ -235,9 +235,8 @@ export const HomeView: React.FC<Props> = (props) => {
           on_caret_position_change={props.on_caret_position_change}
           translations={{
             type_something: 'Type something',
-            type_suggestions: 'Type suggestions',
-            edit_context: 'Edit context',
-            autocomplete: 'Autocomplete',
+            completion_suggestions: 'Completion suggestions',
+            send_request: 'Send request',
             initialize_chat: 'Initialize chat',
             select_preset: 'Select preset',
             select_config: 'Select config',
@@ -253,30 +252,33 @@ export const HomeView: React.FC<Props> = (props) => {
         props.web_mode == 'edit' &&
         props.edit_format_selector_visibility == 'visible' && (
           <>
-            <UiSeparator size="small" />
-            <UiHorizontalSelector
-              options={[
-                {
-                  value: 'truncated',
-                  label: 'Truncated',
-                  title: 'The model will skip unchanged fragments'
-                },
-                {
-                  value: 'whole',
-                  label: 'Whole',
-                  title: 'The model will output complete files'
-                },
-                {
-                  value: 'diff',
-                  label: 'Diff',
-                  title: 'The model will output diffs'
+            <UiSeparator size={10} />
+            <div className={styles['edit-format']}>
+              <span>RESPONSE EDIT FORMAT</span>
+              <UiHorizontalSelector
+                options={[
+                  {
+                    value: 'whole',
+                    label: 'Whole',
+                    title: 'The model will output complete files'
+                  },
+                  {
+                    value: 'truncated',
+                    label: 'Truncated',
+                    title: 'The model will skip unchanged fragments'
+                  },
+                  {
+                    value: 'diff',
+                    label: 'Diff',
+                    title: 'The model will output diffs'
+                  }
+                ]}
+                selected_value={
+                  props.web_mode == 'edit' ? props.edit_format : undefined
                 }
-              ]}
-              selected_value={
-                props.web_mode == 'edit' ? props.edit_format : undefined
-              }
-              on_select={props.on_edit_format_change}
-            />
+                on_select={props.on_edit_format_change}
+              />
+            </div>
           </>
         )}
 
@@ -286,7 +288,7 @@ export const HomeView: React.FC<Props> = (props) => {
         <span>QUICK ACTIONS</span>
         {props.home_view_type == HOME_VIEW_TYPES.WEB && (
           <UiQuickAction
-            title="Apply chat response"
+            title="Apply Chat Response"
             description="Integrate copied message or a code block"
             on_click={() =>
               props.on_quick_action_click('codeWebChat.applyChatResponse')
@@ -294,12 +296,12 @@ export const HomeView: React.FC<Props> = (props) => {
           />
         )}
         <UiQuickAction
-          title="Revert last changes"
+          title="Revert Last Changes"
           description="Restore saved state of the codebase"
           on_click={() => props.on_quick_action_click('codeWebChat.revert')}
         />
         <UiQuickAction
-          title="Commit changes"
+          title="Commit Changes"
           description="Generate a commit message and commit"
           on_click={() =>
             props.on_quick_action_click('codeWebChat.commitChanges')

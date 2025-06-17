@@ -19,22 +19,20 @@ export const HorizontalSelector = <T extends string>(
   props: HorizontalSelector.Props<T>
 ) => {
   return (
-    <div className={styles.container}>
-      <div className={styles.options}>
-        {props.options.map((option) => (
-          <button
-            key={option.value}
-            className={cn(styles.options__option, {
-              [styles['options__option--selected']]:
-                option.value == props.selected_value
-            })}
-            onClick={() => props.on_select(option.value)}
-            title={option.title}
-          >
-            {option.label}
-          </button>
-        ))}
-      </div>
+    <div className={styles.options}>
+      {props.options.map((option) => (
+        <button
+          key={option.value}
+          className={cn(styles.options__option, {
+            [styles['options__option--selected']]:
+              option.value == props.selected_value
+          })}
+          onClick={() => props.on_select(option.value)}
+          title={option.title}
+        >
+          {option.label}
+        </button>
+      ))}
     </div>
   )
 }

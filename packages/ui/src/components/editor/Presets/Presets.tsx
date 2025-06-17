@@ -80,7 +80,7 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
           <IconButton
             codicon_icon="info"
-            href="https://codeweb.chat/chatbot-initialization"
+            href="https://codeweb.chat/chatbot-initialization/#presets"
           />
         </div>
 

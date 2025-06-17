@@ -18,7 +18,8 @@
   &__left {
     display: flex;
     align-items: center;
-    gap: var(--padding-10px);
+    gap: var(--padding-4px);
+    opacity: 0.7;
 
     > span {
       color: var(--vscode-foreground);

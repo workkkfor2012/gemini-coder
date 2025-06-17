@@ -18,6 +18,19 @@
   margin: 0 var(--padding-12px);
 }
 
+.edit-format {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-4px);
+  padding: 0 var(--padding-12px);
+
+  > span {
+    font-size: var(--font-size-11px);
+    color: var(--vscode-foreground);
+    opacity: 0.7;
+  }
+}
+
 .quick-actions {
   display: flex;
   flex-direction: column;
@@ -27,6 +40,7 @@
   > span {
     font-size: 13px;
     color: var(--vscode-foreground);
+    opacity: 0.7;
   }
 }
 

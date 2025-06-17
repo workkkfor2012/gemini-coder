@@ -23,9 +23,8 @@ type Props = {
   on_at_sign_click: () => void
   translations: {
     type_something: string
-    type_suggestions: string
-    edit_context: string
-    autocomplete: string
+    completion_suggestions: string
+    send_request: string
     initialize_chat: string
     select_preset: string
     select_config: string
@@ -224,9 +223,9 @@ export const ChatInput: React.FC<Props> = (props) => {
 
     if (props.is_in_code_completions_mode) {
       if (active_history.length > 0 && is_history_enabled) {
-        return `${props.translations.type_suggestions} (⇅ for history)`
+        return `${props.translations.completion_suggestions} (⇅ for history)`
       } else {
-        return props.translations.type_suggestions
+        return props.translations.completion_suggestions
       }
     }
 
@@ -381,18 +380,14 @@ export const ChatInput: React.FC<Props> = (props) => {
                   ? props.submit_disabled_title
                   : props.is_web_mode
                   ? props.translations.initialize_chat
-                  : props.is_in_code_completions_mode
-                  ? props.translations.autocomplete
-                  : props.translations.edit_context
+                  : props.translations.send_request
               }
             >
               <Icon variant="ENTER" />
               <span>
                 {props.is_web_mode
                   ? props.translations.initialize_chat
-                  : props.is_in_code_completions_mode
-                  ? props.translations.autocomplete
-                  : props.translations.edit_context}
+                  : props.translations.send_request}
               </span>
             </button>
           </div>

@@ -28,12 +28,9 @@ export const EditFormatExample = () => {
 
   return (
     <HorizontalSelector
-      heading="Edit Format"
       options={options}
       selected_value={format}
       on_select={set_format}
-      disabled_state_title=""
-      is_disabled={false}
     />
   )
 }
@@ -49,12 +46,9 @@ export const GenericExample = () => {
 
   return (
     <HorizontalSelector
-      heading="Generic Selector"
       options={options}
       selected_value={value}
       on_select={set_value}
-      disabled_state_title=""
-      is_disabled={false}
     />
   )
 }
