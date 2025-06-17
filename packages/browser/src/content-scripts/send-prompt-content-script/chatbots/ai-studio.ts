@@ -32,10 +32,13 @@ export const ai_studio: Chatbot = {
     })
   },
   set_model: async (model: string) => {
-    const model_selector_trigger = document.querySelector(
-      'ms-model-selector mat-form-field > div'
-    ) as HTMLElement
-    model_selector_trigger.click()
+    const model_selector = (document.querySelector(
+      'ms-model-selector-two-column mat-form-field > div'
+    ) ||
+      document.querySelector(
+        'ms-model-selector-collapsible mat-form-field > div'
+      )) as HTMLElement
+    model_selector.click()
     await new Promise((r) => requestAnimationFrame(r))
     const model_options = Array.from(document.querySelectorAll('mat-option'))
     for (const option of model_options) {
