@@ -69,7 +69,7 @@ export const Settings: React.FC<Props> = (props) => {
           Configure API Providers
         </UiButton>
         <span>
-          A provider is needed to setup API tools used on home tab and via the
+          A provider is needed to setup API tools used on Home tab and via the
           command palette. API keys are&nbsp;
           <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
             stored encrypted
