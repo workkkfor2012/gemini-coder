@@ -21,7 +21,6 @@ export const Default = () => {
         options={options}
         selected_value={selected}
         on_change={set_selected}
-        placeholder="Choose an option"
       />
     </div>
   )
@@ -43,7 +42,6 @@ export const WithPlaceholder = () => {
         options={options}
         selected_value={selected}
         on_change={set_selected}
-        placeholder="Select a fruit"
       />
     </div>
   )
@@ -62,7 +60,6 @@ export const LongList = () => {
         options={options}
         selected_value={selected}
         on_change={set_selected}
-        placeholder="Select an item"
       />
     </div>
   )
