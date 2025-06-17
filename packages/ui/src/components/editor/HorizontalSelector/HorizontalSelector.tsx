@@ -12,8 +12,6 @@ export namespace HorizontalSelector {
     options: Option<T>[]
     selected_value?: T
     on_select: (value: T) => void
-    is_disabled?: boolean
-    disabled_state_title?: string
   }
 }
 
@@ -21,12 +19,7 @@ export const HorizontalSelector = <T extends string>(
   props: HorizontalSelector.Props<T>
 ) => {
   return (
-    <div
-      className={cn(styles.container, {
-        [styles['container--disabled']]: props.is_disabled
-      })}
-      title={props.is_disabled ? props.disabled_state_title : undefined}
-    >
+    <div className={styles.container}>
       <div className={styles.options}>
         {props.options.map((option) => (
           <button

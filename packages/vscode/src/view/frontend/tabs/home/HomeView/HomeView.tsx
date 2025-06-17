@@ -250,6 +250,7 @@ export const HomeView: React.FC<Props> = (props) => {
       </div>
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB &&
+        props.web_mode == 'edit' &&
         props.edit_format_selector_visibility == 'visible' && (
           <>
             <UiSeparator size="small" />
@@ -258,25 +259,23 @@ export const HomeView: React.FC<Props> = (props) => {
                 {
                   value: 'truncated',
                   label: 'Truncated',
-                  title: 'The model will skip unchanged fragments.'
+                  title: 'The model will skip unchanged fragments'
                 },
                 {
                   value: 'whole',
                   label: 'Whole',
-                  title: 'The model will output complete files.'
+                  title: 'The model will output complete files'
                 },
                 {
                   value: 'diff',
                   label: 'Diff',
-                  title: 'The model will output diffs.'
+                  title: 'The model will output diffs'
                 }
               ]}
               selected_value={
                 props.web_mode == 'edit' ? props.edit_format : undefined
               }
               on_select={props.on_edit_format_change}
-              is_disabled={props.web_mode != 'edit'}
-              disabled_state_title="Available only in edit mode"
             />
           </>
         )}

@@ -1,10 +1,5 @@
 .container {
   padding: 0 var(--padding-12px);
-
-  &--disabled {
-    pointer-events: none;
-    opacity: var(--disabled-opacity);
-  }
 }
 
 .options {
