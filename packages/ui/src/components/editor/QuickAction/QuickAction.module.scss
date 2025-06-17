@@ -1,0 +1,25 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-3px);
+  padding: var(--padding-6px) var(--padding-8px);
+  background-color: var(--vscode-list-hoverBackground);
+  border-radius: var(--border-radius-2px);
+  cursor: pointer;
+
+  &:hover {
+    background-color: var(--vscode-toolbar-hoverBackground);
+  }
+}
+
+.title {
+  font-weight: bold;
+  color: var(--vscode-editor-foreground);
+  font-size: var(--font-size-13px);
+}
+
+.description {
+  color: var(--vscode-descriptionForeground);
+  text-align: left;
+  font-size: 11px;
+}

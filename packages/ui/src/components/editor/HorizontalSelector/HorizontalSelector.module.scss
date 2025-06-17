@@ -15,9 +15,9 @@
   &__option {
     flex-grow: 1;
     text-align: center;
-    padding: 4px 8px;
+    padding: var(--padding-3px) var(--padding-8px);
     cursor: pointer;
-    font-size: 12px;
+    font-size: var(--font-size-11px);
     user-select: none;
     color: var(--vscode-foreground);
     background-color: var(--vscode-list-hoverBackground);

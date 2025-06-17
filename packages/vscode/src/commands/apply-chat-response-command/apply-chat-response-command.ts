@@ -561,7 +561,7 @@ export function apply_chat_response_command(context: vscode.ExtensionContext) {
       } else {
         if (!clipboard_content.files || clipboard_content.files.length == 0) {
           vscode.window.showErrorMessage(
-            'Unable to find code blocks in the clipboard.'
+            'Unable to find valid code blocks in the clipboard.'
           )
           return
         }

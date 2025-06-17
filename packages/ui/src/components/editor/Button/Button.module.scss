@@ -3,13 +3,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: var(--padding-6px);
   min-height: 28px;
-  font-size: 13px;
+  font-size: var(--font-size-13px);
   padding: var(--padding-4px) var(--padding-16px);
   font-family: system-ui, sans-serif;
   border: none;
-  border-radius: 2px;
+  border-radius: var(--border-radius-2px);
   cursor: pointer;
   background-color: var(--vscode-button-background);
   color: var(--vscode-button-foreground);

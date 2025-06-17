@@ -11,6 +11,7 @@ import { Switch as UiSwitch } from '@ui/components/editor/Switch'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 import { ApiMode, WebMode } from '@shared/types/modes'
 import { Dropdown as UiDropdown } from '@ui/components/editor/Dropdown'
+import { QuickAction as UiQuickAction } from '@ui/components/editor/QuickAction'
 
 type Props = {
   is_visible: boolean
@@ -18,6 +19,7 @@ type Props = {
   copy_to_clipboard: (instruction: string) => void
   on_create_preset: () => void
   on_at_sign_click: () => void
+  on_quick_action_click: (command: string) => void
   is_connected: boolean
   presets: Preset[]
   selected_presets: string[]
@@ -278,6 +280,33 @@ export const HomeView: React.FC<Props> = (props) => {
             />
           </>
         )}
+
+      <UiSeparator size="large" />
+
+      <div className={styles['quick-actions']}>
+        <span>QUICK ACTIONS</span>
+        {props.home_view_type == HOME_VIEW_TYPES.WEB && (
+          <UiQuickAction
+            title="Apply chat response"
+            description="Integrate copied message or a code block"
+            on_click={() =>
+              props.on_quick_action_click('codeWebChat.applyChatResponse')
+            }
+          />
+        )}
+        <UiQuickAction
+          title="Revert last changes"
+          description="Restore saved state of the codebase"
+          on_click={() => props.on_quick_action_click('codeWebChat.revert')}
+        />
+        <UiQuickAction
+          title="Commit changes"
+          description="Generate a commit message and commit"
+          on_click={() =>
+            props.on_quick_action_click('codeWebChat.commitChanges')
+          }
+        />
+      </div>
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <>

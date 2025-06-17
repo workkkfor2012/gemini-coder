@@ -18,6 +18,18 @@
   margin: 0 var(--padding-12px);
 }
 
+.quick-actions {
+  display: flex;
+  flex-direction: column;
+  padding: 0 var(--padding-12px);
+  gap: var(--padding-6px);
+
+  > span {
+    font-size: 13px;
+    color: var(--vscode-foreground);
+  }
+}
+
 .browser-extension-message {
   display: flex;
   flex-direction: column;

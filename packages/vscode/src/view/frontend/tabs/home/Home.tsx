@@ -401,6 +401,13 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const handle_quick_action_click = (command: string) => {
+    props.vscode.postMessage({
+      command: 'EXECUTE_COMMAND',
+      command_id: command
+    } as WebviewMessage)
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -431,6 +438,7 @@ export const Home: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
+      on_quick_action_click={handle_quick_action_click}
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
       chat_history={chat_history}
