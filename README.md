@@ -17,10 +17,11 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-A community-driven, **non-agentic** coding tool for **AI-assisted programming** created by an independent developer.
+A community-driven, **non-agentic** coding tool for **AI-assisted real-world programming**.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
-✌️ 100% free and open source!
+✌️ 100% free and open source!<br />
+🙋 Created by an independent developer
 
 **Guiding principles:**
 
