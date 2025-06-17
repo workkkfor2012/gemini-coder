@@ -332,12 +332,6 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_quick_actions = () => {
-    props.vscode.postMessage({
-      command: 'SHOW_QUICK_ACTIONS'
-    } as WebviewMessage)
-  }
-
   const handle_home_view_type_change = (view_type: HomeViewType) => {
     props.vscode.postMessage({
       command: 'SAVE_HOME_VIEW_TYPE',
@@ -437,7 +431,6 @@ export const Home: React.FC<Props> = (props) => {
       selected_presets={selected_presets}
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
-      on_quick_actions_click={handle_quick_actions}
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
       chat_history={chat_history}

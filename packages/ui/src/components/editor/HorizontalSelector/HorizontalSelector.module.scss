@@ -1,24 +1,10 @@
 .container {
   padding: 0 var(--padding-12px);
-}
-
-.inner {
-  display: flex;
-  flex-direction: column;
-  gap: var(--padding-4px);
 
   &--disabled {
     pointer-events: none;
     opacity: var(--disabled-opacity);
   }
-}
-
-.heading {
-  color: var(--vscode-foreground);
-  font-family: var(--vscode-font-family);
-  font-weight: var(--vscode-font-weight);
-  font-size: 11px;
-  text-transform: uppercase;
 }
 
 .options {

@@ -319,7 +319,7 @@
         "command": "codeWebChat.openDocumentation",
         "title": "Documentation",
         "category": "Code Web Chat",
-        "icon": "$(book)"
+        "icon": "$(question)"
       },
       {
         "command": "codeWebChat.rateExtension",

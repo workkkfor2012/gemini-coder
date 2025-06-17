@@ -44,7 +44,7 @@ export const Donations: React.FC<Props> = (props) => {
         <UiBuyMeACoffee username="robertpiosik" />
         <span>
           You can also send <a href="https://codeweb.chat/#donations">crypto</a>
-          . Thank you.
+          . Thank you ♥
         </span>
       </div>
 

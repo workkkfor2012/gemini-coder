@@ -9,7 +9,6 @@ export namespace HorizontalSelector {
   }
 
   export type Props<T extends string> = {
-    heading: string
     options: Option<T>[]
     selected_value?: T
     on_select: (value: T) => void
@@ -23,30 +22,25 @@ export const HorizontalSelector = <T extends string>(
 ) => {
   return (
     <div
-      className={styles.container}
+      className={cn(styles.container, {
+        [styles['container--disabled']]: props.is_disabled
+      })}
       title={props.is_disabled ? props.disabled_state_title : undefined}
     >
-      <div
-        className={cn(styles.inner, {
-          [styles['inner--disabled']]: props.is_disabled
-        })}
-      >
-        <div className={styles.heading}>{props.heading}</div>
-        <div className={styles.options}>
-          {props.options.map((option) => (
-            <button
-              key={option.value}
-              className={cn(styles.options__option, {
-                [styles['options__option--selected']]:
-                  option.value == props.selected_value
-              })}
-              onClick={() => props.on_select(option.value)}
-              title={option.title}
-            >
-              {option.label}
-            </button>
-          ))}
-        </div>
+      <div className={styles.options}>
+        {props.options.map((option) => (
+          <button
+            key={option.value}
+            className={cn(styles.options__option, {
+              [styles['options__option--selected']]:
+                option.value == props.selected_value
+            })}
+            onClick={() => props.on_select(option.value)}
+            title={option.title}
+          >
+            {option.label}
+          </button>
+        ))}
       </div>
     </div>
   )

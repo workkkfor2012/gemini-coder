@@ -9,15 +9,14 @@ import { EditFormat } from '@shared/types/edit-format'
 import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
 import { Switch as UiSwitch } from '@ui/components/editor/Switch'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
-import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
 import { ApiMode, WebMode } from '@shared/types/modes'
+import { Dropdown as UiDropdown } from '@ui/components/editor/Dropdown'
 
 type Props = {
   is_visible: boolean
   initialize_chats: (params: { prompt: string; preset_names: string[] }) => void
   copy_to_clipboard: (instruction: string) => void
   on_create_preset: () => void
-  on_quick_actions_click: () => void
   on_at_sign_click: () => void
   is_connected: boolean
   presets: Preset[]
@@ -157,14 +156,32 @@ export const HomeView: React.FC<Props> = (props) => {
           value={props.home_view_type}
           on_change={props.on_home_view_type_change}
           options={Object.values(HOME_VIEW_TYPES)}
-          title="Initialize web chats hands-free or update files right away"
+          title="Initialize web chats or update files right away"
         />
 
-        <div className={styles.top__right}>
-          <UiTextButton on_click={props.on_quick_actions_click}>
-            Quick actions
-          </UiTextButton>
-        </div>
+        {props.home_view_type == HOME_VIEW_TYPES.WEB && (
+          <UiDropdown
+            options={[
+              { value: 'ask', label: 'Ask' },
+              { value: 'edit', label: 'Edit' },
+              { value: 'code-completions', label: 'Code Completions' }
+            ]}
+            selected_value={props.web_mode}
+            on_change={props.on_web_mode_change}
+            title="Select mode"
+          />
+        )}
+        {props.home_view_type == HOME_VIEW_TYPES.API && (
+          <UiDropdown
+            options={[
+              { value: 'edit', label: 'Edit' },
+              { value: 'code-completions', label: 'Code Completions' }
+            ]}
+            selected_value={props.api_mode}
+            on_change={props.on_api_mode_change}
+            title="Select mode"
+          />
+        )}
       </div>
 
       <UiSeparator size="small" />
@@ -230,60 +247,11 @@ export const HomeView: React.FC<Props> = (props) => {
         />
       </div>
 
-      <UiSeparator size="small" />
-
-      {props.home_view_type == 'Web' && (
-        <UiHorizontalSelector
-          heading="Mode"
-          options={[
-            {
-              value: 'ask',
-              label: 'Ask',
-              title: "Don't include edit format instructions"
-            },
-            {
-              value: 'edit',
-              label: 'Edit',
-              title: 'Include edit format instructions'
-            },
-            {
-              value: 'code-completions',
-              label: 'Code Completions',
-              title: 'Ask for code at cursor position'
-            }
-          ]}
-          selected_value={props.web_mode}
-          on_select={props.on_web_mode_change}
-        />
-      )}
-
-      {props.home_view_type == 'API' && (
-        <UiHorizontalSelector
-          heading="Mode"
-          options={[
-            {
-              value: 'edit',
-              label: 'Edit',
-              title:
-                'Modify and create files based on natural language instructions'
-            },
-            {
-              value: 'code-completions',
-              label: 'Code Completions',
-              title: 'Ask for code at cursor position'
-            }
-          ]}
-          selected_value={props.api_mode}
-          on_select={props.on_api_mode_change}
-        />
-      )}
-
       {props.home_view_type == HOME_VIEW_TYPES.WEB &&
         props.edit_format_selector_visibility == 'visible' && (
           <>
             <UiSeparator size="small" />
             <UiHorizontalSelector
-              heading="Edit Format"
               options={[
                 {
                   value: 'truncated',
@@ -311,36 +279,37 @@ export const HomeView: React.FC<Props> = (props) => {
           </>
         )}
 
-      <UiSeparator size="large" />
-
       {props.home_view_type == HOME_VIEW_TYPES.WEB && (
-        <UiPresets
-          presets={props.presets.map((preset) => {
-            return {
-              ...preset,
-              has_affixes: !!(preset.prompt_prefix || preset.prompt_suffix)
+        <>
+          <UiSeparator size="large" />
+          <UiPresets
+            presets={props.presets.map((preset) => {
+              return {
+                ...preset,
+                has_affixes: !!(preset.prompt_prefix || preset.prompt_suffix)
+              }
+            })}
+            is_disabled={!props.is_connected}
+            selected_presets={props.selected_presets}
+            selected_code_completion_presets={
+              props.selected_code_completion_presets
             }
-          })}
-          is_disabled={!props.is_connected}
-          selected_presets={props.selected_presets}
-          selected_code_completion_presets={
-            props.selected_code_completion_presets
-          }
-          on_create_preset={props.on_create_preset}
-          on_preset_click={(name) => {
-            props.initialize_chats({
-              prompt: current_prompt,
-              preset_names: [name]
-            })
-          }}
-          on_preset_copy={handle_preset_copy}
-          on_preset_edit={props.on_preset_edit}
-          is_in_code_completions_mode={is_in_code_completions_mode}
-          on_presets_reorder={props.on_presets_reorder}
-          on_preset_duplicate={props.on_preset_duplicate}
-          on_preset_delete={props.on_preset_delete}
-          on_set_default_presets={props.on_set_default_presets}
-        />
+            on_create_preset={props.on_create_preset}
+            on_preset_click={(name) => {
+              props.initialize_chats({
+                prompt: current_prompt,
+                preset_names: [name]
+              })
+            }}
+            on_preset_copy={handle_preset_copy}
+            on_preset_edit={props.on_preset_edit}
+            is_in_code_completions_mode={is_in_code_completions_mode}
+            on_presets_reorder={props.on_presets_reorder}
+            on_preset_duplicate={props.on_preset_duplicate}
+            on_preset_delete={props.on_preset_delete}
+            on_set_default_presets={props.on_set_default_presets}
+          />
+        </>
       )}
     </div>
   )

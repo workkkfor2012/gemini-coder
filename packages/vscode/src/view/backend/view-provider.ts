@@ -58,7 +58,6 @@ import {
   handle_save_mode_web,
   handle_get_mode_api,
   handle_save_mode_api,
-  handle_show_quick_actions
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
@@ -434,8 +433,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             handle_get_home_view_type(this)
           } else if (message.command == 'SHOW_AT_SIGN_QUICK_PICK') {
             await handle_at_sign_quick_pick(this)
-          } else if (message.command == 'SHOW_QUICK_ACTIONS') {
-            await handle_show_quick_actions(this)
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

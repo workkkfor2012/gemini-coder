@@ -12,7 +12,6 @@ export namespace Dropdown {
     options: Option<T>[]
     selected_value: T
     on_change: (value: T) => void
-    placeholder?: string
     title?: string
   }
 }
@@ -22,11 +21,11 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
   const container_ref = useRef<HTMLDivElement>(null)
 
   const selected_option = props.options.find(
-    (option) => option.value === props.selected_value
+    (option) => option.value == props.selected_value
   )
 
   const handle_toggle = () => {
-    set_is_open((prev) => !prev)
+    set_is_open(!is_open)
   }
 
   const handle_select = (value: T) => {
@@ -54,9 +53,7 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
     <div className={styles.container} ref={container_ref} title={props.title}>
       <button className={styles.button} onClick={handle_toggle}>
         <span className={styles.button__label}>
-          {selected_option
-            ? selected_option.label
-            : props.placeholder || 'Select an option'}
+          {selected_option ? selected_option.label : 'Select an option'}
         </span>
         <span
           className={cn('codicon', 'codicon-chevron-down', styles.button__icon)}
@@ -70,7 +67,7 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
               key={option.value}
               className={cn(styles.menu__item, {
                 [styles['menu__item--selected']]:
-                  option.value === props.selected_value
+                  option.value == props.selected_value
               })}
               onClick={() => handle_select(option.value)}
             >

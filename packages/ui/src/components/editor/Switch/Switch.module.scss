@@ -18,6 +18,7 @@
   font-size: var(--font-size-12px);
   border-radius: var(--border-radius-999px);
   white-space: nowrap;
+  color: var(--vscode-foreground);
 
   &::before {
     content: attr(data-text);
