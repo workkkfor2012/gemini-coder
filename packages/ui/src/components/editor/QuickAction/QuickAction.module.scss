@@ -4,7 +4,8 @@
   gap: var(--padding-3px);
   padding: var(--padding-6px) var(--padding-8px);
   background-color: var(--vscode-list-hoverBackground);
-  border-radius: var(--border-radius-2px);
+  border-radius: var(--border-radius-4px);
+  border-left: 3px solid var(--vscode-toolbar-hoverBackground);
   cursor: pointer;
 
   &:hover {

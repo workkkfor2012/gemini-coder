@@ -50,8 +50,12 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
   }, [])
 
   return (
-    <div className={styles.container} ref={container_ref} title={props.title}>
-      <button className={styles.button} onClick={handle_toggle}>
+    <div
+      className={cn(styles.container, { [styles['button--open']]: is_open })}
+      ref={container_ref}
+      title={props.title}
+    >
+      <button className={cn(styles.button, { [styles['button--open']]: is_open })} onClick={handle_toggle}>
         <span className={styles.button__label}>
           {selected_option ? selected_option.label : 'Select an option'}
         </span>
