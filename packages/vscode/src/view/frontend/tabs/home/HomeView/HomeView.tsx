@@ -289,7 +289,7 @@ export const HomeView: React.FC<Props> = (props) => {
         <>
           <UiSeparator size="large" />
           <div className={styles['quick-actions']}>
-            <span>ONE-CLICK ACTIONS</span>
+            <span>SUGGESTED COMMANDS</span>
             {props.home_view_type == HOME_VIEW_TYPES.WEB &&
               (props.web_mode == 'edit' ||
                 props.web_mode == 'code-completions') && (
@@ -301,11 +301,17 @@ export const HomeView: React.FC<Props> = (props) => {
                   }
                 />
               )}
-            <UiQuickAction
-              title="Revert Last Changes"
-              description="Restore saved state of the codebase"
-              on_click={() => props.on_quick_action_click('codeWebChat.revert')}
-            />
+            {(props.home_view_type == HOME_VIEW_TYPES.WEB ||
+              (props.home_view_type == HOME_VIEW_TYPES.API &&
+                props.api_mode != 'code-completions')) && (
+              <UiQuickAction
+                title="Revert Last Changes"
+                description="Restore saved state of the codebase"
+                on_click={() =>
+                  props.on_quick_action_click('codeWebChat.revert')
+                }
+              />
+            )}
             <UiQuickAction
               title="Commit Changes"
               description="Generate a commit message and commit"
