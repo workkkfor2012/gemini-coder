@@ -6,14 +6,11 @@
   flex-direction: column;
 }
 
-.button {
+.top {
   display: flex;
   flex-direction: column;
-  gap: var(--padding-6px);
-
-  > span {
-    font-size: var(--font-size-12px);
-  }
+  gap: var(--padding-16px);
+  align-items: center;
 }
 
 .dimmed {

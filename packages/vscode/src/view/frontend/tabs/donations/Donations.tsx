@@ -40,12 +40,14 @@ export const Donations: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      <div className={styles.button}>
-        <UiBuyMeACoffee username="robertpiosik" />
+      <div className={styles.top}>
         <span>
-          You can also send <a href="https://codeweb.chat/#donations">crypto</a>
-          . Thank you ♥
+          Hi! Thanks for using CWC! I created this tool for public benefit. You
+          can show your support by buying me a coffee or sending{' '}
+          <a href="https://codeweb.chat/#donations">crypto</a>.<br />
+          Thank you, Robert ♥
         </span>
+        <UiBuyMeACoffee username="robertpiosik" />
       </div>
 
       <UiSeparator size={24} />
