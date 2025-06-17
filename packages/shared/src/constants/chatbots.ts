@@ -32,12 +32,10 @@ export const CHATBOTS = {
       'disable-thinking': 'Disable thinking'
     },
     models: {
-      'gemini-2.5-flash-preview-04-17': 'Gemini 2.5 Flash Preview 04-17',
-      'gemini-2.5-flash-preview-05-20': 'Gemini 2.5 Flash Preview 05-20',
-      'gemini-2.5-pro-preview-05-06': 'Gemini 2.5 Pro Preview 05-06',
-      'gemini-2.5-pro-preview-06-05': 'Gemini 2.5 Pro Preview 06-05',
-      'gemini-2.0-flash': 'Gemini 2.0 Flash',
-      'gemini-2.0-flash-lite': 'Gemini 2.0 Flash-Lite'
+      'gemini-2.5-pro': 'Gemini 2.5 Pro',
+      'gemini-2.5-flash': 'Gemini 2.5 Flash',
+      'gemini-2.5-flash-lite-preview-06-17':
+        'Gemini 2.5 Flash Lite Preview 06-17'
     }
   },
   Gemini: {
