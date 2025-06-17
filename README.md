@@ -20,8 +20,8 @@
 A community-driven, **non-agentic** coding tool for **AI-assisted real-world programming**.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
-✌️ 100% free and open source!<br />
-🙋 Created by an independent developer
+🙋 Created by an independent developer<br />
+✌️ 100% free and open source
 
 **Guiding principles:**
 
