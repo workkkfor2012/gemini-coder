@@ -241,9 +241,9 @@ export const HomeView: React.FC<Props> = (props) => {
             select_preset: 'Select preset',
             select_config: 'Select config',
             code_completions_mode_unavailable_with_text_selection:
-              'Remove text selection',
+              'Unable to work with text selection',
             code_completions_mode_unavailable_without_active_editor:
-              'Open any file to proceed'
+              'This mode requires active editor'
           }}
         />
       </div>

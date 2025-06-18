@@ -42,25 +42,27 @@ export const Donations: React.FC<Props> = (props) => {
     >
       <div className={styles.top}>
         <span>
-          Hi! Glad you&apos;re using CWC! This tool is an open source project,
-          and your support makes a difference. Consider buying me a coffee or
-          sending <a href="https://codeweb.chat/#donations">crypto</a> if
-          you&apos;d like to contribute.
+          Hi! I created CWC for public benefit. You can show your support by
+          buying me a coffee or sending{' '}
+          <a href="https://codeweb.chat/#donations">crypto</a>.
           <br />
-          Best, Robert 🤓
+          Your message mean a lot, thank you!
         </span>
         <UiBuyMeACoffee username="robertpiosik" />
       </div>
 
-      <UiSeparator height={24} />
+      <UiSeparator height={16} />
 
       {!is_initialized ? (
         <>Fetching recent donations...</>
       ) : error ? (
         error
       ) : (
-        <div className={is_loading ? styles.dimmed : undefined}>
-          <UiRecentDonations donations={donations} />
+        <div className={styles['recent-donations']}>
+          <span>RECENT DONATIONS</span>
+          <div className={is_loading ? styles.dimmed : ''}>
+            <UiRecentDonations donations={donations} />
+          </div>
           {is_loading_more && (
             <div style={{ textAlign: 'center', padding: '1rem' }}>
               Loading more donations...
