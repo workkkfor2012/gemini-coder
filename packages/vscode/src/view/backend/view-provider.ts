@@ -57,12 +57,13 @@ import {
   handle_get_mode_web,
   handle_save_mode_web,
   handle_get_mode_api,
-  handle_save_mode_api,
+  handle_save_mode_api
 } from './message-handlers'
 import {
   config_preset_to_ui_format,
   ConfigPresetFormat
 } from '@/view/backend/helpers/preset-format-converters'
+import { CHATBOTS } from '@shared/constants/chatbots'
 import { HOME_VIEW_TYPE_STATE_KEY } from '@/constants/state-keys'
 import { HOME_VIEW_TYPES, HomeViewType } from '../types/home-view-type'
 import { ApiMode, WebMode } from '@shared/types/modes'
@@ -366,7 +367,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_CURRENT_TOKEN_COUNT') {
             this.calculate_token_count()
           } else if (message.command == 'SAVE_PRESETS_ORDER') {
-            await handle_save_presets_order(this, message)
+            await handle_save_presets_order(message)
           } else if (message.command == 'UPDATE_PRESET') {
             await handle_update_preset(this, message, webview_view)
           } else if (message.command == 'DELETE_PRESET') {
@@ -462,10 +463,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const web_chat_presets_config =
       config.get<ConfigPresetFormat[]>('presets', []) || []
 
-    // Convert from config format to UI format before sending
-    const presets_for_ui: Preset[] = web_chat_presets_config.map(
-      (preset_config) => config_preset_to_ui_format(preset_config)
-    )
+    const presets_for_ui: Preset[] = web_chat_presets_config
+      .filter((preset_config) => CHATBOTS[preset_config.chatbot])
+      .map((preset_config) => config_preset_to_ui_format(preset_config))
 
     this.send_message<PresetsMessage>({
       command: 'PRESETS',

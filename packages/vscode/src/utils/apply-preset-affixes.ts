@@ -1,3 +1,4 @@
+import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
 import * as vscode from 'vscode'
 
 export function get_presets_by_names(preset_names: string[]): Array<{
@@ -6,7 +7,7 @@ export function get_presets_by_names(preset_names: string[]): Array<{
   prompt_suffix?: string
 }> {
   const config = vscode.workspace.getConfiguration('codeWebChat')
-  const all_presets = config.get<any[]>('presets', [])
+  const all_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
   return all_presets
     .filter((preset) => preset_names.includes(preset.name))

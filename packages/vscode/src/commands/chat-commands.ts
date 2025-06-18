@@ -6,6 +6,8 @@ import { apply_preset_affixes_to_instruction } from '../utils/apply-preset-affix
 import { EditFormat } from '@shared/types/edit-format'
 import { replace_changes_placeholder } from '../utils/replace-changes-placeholder'
 import { at_sign_quick_pick } from '../utils/at-sign-quick-pick'
+import { CHATBOTS } from '@shared/constants/chatbots'
+import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
 
 async function handle_at_sign_in_chat_input(
   input_box: vscode.InputBox,
@@ -207,19 +209,21 @@ export function chat_using_command(
     if (!instructions) return
 
     const config = vscode.workspace.getConfiguration('codeWebChat')
-    const web_chat_presets = config.get<any[]>('presets', [])
+    const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
-    const preset_quick_pick_items = web_chat_presets.map((preset) => ({
-      label: preset.name,
-      description: `${preset.chatbot}${
-        preset.model ? ` - ${preset.model}` : ''
-      }`
-    }))
+    const preset_quick_pick_items = web_chat_presets
+      .filter((preset) => CHATBOTS[preset.chatbot])
+      .map((preset) => ({
+        label: preset.name,
+        description: `${preset.chatbot}${
+          preset.model ? ` - ${preset.model}` : ''
+        }`
+      }))
 
     const selected_preset = await vscode.window.showQuickPick(
       preset_quick_pick_items,
       {
-        placeHolder: 'Select a chat preset'
+        placeHolder: 'Select preset'
       }
     )
 
@@ -253,7 +257,7 @@ export function chat_command(
     }
 
     const config = vscode.workspace.getConfiguration('codeWebChat')
-    const web_chat_presets = config.get<any[]>('presets', [])
+    const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
     let selected_names = context.globalState.get<string[]>(
       'selectedPresets',
@@ -261,13 +265,15 @@ export function chat_command(
     )
 
     if (!selected_names.length) {
-      const preset_quick_pick_items = web_chat_presets.map((preset) => ({
-        label: preset.name,
-        description: `${preset.chatbot}${
-          preset.model ? ` - ${preset.model}` : ''
-        }`,
-        picked: false
-      }))
+      const preset_quick_pick_items = web_chat_presets
+        .filter((preset) => CHATBOTS[preset.chatbot])
+        .map((preset) => ({
+          label: preset.name,
+          description: `${preset.chatbot}${
+            preset.model ? ` - ${preset.model}` : ''
+          }`,
+          picked: false
+        }))
 
       const selected_presets = await vscode.window.showQuickPick(
         preset_quick_pick_items,

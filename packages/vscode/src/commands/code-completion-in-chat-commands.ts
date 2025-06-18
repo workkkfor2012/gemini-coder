@@ -1,6 +1,8 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../utils/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
+import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 async function handle_code_completion_in_chat_command(
   context: vscode.ExtensionContext,
@@ -107,7 +109,7 @@ async function handle_code_completion_in_chat_command(
 }
 
 // Helper function to filter presets without affixes
-function filter_presets_with_affixes(presets: any[]) {
+function filter_presets_with_affixes(presets: ConfigPresetFormat[]) {
   return presets.filter((preset) => {
     // Exclude presets that have non-empty promptPrefix or promptSuffix
     return (
@@ -128,7 +130,7 @@ export function code_completion_in_chat_with_command(
     'codeWebChat.codeCompletionInChatUsing',
     async () => {
       const config = vscode.workspace.getConfiguration('codeWebChat')
-      const all_presets = config.get<any[]>('presets', [])
+      const all_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
       // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)
@@ -141,12 +143,14 @@ export function code_completion_in_chat_with_command(
       }
 
       // Create quickpick items for presets
-      const preset_quick_pick_items = presets.map((preset) => ({
-        label: preset.name,
-        description: `${preset.chatbot}${
-          preset.model ? ` - ${preset.model}` : ''
-        }`
-      }))
+      const preset_quick_pick_items = presets
+        .filter((preset) => CHATBOTS[preset.chatbot])
+        .map((preset) => ({
+          label: preset.name,
+          description: `${preset.chatbot}${
+            preset.model ? ` - ${preset.model}` : ''
+          }`
+        }))
 
       // Show quickpick without multi-select
       const selected_preset = await vscode.window.showQuickPick(
@@ -183,7 +187,7 @@ export function code_completion_in_chat_command(
     'codeWebChat.codeCompletionInChat',
     async () => {
       const config = vscode.workspace.getConfiguration('codeWebChat')
-      const all_presets = config.get<any[]>('presets', [])
+      const all_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
       // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)

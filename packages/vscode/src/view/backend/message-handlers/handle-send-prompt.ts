@@ -5,6 +5,7 @@ import { replace_selection_placeholder } from '@/utils/replace-selection-placeho
 import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
+import { ConfigPresetFormat } from '../helpers/preset-format-converters'
 
 export const handle_send_prompt = async (
   provider: ViewProvider,
@@ -134,7 +135,7 @@ async function validate_presets(params: {
   instructions: string
 }): Promise<string[]> {
   const config = vscode.workspace.getConfiguration('codeWebChat')
-  const presets = config.get<any[]>('presets', [])
+  const presets = config.get<ConfigPresetFormat[]>('presets', [])
   const available_presets = presets.filter((preset) =>
     !params.is_code_completions_mode
       ? true

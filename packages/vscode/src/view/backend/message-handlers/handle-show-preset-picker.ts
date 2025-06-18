@@ -2,6 +2,7 @@ import { ViewProvider } from '@/view/backend/view-provider'
 import * as vscode from 'vscode'
 import { ExtensionMessage } from '@/view/types/messages'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export const handle_show_preset_picker = async (
   provider: ViewProvider
@@ -16,10 +17,13 @@ export const handle_show_preset_picker = async (
       : 'selectedPresets'
 
   const available_preset_names = web_chat_presets
-    .filter((preset) =>
-      provider.web_mode != 'code-completions'
-        ? preset
-        : !preset.promptPrefix && !preset.promptSuffix
+
+    .filter(
+      (preset) =>
+        CHATBOTS[preset.chatbot] &&
+        (provider.web_mode != 'code-completions'
+          ? preset
+          : !preset.promptPrefix && !preset.promptSuffix)
     )
     .map((preset) => preset.name)
   let selected_preset_names = provider.context.globalState.get<string[]>(
