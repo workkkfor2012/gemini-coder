@@ -282,46 +282,37 @@ export const HomeView: React.FC<Props> = (props) => {
           </>
         )}
 
-      {(props.home_view_type == HOME_VIEW_TYPES.API ||
-        (props.home_view_type == HOME_VIEW_TYPES.WEB &&
+      <UiSeparator height={16} />
+      <div className={styles['quick-actions']}>
+        <span>SUGGESTED COMMANDS</span>
+        {props.home_view_type == HOME_VIEW_TYPES.WEB &&
           (props.web_mode == 'edit' ||
-            props.web_mode == 'code-completions'))) && (
-        <>
-          <UiSeparator height={16} />
-          <div className={styles['quick-actions']}>
-            <span>SUGGESTED COMMANDS</span>
-            {props.home_view_type == HOME_VIEW_TYPES.WEB &&
-              (props.web_mode == 'edit' ||
-                props.web_mode == 'code-completions') && (
-                <UiQuickAction
-                  title="Apply Chat Response"
-                  description="Integrate copied message or a code block"
-                  on_click={() =>
-                    props.on_quick_action_click('codeWebChat.applyChatResponse')
-                  }
-                />
-              )}
-            {(props.home_view_type == HOME_VIEW_TYPES.WEB ||
-              (props.home_view_type == HOME_VIEW_TYPES.API &&
-                props.api_mode != 'code-completions')) && (
-              <UiQuickAction
-                title="Revert Last Changes"
-                description="Restore saved state of the codebase"
-                on_click={() =>
-                  props.on_quick_action_click('codeWebChat.revert')
-                }
-              />
-            )}
+            props.web_mode == 'code-completions') && (
             <UiQuickAction
-              title="Commit Changes"
-              description="Generate a commit message and commit"
+              title="Apply Chat Response"
+              description="Integrate copied message or a code block"
               on_click={() =>
-                props.on_quick_action_click('codeWebChat.commitChanges')
+                props.on_quick_action_click('codeWebChat.applyChatResponse')
               }
             />
-          </div>
-        </>
-      )}
+          )}
+        {(props.home_view_type == HOME_VIEW_TYPES.WEB ||
+          (props.home_view_type == HOME_VIEW_TYPES.API &&
+            props.api_mode != 'code-completions')) && (
+          <UiQuickAction
+            title="Revert Last Changes"
+            description="Restore saved state of the codebase"
+            on_click={() => props.on_quick_action_click('codeWebChat.revert')}
+          />
+        )}
+        <UiQuickAction
+          title="Commit Changes"
+          description="Generate a commit message and commit"
+          on_click={() =>
+            props.on_quick_action_click('codeWebChat.commitChanges')
+          }
+        />
+      </div>
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <>
