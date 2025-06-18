@@ -44,12 +44,13 @@ export const Donations: React.FC<Props> = (props) => {
         <span>
           Hi! I created CWC for public benefit. You can show your support by
           buying me a coffee or sending{' '}
-          <a href="https://codeweb.chat/#donations">crypto</a>. Your message
+          <a href="https://codeweb.chat/#donations">crypto</a>. Your kind words
           mean a lot!
-          <br />
-          Thank you, Robert
         </span>
-        <UiBuyMeACoffee username="robertpiosik" />
+        <div className={styles.top__button}>
+          <UiBuyMeACoffee username="robertpiosik" />
+          <span>even $1 makes a difference</span>
+        </div>
       </div>
 
       <UiSeparator height={16} />
