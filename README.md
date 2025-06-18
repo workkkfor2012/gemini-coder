@@ -19,8 +19,8 @@
 
 A community-driven, **non-agentic** coding tool for **AI-assisted real-world programming**.
 
-🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.)<br />
-🙋 Created by an independent developer<br />
+🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.) \
+🙋 Created by an independent developer \
 ✌️ 100% free and open source
 
 **Guiding principles:**
@@ -83,28 +83,28 @@ CWC includes battle-tested must-have API tools.
 
 Get code at cursor position from state-of-the-art reasoning models.
 
-✅ Includes selected context<br />
+✅ Includes selected context \
 ✅ Designed for on-demand use
 
 ### Edit Context
 
 Create and modify files in context based on natural language instructions.
 
-✅ Multi-file updates in a single API call<br />
+✅ Multi-file updates in a single API call \
 ✅ Efficient in output tokens—requests diffs
 
 ### Intelligent Update
 
 Update files based on code blocks in truncated edit format and fix malformed diffs.
 
-✅ Regenerates whole files in concurrent API calls<br />
+✅ Regenerates whole files in concurrent API calls \
 ✅ Smaller models like Gemini Flash are sufficient
 
 ### Commit Messages
 
 Generate meaningful commit messages precisely adhering to your preferred style.
 
-✅ Includes affected files in full<br />
+✅ Includes affected files in full \
 ✅ Customizable instructions
 
 <hr />
@@ -113,7 +113,7 @@ Generate meaningful commit messages precisely adhering to your preferred style.
 
 **Anthropic** • **Cerebras** • **Chutes** • **DeepInfra** • **DeepSeek** • **Fireworks** • **Gemini** • **Hyperbolic** • **Mistral** • **OpenAI** • **OpenRouter** • **TogetherAI**
 
-ℹ️ Any OpenAI-API compatible endpoint works with CWC<br />
+ℹ️ Any OpenAI-API compatible endpoint works with CWC \
 🔒️ API keys are [stored encrypted](https://code.visualstudio.com/api/references/vscode-api#SecretStorage)
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Commands</span>
