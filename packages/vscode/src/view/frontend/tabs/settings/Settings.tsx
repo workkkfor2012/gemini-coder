@@ -69,8 +69,8 @@ export const Settings: React.FC<Props> = (props) => {
           Configure API Providers
         </UiButton>
         <span>
-          The provider you choose directly processes all your API requests. API
-          keys are&nbsp;
+          The provider you choose directly processes your API request. API keys
+          are&nbsp;
           <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
             stored encrypted
           </a>
