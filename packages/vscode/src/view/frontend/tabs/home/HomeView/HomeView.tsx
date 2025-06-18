@@ -296,7 +296,8 @@ export const HomeView: React.FC<Props> = (props) => {
               }
             />
           )}
-        {(props.home_view_type == HOME_VIEW_TYPES.WEB ||
+        {((props.home_view_type == HOME_VIEW_TYPES.WEB &&
+          props.web_mode != 'ask') ||
           (props.home_view_type == HOME_VIEW_TYPES.API &&
             props.api_mode != 'code-completions')) && (
           <UiQuickAction
