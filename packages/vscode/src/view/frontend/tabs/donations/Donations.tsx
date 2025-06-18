@@ -42,15 +42,17 @@ export const Donations: React.FC<Props> = (props) => {
     >
       <div className={styles.top}>
         <span>
-          Hi! Thanks for using CWC! I created this tool for public benefit. You
-          can show your support by buying me a coffee or sending{' '}
-          <a href="https://codeweb.chat/#donations">crypto</a>.<br />
-          Thank you, Robert ♥
+          Hi! Glad you&apos;re using CWC! This tool is an open source project,
+          and your support makes a difference. Consider buying me a coffee or
+          sending <a href="https://codeweb.chat/#donations">crypto</a> if
+          you&apos;d like to contribute.
+          <br />
+          Best, Robert 🤓
         </span>
         <UiBuyMeACoffee username="robertpiosik" />
       </div>
 
-      <UiSeparator size={24} />
+      <UiSeparator height={24} />
 
       {!is_initialized ? (
         <>Fetching recent donations...</>

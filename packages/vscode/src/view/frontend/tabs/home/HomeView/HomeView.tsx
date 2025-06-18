@@ -186,7 +186,7 @@ export const HomeView: React.FC<Props> = (props) => {
         )}
       </div>
 
-      <UiSeparator size="small" />
+      <UiSeparator height={8} />
 
       {!props.is_connected && props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <>
@@ -203,7 +203,7 @@ export const HomeView: React.FC<Props> = (props) => {
             </a>
           </div>
 
-          <UiSeparator size="small" />
+          <UiSeparator height={8} />
         </>
       )}
 
@@ -252,7 +252,7 @@ export const HomeView: React.FC<Props> = (props) => {
         props.web_mode == 'edit' &&
         props.edit_format_selector_visibility == 'visible' && (
           <>
-            <UiSeparator size={10} />
+            <UiSeparator height={10} />
             <div className={styles['edit-format']}>
               <span>RESPONSE EDIT FORMAT</span>
               <UiHorizontalSelector
@@ -287,7 +287,7 @@ export const HomeView: React.FC<Props> = (props) => {
           (props.web_mode == 'edit' ||
             props.web_mode == 'code-completions'))) && (
         <>
-          <UiSeparator size="large" />
+          <UiSeparator height={16} />
           <div className={styles['quick-actions']}>
             <span>SUGGESTED COMMANDS</span>
             {props.home_view_type == HOME_VIEW_TYPES.WEB &&
@@ -325,7 +325,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
       {props.home_view_type == HOME_VIEW_TYPES.WEB && (
         <>
-          <UiSeparator size="large" />
+          <UiSeparator height={16} />
           <UiPresets
             presets={props.presets.map((preset) => {
               return {

@@ -1,15 +1,15 @@
 .separator {
   flex-shrink: 0;
 
-  &--small {
+  &--8 {
     height: var(--padding-8px);
   }
 
-  &--medium {
+  &--12 {
     height: var(--padding-12px);
   }
 
-  &--large {
+  &--16 {
     height: var(--padding-16px);
   }
 
