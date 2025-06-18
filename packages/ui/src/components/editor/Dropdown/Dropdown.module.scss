@@ -38,7 +38,7 @@
   position: absolute;
   right: 0;
   z-index: 2;
-  background-color: var(--vscode-menu-background);
+  background-color: var(--vscode-dropdown-background);
   border: 1px solid var(--vscode-focusBorder);
   min-width: 100%;
   max-height: 200px;
@@ -47,14 +47,12 @@
   &__item {
     display: flex;
     align-items: center;
-    height: 22px;
+    height: 20px;
     padding: 0 var(--padding-6px);
     color: var(--vscode-menu-foreground);
     font-size: var(--font-size-12px);
     cursor: pointer;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    margin: 1px;
 
     &:hover {
       background-color: var(--vscode-menu-selectionBackground);

@@ -18,6 +18,7 @@ export namespace Dropdown {
 
 export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
   const [is_open, set_is_open] = useState(false)
+  const [just_opened, set_just_opened] = useState(false)
   const container_ref = useRef<HTMLDivElement>(null)
 
   const selected_option = props.options.find(
@@ -25,12 +26,20 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
   )
 
   const handle_toggle = () => {
+    if (!is_open) {
+      set_just_opened(true)
+    }
     set_is_open(!is_open)
   }
 
   const handle_select = (value: T) => {
     props.on_change(value)
     set_is_open(false)
+    set_just_opened(false)
+  }
+
+  const handle_mouse_enter = () => {
+    set_just_opened(false)
   }
 
   useEffect(() => {
@@ -40,6 +49,7 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
         !container_ref.current.contains(event.target as Node)
       ) {
         set_is_open(false)
+        set_just_opened(false)
       }
     }
 
@@ -55,7 +65,10 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
       ref={container_ref}
       title={props.title}
     >
-      <button className={cn(styles.button, { [styles['button--open']]: is_open })} onClick={handle_toggle}>
+      <button
+        className={cn(styles.button, { [styles['button--open']]: is_open })}
+        onClick={handle_toggle}
+      >
         <span className={styles.button__label}>
           {selected_option ? selected_option.label : 'Select an option'}
         </span>
@@ -65,13 +78,13 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
       </button>
 
       {is_open && (
-        <div className={styles.menu}>
+        <div className={styles.menu} onMouseEnter={handle_mouse_enter}>
           {props.options.map((option) => (
             <div
               key={option.value}
               className={cn(styles.menu__item, {
                 [styles['menu__item--selected']]:
-                  option.value == props.selected_value
+                  just_opened && option.value == props.selected_value
               })}
               onClick={() => handle_select(option.value)}
             >
