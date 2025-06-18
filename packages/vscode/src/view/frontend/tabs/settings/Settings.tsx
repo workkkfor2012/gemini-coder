@@ -69,11 +69,11 @@ export const Settings: React.FC<Props> = (props) => {
           Configure API Providers
         </UiButton>
         <span>
-          All requests are sent directly to providers. API keys are&nbsp;
+          All API requests are sent directly to providers. API keys are&nbsp;
           <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
             stored encrypted
           </a>
-          &nbsp;and never leave your device.
+          &nbsp;on your device.
         </span>
       </div>
 
