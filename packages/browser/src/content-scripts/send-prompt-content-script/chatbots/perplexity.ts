@@ -16,6 +16,50 @@ export const perplexity: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => setTimeout(resolve, 500))
   },
+  enter_message_and_send: async (message: string) => {
+    let instructions = message
+    if (message.includes('<files>')) {
+      instructions = message.split('<files>')[0].trim()
+      const context = message.split('<files>')[1].split('</files>')[0].trim()
+
+      // Upload file
+      const file_input = document.querySelector(
+        'input[type="file"]'
+      ) as HTMLInputElement
+      const blob = new Blob([context], { type: 'text/plain' })
+      const file = new File([blob], 'context.txt', { type: 'text/plain' })
+      const data_transfer = new DataTransfer()
+      data_transfer.items.add(file)
+      file_input.files = data_transfer.files
+      file_input.dispatchEvent(new Event('change', { bubbles: true }))
+      await new Promise((r) => requestAnimationFrame(r))
+      await new Promise((resolve) => {
+        const check_for_element = () => {
+          if (document.querySelector('svg.tabler-icon-file-text')) {
+            resolve(null)
+          } else {
+            setTimeout(check_for_element, 100)
+          }
+        }
+        check_for_element()
+      })
+    }
+
+    // Enter instructions
+    const input_element = document.querySelector(
+      'textarea'
+    ) as HTMLTextAreaElement
+    input_element.value = instructions
+    input_element.dispatchEvent(new Event('input', { bubbles: true }))
+    input_element.dispatchEvent(new Event('change', { bubbles: true }))
+    await new Promise((r) => requestAnimationFrame(r))
+
+    // Submit
+    const submit_button = document.querySelector(
+      'button[data-testid="submit-button"]'
+    ) as HTMLButtonElement
+    submit_button.click()
+  },
   inject_apply_response_button: (client_id: number) => {
     const add_buttons = (params: { footer: Element }) => {
       // Check if buttons already exist by text content to avoid duplicates

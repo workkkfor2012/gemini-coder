@@ -778,7 +778,8 @@
                   "Yuanbao",
                   "Doubao",
                   "Mistral",
-                  "HuggingChat"
+                  "HuggingChat",
+                  "Perplexity"
                 ],
                 "description": "Choose among supported chatbots."
               },

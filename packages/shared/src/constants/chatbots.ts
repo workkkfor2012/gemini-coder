@@ -50,7 +50,7 @@ export const CHATBOTS = {
     default_top_p: 0,
     models: {
       '2.5-flash': '2.5 Flash',
-      '2.5-pro-preview': '2.5 Pro (preview)'
+      '2.5-pro': '2.5 Pro'
     }
   },
   'Open WebUI': {
