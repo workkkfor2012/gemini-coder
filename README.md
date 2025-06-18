@@ -26,15 +26,15 @@ A community-driven, **non-agentic** coding tool for **AI-assisted real-world pro
 **Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
-- API tools—battle-tested must-haves
-- respect privacy—zero tracking
+- API tools—powerful necessities
+- respect privacy—doesn't collect usage data
 - lightweight—about ~1MB of code
 
 **CWC is for you if:**
 
 - you're an experienced engineer working on a large codebase
 - you're a student or hobbyist on a budget
-- you love open source software! 🫶
+- you love free and open source software 🫶
 
 **See how simple it is to implement a feature with ChatGPT:**
 
