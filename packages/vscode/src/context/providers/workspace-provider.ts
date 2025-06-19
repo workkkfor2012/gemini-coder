@@ -1203,6 +1203,7 @@ export class WorkspaceProvider
     }
 
     this.refresh()
+    this._on_did_change_checked_files.fire()
   }
 
   // Load .gitignore from all levels of the workspace
