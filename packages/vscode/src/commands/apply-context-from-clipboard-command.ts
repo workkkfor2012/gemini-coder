@@ -90,17 +90,41 @@ export function apply_context_from_clipboard_command(
           return
         }
 
+        const quick_pick_items = existing_paths.map((file_path) => ({
+          label: path.relative(workspace_roots[0] || '', file_path),
+          picked: true,
+          file_path: file_path
+        }))
+
+        const selected_items = await vscode.window.showQuickPick(
+          quick_pick_items,
+          {
+            canPickMany: true,
+            placeHolder:
+              'Select files to include (all are selected by default)',
+            title: `Found ${existing_paths.length} file${
+              existing_paths.length == 1 ? '' : 's'
+            }`
+          }
+        )
+
+        if (!selected_items || selected_items.length === 0) {
+          return
+        }
+
+        const selected_paths = selected_items.map((item) => item.file_path)
+
         Logger.log({
-          message: `Found ${existing_paths.length} valid path${
-            existing_paths.length == 1 ? '' : 's'
+          message: `Selected ${selected_paths.length} file${
+            selected_paths.length == 1 ? '' : 's'
           }.`,
-          data: { paths: existing_paths }
+          data: { paths: selected_paths }
         })
 
-        await workspace_provider.set_checked_files(existing_paths)
+        await workspace_provider.set_checked_files(selected_paths)
         vscode.window.showInformationMessage(
-          `Found ${existing_paths.length} valid path${
-            existing_paths.length == 1 ? '' : 's'
+          `Selected ${selected_paths.length} file${
+            selected_paths.length == 1 ? '' : 's'
           }.`
         )
       } catch (error) {
