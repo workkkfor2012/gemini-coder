@@ -41,18 +41,18 @@ export const Donations: React.FC<Props> = (props) => {
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
       <div className={styles.top}>
-        <span>
-          Hi! I created CWC for public benefit. You can show your support by
-          buying me a coffee or sending{' '}
-          <a href="https://codeweb.chat/#donations">crypto</a>. Your kind words
-          mean a lot!
-          <br />
-          <br />
-          Thank you for choosing to donate ♥
-        </span>
+        <div className={styles.top__intro}>
+          <span>
+            Hi! I created CWC for public benefit. You can show your support by
+            buying me a coffee or sending{' '}
+            <a href="https://codeweb.chat/#donations">crypto</a>. Thank you for
+            choosing to donate ♥
+          </span>
+          <span>Robert</span>
+        </div>
         <div className={styles.top__button}>
           <UiBuyMeACoffee username="robertpiosik" />
-          <span>even $1 makes a difference</span>
+          <span>$1 or more</span>
         </div>
       </div>
 

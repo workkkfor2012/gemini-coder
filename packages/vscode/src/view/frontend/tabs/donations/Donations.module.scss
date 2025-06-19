@@ -12,6 +12,12 @@
   gap: var(--padding-16px);
   align-items: center;
 
+  &__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--padding-4px);
+  }
+
   &__button {
     display: flex;
     align-items: center;

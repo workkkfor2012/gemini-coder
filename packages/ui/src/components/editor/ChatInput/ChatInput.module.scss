@@ -81,8 +81,8 @@
 
 .selection-keyword {
   background-color: var(--vscode-editor-selectionBackground);
-  border-radius: 3px;
-  padding: 0 1px;
+  border-radius: var(--border-radius-2px);
+  padding: 0 0.6px;
 
   &--error {
     background-color: var(--vscode-diffEditor-removedLineBackground);
