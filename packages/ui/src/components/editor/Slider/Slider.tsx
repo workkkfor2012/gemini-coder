@@ -14,7 +14,7 @@ export const Slider: React.FC<Props> = (props) => {
       <input
         type="number"
         min="0"
-        max="1"
+        max="2"
         step="0.05"
         value={value}
         onChange={(e) => {
@@ -29,7 +29,7 @@ export const Slider: React.FC<Props> = (props) => {
       <input
         type="range"
         min="0"
-        max="1"
+        max="2"
         step="0.05"
         value={value}
         onChange={(e) => set_value(parseFloat(e.target.value))}
