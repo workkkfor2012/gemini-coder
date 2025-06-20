@@ -64,7 +64,6 @@ import {
   ConfigPresetFormat
 } from '@/view/backend/helpers/preset-format-converters'
 import { CHATBOTS } from '@shared/constants/chatbots'
-import { HOME_VIEW_TYPE_STATE_KEY } from '@/constants/state-keys'
 import { HOME_VIEW_TYPES, HomeViewType } from '../types/home-view-type'
 import { ApiMode, WebMode } from '@shared/types/modes'
 
@@ -104,17 +103,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     )
     this.web_mode = this.context.workspaceState.get<WebMode>('web-mode', 'edit')
     this.api_mode = this.context.workspaceState.get<ApiMode>('api-mode', 'edit')
-    const home_view_type = this.context.workspaceState.get<HomeViewType>(
-      HOME_VIEW_TYPE_STATE_KEY
-    )
-    if (
-      home_view_type == HOME_VIEW_TYPES.WEB ||
-      home_view_type == HOME_VIEW_TYPES.API
-    ) {
-      this.home_view_type = home_view_type
-    } else {
-      this.home_view_type = HOME_VIEW_TYPES.WEB
-    }
+    this.home_view_type = HOME_VIEW_TYPES.WEB
 
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
