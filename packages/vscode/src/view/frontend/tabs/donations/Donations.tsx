@@ -55,11 +55,11 @@ export const Donations: React.FC<Props> = (props) => {
                   CWC is a free and open source project created by an
                   independent developer.
                 </strong>{' '}
-                Love using it? Show your support with a coffee or a{' '}
+                Love using it? You can show your support with a coffee or a{' '}
                 <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
                 tip.
               </span>
-              <span>Thank you for choosing to donate ♥</span>
+              <span>Thank you, Robert</span>
             </div>
             <div className={styles.top__button}>
               <UiBuyMeACoffee username="robertpiosik" />
