@@ -898,6 +898,7 @@
     "react": "^18.2.0",
     "react-autosize-textarea": "^7.1.0",
     "react-dom": "^18.2.0",
+    "simplebar-react": "^3.3.1",
     "ui": "workspace:*",
     "utf-8-validate": "^6.0.5",
     "ws": "^8.18.2"
