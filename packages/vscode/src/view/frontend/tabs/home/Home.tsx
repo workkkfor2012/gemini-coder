@@ -41,8 +41,6 @@ export const Home: React.FC<Props> = (props) => {
   const [web_mode, set_web_mode] = useState<WebMode>()
   const [api_mode, set_api_mode] = useState<ApiMode>()
   const [edit_format, set_edit_format] = useState<EditFormat>()
-  const [edit_format_selector_visibility, set_edit_format_selector_visibility] =
-    useState<'visible' | 'hidden'>('visible')
 
   const is_in_code_completions_mode =
     (home_view_type == 'Web chat' && web_mode == 'code-completions') ||
@@ -97,9 +95,6 @@ export const Home: React.FC<Props> = (props) => {
         case 'EDIT_FORMAT':
           set_edit_format(message.edit_format)
           break
-        case 'EDIT_FORMAT_SELECTOR_VISIBILITY':
-          set_edit_format_selector_visibility(message.visibility)
-          break
         case 'HOME_VIEW_TYPE':
           set_home_view_type(message.view_type)
           break
@@ -127,7 +122,6 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_INSTRUCTIONS' },
       { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
       { command: 'GET_EDIT_FORMAT' },
-      { command: 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY' },
       { command: 'GET_HOME_VIEW_TYPE' },
       { command: 'GET_WEB_MODE' },
       { command: 'GET_API_MODE' }
@@ -419,7 +413,6 @@ export const Home: React.FC<Props> = (props) => {
     props.normal_instructions === undefined ||
     props.code_completion_suggestions === undefined ||
     edit_format === undefined ||
-    edit_format_selector_visibility === undefined ||
     home_view_type === undefined ||
     web_mode === undefined ||
     api_mode === undefined
@@ -460,7 +453,6 @@ export const Home: React.FC<Props> = (props) => {
       set_normal_instructions={props.set_normal_instructions}
       code_completion_suggestions={props.code_completion_suggestions}
       set_code_completion_suggestions={props.set_code_completion_suggestions}
-      edit_format_selector_visibility={edit_format_selector_visibility}
       on_caret_position_change={handle_caret_position_change}
       home_view_type={home_view_type}
       on_home_view_type_change={handle_home_view_type_change}
