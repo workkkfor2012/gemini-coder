@@ -72,8 +72,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public instructions: string = ''
   public code_completion_suggestions: string = ''
   public web_mode: WebMode
+  public chat_edit_format: EditFormat
+  public api_edit_format: EditFormat
   public api_mode: ApiMode
-  public edit_format: EditFormat
   public home_view_type: HomeViewType = HOME_VIEW_TYPES.WEB
 
   constructor(
@@ -93,9 +94,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       }
     })
 
-    this.edit_format = this.context.workspaceState.get<EditFormat>(
-      'edit-format',
+    this.chat_edit_format = this.context.workspaceState.get<EditFormat>(
+      'chat-edit-format',
       'whole'
+    )
+    this.api_edit_format = this.context.workspaceState.get<EditFormat>(
+      'api-edit-format',
+      'diff'
     )
     this.web_mode = this.context.workspaceState.get<WebMode>('web-mode', 'edit')
     this.api_mode = this.context.workspaceState.get<ApiMode>('api-mode', 'edit')
@@ -378,7 +383,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_EDIT_FORMAT') {
             handle_get_edit_format(this)
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
-            await handle_save_edit_format(this, message.edit_format)
+            await handle_save_edit_format(this, message)
           } else if (message.command == 'CARET_POSITION_CHANGED') {
             this.caret_position = message.caret_position
           } else if (message.command == 'CONFIGURE_API_PROVIDERS') {

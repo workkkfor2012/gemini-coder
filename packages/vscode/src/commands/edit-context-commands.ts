@@ -6,6 +6,7 @@ import { make_api_request } from '../utils/make-api-request'
 import axios from 'axios'
 import { PROVIDERS } from '@shared/constants/providers'
 import { LAST_SELECTED_EDIT_CONTEXT_CONFIG_INDEX_STATE_KEY } from '@/constants/state-keys'
+import { EditFormat } from '@shared/types/edit-format'
 
 const get_edit_context_config = async (
   api_providers_manager: ApiProvidersManager,
@@ -335,8 +336,36 @@ const perform_context_editing = async (params: {
   edit_context_instructions += instructions
 
   const files = `<files>${collected_files}\n</files>`
-  const edit_format_instructions =
-    'Whenever proposing a file use the markdown code block syntax. Each code block should be a diff patch. Do not send explanations.'
+
+  const config = vscode.workspace.getConfiguration('codeWebChat')
+  const edit_format = params.context.workspaceState.get<EditFormat>(
+    'api-edit-format',
+    'diff'
+  )
+  let edit_format_instructions = ''
+
+  switch (edit_format) {
+    case 'truncated':
+      edit_format_instructions = config.get<string>(
+        'editFormatInstructionsTruncated',
+        ''
+      )
+      break
+    case 'whole':
+      edit_format_instructions = config.get<string>(
+        'editFormatInstructionsWhole',
+        ''
+      )
+      break
+    case 'diff':
+    default:
+      edit_format_instructions = config.get<string>(
+        'editFormatInstructionsDiff',
+        ''
+      )
+      break
+  }
+
   const content = `${edit_context_instructions}\n${edit_format_instructions}\n${files}\n${edit_context_instructions}\n${edit_format_instructions}`
 
   const messages = [

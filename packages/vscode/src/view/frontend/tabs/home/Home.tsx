@@ -40,7 +40,8 @@ export const Home: React.FC<Props> = (props) => {
   )
   const [web_mode, set_web_mode] = useState<WebMode>()
   const [api_mode, set_api_mode] = useState<ApiMode>()
-  const [edit_format, set_edit_format] = useState<EditFormat>()
+  const [chat_edit_format, set_chat_edit_format] = useState<EditFormat>()
+  const [api_edit_format, set_api_edit_format] = useState<EditFormat>()
 
   const is_in_code_completions_mode =
     (home_view_type == 'Web chat' && web_mode == 'code-completions') ||
@@ -93,7 +94,8 @@ export const Home: React.FC<Props> = (props) => {
           props.set_code_completion_suggestions(message.value || '')
           break
         case 'EDIT_FORMAT':
-          set_edit_format(message.edit_format)
+          set_chat_edit_format(message.chat_edit_format)
+          set_api_edit_format(message.api_edit_format)
           break
         case 'HOME_VIEW_TYPE':
           set_home_view_type(message.view_type)
@@ -311,10 +313,20 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const handle_edit_format_change = (edit_format: EditFormat) => {
-    set_edit_format(edit_format)
+  const handle_chat_edit_format_change = (edit_format: EditFormat) => {
+    set_chat_edit_format(edit_format)
     props.vscode.postMessage({
       command: 'SAVE_EDIT_FORMAT',
+      target: 'chat',
+      edit_format
+    } as WebviewMessage)
+  }
+
+  const handle_api_edit_format_change = (edit_format: EditFormat) => {
+    set_api_edit_format(edit_format)
+    props.vscode.postMessage({
+      command: 'SAVE_EDIT_FORMAT',
+      target: 'api',
       edit_format
     } as WebviewMessage)
   }
@@ -412,7 +424,8 @@ export const Home: React.FC<Props> = (props) => {
     is_in_code_completions_mode === undefined ||
     props.normal_instructions === undefined ||
     props.code_completion_suggestions === undefined ||
-    edit_format === undefined ||
+    chat_edit_format === undefined ||
+    api_edit_format === undefined ||
     home_view_type === undefined ||
     web_mode === undefined ||
     api_mode === undefined
@@ -442,8 +455,10 @@ export const Home: React.FC<Props> = (props) => {
       api_mode={api_mode}
       on_web_mode_change={handle_web_mode_change}
       on_api_mode_change={handle_api_mode_change}
-      edit_format={edit_format}
-      on_edit_format_change={handle_edit_format_change}
+      chat_edit_format={chat_edit_format}
+      api_edit_format={api_edit_format}
+      on_chat_edit_format_change={handle_chat_edit_format_change}
+      on_api_edit_format_change={handle_api_edit_format_change}
       on_presets_reorder={handle_presets_reorder}
       on_preset_edit={handle_preset_edit}
       on_preset_duplicate={handle_preset_duplicate}

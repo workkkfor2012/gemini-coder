@@ -67,8 +67,8 @@ export const handle_copy_prompt = async (
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const edit_format_instructions = config.get<string>(
         `editFormatInstructions${
-          provider.edit_format.charAt(0).toUpperCase() +
-          provider.edit_format.slice(1)
+          provider.chat_edit_format.charAt(0).toUpperCase() +
+          provider.chat_edit_format.slice(1)
         }`
       )
       if (edit_format_instructions) {

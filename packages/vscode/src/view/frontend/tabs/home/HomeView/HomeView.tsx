@@ -34,8 +34,10 @@ type Props = {
   api_mode: ApiMode
   on_web_mode_change: (mode: WebMode) => void
   on_api_mode_change: (mode: ApiMode) => void
-  edit_format: EditFormat
-  on_edit_format_change: (edit_format: EditFormat) => void
+  chat_edit_format: EditFormat
+  api_edit_format: EditFormat
+  on_chat_edit_format_change: (edit_format: EditFormat) => void
+  on_api_edit_format_change: (edit_format: EditFormat) => void
   on_presets_reorder: (reordered_presets: Preset[]) => void
   on_preset_edit: (preset_name: string) => void
   on_preset_duplicate: (preset_name: string) => void
@@ -301,38 +303,46 @@ export const HomeView: React.FC<Props> = (props) => {
             />
           </div>
 
-          {props.home_view_type == HOME_VIEW_TYPES.WEB &&
-            props.web_mode == 'edit' && (
-              <>
-                <UiSeparator height={10} />
-                <div className={styles['edit-format']}>
-                  <span>RESPONSE EDIT FORMAT</span>
-                  <UiHorizontalSelector
-                    options={[
-                      {
-                        value: 'whole',
-                        label: 'Whole',
-                        title: 'The model will output complete files'
-                      },
-                      {
-                        value: 'truncated',
-                        label: 'Truncated',
-                        title: 'The model will skip unchanged fragments'
-                      },
-                      {
-                        value: 'diff',
-                        label: 'Diff',
-                        title: 'The model will output diffs'
-                      }
-                    ]}
-                    selected_value={
-                      props.web_mode == 'edit' ? props.edit_format : undefined
+          {((props.home_view_type == HOME_VIEW_TYPES.WEB &&
+            props.web_mode == 'edit') ||
+            (props.home_view_type == HOME_VIEW_TYPES.API &&
+              props.api_mode == 'edit')) && (
+            <>
+              <UiSeparator height={10} />
+              <div className={styles['edit-format']}>
+                <span>RESPONSE EDIT FORMAT</span>
+                <UiHorizontalSelector
+                  options={[
+                    {
+                      value: 'whole',
+                      label: 'Whole',
+                      title: 'The model will output complete files'
+                    },
+                    {
+                      value: 'truncated',
+                      label: 'Truncated',
+                      title: 'The model will skip unchanged fragments'
+                    },
+                    {
+                      value: 'diff',
+                      label: 'Diff',
+                      title: 'The model will output diffs'
                     }
-                    on_select={props.on_edit_format_change}
-                  />
-                </div>
-              </>
-            )}
+                  ]}
+                  selected_value={
+                    props.home_view_type == HOME_VIEW_TYPES.WEB
+                      ? props.chat_edit_format
+                      : props.api_edit_format
+                  }
+                  on_select={(value) =>
+                    props.home_view_type == HOME_VIEW_TYPES.WEB
+                      ? props.on_chat_edit_format_change(value as EditFormat)
+                      : props.on_api_edit_format_change(value as EditFormat)
+                  }
+                />
+              </div>
+            </>
+          )}
 
           <UiSeparator height={16} />
 
