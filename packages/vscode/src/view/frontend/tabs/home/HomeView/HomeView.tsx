@@ -95,8 +95,7 @@ export const HomeView: React.FC<Props> = (props) => {
   const is_in_code_completions_mode =
     (props.home_view_type == 'Web chat' &&
       props.web_mode == 'code-completions') ||
-    (props.home_view_type == 'API call' &&
-      props.api_mode == 'code-completions')
+    (props.home_view_type == 'API call' && props.api_mode == 'code-completions')
 
   const current_prompt = is_in_code_completions_mode
     ? props.code_completion_suggestions
@@ -339,6 +338,7 @@ export const HomeView: React.FC<Props> = (props) => {
             )}
 
           <UiSeparator height={16} />
+
           <div className={styles['quick-actions']}>
             <span>SUGGESTED COMMANDS</span>
             {props.home_view_type == HOME_VIEW_TYPES.WEB &&

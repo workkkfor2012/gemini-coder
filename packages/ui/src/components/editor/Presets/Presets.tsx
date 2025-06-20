@@ -108,6 +108,10 @@ export const Presets: React.FC<Presets.Props> = (props) => {
             const is_disabled_in_code_completion_mode =
               props.is_in_code_completions_mode && preset.has_affixes
 
+            const is_unnamed =
+              !preset.name || /^\(\d+\)$/.test(preset.name.trim())
+            const display_name = is_unnamed ? 'Unnamed' : preset.name
+
             return (
               <div
                 key={i}
@@ -125,8 +129,8 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                 role="button"
                 title={
                   is_disabled_in_code_completion_mode
-                    ? `${preset.name} (Presets with prompt prefix or suffix are unaviailable for code completions)`
-                    : preset.name
+                    ? `${display_name} (Presets with prompt prefix or suffix are unaviailable for code completions)`
+                    : display_name
                 }
               >
                 <div className={styles.presets__item__left}>
@@ -151,10 +155,12 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                               preset.name
                             ),
                       [styles['presets__item__left__title--disabled']]:
-                        is_disabled_in_code_completion_mode
+                        is_disabled_in_code_completion_mode,
+                      [styles['presets__item__left__title--unnamed']]:
+                        is_unnamed
                     })}
                   >
-                    {preset.name}
+                    {display_name}
                   </div>
                 </div>
                 <div

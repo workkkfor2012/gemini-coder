@@ -12,22 +12,25 @@ export const handle_delete_preset = async (
   const config = vscode.workspace.getConfiguration('codeWebChat')
   const current_presets = config.get<ConfigPresetFormat[]>('presets', []) || []
 
-  // Show confirmation dialog with revert option
+  const is_unnamed = !preset_name || /^\(\d+\)$/.test(preset_name.trim())
+  const display_preset_name = is_unnamed ? 'Unnamed' : preset_name
+
   const delete_button = 'Delete'
   const result = await vscode.window.showInformationMessage(
     'Please confirm',
     {
       modal: true,
-      detail: `Are you sure you want to delete preset "${preset_name}"?`
+      detail: is_unnamed
+        ? `Are you sure you want to delete this preset?`
+        : `Are you sure you want to delete preset "${display_preset_name}"?`
     },
     delete_button
   )
 
   if (result != delete_button) {
-    return // User cancelled
+    return
   }
 
-  // Store the deleted preset and its index in case we need to revert
   const preset_index = current_presets.findIndex((p) => p.name == preset_name)
   const deleted_preset = current_presets[preset_index]
   const updated_presets = current_presets.filter((p) => p.name != preset_name)
@@ -39,15 +42,15 @@ export const handle_delete_preset = async (
       vscode.ConfigurationTarget.Global
     )
 
-    // Show notification with undo option
     const button_text = 'Undo'
     const undo_result = await vscode.window.showInformationMessage(
-      `Preset "${preset_name}" has been deleted.`,
+      is_unnamed
+        ? `Preset has been deleted.`
+        : `Preset "${display_preset_name}" has been deleted.`,
       button_text
     )
 
     if (undo_result == button_text && deleted_preset) {
-      // Restore the preset at its original position
       const restored_presets = [...updated_presets]
       restored_presets.splice(preset_index, 0, deleted_preset)
 
@@ -56,13 +59,15 @@ export const handle_delete_preset = async (
         restored_presets,
         vscode.ConfigurationTarget.Global
       )
-      vscode.window.showInformationMessage(`Preset "${preset_name}" restored.`)
+      vscode.window.showInformationMessage(
+        is_unnamed
+          ? `Preset has been restored.`
+          : `Preset "${display_preset_name}" has been restored.`
+      )
     }
 
-    // Send updated list back to webview
     provider.send_presets_to_webview(webview_view.webview)
 
-    // Also update selected presets for both modes if needed
     const selected_chat_names = provider.context.globalState.get<string[]>(
       'selectedPresets',
       []

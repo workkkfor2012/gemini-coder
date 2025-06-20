@@ -99,6 +99,11 @@
         &--disabled {
           opacity: var(--disabled-opacity);
         }
+
+        &--unnamed {
+          font-style: italic;
+          padding-right: 1px;
+        }
       }
     }
 
