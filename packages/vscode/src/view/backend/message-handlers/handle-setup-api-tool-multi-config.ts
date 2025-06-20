@@ -53,16 +53,13 @@ export const handle_setup_api_tool_multi_config = async (params: {
         }
       case 'edit-context':
         return {
-          get_configs: () =>
-            providers_manager.get_edit_context_tool_configs(),
+          get_configs: () => providers_manager.get_edit_context_tool_configs(),
           save_configs: (configs: EditContextConfigs) =>
             providers_manager.save_edit_context_tool_configs(configs),
           get_default_config: () =>
             providers_manager.get_default_edit_context_config(),
           set_default_config: (config: ToolConfig | null) =>
-            providers_manager.set_default_edit_context_config(
-              config as any
-            ),
+            providers_manager.set_default_edit_context_config(config as any),
           get_display_name: () => 'Edit Context'
         }
       case 'intelligent-update':
@@ -396,8 +393,11 @@ export const handle_setup_api_tool_multi_config = async (params: {
     quick_pick.title = `Edit Configuration: ${config.provider_name} / ${config.model}`
     quick_pick.placeholder = 'Select what to update'
 
+    let is_accepted = false
+
     return new Promise<void>((resolve) => {
       quick_pick.onDidAccept(async () => {
+        is_accepted = true
         const selected_option = quick_pick.selectedItems[0]
         if (!selected_option || selected_option.label == back_label) {
           quick_pick.hide()
@@ -558,7 +558,9 @@ export const handle_setup_api_tool_multi_config = async (params: {
       })
 
       quick_pick.onDidHide(() => {
-        resolve()
+        if (!is_accepted) {
+          resolve()
+        }
       })
 
       quick_pick.show()
