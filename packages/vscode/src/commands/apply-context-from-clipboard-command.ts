@@ -102,8 +102,10 @@ export function apply_context_from_clipboard_command(
                 : `${token_count}`
 
             return {
-              label: path.relative(workspace_roots[0] || '', file_path),
-              description: formatted_token_count,
+              label: path.basename(file_path),
+              description: `${formatted_token_count} ${path.dirname(
+                path.relative(workspace_roots[0] || '', file_path)
+              )}`,
               picked: true,
               file_path: file_path
             }
