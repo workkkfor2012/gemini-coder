@@ -95,7 +95,7 @@ Create and modify files in context based on natural language instructions.
 
 ### Intelligent Update
 
-Update files based on code blocks in truncated edit format and fix malformed diffs.
+When applying chat response, update files based on code blocks in truncated edit format and fix malformed diffs.
 
 ✅ Regenerates whole files in concurrent API calls \
 ✅ Smaller models like Gemini Flash are sufficient
