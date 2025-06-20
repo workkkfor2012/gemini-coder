@@ -25,10 +25,11 @@
     white-space: nowrap;
     flex-grow: 1;
     text-align: left;
-    font-size: var(--font-size-12px);
+    font-size: var(--font-size-11px);
   }
 
   &__icon {
+    font-size: 14px;
     margin-left: var(--padding-2px);
     color: var(--vscode-icon-foreground);
   }

@@ -59,7 +59,8 @@ export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
 
   const is_in_code_completions_mode =
-    (props.home_view_type == 'Web' && props.web_mode == 'code-completions') ||
+    (props.home_view_type == 'Web chats' &&
+      props.web_mode == 'code-completions') ||
     (props.home_view_type == 'API' && props.api_mode == 'code-completions')
 
   const current_prompt = is_in_code_completions_mode
@@ -161,29 +162,37 @@ export const HomeView: React.FC<Props> = (props) => {
           title="Initialize web chats or update files right away"
         />
 
-        {props.home_view_type == HOME_VIEW_TYPES.WEB && (
-          <UiDropdown
-            options={[
-              { value: 'ask', label: 'Ask about context' },
-              { value: 'edit', label: 'Edit context' },
-              { value: 'code-completions', label: 'Code at cursor with context' }
-            ]}
-            selected_value={props.web_mode}
-            on_change={props.on_web_mode_change}
-            title="Select mode"
-          />
-        )}
-        {props.home_view_type == HOME_VIEW_TYPES.API && (
-          <UiDropdown
-            options={[
-              { value: 'edit', label: 'Edit context' },
-              { value: 'code-completions', label: 'Code at cursor with context' }
-            ]}
-            selected_value={props.api_mode}
-            on_change={props.on_api_mode_change}
-            title="Select mode"
-          />
-        )}
+        <div className={styles.top__dropdown}>
+          {props.home_view_type == HOME_VIEW_TYPES.WEB && (
+            <UiDropdown
+              options={[
+                { value: 'ask', label: 'Ask about context' },
+                { value: 'edit', label: 'Edit context' },
+                {
+                  value: 'code-completions',
+                  label: 'Code at cursor with context'
+                }
+              ]}
+              selected_value={props.web_mode}
+              on_change={props.on_web_mode_change}
+              title="Select mode"
+            />
+          )}
+          {props.home_view_type == HOME_VIEW_TYPES.API && (
+            <UiDropdown
+              options={[
+                { value: 'edit', label: 'Edit context' },
+                {
+                  value: 'code-completions',
+                  label: 'Code at cursor with context'
+                }
+              ]}
+              selected_value={props.api_mode}
+              on_change={props.on_api_mode_change}
+              title="Select mode"
+            />
+          )}
+        </div>
       </div>
 
       <UiSeparator height={8} />
