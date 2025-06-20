@@ -104,10 +104,17 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     )
     this.web_mode = this.context.workspaceState.get<WebMode>('web-mode', 'edit')
     this.api_mode = this.context.workspaceState.get<ApiMode>('api-mode', 'edit')
-    this.home_view_type = this.context.workspaceState.get<HomeViewType>(
-      HOME_VIEW_TYPE_STATE_KEY,
-      HOME_VIEW_TYPES.WEB
+    const home_view_type = this.context.workspaceState.get<HomeViewType>(
+      HOME_VIEW_TYPE_STATE_KEY
     )
+    if (
+      home_view_type == HOME_VIEW_TYPES.WEB ||
+      home_view_type == HOME_VIEW_TYPES.API
+    ) {
+      this.home_view_type = home_view_type
+    } else {
+      this.home_view_type = HOME_VIEW_TYPES.WEB
+    }
 
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
@@ -240,8 +247,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const is_code_completions_mode =
       (this.home_view_type == 'Web chat' &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API call' &&
-        this.api_mode == 'code-completions')
+      (this.home_view_type == 'API call' && this.api_mode == 'code-completions')
 
     Promise.all([
       this.workspace_provider.get_checked_files_token_count({
@@ -520,8 +526,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     if (
       (this.home_view_type == 'Web chat' &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API call' &&
-        this.api_mode == 'code-completions')
+      (this.home_view_type == 'API call' && this.api_mode == 'code-completions')
     ) {
       const before_caret = this.code_completion_suggestions.slice(
         0,
