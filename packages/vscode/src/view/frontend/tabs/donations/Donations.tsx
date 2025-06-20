@@ -67,12 +67,12 @@ export const Donations: React.FC<Props> = (props) => {
           <UiSeparator height={16} />
 
           {!is_initialized ? (
-            <>Fetching recent donations...</>
+            <>Fetching recent coffees...</>
           ) : error ? (
             error
           ) : (
             <div className={styles['recent-donations']}>
-              <span>RECENT DONATIONS</span>
+              <span>RECENT COFFEES</span>
               <div className={is_loading ? styles.dimmed : ''}>
                 <UiRecentDonations donations={donations} />
               </div>

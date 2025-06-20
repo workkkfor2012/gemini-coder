@@ -63,7 +63,7 @@ export const use_donations = (is_visible: boolean) => {
     try {
       await fetch_donations_page(1, false)
     } catch (err) {
-      set_error('Failed to fetch recent donations. Please try again later.')
+      set_error('Failed to fetch recent coffees. Please try again later.')
       Logger.error({
         function_name: 'fetch_initial_data',
         message: 'Error fetching data:',
