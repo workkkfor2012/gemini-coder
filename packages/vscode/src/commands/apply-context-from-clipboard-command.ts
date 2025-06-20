@@ -90,19 +90,32 @@ export function apply_context_from_clipboard_command(
           return
         }
 
-        const quick_pick_items = existing_paths.map((file_path) => ({
-          label: path.relative(workspace_roots[0] || '', file_path),
-          picked: true,
-          file_path: file_path
-        }))
+        const quick_pick_items = await Promise.all(
+          existing_paths.map(async (file_path) => {
+            const token_count = await workspace_provider!.calculate_file_tokens(
+              file_path
+            )
+
+            const formatted_token_count =
+              token_count >= 1000
+                ? `${Math.floor(token_count / 1000)}k`
+                : `${token_count}`
+
+            return {
+              label: path.relative(workspace_roots[0] || '', file_path),
+              description: formatted_token_count,
+              picked: true,
+              file_path: file_path
+            }
+          })
+        )
 
         const selected_items = await vscode.window.showQuickPick(
           quick_pick_items,
           {
             canPickMany: true,
-            placeHolder:
-              'Select files to include (all are selected by default)',
-            title: `Found ${existing_paths.length} file${
+            placeHolder: 'Select files to include',
+            title: `Found ${existing_paths.length} file path${
               existing_paths.length == 1 ? '' : 's'
             }`
           }
