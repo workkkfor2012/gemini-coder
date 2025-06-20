@@ -1,5 +1,5 @@
 export const HOME_VIEW_TYPES = {
-  WEB: 'Chat',
+  WEB: 'Open chatbot',
   API: 'Call API'
 }
 
