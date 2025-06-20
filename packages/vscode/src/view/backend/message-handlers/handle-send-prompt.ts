@@ -153,41 +153,15 @@ async function validate_presets(params: {
       ''
     )
 
-    const move_up_button = {
-      iconPath: new vscode.ThemeIcon('chevron-up'),
-      tooltip: 'Move up'
-    }
-
-    const move_down_button = {
-      iconPath: new vscode.ThemeIcon('chevron-down'),
-      tooltip: 'Move down'
-    }
-
     const create_items = () => {
-      const preset_items = available_presets.map((preset, index) => {
-        const buttons = []
-
-        if (available_presets.length > 1) {
-          if (index > 0) {
-            buttons.push(move_up_button)
-          }
-
-          if (index < available_presets.length - 1) {
-            buttons.push(move_down_button)
-          }
-        }
-
+      return available_presets.map((preset) => {
         return {
           label: preset.name,
           description: `${preset.chatbot}${
             preset.model ? ` · ${preset.model}` : ''
-          }`,
-          index,
-          buttons
+          }`
         }
       })
-
-      return preset_items
     }
 
     const quick_pick = vscode.window.createQuickPick()
@@ -205,58 +179,7 @@ async function validate_presets(params: {
       }
     }
 
-    if (!quick_pick.activeItems.length) {
-      const first_preset = items.find((item: any) => item.type == 'preset')
-      if (first_preset) {
-        quick_pick.activeItems = [first_preset]
-      } else {
-        const first_selectable = items.find(
-          (item: any) => item.kind !== vscode.QuickPickItemKind.Separator
-        )
-        if (first_selectable) {
-          quick_pick.activeItems = [first_selectable]
-        }
-      }
-    }
-
     return new Promise<string[]>((resolve) => {
-      quick_pick.onDidTriggerItemButton(async (event) => {
-        const item = event.item as any
-        const button = event.button
-        const index = item.index
-
-        if (item.type != 'preset') return
-
-        if (button.tooltip == 'Move up' && index > 0) {
-          const temp = available_presets[index]
-          available_presets[index] = available_presets[index - 1]
-          available_presets[index - 1] = temp
-
-          await config.update(
-            'presets',
-            available_presets,
-            vscode.ConfigurationTarget.Global
-          )
-
-          quick_pick.items = create_items()
-        } else if (
-          button.tooltip == 'Move down' &&
-          index < available_presets.length - 1
-        ) {
-          const temp = available_presets[index]
-          available_presets[index] = available_presets[index + 1]
-          available_presets[index + 1] = temp
-
-          await config.update(
-            'presets',
-            available_presets,
-            vscode.ConfigurationTarget.Global
-          )
-
-          quick_pick.items = create_items()
-        }
-      })
-
       quick_pick.onDidAccept(async () => {
         const selected = quick_pick.selectedItems[0] as any
         quick_pick.hide()
