@@ -223,9 +223,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         event.document === vscode.window.activeTextEditor.document
       ) {
         if (
-          (this.home_view_type == 'Web chats' &&
+          (this.home_view_type == 'Web chat' &&
             this.web_mode == 'code-completions') ||
-          (this.home_view_type == 'API calls' &&
+          (this.home_view_type == 'API call' &&
             this.api_mode == 'code-completions')
         ) {
           this.calculate_token_count()
@@ -238,9 +238,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const active_editor = vscode.window.activeTextEditor
 
     const is_code_completions_mode =
-      (this.home_view_type == 'Web chats' &&
+      (this.home_view_type == 'Web chat' &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API calls' &&
+      (this.home_view_type == 'API call' &&
         this.api_mode == 'code-completions')
 
     Promise.all([
@@ -518,9 +518,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   public add_text_at_cursor_position(text: string) {
     if (
-      (this.home_view_type == 'Web chats' &&
+      (this.home_view_type == 'Web chat' &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API calls' &&
+      (this.home_view_type == 'API call' &&
         this.api_mode == 'code-completions')
     ) {
       const before_caret = this.code_completion_suggestions.slice(

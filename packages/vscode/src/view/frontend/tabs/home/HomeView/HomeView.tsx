@@ -70,7 +70,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
     const container_width = container_ref.current.offsetWidth
     const switch_width = switch_container_ref.current.offsetWidth
-    const calculated_width = container_width - switch_width - 30
+    const calculated_width = container_width - switch_width - 34
 
     set_dropdown_max_width(calculated_width)
   }
@@ -93,9 +93,9 @@ export const HomeView: React.FC<Props> = (props) => {
   }, [])
 
   const is_in_code_completions_mode =
-    (props.home_view_type == 'Web chats' &&
+    (props.home_view_type == 'Web chat' &&
       props.web_mode == 'code-completions') ||
-    (props.home_view_type == 'API calls' &&
+    (props.home_view_type == 'API call' &&
       props.api_mode == 'code-completions')
 
   const current_prompt = is_in_code_completions_mode

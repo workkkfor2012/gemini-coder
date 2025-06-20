@@ -50,9 +50,13 @@ export const Donations: React.FC<Props> = (props) => {
           <div className={styles.top}>
             <div className={styles.top__intro}>
               <span>
-                Hi there! CWC is a work aimed at making high-quality AI-assisted
-                coding tools freely available to everyone. If you&apos;d like to
-                show your support, you can &quot;buy me a coffee&quot; or send a{' '}
+                Hi there!{' '}
+                <strong>
+                  CWC is a work aimed at making foundation coding tools for
+                  AI-assisted programming freely available to everyone.
+                </strong>{' '}
+                If you rely on it and would like to support the author, you can{' '}
+                <i>buy me a coffee</i> or send a{' '}
                 <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
                 tip.
               </span>
