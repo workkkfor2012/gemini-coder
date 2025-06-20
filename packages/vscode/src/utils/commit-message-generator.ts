@@ -167,8 +167,12 @@ export async function handle_file_selection_if_needed(
     return files_data
   }
 
-  const selected_files = await show_file_selection_dialog(files_data, threshold)
-  if (!selected_files || selected_files.length === 0) {
+  const selected_files = await show_file_selection_dialog(
+    files_data,
+    threshold,
+    total_tokens
+  )
+  if (!selected_files || selected_files.length == 0) {
     vscode.window.showInformationMessage(
       'No files selected for commit message generation.'
     )
@@ -180,20 +184,46 @@ export async function handle_file_selection_if_needed(
 
 async function show_file_selection_dialog(
   files_data: FileData[],
-  threshold: number
+  threshold: number,
+  total_tokens: number
 ): Promise<FileData[] | undefined> {
-  const items = files_data.map((file) => ({
-    label: file.relative_path,
-    description: `${file.estimated_tokens} tokens`,
-    detail: file.is_large_file ? 'Content omitted (large file)' : '',
-    file_data: file,
-    picked: true // Initially pick all files
-  }))
+  const items = files_data.map((file) => {
+    const token_count = file.estimated_tokens
+    const formatted_token_count =
+      token_count >= 1000
+        ? `${Math.floor(token_count / 1000)}k`
+        : `${token_count}`
+
+    const relative_path = path.dirname(file.relative_path)
+
+    return {
+      label: path.basename(file.relative_path),
+      description: `${formatted_token_count} ${
+        relative_path != '.' ? relative_path : ''
+      }`,
+      detail: file.is_large_file ? 'Content omitted (large file)' : '',
+      file_data: file,
+      picked: true
+    }
+  })
+
+  const exceeded_by = total_tokens - threshold
+  const format_tokens = (tokens: number): string => {
+    if (tokens < 1000) {
+      return tokens.toString()
+    }
+    return `${Math.round(tokens / 1000)}k`
+  }
+  const formatted_total_tokens = format_tokens(total_tokens)
+  const formatted_exceeded_by = format_tokens(exceeded_by)
+
+  vscode.window.showInformationMessage(
+    `Total tokens in affected files: ${formatted_total_tokens}, exceeds threshold by ${formatted_exceeded_by}.`
+  )
 
   const result = await vscode.window.showQuickPick(items, {
     canPickMany: true,
-    title: `Total tokens exceed ${threshold}. Select files to include in commit message context:`,
-    placeHolder: 'Select files to include'
+    placeHolder: 'Review affected files to include'
   })
 
   if (!result) {
@@ -204,7 +234,7 @@ async function show_file_selection_dialog(
 }
 
 export function build_files_content(files_data: FileData[]): string {
-  if (!files_data || files_data.length === 0) {
+  if (!files_data || files_data.length == 0) {
     return 'No relevant files to include.'
   }
 
