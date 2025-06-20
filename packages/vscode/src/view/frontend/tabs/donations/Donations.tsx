@@ -52,11 +52,11 @@ export const Donations: React.FC<Props> = (props) => {
               <span>
                 Hi there!{' '}
                 <strong>
-                  CWC is a work aimed at making foundation coding tools for
-                  AI-assisted programming freely available to everyone.
+                  CWC is a project dedicated to creating a foundational coding
+                  tool for AI-assisted programming that is truly free and driven
+                  by the community.
                 </strong>{' '}
-                If you rely on it and would like to support the author, you can{' '}
-                <i>buy a coffee</i> or send a{' '}
+                Love using it? Show your support with a coffee or a{' '}
                 <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
                 tip.
               </span>
