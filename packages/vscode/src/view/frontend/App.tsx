@@ -2,6 +2,7 @@ import ReactDOM from 'react-dom/client'
 import { View } from './View'
 
 import '@vscode/codicons/dist/codicon.css'
+import 'simplebar-react/dist/simplebar.min.css'
 import '@ui/styles/global.scss'
 
 const App = () => {
