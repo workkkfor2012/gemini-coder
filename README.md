@@ -91,7 +91,7 @@ Get code at cursor from state-of-the-art reasoning models.
 Create and modify files in context based on natural language instructions.
 
 ✅ Multi-file updates in a single API call \
-✅ Efficient in output tokens—requests diffs
+✅ Works like web chat->apply response
 
 ### Intelligent Update
 

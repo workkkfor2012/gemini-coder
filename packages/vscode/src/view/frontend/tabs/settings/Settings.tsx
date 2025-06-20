@@ -103,7 +103,7 @@ export const Settings: React.FC<Props> = (props) => {
               'Create and modify files in context based on natural language instructions.',
             checkmarks: [
               'Multi-file updates in a single API call',
-              'Efficient in output tokens—requests diffs'
+              'Works like web chat->apply response'
             ],
             on_setup_click: handle_setup_edit_context_click,
             button_label: 'Setup Edit Context API Tool'
