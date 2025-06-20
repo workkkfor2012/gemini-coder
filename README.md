@@ -81,7 +81,7 @@ CWC includes battle-tested must-have API tools.
 
 ### Code Completions
 
-Get code at cursor position from state-of-the-art reasoning models.
+Get code at cursor from state-of-the-art reasoning models.
 
 ✅ Includes selected context \
 ✅ Designed for on-demand use

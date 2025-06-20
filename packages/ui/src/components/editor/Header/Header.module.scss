@@ -21,6 +21,7 @@
     color: var(--vscode-foreground);
     position: relative;
     font-weight: normal;
+    white-space: nowrap;
 
     &::before {
       color: var(--vscode-editor-foreground);

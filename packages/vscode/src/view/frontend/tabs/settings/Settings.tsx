@@ -80,7 +80,7 @@ export const Settings: React.FC<Props> = (props) => {
       {render_api_tool_settings({
         title: 'Code Completions',
         description:
-          'Get code at cursor position from state-of-the-art reasoning models.',
+          'Get code at cursor from state-of-the-art reasoning models.',
         on_setup_click: handle_setup_code_completions_click,
         button_label: 'Setup Code Completions API Tool',
         checkmarks: ['Includes selected context', 'Designed for on-demand use']

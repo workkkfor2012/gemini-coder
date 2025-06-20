@@ -165,8 +165,8 @@ export const HomeView: React.FC<Props> = (props) => {
           <UiDropdown
             options={[
               { value: 'ask', label: 'Ask about context' },
-              { value: 'edit', label: 'Edit files in context' },
-              { value: 'code-completions', label: 'Get code at cursor' }
+              { value: 'edit', label: 'Edit context' },
+              { value: 'code-completions', label: 'Code at cursor with context' }
             ]}
             selected_value={props.web_mode}
             on_change={props.on_web_mode_change}
@@ -176,8 +176,8 @@ export const HomeView: React.FC<Props> = (props) => {
         {props.home_view_type == HOME_VIEW_TYPES.API && (
           <UiDropdown
             options={[
-              { value: 'edit', label: 'Edit files in context' },
-              { value: 'code-completions', label: 'Get code at cursor' }
+              { value: 'edit', label: 'Edit context' },
+              { value: 'code-completions', label: 'Code at cursor with context' }
             ]}
             selected_value={props.api_mode}
             on_change={props.on_api_mode_change}
