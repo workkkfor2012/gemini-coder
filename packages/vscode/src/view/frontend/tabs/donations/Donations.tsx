@@ -59,7 +59,7 @@ export const Donations: React.FC<Props> = (props) => {
                 <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
                 tip.
               </span>
-              <span>Thank you, Robert</span>
+              <span>Robert</span>
             </div>
             <div className={styles.top__button}>
               <UiBuyMeACoffee username="robertpiosik" />
