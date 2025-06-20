@@ -223,9 +223,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         event.document === vscode.window.activeTextEditor.document
       ) {
         if (
-          (this.home_view_type == 'Web' &&
+          (this.home_view_type == 'Web chats' &&
             this.web_mode == 'code-completions') ||
-          (this.home_view_type == 'API' && this.api_mode == 'code-completions')
+          (this.home_view_type == 'API calls' &&
+            this.api_mode == 'code-completions')
         ) {
           this.calculate_token_count()
         }
@@ -237,8 +238,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const active_editor = vscode.window.activeTextEditor
 
     const is_code_completions_mode =
-      (this.home_view_type == 'Web' && this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API' && this.api_mode == 'code-completions')
+      (this.home_view_type == 'Web chats' &&
+        this.web_mode == 'code-completions') ||
+      (this.home_view_type == 'API calls' &&
+        this.api_mode == 'code-completions')
 
     Promise.all([
       this.workspace_provider.get_checked_files_token_count({
@@ -500,6 +503,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           body {
             overflow: hidden;
           }
+            .simplebar-scrollbar::before { background-color: var(--vscode-scrollbarSlider-background)!important; width: 10px!important; border-radius: 0!important; opacity: 1!important; top: 0!important; right: 0!important; bottom: 0!important; left: 0!important; }
+            .simplebar-track.simplebar-vertical { width: 10px; }
         </style>
       </head>
       <body>
@@ -512,10 +517,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
   public add_text_at_cursor_position(text: string) {
     if (
-      (this.home_view_type == 'Web' && this.web_mode == 'code-completions') ||
-      (this.home_view_type == 'API' && this.api_mode == 'code-completions')
+      (this.home_view_type == 'Web chats' &&
+        this.web_mode == 'code-completions') ||
+      (this.home_view_type == 'API calls' &&
+        this.api_mode == 'code-completions')
     ) {
-      // Insert text at caret position for code completions
       const before_caret = this.code_completion_suggestions.slice(
         0,
         this.caret_position
@@ -525,7 +531,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       )
       this.code_completion_suggestions = before_caret + text + after_caret
 
-      // Update caret position to be after the inserted text
       this.caret_position += text.length
 
       this.context.workspaceState.update(
@@ -537,12 +542,10 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         value: this.code_completion_suggestions
       })
     } else {
-      // Insert text at caret position for instructions
       const before_caret = this.instructions.slice(0, this.caret_position)
       const after_caret = this.instructions.slice(this.caret_position)
       this.instructions = before_caret + text + after_caret
 
-      // Update caret position to be after the inserted text
       this.caret_position += text.length
 
       this.context.workspaceState.update('instructions', this.instructions)
