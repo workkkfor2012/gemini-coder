@@ -7,7 +7,6 @@ import { Separator as UiSeparator } from '@ui/components/editor/Separator'
 import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/editor/HorizontalSelector'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
-import { EditFormatSelectorVisibility } from '@/view/types/edit-format-selector-visibility'
 import { Switch as UiSwitch } from '@ui/components/editor/Switch'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 import { ApiMode, WebMode } from '@shared/types/modes'
@@ -35,7 +34,6 @@ type Props = {
   api_mode: ApiMode
   on_web_mode_change: (mode: WebMode) => void
   on_api_mode_change: (mode: ApiMode) => void
-  edit_format_selector_visibility: EditFormatSelectorVisibility
   edit_format: EditFormat
   on_edit_format_change: (edit_format: EditFormat) => void
   on_presets_reorder: (reordered_presets: Preset[]) => void
@@ -304,8 +302,7 @@ export const HomeView: React.FC<Props> = (props) => {
           </div>
 
           {props.home_view_type == HOME_VIEW_TYPES.WEB &&
-            props.web_mode == 'edit' &&
-            props.edit_format_selector_visibility == 'visible' && (
+            props.web_mode == 'edit' && (
               <>
                 <UiSeparator height={10} />
                 <div className={styles['edit-format']}>

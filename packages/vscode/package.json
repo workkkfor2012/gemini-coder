@@ -646,15 +646,6 @@
             "description": "File extension to ignore (without the dot)"
           }
         },
-        "codeWebChat.editFormatSelectorVisibility": {
-          "type": "string",
-          "description": "Control visibility of the edit format selector.",
-          "enum": [
-            "visible",
-            "hidden"
-          ],
-          "default": "visible"
-        },
         "codeWebChat.editFormatInstructionsTruncated": {
           "type": "string",
           "scope": "resource",

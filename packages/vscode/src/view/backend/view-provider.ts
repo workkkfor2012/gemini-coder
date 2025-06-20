@@ -8,8 +8,7 @@ import {
   TokenCountMessage,
   SelectionTextMessage,
   InstructionsMessage,
-  CodeCompletionSuggestionsMessage,
-  EditFormatSelectorVisibilityMessage
+  CodeCompletionSuggestionsMessage
 } from '../types/messages'
 import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -17,7 +16,6 @@ import { WorkspaceProvider } from '@/context/providers/workspace-provider'
 import { token_count_emitter } from '@/context/context-initialization'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
-import { EditFormatSelectorVisibility } from '../types/edit-format-selector-visibility'
 import {
   handle_show_preset_picker,
   handle_copy_prompt,
@@ -29,8 +27,6 @@ import {
   handle_preview_preset,
   handle_show_quick_pick,
   handle_save_edit_format,
-  handle_get_edit_format_selector_visibility,
-  handle_save_edit_format_selector_visibility,
   handle_save_presets_order,
   handle_get_selected_presets,
   handle_get_selected_code_completion_presets,
@@ -110,17 +106,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         if (!this._webview_view) return
         if (event.affectsConfiguration('codeWebChat.presets')) {
           this.send_presets_to_webview(this._webview_view.webview)
-        } else if (
-          event.affectsConfiguration('codeWebChat.editFormatSelectorVisibility')
-        ) {
-          const config = vscode.workspace.getConfiguration('codeWebChat')
-          const visibility = config.get<EditFormatSelectorVisibility>(
-            'editFormatSelectorVisibility'
-          )!
-          this.send_message<EditFormatSelectorVisibilityMessage>({
-            command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
-            visibility
-          })
         }
       }
     )
@@ -394,12 +379,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             handle_get_edit_format(this)
           } else if (message.command == 'SAVE_EDIT_FORMAT') {
             await handle_save_edit_format(this, message.edit_format)
-          } else if (message.command == 'GET_EDIT_FORMAT_SELECTOR_VISIBILITY') {
-            handle_get_edit_format_selector_visibility(this)
-          } else if (
-            message.command == 'SAVE_EDIT_FORMAT_SELECTOR_VISIBILITY'
-          ) {
-            await handle_save_edit_format_selector_visibility(this, message)
           } else if (message.command == 'CARET_POSITION_CHANGED') {
             this.caret_position = message.caret_position
           } else if (message.command == 'CONFIGURE_API_PROVIDERS') {
@@ -441,17 +420,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         }
       }
     )
-
-    // Added initial message for edit format selector visibility
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const initial_visibility = config.get<'visible' | 'hidden'>(
-      'editFormatSelectorVisibility',
-      'visible'
-    )
-    this.send_message<EditFormatSelectorVisibilityMessage>({
-      command: 'EDIT_FORMAT_SELECTOR_VISIBILITY',
-      visibility: initial_visibility
-    })
 
     this.send_presets_to_webview(webview_view.webview)
   }
