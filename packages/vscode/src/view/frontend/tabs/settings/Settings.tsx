@@ -2,6 +2,7 @@ import styles from './Settings.module.scss'
 import { Button as UiButton } from '@ui/components/editor/Button'
 import { WebviewMessage } from '@/view/types/messages'
 import { ApiTool as UiApiTool } from '@ui/components/editor/ApiTool'
+import SimpleBar from 'simplebar-react'
 
 type Props = {
   vscode: any
@@ -64,64 +65,76 @@ export const Settings: React.FC<Props> = (props) => {
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
-      <div className={styles.configure}>
-        <UiButton on_click={handle_configure_api_providers_click}>
-          Configure API Providers
-        </UiButton>
-        <span>
-          All API requests are sent directly to providers. API keys are&nbsp;
-          <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
-            stored encrypted
-          </a>
-          &nbsp;on your device.
-        </span>
-      </div>
+      <SimpleBar
+        style={{
+          height: '100%'
+        }}
+      >
+        <div className={styles.inner}>
+          <div className={styles.configure}>
+            <UiButton on_click={handle_configure_api_providers_click}>
+              Configure API Providers
+            </UiButton>
+            <span>
+              All API requests are sent directly to providers. API keys
+              are&nbsp;
+              <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
+                stored encrypted
+              </a>
+              &nbsp;on your device.
+            </span>
+          </div>
 
-      {render_api_tool_settings({
-        title: 'Code Completions',
-        description:
-          'Get code at cursor from state-of-the-art reasoning models.',
-        on_setup_click: handle_setup_code_completions_click,
-        button_label: 'Setup Code Completions API Tool',
-        checkmarks: ['Includes selected context', 'Designed for on-demand use']
-      })}
+          {render_api_tool_settings({
+            title: 'Code Completions',
+            description:
+              'Get code at cursor from state-of-the-art reasoning models.',
+            on_setup_click: handle_setup_code_completions_click,
+            button_label: 'Setup Code Completions API Tool',
+            checkmarks: [
+              'Includes selected context',
+              'Designed for on-demand use'
+            ]
+          })}
 
-      {render_api_tool_settings({
-        title: 'Edit Context',
-        description:
-          'Create and modify files in context based on natural language instructions.',
-        checkmarks: [
-          'Multi-file updates in a single API call',
-          'Efficient in output tokens—requests diffs'
-        ],
-        on_setup_click: handle_setup_edit_context_click,
-        button_label: 'Setup Edit Context API Tool'
-      })}
+          {render_api_tool_settings({
+            title: 'Edit Context',
+            description:
+              'Create and modify files in context based on natural language instructions.',
+            checkmarks: [
+              'Multi-file updates in a single API call',
+              'Efficient in output tokens—requests diffs'
+            ],
+            on_setup_click: handle_setup_edit_context_click,
+            button_label: 'Setup Edit Context API Tool'
+          })}
 
-      {render_api_tool_settings({
-        title: 'Intelligent Update',
-        description:
-          'When applying chat response, update files based on code blocks in truncated edit format and fix malformed diffs.',
-        checkmarks: [
-          'Regnerates whole files in concurrent API calls',
-          'Smaller models like Gemini Flash are sufficient',
-          'Can fix malformed diff patches'
-        ],
-        on_setup_click: handle_setup_intelligent_update_click,
-        button_label: 'Setup Intelligent Update API Tool'
-      })}
+          {render_api_tool_settings({
+            title: 'Intelligent Update',
+            description:
+              'When applying chat response, update files based on code blocks in truncated edit format and fix malformed diffs.',
+            checkmarks: [
+              'Regnerates whole files in concurrent API calls',
+              'Smaller models like Gemini Flash are sufficient',
+              'Can fix malformed diff patches'
+            ],
+            on_setup_click: handle_setup_intelligent_update_click,
+            button_label: 'Setup Intelligent Update API Tool'
+          })}
 
-      {render_api_tool_settings({
-        title: 'Commit Messages',
-        description:
-          'Generate meaningful commit messages precisely adhering to your preffered style.',
-        checkmarks: [
-          'Includes affected files in full',
-          'Customizable instructions'
-        ],
-        on_setup_click: handle_setup_commit_messages_click,
-        button_label: 'Setup Commit Messages API Tool'
-      })}
+          {render_api_tool_settings({
+            title: 'Commit Messages',
+            description:
+              'Generate meaningful commit messages precisely adhering to your preffered style.',
+            checkmarks: [
+              'Includes affected files in full',
+              'Customizable instructions'
+            ],
+            on_setup_click: handle_setup_commit_messages_click,
+            button_label: 'Setup Commit Messages API Tool'
+          })}
+        </div>
+      </SimpleBar>
     </div>
   )
 }

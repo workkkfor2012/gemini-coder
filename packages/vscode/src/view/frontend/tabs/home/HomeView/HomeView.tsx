@@ -152,11 +152,13 @@ export const HomeView: React.FC<Props> = (props) => {
   }
 
   return (
-    <div className={styles.container}>
+    <div
+      className={styles.container}
+      style={{ display: !props.is_visible ? 'none' : undefined }}
+    >
       <SimpleBar
         style={{
-          height: '100%',
-          display: !props.is_visible ? 'none' : undefined
+          height: '100%'
         }}
       >
         <div className={styles.inner}>

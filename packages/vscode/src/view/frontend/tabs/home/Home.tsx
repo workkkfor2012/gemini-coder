@@ -45,8 +45,8 @@ export const Home: React.FC<Props> = (props) => {
     useState<'visible' | 'hidden'>('visible')
 
   const is_in_code_completions_mode =
-    (home_view_type == 'Web' && web_mode == 'code-completions') ||
-    (home_view_type == 'API' && api_mode == 'code-completions')
+    (home_view_type == 'Web chats' && web_mode == 'code-completions') ||
+    (home_view_type == 'API calls' && api_mode == 'code-completions')
 
   useEffect(() => {
     const handle_message = async (event: MessageEvent) => {

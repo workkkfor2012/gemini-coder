@@ -1,6 +1,9 @@
 .container {
-  overflow-y: scroll;
+  overflow: hidden;
   height: 100%;
+}
+
+.inner {
   padding: var(--padding-12px);
   display: flex;
   flex-direction: column;

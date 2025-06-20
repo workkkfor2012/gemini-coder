@@ -1,10 +1,13 @@
 .container {
-  overflow-y: scroll;
   height: 100%;
+  overflow: hidden;
+}
+
+.inner {
   padding: var(--padding-12px);
-  gap: var(--padding-20px);
   display: flex;
   flex-direction: column;
+  gap: var(--padding-20px);
 }
 
 .configure {
