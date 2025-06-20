@@ -13,6 +13,7 @@ export namespace Dropdown {
     selected_value: T
     on_change: (value: T) => void
     title?: string
+    max_width?: number
   }
 }
 
@@ -68,6 +69,7 @@ export const Dropdown = <T extends string>(props: Dropdown.Props<T>) => {
       <button
         className={cn(styles.button, { [styles['button--open']]: is_open })}
         onClick={handle_toggle}
+        style={{ maxWidth: props.max_width }}
       >
         <span className={styles.button__label}>
           {selected_option ? selected_option.label : 'Select an option'}

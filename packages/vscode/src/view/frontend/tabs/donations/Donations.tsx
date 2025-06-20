@@ -52,8 +52,9 @@ export const Donations: React.FC<Props> = (props) => {
               <span>
                 Hi there! CWC is a work aimed at making high-quality AI-assisted
                 coding tools freely available to everyone. If you&apos;d like to
-                show your support, you can buy me a coffee or send a{' '}
-                <a href="https://codeweb.chat/#donations">cryptocurrency</a> tip.
+                show your support, you can &quot;buy me a coffee&quot; or send a{' '}
+                <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
+                tip.
               </span>
               <span>Thank you for choosing to donate ♥</span>
             </div>
@@ -81,7 +82,9 @@ export const Donations: React.FC<Props> = (props) => {
                 </div>
               )}
               {!has_more && donations.length > 0 && (
-                <div style={{ textAlign: 'center', padding: '1rem', opacity: 0.7 }}>
+                <div
+                  style={{ textAlign: 'center', padding: '1rem', opacity: 0.7 }}
+                >
                   No more donations to load
                 </div>
               )}

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import styles from './HomeView.module.scss'
 import SimpleBar from 'simplebar-react'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
@@ -58,6 +58,39 @@ type Props = {
 
 export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
+  const [dropdown_max_width, set_dropdown_max_width] = useState<
+    number | undefined
+  >(undefined)
+  const dropdown_container_ref = useRef<HTMLDivElement>(null)
+  const container_ref = useRef<HTMLDivElement>(null)
+  const switch_container_ref = useRef<HTMLDivElement>(null)
+
+  const calculate_dropdown_max_width = () => {
+    if (!container_ref.current || !switch_container_ref.current) return
+
+    const container_width = container_ref.current.offsetWidth
+    const switch_width = switch_container_ref.current.offsetWidth
+    const calculated_width = container_width - switch_width - 30
+
+    set_dropdown_max_width(calculated_width)
+  }
+
+  useEffect(() => {
+    if (!container_ref.current || !switch_container_ref.current) return
+
+    const resize_observer = new ResizeObserver(() => {
+      calculate_dropdown_max_width()
+    })
+
+    resize_observer.observe(container_ref.current)
+    resize_observer.observe(switch_container_ref.current)
+
+    calculate_dropdown_max_width()
+
+    return () => {
+      resize_observer.disconnect()
+    }
+  }, [])
 
   const is_in_code_completions_mode =
     (props.home_view_type == 'Web chats' &&
@@ -153,6 +186,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
   return (
     <div
+      ref={container_ref}
       className={styles.container}
       style={{ display: !props.is_visible ? 'none' : undefined }}
     >
@@ -163,14 +197,16 @@ export const HomeView: React.FC<Props> = (props) => {
       >
         <div className={styles.inner}>
           <div className={styles.top}>
-            <UiSwitch
-              value={props.home_view_type}
-              on_change={props.on_home_view_type_change}
-              options={Object.values(HOME_VIEW_TYPES)}
-              title="Initialize web chats or update files right away"
-            />
+            <div ref={switch_container_ref}>
+              <UiSwitch
+                value={props.home_view_type}
+                on_change={props.on_home_view_type_change}
+                options={Object.values(HOME_VIEW_TYPES)}
+                title="Initialize web chats or update files right away"
+              />
+            </div>
 
-            <div className={styles.top__dropdown}>
+            <div className={styles.top__dropdown} ref={dropdown_container_ref}>
               {props.home_view_type == HOME_VIEW_TYPES.WEB && (
                 <UiDropdown
                   options={[
@@ -184,6 +220,7 @@ export const HomeView: React.FC<Props> = (props) => {
                   selected_value={props.web_mode}
                   on_change={props.on_web_mode_change}
                   title="Select mode"
+                  max_width={dropdown_max_width}
                 />
               )}
               {props.home_view_type == HOME_VIEW_TYPES.API && (
@@ -198,6 +235,7 @@ export const HomeView: React.FC<Props> = (props) => {
                   selected_value={props.api_mode}
                   on_change={props.on_api_mode_change}
                   title="Select mode"
+                  max_width={dropdown_max_width}
                 />
               )}
             </div>
