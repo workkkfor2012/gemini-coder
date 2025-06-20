@@ -56,7 +56,7 @@ export const Donations: React.FC<Props> = (props) => {
                   AI-assisted programming freely available to everyone.
                 </strong>{' '}
                 If you rely on it and would like to support the author, you can{' '}
-                <i>buy me a coffee</i> or send a{' '}
+                <i>buy a coffee</i> or send a{' '}
                 <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
                 tip.
               </span>

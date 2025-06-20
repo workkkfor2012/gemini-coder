@@ -26,9 +26,9 @@ A community-driven, **non-agentic** coding tool for **AI-assisted real-world pro
 **Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
-- API tools—powerful necessities
-- respect privacy—doesn't collect usage data
-- lightweight—about ~1MB of code
+- API tools—powerful, yet simple to use
+- privacy first—100% local, zero telemetry
+- lightweight—about 1MB of code
 
 **CWC is for you if:**
 
