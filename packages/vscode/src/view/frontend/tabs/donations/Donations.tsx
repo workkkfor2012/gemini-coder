@@ -48,26 +48,11 @@ export const Donations: React.FC<Props> = (props) => {
       >
         <div className={styles.inner}>
           <div className={styles.top}>
-            <div className={styles.top__intro}>
-              <span>
-                Hi there!{' '}
-                <strong>
-                  CWC is a free and open source project created by an
-                  independent developer.
-                </strong>{' '}
-                Love using it? You can show your support with a coffee or a{' '}
-                <a href="https://codeweb.chat/#donations">cryptocurrency</a>{' '}
-                tip.
-              </span>
-              <span>Robert</span>
-            </div>
-            <div className={styles.top__button}>
-              <UiBuyMeACoffee username="robertpiosik" />
-              <span>$1 or more</span>
-            </div>
+            <UiBuyMeACoffee username="robertpiosik" />
+            <span>$1 or more</span>
           </div>
 
-          <UiSeparator height={16} />
+          <UiSeparator height={12} />
 
           {!is_initialized ? (
             <>Fetching recent coffees...</>
