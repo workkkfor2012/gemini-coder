@@ -93,9 +93,10 @@ export const HomeView: React.FC<Props> = (props) => {
   }, [])
 
   const is_in_code_completions_mode =
-    (props.home_view_type == 'Web chat' &&
+    (props.home_view_type == HOME_VIEW_TYPES.WEB &&
       props.web_mode == 'code-completions') ||
-    (props.home_view_type == 'API call' && props.api_mode == 'code-completions')
+    (props.home_view_type == HOME_VIEW_TYPES.API &&
+      props.api_mode == 'code-completions')
 
   const current_prompt = is_in_code_completions_mode
     ? props.code_completion_suggestions
@@ -214,7 +215,8 @@ export const HomeView: React.FC<Props> = (props) => {
                     {
                       value: 'code-completions',
                       label: 'Code at cursor with context'
-                    }
+                    },
+                    { value: 'no-context', label: 'No context' }
                   ]}
                   selected_value={props.web_mode}
                   on_change={props.on_web_mode_change}
@@ -363,9 +365,10 @@ export const HomeView: React.FC<Props> = (props) => {
                   />
                 )}
               {((props.home_view_type == HOME_VIEW_TYPES.WEB &&
-                props.web_mode != 'ask') ||
+                (props.web_mode == 'edit' ||
+                  props.web_mode == 'code-completions')) ||
                 (props.home_view_type == HOME_VIEW_TYPES.API &&
-                  props.api_mode != 'code-completions')) && (
+                  props.api_mode == 'edit')) && (
                 <UiQuickAction
                   title="Revert Last Changes"
                   description="Restore saved state of the codebase"

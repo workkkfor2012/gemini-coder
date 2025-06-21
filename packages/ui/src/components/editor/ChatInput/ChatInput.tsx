@@ -111,8 +111,6 @@ export const ChatInput: React.FC<Props> = (props) => {
   const handle_input_change = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const new_value = e.target.value
     props.on_change(new_value)
-
-    // Reset history navigation state
     set_history_index(-1)
 
     const textarea = e.target
@@ -145,7 +143,7 @@ export const ChatInput: React.FC<Props> = (props) => {
     } else {
       props.on_submit()
     }
-    set_history_index(-1) // Reset history index after submitting
+    set_history_index(-1)
   }
 
   const handle_key_down = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -155,16 +153,12 @@ export const ChatInput: React.FC<Props> = (props) => {
       const start = textarea.selectionStart
       const end = textarea.selectionEnd
 
-      // Create new value with newline inserted at cursor position
       const new_value =
         props.value.substring(0, start) + '\n' + props.value.substring(end)
 
       props.on_change(new_value)
-
-      // Disable history when editing
       set_is_history_enabled(false)
 
-      // Set cursor position after the inserted newline
       setTimeout(() => {
         textarea.selectionStart = textarea.selectionEnd = start + 1
       }, 0)
@@ -175,39 +169,31 @@ export const ChatInput: React.FC<Props> = (props) => {
       (e.key == 'ArrowUp' || e.key == 'ArrowDown') &&
       is_history_enabled
     ) {
-      // Get active history based on current mode
       const active_history = props.is_in_code_completions_mode
         ? props.chat_history_fim_mode
         : props.chat_history
 
-      // Only handle history if there are items
       if (active_history.length == 0) return
 
       e.preventDefault()
 
       if (e.key == 'ArrowUp') {
-        // Going up in history (show older entries)
         if (history_index < active_history.length - 1) {
           const new_index = history_index + 1
           set_history_index(new_index)
-          // Changed to use direct indexing starting from oldest (index 0)
           props.on_change(active_history[new_index])
         }
       } else if (e.key == 'ArrowDown') {
-        // Going down in history (show newer entries)
         if (history_index > 0) {
           const new_index = history_index - 1
           set_history_index(new_index)
-          // Changed to use direct indexing
           props.on_change(active_history[new_index])
         } else if (history_index === 0) {
-          // Return to empty field when reaching the bottom
           set_history_index(-1)
           props.on_change('')
         }
       }
     } else if (props.value) {
-      // Only disable history when there's content and pressing other keys
       set_is_history_enabled(false)
     }
   }

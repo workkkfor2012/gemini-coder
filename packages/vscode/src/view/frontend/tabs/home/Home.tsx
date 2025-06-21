@@ -44,8 +44,8 @@ export const Home: React.FC<Props> = (props) => {
   const [api_edit_format, set_api_edit_format] = useState<EditFormat>()
 
   const is_in_code_completions_mode =
-    (home_view_type == 'Web chat' && web_mode == 'code-completions') ||
-    (home_view_type == 'API call' && api_mode == 'code-completions')
+    (home_view_type == HOME_VIEW_TYPES.WEB && web_mode == 'code-completions') ||
+    (home_view_type == HOME_VIEW_TYPES.API && api_mode == 'code-completions')
 
   useEffect(() => {
     const handle_message = async (event: MessageEvent) => {
