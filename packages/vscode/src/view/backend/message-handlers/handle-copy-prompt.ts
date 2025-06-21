@@ -53,9 +53,12 @@ export const handle_copy_prompt = async (
     vscode.env.clipboard.writeText(text)
   } else if (provider.web_mode != 'code-completions') {
     const active_path = active_editor?.document.uri.fsPath
-    const context_text = await files_collector.collect_files({
-      active_path
-    })
+    const context_text =
+      provider.web_mode != 'no-context'
+        ? await files_collector.collect_files({
+            active_path
+          })
+        : ''
 
     let instructions = replace_selection_placeholder(current_instruction)
 

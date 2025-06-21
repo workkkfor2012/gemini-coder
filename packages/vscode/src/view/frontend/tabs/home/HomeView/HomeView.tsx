@@ -356,7 +356,7 @@ export const HomeView: React.FC<Props> = (props) => {
                   props.web_mode == 'code-completions') && (
                   <UiQuickAction
                     title="Apply Chat Response"
-                    description="Integrate copied message or a code block"
+                    description="Integrate copied message or code block"
                     on_click={() =>
                       props.on_quick_action_click(
                         'codeWebChat.applyChatResponse'
@@ -379,7 +379,7 @@ export const HomeView: React.FC<Props> = (props) => {
               )}
               <UiQuickAction
                 title="Commit Changes"
-                description="Generate a commit message and commit"
+                description="Generate commit message and commit"
                 on_click={() =>
                   props.on_quick_action_click('codeWebChat.commitChanges')
                 }

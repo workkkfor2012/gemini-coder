@@ -87,9 +87,12 @@ export const handle_send_prompt = async (
       base_instructions = await replace_changes_placeholder(base_instructions)
     }
 
-    const context_text = await files_collector.collect_files({
-      active_path
-    })
+    const context_text =
+      provider.web_mode != 'no-context'
+        ? await files_collector.collect_files({
+            active_path
+          })
+        : ''
 
     const chats = valid_preset_names.map((preset_name) => {
       let instructions = apply_preset_affixes_to_instruction(

@@ -55,9 +55,12 @@ export const handle_preview_preset = async (
 
     text_to_send = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
   } else if (provider.web_mode != 'code-completions') {
-    const context_text = await files_collector.collect_files({
-      active_path
-    })
+    const context_text =
+      provider.web_mode != 'no-context'
+        ? await files_collector.collect_files({
+            active_path
+          })
+        : ''
 
     let instructions = replace_selection_placeholder(current_instructions)
 
@@ -66,10 +69,10 @@ export const handle_preview_preset = async (
     }
 
     if (message.preset.prompt_prefix) {
-      instructions = message.preset.prompt_prefix + '\n' + instructions
+      instructions = `${message.preset.prompt_prefix} ${instructions}`
     }
     if (message.preset.prompt_suffix) {
-      instructions = instructions + '\n' + message.preset.prompt_suffix
+      instructions = `${instructions} ${message.preset.prompt_suffix}`
     }
 
     if (provider.web_mode == 'edit') {
