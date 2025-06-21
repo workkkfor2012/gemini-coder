@@ -27,7 +27,7 @@ type Props = {
   has_active_editor: boolean
   has_active_selection: boolean
   chat_history: string[]
-  chat_history_fim_mode: string[]
+  chat_history_code_completions_mode: string[]
   token_count: number
   selection_text?: string
   web_mode: WebMode
@@ -43,8 +43,8 @@ type Props = {
   on_preset_duplicate: (preset_name: string) => void
   on_preset_delete: (preset_name: string) => void
   on_set_default_presets: () => void
-  normal_instructions: string
-  set_normal_instructions: (value: string) => void
+  instructions: string
+  set_instructions: (value: string) => void
   code_completion_suggestions: string
   set_code_completion_suggestions: (value: string) => void
   on_caret_position_change: (caret_position: number) => void
@@ -100,7 +100,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
   const current_prompt = is_in_code_completions_mode
     ? props.code_completion_suggestions
-    : props.normal_instructions
+    : props.instructions
 
   useEffect(() => {
     let estimated_tokens = 0
@@ -128,7 +128,7 @@ export const HomeView: React.FC<Props> = (props) => {
     if (is_in_code_completions_mode) {
       props.set_code_completion_suggestions(value)
     } else {
-      props.set_normal_instructions(value)
+      props.set_instructions(value)
     }
   }
 
@@ -268,7 +268,7 @@ export const HomeView: React.FC<Props> = (props) => {
             <UiChatInput
               value={current_prompt}
               chat_history={props.chat_history}
-              chat_history_fim_mode={props.chat_history_fim_mode}
+              chat_history_fim_mode={props.chat_history_code_completions_mode}
               on_change={handle_input_change}
               on_submit={handle_submit}
               on_submit_with_control={handle_submit_with_control}

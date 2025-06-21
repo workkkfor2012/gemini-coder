@@ -14,8 +14,8 @@ type Props = {
   vscode: any
   is_visible: boolean
   on_preset_edit: (preset: Preset) => void
-  normal_instructions: string
-  set_normal_instructions: (value: string) => void
+  instructions: string
+  set_instructions: (value: string) => void
   code_completion_suggestions: string
   set_code_completion_suggestions: (value: string) => void
 }
@@ -31,7 +31,7 @@ export const Home: React.FC<Props> = (props) => {
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
   const [has_active_selection, set_has_active_selection] = useState<boolean>()
   const [chat_history, set_chat_history] = useState<string[]>()
-  const [chat_history_fim_mode, set_chat_history_fim_mode] =
+  const [chat_history_code_completions_mode, set_chat_history_fim_mode] =
     useState<string[]>()
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
@@ -88,7 +88,7 @@ export const Home: React.FC<Props> = (props) => {
           props.on_preset_edit(message.preset)
           break
         case 'INSTRUCTIONS':
-          props.set_normal_instructions(message.value || '')
+          props.set_instructions(message.value || '')
           break
         case 'CODE_COMPLETION_SUGGESTIONS':
           props.set_code_completion_suggestions(message.value || '')
@@ -168,14 +168,14 @@ export const Home: React.FC<Props> = (props) => {
     if (is_in_code_completions_mode) {
       // Check if this instruction is already at the top of history
       const is_duplicate =
-        chat_history_fim_mode &&
-        chat_history_fim_mode.length > 0 &&
-        chat_history_fim_mode[0] == params.prompt
+        chat_history_code_completions_mode &&
+        chat_history_code_completions_mode.length > 0 &&
+        chat_history_code_completions_mode[0] == params.prompt
 
       if (!is_duplicate) {
         const new_history = [
           params.prompt,
-          ...(chat_history_fim_mode || [])
+          ...(chat_history_code_completions_mode || [])
         ].slice(0, 100)
         set_chat_history_fim_mode(new_history)
 
@@ -213,14 +213,14 @@ export const Home: React.FC<Props> = (props) => {
   const update_chat_history = (instruction: string) => {
     if (is_in_code_completions_mode) {
       const is_duplicate =
-        chat_history_fim_mode &&
-        chat_history_fim_mode.length > 0 &&
-        chat_history_fim_mode[0] == instruction
+        chat_history_code_completions_mode &&
+        chat_history_code_completions_mode.length > 0 &&
+        chat_history_code_completions_mode[0] == instruction
 
       if (!is_duplicate) {
         const new_history = [
           instruction,
-          ...(chat_history_fim_mode || [])
+          ...(chat_history_code_completions_mode || [])
         ].slice(0, 100)
         set_chat_history_fim_mode(new_history)
 
@@ -348,7 +348,7 @@ export const Home: React.FC<Props> = (props) => {
   const handle_edit_context_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
-      : props.normal_instructions
+      : props.instructions
 
     props.vscode.postMessage({
       command: 'EDIT_CONTEXT',
@@ -361,7 +361,7 @@ export const Home: React.FC<Props> = (props) => {
   const handle_edit_context_with_quick_pick_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
-      : props.normal_instructions
+      : props.instructions
 
     props.vscode.postMessage({
       command: 'EDIT_CONTEXT',
@@ -374,7 +374,7 @@ export const Home: React.FC<Props> = (props) => {
   const handle_code_completion_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
-      : props.normal_instructions
+      : props.instructions
 
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
@@ -389,7 +389,7 @@ export const Home: React.FC<Props> = (props) => {
   const handle_code_completion_with_quick_pick_click = () => {
     const instruction = is_in_code_completions_mode
       ? props.code_completion_suggestions
-      : props.normal_instructions
+      : props.instructions
 
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
@@ -420,9 +420,9 @@ export const Home: React.FC<Props> = (props) => {
     has_active_editor === undefined ||
     has_active_selection === undefined ||
     chat_history === undefined ||
-    chat_history_fim_mode === undefined ||
+    chat_history_code_completions_mode === undefined ||
     is_in_code_completions_mode === undefined ||
-    props.normal_instructions === undefined ||
+    props.instructions === undefined ||
     props.code_completion_suggestions === undefined ||
     chat_edit_format === undefined ||
     api_edit_format === undefined ||
@@ -448,7 +448,7 @@ export const Home: React.FC<Props> = (props) => {
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
       chat_history={chat_history}
-      chat_history_fim_mode={chat_history_fim_mode}
+      chat_history_code_completions_mode={chat_history_code_completions_mode}
       token_count={token_count}
       selection_text={selection_text}
       web_mode={web_mode}
@@ -464,8 +464,8 @@ export const Home: React.FC<Props> = (props) => {
       on_preset_duplicate={handle_preset_duplicate}
       on_preset_delete={handle_preset_delete}
       on_set_default_presets={handle_set_default_presets}
-      normal_instructions={props.normal_instructions}
-      set_normal_instructions={props.set_normal_instructions}
+      instructions={props.instructions}
+      set_instructions={props.set_instructions}
       code_completion_suggestions={props.code_completion_suggestions}
       set_code_completion_suggestions={props.set_code_completion_suggestions}
       on_caret_position_change={handle_caret_position_change}

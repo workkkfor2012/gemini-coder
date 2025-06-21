@@ -115,8 +115,8 @@ export const View = () => {
         on_preset_edit={(preset) => {
           set_updating_preset(preset)
         }}
-        normal_instructions={instructions}
-        set_normal_instructions={handle_instructions_change}
+        instructions={instructions}
+        set_instructions={handle_instructions_change}
         code_completion_suggestions={code_completion_suggestions}
         set_code_completion_suggestions={
           handle_code_completion_suggestions_change
