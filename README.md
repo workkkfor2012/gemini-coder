@@ -13,7 +13,7 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-Non-agentic coding tool for AI-assisted programming. Designed for real-world software development.
+Non-agentic coding tool for AI-assisted programming, designed for real-world software development.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.) \
 🙋 Created by an independent developer \
