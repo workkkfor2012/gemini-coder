@@ -18,23 +18,35 @@ export const handle_duplicate_preset = async (
     return
   }
 
-  // Find the index of the original preset
   const original_index = current_presets.findIndex((p) => p.name == preset_name)
 
-  // Generate unique name
-  let new_name = `${preset_name} (1)`
-  let copy_number = 1
-  while (current_presets.some((p) => p.name == new_name)) {
-    new_name = `${preset_name} (${copy_number++})`
+  const parenthetical_match = preset_name.match(/^(.*?)(?:\s*\((\d+)\))?$/)
+  const base_name = parenthetical_match?.[1]?.trim() || ''
+  const existing_number = parenthetical_match?.[2]
+    ? parseInt(parenthetical_match[2], 10)
+    : 0
+
+  let new_name: string
+  let copy_number: number
+
+  if (existing_number > 0) {
+    copy_number = existing_number + 1
+    new_name = base_name ? `${base_name} (${copy_number})` : `(${copy_number})`
+  } else {
+    copy_number = 1
+    new_name = `${preset_name} (${copy_number})`
   }
 
-  // Create duplicate with new name
+  while (current_presets.some((p) => p.name == new_name)) {
+    copy_number++
+    new_name = base_name ? `${base_name} (${copy_number})` : `(${copy_number})`
+  }
+
   const duplicated_preset = {
     ...preset_to_duplicate,
     name: new_name
   }
 
-  // Add to presets right after the original
   const updated_presets = [...current_presets]
   updated_presets.splice(original_index + 1, 0, duplicated_preset)
 

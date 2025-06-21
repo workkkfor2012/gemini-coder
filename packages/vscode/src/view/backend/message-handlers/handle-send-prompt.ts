@@ -160,7 +160,7 @@ async function validate_presets(params: {
           label: is_unnamed ? preset.chatbot : preset.name,
           name: preset.name,
           description: is_unnamed
-            ? `${preset.model ? ` · ${preset.model}` : ''}`
+            ? `${preset.model ? `${preset.model}` : ''}`
             : `${preset.chatbot}${preset.model ? ` · ${preset.model}` : ''}`
         }
       })
