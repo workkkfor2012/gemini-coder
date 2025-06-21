@@ -7,7 +7,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--padding-4px) 0 var(--padding-5px);
-  height: 20px;
+  height: 22px;
   border: 1px solid var(--vscode-dropdown-border);
   border-radius: var(--border-radius-2px);
   cursor: pointer;
@@ -24,7 +24,7 @@
     white-space: nowrap;
     flex-grow: 1;
     text-align: left;
-    font-size: var(--font-size-11px);
+    font-size: var(--font-size-12px);
   }
 
   &__icon {
@@ -47,10 +47,10 @@
   &__item {
     display: flex;
     align-items: center;
-    height: 20px;
+    height: 22px;
     padding: 0 var(--padding-5px);
     color: var(--vscode-menu-foreground);
-    font-size: var(--font-size-11px);
+    font-size: var(--font-size-12px);
     cursor: pointer;
     margin: 1px;
     white-space: nowrap;
