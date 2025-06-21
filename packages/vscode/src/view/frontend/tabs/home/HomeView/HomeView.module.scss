@@ -39,7 +39,7 @@
   }
 }
 
-.quick-actions {
+.workflow-commands {
   display: flex;
   flex-direction: column;
   padding: 0 var(--padding-12px);
@@ -49,6 +49,12 @@
     font-size: 13px;
     color: var(--vscode-foreground);
     opacity: 0.7;
+  }
+
+  &__inner {
+    display: flex;
+    border-radius: var(--border-radius-4px);
+    overflow: hidden;
   }
 }
 
