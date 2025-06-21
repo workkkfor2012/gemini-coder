@@ -150,7 +150,9 @@ export class WorkspaceProvider
         if (entry.isDirectory()) {
           results = results.concat(this.find_all_files(full_path))
         } else if (entry.isFile()) {
-          results.push(full_path)
+          if (!should_ignore_file(full_path, this.ignored_extensions)) {
+            results.push(full_path)
+          }
         }
       }
     } catch (error) {
@@ -1184,7 +1186,9 @@ export class WorkspaceProvider
           false
         )
       } else {
-        all_files_to_check.push(file_path)
+        if (!should_ignore_file(file_path, this.ignored_extensions)) {
+          all_files_to_check.push(file_path)
+        }
       }
     }
 

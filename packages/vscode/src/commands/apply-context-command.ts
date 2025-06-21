@@ -57,11 +57,14 @@ async function resolve_glob_patterns(
           if (all_files_in_cache.has(match)) {
             files_this_rule_applies_to.add(match)
           } else {
-            const directory_path_prefix = match.endsWith(path.sep)
-              ? match
-              : match + path.sep
+            const normalized_match = path.normalize(match)
+            const directory_path_prefix = normalized_match.endsWith(path.sep)
+              ? normalized_match
+              : normalized_match + path.sep
+
             for (const cached_file of all_files_in_cache) {
-              if (cached_file.startsWith(directory_path_prefix)) {
+              const normalized_cached_file = path.normalize(cached_file)
+              if (normalized_cached_file.startsWith(directory_path_prefix)) {
                 files_this_rule_applies_to.add(cached_file)
               }
             }
