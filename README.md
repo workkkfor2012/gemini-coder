@@ -13,7 +13,7 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-A community-driven, **non-agentic** coding tool for **AI-assisted real-world programming**.
+Non-agentic, AI-assisted coding tool for the rest of us.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.) \
 🙋 Created by an independent developer \
@@ -22,8 +22,8 @@ A community-driven, **non-agentic** coding tool for **AI-assisted real-world pro
 **Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
-- API tools—powerful, yet simple to use
-- privacy first—100% local, zero telemetry
+- API tools—simple and robust
+- privacy first—zero telemetry
 - lightweight—about 1MB of code
 
 **CWC is for you if:**
@@ -171,11 +171,9 @@ If you find CWC helpful, please consider [supporting the project](https://buymea
 
 **BTC:** bc1qfzajl0fc4347knr6n5hhuk52ufr4sau04su5te
 
-**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
-
-**LTC**: ltc1qcpmwsj2wm8hp7nw8jjsjuj5r3x9ggur052wkcx
-
 **ETH:** 0x532eA8CA70aBfbA6bfE35e6B3b7b301b175Cf86D
+
+**XMR:** 84whVjApZJtSeRb2eEbZ1pJ7yuBoGoWHGA4JuiFvdXVBXnaRYyQ3S4kTEuzgKjpxyr3nxn1XHt9yWTRqZ3XGfY35L4yDm6R
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Contributing</span>
 

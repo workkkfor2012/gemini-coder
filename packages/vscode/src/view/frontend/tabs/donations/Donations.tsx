@@ -49,7 +49,7 @@ export const Donations: React.FC<Props> = (props) => {
         <div className={styles.inner}>
           <div className={styles.top}>
             <UiBuyMeACoffee username="robertpiosik" />
-            <span>$1 or more</span>
+            <span>Love CWC? Say something nice for $1 or more</span>
           </div>
 
           <UiSeparator height={12} />
