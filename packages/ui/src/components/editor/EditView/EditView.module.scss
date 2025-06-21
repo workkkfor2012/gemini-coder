@@ -28,7 +28,9 @@
 }
 
 .content {
-  flex: 1;
-  overflow: auto;
-  padding: var(--padding-12px);
+  overflow: hidden;
+
+  &__inner {
+    padding: var(--padding-12px);
+  }
 }

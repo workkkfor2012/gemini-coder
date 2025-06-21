@@ -1,5 +1,6 @@
 import styles from './EditView.module.scss'
 import { IconButton } from '../IconButton/IconButton'
+import SimpleBar from 'simplebar-react'
 
 type Props = {
   on_back_click: () => void
@@ -21,7 +22,15 @@ export const EditView: React.FC<Props> = (props) => {
         </div>
         <div>{props.header_slot}</div>
       </div>
-      <div className={styles.content}>{props.children}</div>
+      <div className={styles.content}>
+        <SimpleBar
+          style={{
+            height: '100%'
+          }}
+        >
+          <div className={styles.content__inner}>{props.children}</div>
+        </SimpleBar>
+      </div>
     </div>
   )
 }

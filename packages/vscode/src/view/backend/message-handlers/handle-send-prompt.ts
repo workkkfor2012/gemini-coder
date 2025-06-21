@@ -155,11 +155,13 @@ async function validate_presets(params: {
 
     const create_items = () => {
       return available_presets.map((preset) => {
+        const is_unnamed = !preset.name || /^\(\d+\)$/.test(preset.name)
         return {
-          label: preset.name,
-          description: `${preset.chatbot}${
-            preset.model ? ` · ${preset.model}` : ''
-          }`
+          label: is_unnamed ? preset.chatbot : preset.name,
+          name: preset.name,
+          description: is_unnamed
+            ? `${preset.model ? ` · ${preset.model}` : ''}`
+            : `${preset.chatbot}${preset.model ? ` · ${preset.model}` : ''}`
         }
       })
     }
@@ -172,7 +174,7 @@ async function validate_presets(params: {
 
     if (last_selected_item) {
       const last_item = items.find(
-        (item: any) => item.label == last_selected_item
+        (item: any) => item.name == last_selected_item
       )
       if (last_item) {
         quick_pick.activeItems = [last_item]
@@ -185,7 +187,7 @@ async function validate_presets(params: {
         quick_pick.hide()
 
         if (selected) {
-          const selected_name = selected.label
+          const selected_name = selected.name
           params.context.globalState.update(
             LAST_SELECTED_PRESET_KEY,
             selected_name
