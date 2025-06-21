@@ -21,6 +21,7 @@ export interface GetCodeCompletionSuggestionsMessage extends BaseMessage {
 export interface SaveInstructionsMessage extends BaseMessage {
   command: 'SAVE_INSTRUCTIONS'
   instruction: string
+  mode: 'ask' | 'edit' | 'no-context'
 }
 
 export interface SaveCodeCompletionSuggestionsMessage extends BaseMessage {
@@ -222,7 +223,9 @@ export interface SaveApiModeMessage extends BaseMessage {
 // Messages from extension to webview:
 export interface InstructionsMessage extends BaseMessage {
   command: 'INSTRUCTIONS'
-  value: string
+  ask: string
+  edit: string
+  no_context: string
 }
 
 export interface CodeCompletionSuggestionsMessage extends BaseMessage {

@@ -21,10 +21,16 @@ export const handle_preview_preset = async (
   const active_path = active_editor?.document.uri.fsPath
 
   let text_to_send: string
-  const current_instructions =
-    provider.web_mode != 'code-completions'
-      ? provider.instructions
-      : provider.code_completion_suggestions
+  let current_instructions = ''
+  if (provider.web_mode == 'ask') {
+    current_instructions = provider.ask_instructions
+  } else if (provider.web_mode == 'edit') {
+    current_instructions = provider.edit_instructions
+  } else if (provider.web_mode == 'no-context') {
+    current_instructions = provider.no_context_instructions
+  } else if (provider.web_mode == 'code-completions') {
+    current_instructions = provider.code_completion_suggestions
+  }
 
   if (provider.web_mode == 'code-completions' && active_editor) {
     const document = active_editor.document

@@ -69,7 +69,9 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public has_active_editor: boolean = false
   public has_active_selection: boolean = false
   public caret_position: number = 0
-  public instructions: string = ''
+  public ask_instructions: string = ''
+  public edit_instructions: string = ''
+  public no_context_instructions: string = ''
   public code_completion_suggestions: string = ''
   public web_mode: WebMode
   public chat_edit_format: EditFormat
@@ -123,8 +125,16 @@ export class ViewProvider implements vscode.WebviewViewProvider {
 
     this.context.subscriptions.push(this._config_listener)
 
-    this.instructions = this.context.workspaceState.get<string>(
-      'instructions',
+    this.ask_instructions = this.context.workspaceState.get<string>(
+      'ask-instructions',
+      ''
+    )
+    this.edit_instructions = this.context.workspaceState.get<string>(
+      'edit-instructions',
+      ''
+    )
+    this.no_context_instructions = this.context.workspaceState.get<string>(
+      'no-context-instructions',
       ''
     )
     this.code_completion_suggestions = this.context.workspaceState.get<string>(
@@ -226,7 +236,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     const is_code_completions_mode =
       (this.home_view_type == HOME_VIEW_TYPES.WEB &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == HOME_VIEW_TYPES.API && this.api_mode == 'code-completions')
+      (this.home_view_type == HOME_VIEW_TYPES.API &&
+        this.api_mode == 'code-completions')
 
     Promise.all([
       this.workspace_provider.get_checked_files_token_count({
@@ -485,11 +496,13 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   }
 
   public add_text_at_cursor_position(text: string) {
-    if (
+    const is_in_code_completions_mode =
       (this.home_view_type == HOME_VIEW_TYPES.WEB &&
         this.web_mode == 'code-completions') ||
-      (this.home_view_type == HOME_VIEW_TYPES.API && this.api_mode == 'code-completions')
-    ) {
+      (this.home_view_type == HOME_VIEW_TYPES.API &&
+        this.api_mode == 'code-completions')
+
+    if (is_in_code_completions_mode) {
       const before_caret = this.code_completion_suggestions.slice(
         0,
         this.caret_position
@@ -510,16 +523,46 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         value: this.code_completion_suggestions
       })
     } else {
-      const before_caret = this.instructions.slice(0, this.caret_position)
-      const after_caret = this.instructions.slice(this.caret_position)
-      this.instructions = before_caret + text + after_caret
+      let current_instructions = ''
+      let new_instructions = ''
+      let instruction_key = ''
+      const mode =
+        this.home_view_type === HOME_VIEW_TYPES.WEB
+          ? this.web_mode
+          : this.api_mode
+      if (mode == 'ask') {
+        instruction_key = 'ask-instructions'
+        current_instructions = this.ask_instructions
+      } else if (mode == 'edit') {
+        instruction_key = 'edit-instructions'
+        current_instructions = this.edit_instructions
+      } else if (mode == 'no-context') {
+        instruction_key = 'no-context-instructions'
+        current_instructions = this.no_context_instructions
+      } else {
+        return
+      }
+
+      const before_caret = current_instructions.slice(0, this.caret_position)
+      const after_caret = current_instructions.slice(this.caret_position)
+      new_instructions = before_caret + text + after_caret
+
+      if (mode == 'ask') {
+        this.ask_instructions = new_instructions
+      } else if (mode == 'edit') {
+        this.edit_instructions = new_instructions
+      } else if (mode == 'no-context') {
+        this.no_context_instructions = new_instructions
+      }
 
       this.caret_position += text.length
 
-      this.context.workspaceState.update('instructions', this.instructions)
+      this.context.workspaceState.update(instruction_key, new_instructions)
       this.send_message<InstructionsMessage>({
         command: 'INSTRUCTIONS',
-        value: this.instructions
+        ask: this.ask_instructions,
+        edit: this.edit_instructions,
+        no_context: this.no_context_instructions
       })
     }
   }

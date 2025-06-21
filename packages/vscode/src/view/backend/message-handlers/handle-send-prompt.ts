@@ -6,16 +6,40 @@ import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixe
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
+import { HOME_VIEW_TYPES } from '@/view/types/home-view-type'
 
 export const handle_send_prompt = async (
   provider: ViewProvider,
   preset_names: string[]
 ): Promise<void> => {
+  let current_instructions = ''
+  const is_in_code_completions_mode =
+    (provider.home_view_type == HOME_VIEW_TYPES.WEB &&
+      provider.web_mode == 'code-completions') ||
+    (provider.home_view_type == HOME_VIEW_TYPES.API &&
+      provider.api_mode == 'code-completions')
+
+  if (is_in_code_completions_mode) {
+    current_instructions = provider.code_completion_suggestions
+  } else {
+    const mode =
+      provider.home_view_type === HOME_VIEW_TYPES.WEB
+        ? provider.web_mode
+        : provider.api_mode
+    if (mode === 'ask') {
+      current_instructions = provider.ask_instructions
+    } else if (mode === 'edit') {
+      current_instructions = provider.edit_instructions
+    } else if (mode === 'no-context') {
+      current_instructions = provider.no_context_instructions
+    }
+  }
+
   const valid_preset_names = await validate_presets({
     preset_names: preset_names,
     is_code_completions_mode: provider.web_mode == 'code-completions',
     context: provider.context,
-    instructions: provider.instructions
+    instructions: current_instructions
   })
 
   if (valid_preset_names.length == 0) return
@@ -71,11 +95,11 @@ export const handle_send_prompt = async (
 
     provider.websocket_server_instance.initialize_chats(chats)
   } else if (provider.web_mode != 'code-completions') {
-    if (!provider.instructions) return
+    if (!current_instructions) return
 
     const editor = vscode.window.activeTextEditor
 
-    let base_instructions = provider.instructions
+    let base_instructions = current_instructions
 
     if (editor && !editor.selection.isEmpty) {
       if (base_instructions.includes('@selection')) {

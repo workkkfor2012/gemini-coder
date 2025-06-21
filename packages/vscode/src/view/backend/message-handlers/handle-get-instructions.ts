@@ -4,6 +4,8 @@ import { ExtensionMessage } from '@/view/types/messages'
 export const handle_get_instructions = (provider: ViewProvider): void => {
   provider.send_message<ExtensionMessage>({
     command: 'INSTRUCTIONS',
-    value: provider.instructions
+    ask: provider.ask_instructions,
+    edit: provider.edit_instructions,
+    no_context: provider.no_context_instructions
   })
 }

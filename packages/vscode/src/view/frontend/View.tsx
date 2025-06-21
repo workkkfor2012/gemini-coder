@@ -31,17 +31,30 @@ export const View = () => {
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
     useState(false)
-  const [instructions, set_instructions] = useState<string | undefined>(
-    undefined
-  )
+  const [ask_instructions, set_ask_instructions] = useState<
+    string | undefined
+  >()
+  const [edit_instructions, set_edit_instructions] = useState<
+    string | undefined
+  >()
+  const [no_context_instructions, set_no_context_instructions] = useState<
+    string | undefined
+  >()
   const [code_completion_suggestions, set_code_completion_suggestions] =
     useState<string | undefined>(undefined)
 
-  const handle_instructions_change = (value: string) => {
-    set_instructions(value)
+  const handle_instructions_change = (
+    value: string,
+    mode: 'ask' | 'edit' | 'no-context'
+  ) => {
+    if (mode == 'ask') set_ask_instructions(value)
+    else if (mode == 'edit') set_edit_instructions(value)
+    else if (mode == 'no-context') set_no_context_instructions(value)
+
     vscode.postMessage({
       command: 'SAVE_INSTRUCTIONS',
-      instruction: value
+      instruction: value,
+      mode: mode
     } as SaveInstructionsMessage)
   }
 
@@ -62,7 +75,9 @@ export const View = () => {
         set_updating_preset(undefined)
         set_updated_preset(undefined)
       } else if (message.command == 'INSTRUCTIONS') {
-        set_instructions(message.value)
+        set_ask_instructions(message.ask)
+        set_edit_instructions(message.edit)
+        set_no_context_instructions(message.no_context)
       } else if (message.command == 'CODE_COMPLETION_SUGGESTIONS') {
         set_code_completion_suggestions(message.value)
       }
@@ -87,18 +102,18 @@ export const View = () => {
   }
 
   const handle_preview_preset = () => {
-    const instructions_to_send = is_in_code_completions_mode
-      ? code_completion_suggestions
-      : instructions
-
     vscode.postMessage({
       command: 'PREVIEW_PRESET',
-      instruction: instructions_to_send,
       preset: updated_preset
     })
   }
 
-  if (instructions === undefined || code_completion_suggestions === undefined) {
+  if (
+    ask_instructions === undefined ||
+    edit_instructions === undefined ||
+    no_context_instructions === undefined ||
+    code_completion_suggestions === undefined
+  ) {
     return null
   }
 
@@ -115,7 +130,9 @@ export const View = () => {
         on_preset_edit={(preset) => {
           set_updating_preset(preset)
         }}
-        instructions={instructions}
+        ask_instructions={ask_instructions}
+        edit_instructions={edit_instructions}
+        no_context_instructions={no_context_instructions}
         set_instructions={handle_instructions_change}
         code_completion_suggestions={code_completion_suggestions}
         set_code_completion_suggestions={

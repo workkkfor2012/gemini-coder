@@ -3,7 +3,7 @@ import { HomeView } from './HomeView'
 import {
   WebviewMessage,
   ExtensionMessage,
-  PresetsMessage
+  PresetsMessage,
 } from '../../../types/messages'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
@@ -14,8 +14,10 @@ type Props = {
   vscode: any
   is_visible: boolean
   on_preset_edit: (preset: Preset) => void
-  instructions: string
-  set_instructions: (value: string) => void
+  ask_instructions: string
+  edit_instructions: string
+  no_context_instructions: string
+  set_instructions: (value: string, mode: 'ask' | 'edit' | 'no-context') => void
   code_completion_suggestions: string
   set_code_completion_suggestions: (value: string) => void
 }
@@ -88,7 +90,12 @@ export const Home: React.FC<Props> = (props) => {
           props.on_preset_edit(message.preset)
           break
         case 'INSTRUCTIONS':
-          props.set_instructions(message.value || '')
+          if (message.ask !== undefined)
+            props.set_instructions(message.ask, 'ask')
+          if (message.edit !== undefined)
+            props.set_instructions(message.edit, 'edit')
+          if (message.no_context !== undefined)
+            props.set_instructions(message.no_context, 'no-context')
           break
         case 'CODE_COMPLETION_SUGGESTIONS':
           props.set_code_completion_suggestions(message.value || '')
@@ -345,10 +352,19 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const get_current_instructions = () => {
+    if (is_in_code_completions_mode) {
+      return props.code_completion_suggestions
+    }
+    const mode = home_view_type == HOME_VIEW_TYPES.WEB ? web_mode : api_mode
+    if (mode == 'ask') return props.ask_instructions
+    if (mode == 'edit') return props.edit_instructions
+    if (mode == 'no-context') return props.no_context_instructions
+    return ''
+  }
+
   const handle_edit_context_click = () => {
-    const instruction = is_in_code_completions_mode
-      ? props.code_completion_suggestions
-      : props.instructions
+    const instruction = get_current_instructions()
 
     props.vscode.postMessage({
       command: 'EDIT_CONTEXT',
@@ -359,9 +375,7 @@ export const Home: React.FC<Props> = (props) => {
   }
 
   const handle_edit_context_with_quick_pick_click = () => {
-    const instruction = is_in_code_completions_mode
-      ? props.code_completion_suggestions
-      : props.instructions
+    const instruction = get_current_instructions()
 
     props.vscode.postMessage({
       command: 'EDIT_CONTEXT',
@@ -372,9 +386,7 @@ export const Home: React.FC<Props> = (props) => {
   }
 
   const handle_code_completion_click = () => {
-    const instruction = is_in_code_completions_mode
-      ? props.code_completion_suggestions
-      : props.instructions
+    const instruction = get_current_instructions()
 
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
@@ -387,9 +399,7 @@ export const Home: React.FC<Props> = (props) => {
   }
 
   const handle_code_completion_with_quick_pick_click = () => {
-    const instruction = is_in_code_completions_mode
-      ? props.code_completion_suggestions
-      : props.instructions
+    const instruction = get_current_instructions()
 
     props.vscode.postMessage({
       command: 'CODE_COMPLETION',
@@ -414,6 +424,28 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const current_mode =
+    home_view_type == HOME_VIEW_TYPES.WEB ? web_mode : api_mode
+
+  const instructions =
+    current_mode == 'ask'
+      ? props.ask_instructions
+      : current_mode == 'edit'
+      ? props.edit_instructions
+      : current_mode == 'no-context'
+      ? props.no_context_instructions
+      : ''
+
+  const set_instructions = (value: string) => {
+    if (
+      current_mode == 'ask' ||
+      current_mode == 'edit' ||
+      current_mode == 'no-context'
+    ) {
+      props.set_instructions(value, current_mode)
+    }
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
@@ -422,7 +454,7 @@ export const Home: React.FC<Props> = (props) => {
     chat_history === undefined ||
     chat_history_code_completions_mode === undefined ||
     is_in_code_completions_mode === undefined ||
-    props.instructions === undefined ||
+    instructions === undefined ||
     props.code_completion_suggestions === undefined ||
     chat_edit_format === undefined ||
     api_edit_format === undefined ||
@@ -464,8 +496,8 @@ export const Home: React.FC<Props> = (props) => {
       on_preset_duplicate={handle_preset_duplicate}
       on_preset_delete={handle_preset_delete}
       on_set_default_presets={handle_set_default_presets}
-      instructions={props.instructions}
-      set_instructions={props.set_instructions}
+      instructions={instructions}
+      set_instructions={set_instructions}
       code_completion_suggestions={props.code_completion_suggestions}
       set_code_completion_suggestions={props.set_code_completion_suggestions}
       on_caret_position_change={handle_caret_position_change}

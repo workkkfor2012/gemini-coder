@@ -14,10 +14,17 @@ export const handle_copy_prompt = async (
   )
 
   const active_editor = vscode.window.activeTextEditor
-  const current_instruction =
-    provider.web_mode == 'code-completions'
-      ? provider.code_completion_suggestions
-      : provider.instructions
+
+  let current_instruction = ''
+  if (provider.web_mode == 'code-completions') {
+    current_instruction = provider.code_completion_suggestions
+  } else if (provider.web_mode == 'ask') {
+    current_instruction = provider.ask_instructions
+  } else if (provider.web_mode == 'edit') {
+    current_instruction = provider.edit_instructions
+  } else if (provider.web_mode == 'no-context') {
+    current_instruction = provider.no_context_instructions
+  }
 
   if (provider.web_mode == 'code-completions' && active_editor) {
     const document = active_editor.document

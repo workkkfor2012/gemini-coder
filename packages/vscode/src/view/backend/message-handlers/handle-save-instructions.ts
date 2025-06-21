@@ -5,9 +5,18 @@ export const handle_save_instructions = async (
   provider: ViewProvider,
   message: SaveInstructionsMessage
 ): Promise<void> => {
-  provider.instructions = message.instruction
-  await provider.context.workspaceState.update(
-    'instructions',
-    message.instruction
-  )
+  const { mode, instruction } = message
+  const key = `${mode}-instructions`
+
+  if (mode == 'ask') {
+    provider.ask_instructions = instruction
+  } else if (mode == 'edit') {
+    provider.edit_instructions = instruction
+  } else if (mode == 'no-context') {
+    provider.no_context_instructions = instruction
+  } else {
+    return
+  }
+
+  await provider.context.workspaceState.update(key, instruction)
 }
