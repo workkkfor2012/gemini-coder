@@ -195,6 +195,7 @@ describe('clipboard-parser', () => {
         )
       }
     })
+
     it('should parse direct diff format in variant b', () => {
       const text = load_clipboard_text('diff-direct-variant-b.txt')
       const result = parse_response(text, true)
