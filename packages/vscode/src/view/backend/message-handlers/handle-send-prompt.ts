@@ -5,6 +5,7 @@ import { replace_selection_placeholder } from '@/utils/replace-selection-placeho
 import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
+import { chat_code_completion_instructions } from '@/constants/instructions'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
 import { HOME_VIEW_TYPES } from '@/view/types/home-view-type'
 
@@ -26,11 +27,11 @@ export const handle_send_prompt = async (
       provider.home_view_type == HOME_VIEW_TYPES.WEB
         ? provider.web_mode
         : provider.api_mode
-    if (mode === 'ask') {
+    if (mode == 'ask') {
       current_instructions = provider.ask_instructions
-    } else if (mode === 'edit') {
+    } else if (mode == 'edit') {
       current_instructions = provider.edit_instructions
-    } else if (mode === 'no-context') {
+    } else if (mode == 'no-context') {
       current_instructions = provider.no_context_instructions
     }
   }
@@ -73,16 +74,13 @@ export const handle_send_prompt = async (
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path!.replace(workspace_folder + '/', '')
 
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const chat_code_completion_instructions = config.get<string>(
-      'chatCodeCompletionsInstructions'
-    )
-
-    const instructions = `${chat_code_completion_instructions}${
-      provider.code_completions_instructions
+    const instructions = `${chat_code_completion_instructions(
+      relative_path,
+      position.line,
+      position.character
+    )}${provider.code_completions_instructions
         ? ` Follow instructions: ${provider.code_completions_instructions}`
-        : ''
-    }`
+        : ''}`
 
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 

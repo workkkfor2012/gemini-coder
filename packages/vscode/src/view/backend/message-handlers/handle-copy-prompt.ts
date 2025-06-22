@@ -3,6 +3,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
+import { chat_code_completion_instructions } from '@/constants/instructions'
 
 export const handle_copy_prompt = async (
   provider: ViewProvider
@@ -45,13 +46,11 @@ export const handle_copy_prompt = async (
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
-    // Use the configurable instruction for code completions copy
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const chatCodeCompletionsInstructions = config.get<string>(
-      'chatCodeCompletionsInstructions'
-    )
-
-    const instructions = `${chatCodeCompletionsInstructions}${
+    const instructions = `${chat_code_completion_instructions(
+      relative_path,
+      position.line,
+      position.character
+    )}${
       current_instruction ? ` Follow instructions: ${current_instruction}` : ''
     }`
 

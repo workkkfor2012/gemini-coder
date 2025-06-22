@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import { FilesCollector } from '../utils/files-collector'
+import { chat_code_completion_instructions } from '../constants/instructions'
 
-// Core function that contains the shared logic
 async function perform_fim_completion_to_clipboard(
   file_tree_provider: any,
   open_editors_provider: any,
@@ -13,7 +13,6 @@ async function perform_fim_completion_to_clipboard(
     return
   }
 
-  // Handle suggestions if needed
   let suggestions: string | undefined
   if (with_suggestions) {
     suggestions = await vscode.window.showInputBox({
@@ -38,33 +37,28 @@ async function perform_fim_completion_to_clipboard(
     new vscode.Range(position, document.positionAt(document.getText().length))
   )
 
-  // Create files collector instance
   const files_collector = new FilesCollector(
     file_tree_provider,
     open_editors_provider
   )
 
   try {
-    // Collect files excluding the current document
     const collected_files = await files_collector.collect_files({
       exclude_path: document_path
     })
 
+    const relative_path = vscode.workspace.asRelativePath(document.uri)
+
     const payload = {
-      before: `<files>${collected_files}\n<file path="${vscode.workspace.asRelativePath(
-        document.uri
-      )}">\n<![CDATA[\n${text_before_cursor}`,
+      before: `<files>${collected_files}\n<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}`,
       after: `${text_after_cursor}\n]]>\n</file>\n</files>`
     }
 
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const chat_code_completion_instructions = config.get<string>(
-      'chatCodeCompletionsInstructions'
-    )
-
-    const instructions = `${chat_code_completion_instructions}${
-      suggestions ? ` Follow suggestions: ${suggestions}` : ''
-    }`
+    const instructions = `${chat_code_completion_instructions(
+      relative_path,
+      position.line,
+      position.character
+    )}${suggestions ? ` Follow instructions: ${suggestions}` : ''}`
 
     const content = `${instructions}\n${payload.before}<missing text>${payload.after}\n${instructions}`
 
@@ -87,7 +81,7 @@ export function code_completion_to_clipboard_command(
       await perform_fim_completion_to_clipboard(
         file_tree_provider,
         open_editors_provider,
-        false // without suggestions
+        false
       )
     }
   )
@@ -103,7 +97,7 @@ export function code_completion_with_suggestions_to_clipboard_command(
       await perform_fim_completion_to_clipboard(
         file_tree_provider,
         open_editors_provider,
-        true // with suggestions
+        true
       )
     }
   )

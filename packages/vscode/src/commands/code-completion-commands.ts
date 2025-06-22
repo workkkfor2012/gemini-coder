@@ -1,7 +1,7 @@
 import * as vscode from 'vscode'
 import axios from 'axios'
 import { make_api_request } from '../utils/make-api-request'
-import { code_completion_instruction } from '../constants/instructions'
+import { code_completion_instructions } from '../constants/instructions'
 import { FilesCollector } from '../utils/files-collector'
 import { ApiProvidersManager } from '../services/api-providers-manager'
 import { Logger } from '../utils/logger'
@@ -43,8 +43,8 @@ async function build_completion_payload(params: {
     after: `${text_after_cursor}\n]]>\n</file>\n</files>`
   }
 
-  const instructions = `${code_completion_instruction}${
-    params.suggestions ? ` Follow suggestions: ${params.suggestions}` : ''
+  const instructions = `${code_completion_instructions}${
+    params.suggestions ? ` Follow instructions: ${params.suggestions}` : ''
   }`
 
   return `${instructions}\n${payload.before}<missing text>${payload.after}\n${instructions}`
@@ -72,7 +72,6 @@ async function show_inline_completion(params: {
     }
   )
 
-  // Listen for text document changes that would indicate completion acceptance
   const change_listener = vscode.workspace.onDidChangeTextDocument(
     async (e) => {
       if (e.document === document) {
@@ -85,13 +84,11 @@ async function show_inline_completion(params: {
     }
   )
 
-  // Trigger the inline completion UI
   await vscode.commands.executeCommand('editor.action.inlineSuggest.trigger')
 
-  // Dispose after a timeout or some event (optional cleanup)
   setTimeout(() => {
     controller.dispose()
-    change_listener.dispose() // Make sure to clean up the listener if not used
+    change_listener.dispose()
   }, 10000)
 }
 
@@ -453,7 +450,6 @@ async function perform_code_completion(params: {
             )
             if (match && match[1]) {
               let decoded_completion = he.decode(match[1].trim())
-              // Clean potential CDATA tags from the replacement
               decoded_completion = decoded_completion
                 .replace(/<!\[CDATA\[/g, '')
                 .replace(/\]\]>/g, '')

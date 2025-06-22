@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '../utils/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
+import { chat_code_completion_instructions } from '../constants/instructions'
 import { CHATBOTS } from '@shared/constants/chatbots'
 
 async function handle_code_completion_in_chat_command(
@@ -17,7 +18,6 @@ async function handle_code_completion_in_chat_command(
     return
   }
 
-  // Check connection status
   if (!websocket_server_instance.is_connected_with_browser()) {
     vscode.window.showInformationMessage(
       'Could not connect to the web browser. Please check if it is running and if the connector extension is installed.'
@@ -25,7 +25,6 @@ async function handle_code_completion_in_chat_command(
     return
   }
 
-  // Get Type suggestions from user
   const last_fim_prompt =
     context.workspaceState.get<string>('lastFimPrompt') || ''
   const suggestions = await vscode.window.showInputBox({
@@ -34,16 +33,12 @@ async function handle_code_completion_in_chat_command(
     value: last_fim_prompt
   })
 
-  // Check if user cancelled the input box
   if (suggestions === undefined) {
-    // User pressed Escape to cancel
     return
   }
 
-  // Store the suggestions even if empty to remember user preference
   await context.workspaceState.update('lastFimPrompt', suggestions || '')
 
-  // Files Collection using FilesCollector
   const files_collector = new FilesCollector(
     file_tree_provider,
     open_editors_provider
@@ -65,22 +60,17 @@ async function handle_code_completion_in_chat_command(
       exclude_path: active_path
     })
 
-    // Get relative path for the file
     const workspace_folder = vscode.workspace.workspaceFolders?.[0].uri.fsPath
     const relative_path = active_path.replace(workspace_folder + '/', '')
 
-    const config = vscode.workspace.getConfiguration('codeWebChat')
-    const chat_code_completion_instructions = config.get<string>(
-      'chatCodeCompletionsInstructions'
-    )
-
-    const instructions = `${chat_code_completion_instructions}${
-      suggestions ? ` Follow suggestions: ${suggestions}` : ''
-    }`
+    const instructions = `${chat_code_completion_instructions(
+      relative_path,
+      position.line,
+      position.character
+    )}${suggestions ? ` Follow instructions: ${suggestions}` : ''}`
 
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
-    // Add to FIM chat history if there are suggestions
     if (suggestions) {
       const current_history = context.workspaceState.get<string[]>(
         'code-completions-history',
@@ -100,7 +90,6 @@ async function handle_code_completion_in_chat_command(
       }
     })
 
-    // Initialize chats with selected preset names in FIM mode
     websocket_server_instance.initialize_chats(chats)
   } catch (error: any) {
     console.error('Error in FIM in Chat:', error)
@@ -111,7 +100,6 @@ async function handle_code_completion_in_chat_command(
 // Helper function to filter presets without affixes
 function filter_presets_with_affixes(presets: ConfigPresetFormat[]) {
   return presets.filter((preset) => {
-    // Exclude presets that have non-empty promptPrefix or promptSuffix
     return (
       (!preset.promptPrefix || preset.promptPrefix.trim() == '') &&
       (!preset.promptSuffix || preset.promptSuffix.trim() == '')
@@ -131,8 +119,6 @@ export function code_completion_in_chat_with_command(
     async () => {
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const all_presets = config.get<ConfigPresetFormat[]>('presets', [])
-
-      // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)
 
       if (presets.length == 0) {
@@ -142,7 +128,6 @@ export function code_completion_in_chat_with_command(
         return
       }
 
-      // Create quickpick items for presets
       const preset_quick_pick_items = presets
         .filter((preset) => CHATBOTS[preset.chatbot])
         .map((preset) => ({
@@ -152,7 +137,6 @@ export function code_completion_in_chat_with_command(
           }`
         }))
 
-      // Show quickpick without multi-select
       const selected_preset = await vscode.window.showQuickPick(
         preset_quick_pick_items,
         {
@@ -161,10 +145,9 @@ export function code_completion_in_chat_with_command(
       )
 
       if (!selected_preset) {
-        return // User cancelled
+        return
       }
 
-      // Use the shared logic with the selected preset
       await handle_code_completion_in_chat_command(
         context,
         file_tree_provider,
@@ -188,8 +171,6 @@ export function code_completion_in_chat_command(
     async () => {
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const all_presets = config.get<ConfigPresetFormat[]>('presets', [])
-
-      // Filter out presets with affixes
       const presets = filter_presets_with_affixes(all_presets)
 
       if (presets.length == 0) {
@@ -199,20 +180,16 @@ export function code_completion_in_chat_command(
         return
       }
 
-      // Get previously selected presets from globalState
       let selected_names = context.globalState.get<string[]>(
         'selectedPresets',
         []
       )
 
-      // Filter out any previously selected presets that now have affixes or no longer exist
       const valid_selected_names = selected_names.filter((name) =>
         presets.some((preset) => preset.name == name)
       )
 
-      // If no valid presets were previously selected, show the selection dialog
       if (!valid_selected_names.length) {
-        // Create quickpick items for presets
         const preset_quick_pick_items = presets.map((preset) => ({
           label: preset.name,
           description: `${preset.chatbot}${
@@ -221,7 +198,6 @@ export function code_completion_in_chat_command(
           picked: false
         }))
 
-        // Show quickpick with multi-select enabled
         const selected_presets = await vscode.window.showQuickPick(
           preset_quick_pick_items,
           {
@@ -231,17 +207,14 @@ export function code_completion_in_chat_command(
         )
 
         if (!selected_presets || selected_presets.length == 0) {
-          return // User cancelled or didn't select any presets
+          return
         }
 
-        // Save selected preset names to globalState
         selected_names = selected_presets.map((preset) => preset.label)
         await context.globalState.update('selectedPresets', selected_names)
       } else {
-        // Use the filtered valid selected names
         selected_names = valid_selected_names
 
-        // Update the stored selection with only valid presets
         if (valid_selected_names.length !== selected_names.length) {
           await context.globalState.update(
             'selectedPresets',
@@ -250,7 +223,6 @@ export function code_completion_in_chat_command(
         }
       }
 
-      // Use the shared logic with the selected presets
       await handle_code_completion_in_chat_command(
         context,
         file_tree_provider,
