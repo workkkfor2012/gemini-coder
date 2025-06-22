@@ -16,11 +16,7 @@ export const mistral: Chatbot = {
   wait_until_ready: async () => {
     await new Promise((resolve) => {
       const check_for_element = () => {
-        if (
-          !document.querySelector(
-            'button[data-testid="tools-selection-button"][aria-disabled="true"]'
-          )
-        ) {
+        if (document.querySelector('.Editor-indented.ProseMirror')) {
           resolve(null)
         } else {
           setTimeout(check_for_element, 100)
@@ -28,6 +24,7 @@ export const mistral: Chatbot = {
       }
       check_for_element()
     })
+    await new Promise((resolve) => setTimeout(resolve, 500))
   },
   inject_apply_response_button: (client_id: number) => {
     const add_buttons = (params: { footer: Element }) => {

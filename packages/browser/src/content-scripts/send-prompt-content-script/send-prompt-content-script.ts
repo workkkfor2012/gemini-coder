@@ -116,7 +116,7 @@ export const get_textarea_element = () => {
     [chatgpt_url]: 'div#prompt-textarea',
     [claude_url]: 'div[contenteditable=true]',
     [deepseek_url]: 'textarea',
-    [mistral_url]: 'textarea',
+    [mistral_url]: 'div[contenteditable="true"]',
     [yuanbao_url]: 'div[contenteditable="true"]',
     [doubao_url]: 'textarea',
     [perplexity_url]: 'textarea'
