@@ -173,7 +173,16 @@ async function save_contexts_to_file(
       fs.mkdirSync(dir_path, { recursive: true })
     }
 
-    fs.writeFileSync(file_path, JSON.stringify(contexts, null, 2), 'utf8')
+    if (contexts.length == 0) {
+      if (fs.existsSync(file_path)) {
+        fs.unlinkSync(file_path)
+        Logger.log({
+          message: `Deleted empty contexts file: ${file_path}`
+        })
+      }
+    } else {
+      fs.writeFileSync(file_path, JSON.stringify(contexts, null, 2), 'utf8')
+    }
   } catch (error: any) {
     throw new Error(`Failed to save contexts to file: ${error.message}`)
   }

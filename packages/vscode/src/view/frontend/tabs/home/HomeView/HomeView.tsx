@@ -53,6 +53,18 @@ type Props = {
   on_code_completion_with_quick_pick_click: () => void
 }
 
+const web_mode_labels: Record<WebMode, string> = {
+  ask: 'Ask about context',
+  edit: 'Edit context',
+  'code-completions': 'Code at cursor with context',
+  'no-context': 'No context'
+}
+
+const api_mode_labels: Record<ApiMode, string> = {
+  edit: 'Edit context',
+  'code-completions': 'Code at cursor with context'
+}
+
 export const HomeView: React.FC<Props> = (props) => {
   const [estimated_input_tokens, set_estimated_input_tokens] = useState(0)
   const [dropdown_max_width, set_dropdown_max_width] = useState<
@@ -200,33 +212,23 @@ export const HomeView: React.FC<Props> = (props) => {
             <div className={styles.top__dropdown} ref={dropdown_container_ref}>
               {props.home_view_type == HOME_VIEW_TYPES.WEB && (
                 <UiDropdown
-                  options={[
-                    { value: 'ask', label: 'Ask about context' },
-                    { value: 'edit', label: 'Edit context' },
-                    {
-                      value: 'code-completions',
-                      label: 'Code at cursor with context'
-                    },
-                    { value: 'no-context', label: 'No context' }
-                  ]}
+                  options={Object.entries(web_mode_labels).map(
+                    ([value, label]) => ({ value: value as WebMode, label })
+                  )}
                   selected_value={props.web_mode}
                   on_change={props.on_web_mode_change}
-                  title="Select mode"
+                  title={`Current mode: ${web_mode_labels[props.web_mode]}`}
                   max_width={dropdown_max_width}
                 />
               )}
               {props.home_view_type == HOME_VIEW_TYPES.API && (
                 <UiDropdown
-                  options={[
-                    { value: 'edit', label: 'Edit context' },
-                    {
-                      value: 'code-completions',
-                      label: 'Code at cursor with context'
-                    }
-                  ]}
+                  options={Object.entries(api_mode_labels).map(
+                    ([value, label]) => ({ value: value as ApiMode, label })
+                  )}
                   selected_value={props.api_mode}
                   on_change={props.on_api_mode_change}
-                  title="Select mode"
+                  title={`Current mode: ${api_mode_labels[props.api_mode]}`}
                   max_width={dropdown_max_width}
                 />
               )}
