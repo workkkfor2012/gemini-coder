@@ -19,7 +19,7 @@ const vscode = acquireVsCodeApi()
 const TAB_NAMES = {
   HOME: 'Home',
   SETTINGS: 'Settings',
-  DONATIONS: 'Recent coffees'
+  DONATIONS: 'Guestbook'
 } as const
 
 type TabName = (typeof TAB_NAMES)[keyof typeof TAB_NAMES]
