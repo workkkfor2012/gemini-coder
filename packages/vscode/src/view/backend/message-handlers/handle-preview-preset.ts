@@ -65,9 +65,7 @@ export const handle_preview_preset = async (
   } else if (provider.web_mode != 'code-completions') {
     const context_text =
       provider.web_mode != 'no-context'
-        ? await files_collector.collect_files({
-            active_path
-          })
+        ? await files_collector.collect_files()
         : ''
 
     let instructions = replace_selection_placeholder(current_instructions)

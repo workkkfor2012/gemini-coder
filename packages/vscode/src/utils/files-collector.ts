@@ -23,10 +23,7 @@ export class FilesCollector {
     this.workspace_roots = workspace_provider.getWorkspaceRoots()
   }
 
-  async collect_files(params?: {
-    exclude_path?: string
-    active_path?: string
-  }): Promise<string> {
+  async collect_files(params?: { exclude_path?: string }): Promise<string> {
     const workspace_files = this.workspace_provider.get_checked_files()
     const open_editor_files =
       this.open_editors_provider?.get_checked_files() || []
@@ -58,10 +55,7 @@ export class FilesCollector {
         const workspace_root = this.get_workspace_root_for_file(file_path)
 
         if (!workspace_root) {
-          const is_active = params?.active_path == file_path
-          collected_text += `<file path="${file_path}"${
-            is_active ? ' active' : ''
-          }>\n<![CDATA[\n${content}\n]]>\n</file>\n`
+          collected_text += `<file path="${file_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
           continue
         }
 
@@ -75,10 +69,7 @@ export class FilesCollector {
           display_path = `${workspace_name}/${relative_path}`
         }
 
-        const is_active = params?.active_path == file_path
-        collected_text += `<file path="${display_path}"${
-          is_active ? ' active' : ''
-        }>\n<![CDATA[\n${content}\n]]>\n</file>\n`
+        collected_text += `<file path="${display_path}">\n<![CDATA[\n${content}\n]]>\n</file>\n`
       } catch (error) {
         console.error(`Error reading file ${file_path}:`, error)
       }

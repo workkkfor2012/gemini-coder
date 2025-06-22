@@ -23,7 +23,7 @@ export const handle_send_prompt = async (
     current_instructions = provider.code_completions_instructions
   } else {
     const mode =
-      provider.home_view_type === HOME_VIEW_TYPES.WEB
+      provider.home_view_type == HOME_VIEW_TYPES.WEB
         ? provider.web_mode
         : provider.api_mode
     if (mode === 'ask') {
@@ -113,9 +113,7 @@ export const handle_send_prompt = async (
 
     const context_text =
       provider.web_mode != 'no-context'
-        ? await files_collector.collect_files({
-            active_path
-          })
+        ? await files_collector.collect_files()
         : ''
 
     const chats = valid_preset_names.map((preset_name) => {

@@ -248,9 +248,7 @@ const perform_context_editing = async (params: {
     params.open_editors_provider
   )
 
-  const collected_files = await files_collector.collect_files({
-    active_path: editor?.document?.uri.fsPath
-  })
+  const collected_files = await files_collector.collect_files()
 
   if (!collected_files) {
     vscode.window.showErrorMessage('Unable to work with empty context.')

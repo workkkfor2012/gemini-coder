@@ -127,9 +127,7 @@ async function process_chat_instructions(
   let context_text = ''
 
   try {
-    const active_editor = vscode.window.activeTextEditor
-    const active_path = active_editor?.document.uri.fsPath
-    context_text = await files_collector.collect_files({ active_path })
+    context_text = await files_collector.collect_files()
   } catch (error: any) {
     console.error('Error collecting files:', error)
     vscode.window.showErrorMessage('Error collecting files: ' + error.message)
