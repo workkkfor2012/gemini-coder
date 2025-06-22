@@ -76,8 +76,8 @@ export const Settings: React.FC<Props> = (props) => {
               Configure API Providers
             </UiButton>
             <span>
-              API tools make requests directly to the providers. API keys
-              are&nbsp;
+              API tools make requests directly to the configured providers. API
+              keys are&nbsp;
               <a href="https://code.visualstudio.com/api/references/vscode-api#SecretStorage">
                 stored encrypted
               </a>
