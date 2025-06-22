@@ -3,7 +3,7 @@ import { HomeView } from './HomeView'
 import {
   WebviewMessage,
   ExtensionMessage,
-  PresetsMessage,
+  PresetsMessage
 } from '../../../types/messages'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
@@ -32,8 +32,10 @@ export const Home: React.FC<Props> = (props) => {
   ] = useState<string[]>([])
   const [has_active_editor, set_has_active_editor] = useState<boolean>()
   const [has_active_selection, set_has_active_selection] = useState<boolean>()
-  const [chat_history, set_chat_history] = useState<string[]>()
-  const [chat_history_code_completions_mode, set_chat_history_fim_mode] =
+  const [ask_history, set_ask_history] = useState<string[]>()
+  const [edit_history, set_edit_history] = useState<string[]>()
+  const [no_context_history, set_no_context_history] = useState<string[]>()
+  const [code_completions_history, set_code_completions_history] =
     useState<string[]>()
   const [token_count, set_token_count] = useState<number>(0)
   const [selection_text, set_selection_text] = useState<string>('')
@@ -75,10 +77,10 @@ export const Home: React.FC<Props> = (props) => {
           set_has_active_selection(message.has_selection)
           break
         case 'CHAT_HISTORY':
-          set_chat_history(message.messages || [])
-          break
-        case 'FIM_CHAT_HISTORY':
-          set_chat_history_fim_mode(message.messages || [])
+          set_ask_history(message.ask || [])
+          set_edit_history(message.edit || [])
+          set_no_context_history(message.no_context || [])
+          set_code_completions_history(message.code_completions || [])
           break
         case 'TOKEN_COUNT_UPDATED':
           set_token_count(message.token_count)
@@ -126,7 +128,6 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'REQUEST_EDITOR_STATE' },
       { command: 'REQUEST_EDITOR_SELECTION_STATE' },
       { command: 'GET_HISTORY' },
-      { command: 'GET_CODE_COMPLETIONS_HISTORY' },
       { command: 'GET_CURRENT_TOKEN_COUNT' },
       { command: 'GET_INSTRUCTIONS' },
       { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
@@ -139,6 +140,9 @@ export const Home: React.FC<Props> = (props) => {
 
     return () => window.removeEventListener('message', handle_message)
   }, [])
+
+  const current_mode =
+    home_view_type == HOME_VIEW_TYPES.WEB ? web_mode : api_mode
 
   const handle_web_mode_change = (new_mode: WebMode) => {
     set_web_mode(new_mode)
@@ -162,6 +166,47 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
+  const update_chat_history = (instruction: string) => {
+    if (!instruction.trim()) {
+      return
+    }
+
+    if (!current_mode) return
+
+    let history: string[] | undefined
+    let set_history: React.Dispatch<React.SetStateAction<string[] | undefined>>
+
+    if (current_mode === 'ask') {
+      history = ask_history
+      set_history = set_ask_history
+    } else if (current_mode === 'edit') {
+      history = edit_history
+      set_history = set_edit_history
+    } else if (current_mode === 'no-context') {
+      history = no_context_history
+      set_history = set_no_context_history
+    } else if (current_mode === 'code-completions') {
+      history = code_completions_history
+      set_history = set_code_completions_history
+    } else {
+      return
+    }
+
+    const is_duplicate =
+      history && history.length > 0 && history[0] === instruction
+
+    if (!is_duplicate) {
+      const new_history = [instruction, ...(history || [])].slice(0, 100)
+      set_history(new_history)
+
+      props.vscode.postMessage({
+        command: 'SAVE_HISTORY',
+        messages: new_history,
+        mode: current_mode
+      } as WebviewMessage)
+    }
+  }
+
   const handle_initialize_chats = async (params: {
     prompt: string
     preset_names: string[]
@@ -171,89 +216,7 @@ export const Home: React.FC<Props> = (props) => {
       preset_names: params.preset_names
     } as WebviewMessage)
 
-    // Update the appropriate chat history based on mode
-    if (is_in_code_completions_mode) {
-      // Check if this instruction is already at the top of history
-      const is_duplicate =
-        chat_history_code_completions_mode &&
-        chat_history_code_completions_mode.length > 0 &&
-        chat_history_code_completions_mode[0] == params.prompt
-
-      if (!is_duplicate) {
-        const new_history = [
-          params.prompt,
-          ...(chat_history_code_completions_mode || [])
-        ].slice(0, 100)
-        set_chat_history_fim_mode(new_history)
-
-        // Save to workspace state
-        props.vscode.postMessage({
-          command: 'SAVE_HISTORY',
-          messages: new_history,
-          is_fim_mode: true // Indicate FIM mode
-        } as WebviewMessage)
-      }
-    } else {
-      // Check if this instruction is already at the top of history
-      const is_duplicate =
-        chat_history &&
-        chat_history.length > 0 &&
-        chat_history[0] == params.prompt
-
-      if (!is_duplicate) {
-        const new_history = [params.prompt, ...(chat_history || [])].slice(
-          0,
-          100
-        )
-        set_chat_history(new_history)
-
-        // Save to workspace state
-        props.vscode.postMessage({
-          command: 'SAVE_HISTORY',
-          messages: new_history,
-          is_fim_mode: false // Indicate normal mode
-        } as WebviewMessage)
-      }
-    }
-  }
-
-  const update_chat_history = (instruction: string) => {
-    if (is_in_code_completions_mode) {
-      const is_duplicate =
-        chat_history_code_completions_mode &&
-        chat_history_code_completions_mode.length > 0 &&
-        chat_history_code_completions_mode[0] == instruction
-
-      if (!is_duplicate) {
-        const new_history = [
-          instruction,
-          ...(chat_history_code_completions_mode || [])
-        ].slice(0, 100)
-        set_chat_history_fim_mode(new_history)
-
-        props.vscode.postMessage({
-          command: 'SAVE_HISTORY',
-          messages: new_history,
-          is_fim_mode: true
-        } as WebviewMessage)
-      }
-    } else {
-      const is_duplicate =
-        chat_history &&
-        chat_history.length > 0 &&
-        chat_history[0] == instruction
-
-      if (!is_duplicate) {
-        const new_history = [instruction, ...(chat_history || [])].slice(0, 100)
-        set_chat_history(new_history)
-
-        props.vscode.postMessage({
-          command: 'SAVE_HISTORY',
-          messages: new_history,
-          is_fim_mode: false
-        } as WebviewMessage)
-      }
-    }
+    update_chat_history(params.prompt)
   }
 
   const handle_copy_to_clipboard = (instruction: string) => {
@@ -424,9 +387,6 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
   }
 
-  const current_mode =
-    home_view_type == HOME_VIEW_TYPES.WEB ? web_mode : api_mode
-
   const instructions =
     current_mode == 'ask'
       ? props.ask_instructions
@@ -446,13 +406,26 @@ export const Home: React.FC<Props> = (props) => {
     }
   }
 
+  let current_history: string[] | undefined
+  if (current_mode == 'ask') {
+    current_history = ask_history
+  } else if (current_mode == 'edit') {
+    current_history = edit_history
+  } else if (current_mode == 'no-context') {
+    current_history = no_context_history
+  } else if (current_mode == 'code-completions') {
+    current_history = code_completions_history
+  }
+
   if (
     is_connected === undefined ||
     presets === undefined ||
     has_active_editor === undefined ||
     has_active_selection === undefined ||
-    chat_history === undefined ||
-    chat_history_code_completions_mode === undefined ||
+    ask_history === undefined ||
+    edit_history === undefined ||
+    no_context_history === undefined ||
+    code_completions_history === undefined ||
     is_in_code_completions_mode === undefined ||
     instructions === undefined ||
     props.code_completion_suggestions === undefined ||
@@ -479,8 +452,7 @@ export const Home: React.FC<Props> = (props) => {
       on_quick_action_click={handle_quick_action_click}
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
-      chat_history={chat_history}
-      chat_history_code_completions_mode={chat_history_code_completions_mode}
+      chat_history={current_history || []}
       token_count={token_count}
       selection_text={selection_text}
       web_mode={web_mode}

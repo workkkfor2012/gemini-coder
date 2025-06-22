@@ -27,7 +27,6 @@ type Props = {
   has_active_editor: boolean
   has_active_selection: boolean
   chat_history: string[]
-  chat_history_code_completions_mode: string[]
   token_count: number
   selection_text?: string
   web_mode: WebMode
@@ -268,7 +267,6 @@ export const HomeView: React.FC<Props> = (props) => {
             <UiChatInput
               value={current_prompt}
               chat_history={props.chat_history}
-              chat_history_fim_mode={props.chat_history_code_completions_mode}
               on_change={handle_input_change}
               on_submit={handle_submit}
               on_submit_with_control={handle_submit_with_control}

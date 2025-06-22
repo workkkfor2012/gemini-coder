@@ -87,13 +87,10 @@ export interface GetHistoryMessage extends BaseMessage {
   command: 'GET_HISTORY'
 }
 
-export interface GetCodeCompletionsHistoryMessage extends BaseMessage {
-  command: 'GET_CODE_COMPLETIONS_HISTORY'
-}
-
 export interface SaveHistoryMessage extends BaseMessage {
   command: 'SAVE_HISTORY'
   messages: string[]
+  mode: 'ask' | 'edit' | 'no-context' | 'code-completions'
 }
 
 export interface GetCurrentTokenCountMessage extends BaseMessage {
@@ -294,12 +291,10 @@ export interface EditorSelectionChangedMessage extends BaseMessage {
 
 export interface ChatHistoryMessage extends BaseMessage {
   command: 'CHAT_HISTORY'
-  messages: string[]
-}
-
-export interface FimChatHistoryMessage extends BaseMessage {
-  command: 'FIM_CHAT_HISTORY'
-  messages: string[]
+  ask: string[]
+  edit: string[]
+  no_context: string[]
+  code_completions: string[]
 }
 
 export interface TokenCountMessage extends BaseMessage {
@@ -382,7 +377,6 @@ export type WebviewMessage =
   | RequestEditorStateMessage
   | RequestEditorSelectionStateMessage
   | GetHistoryMessage
-  | GetCodeCompletionsHistoryMessage
   | SaveHistoryMessage
   | GetCurrentTokenCountMessage
   | UpdatePresetMessage
@@ -424,7 +418,6 @@ export type ExtensionMessage =
   | EditorStateChangedMessage
   | EditorSelectionChangedMessage
   | ChatHistoryMessage
-  | FimChatHistoryMessage
   | TokenCountMessage
   | SelectionTextMessage
   | PresetCreatedMessage

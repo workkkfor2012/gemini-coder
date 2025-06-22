@@ -5,8 +5,6 @@ export const handle_save_history = async (
   provider: ViewProvider,
   message: SaveHistoryMessage
 ): Promise<void> => {
-  const key = !provider.is_code_completions_mode
-    ? 'history'
-    : 'code-completions-history'
+  const key = `history-${message.mode}`
   await provider.context.workspaceState.update(key, message.messages)
 }

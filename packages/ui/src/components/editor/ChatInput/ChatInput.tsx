@@ -7,7 +7,6 @@ import { Icon } from '../Icon'
 type Props = {
   value: string
   chat_history: string[]
-  chat_history_fim_mode: string[]
   on_change: (value: string) => void
   on_submit: () => void
   on_submit_with_control: () => void
@@ -169,9 +168,7 @@ export const ChatInput: React.FC<Props> = (props) => {
       (e.key == 'ArrowUp' || e.key == 'ArrowDown') &&
       is_history_enabled
     ) {
-      const active_history = props.is_in_code_completions_mode
-        ? props.chat_history_fim_mode
-        : props.chat_history
+      const active_history = props.chat_history
 
       if (active_history.length == 0) return
 
@@ -203,9 +200,7 @@ export const ChatInput: React.FC<Props> = (props) => {
   }
 
   const placeholder = useMemo(() => {
-    const active_history = props.is_in_code_completions_mode
-      ? props.chat_history_fim_mode
-      : props.chat_history
+    const active_history = props.chat_history
 
     if (props.is_in_code_completions_mode) {
       if (active_history.length > 0 && is_history_enabled) {
@@ -221,7 +216,6 @@ export const ChatInput: React.FC<Props> = (props) => {
   }, [
     props.is_in_code_completions_mode,
     props.chat_history,
-    props.chat_history_fim_mode,
     is_history_enabled,
     props.is_web_mode
   ])

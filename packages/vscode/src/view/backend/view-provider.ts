@@ -31,7 +31,6 @@ import {
   handle_get_selected_presets,
   handle_get_selected_code_completion_presets,
   handle_get_connection_status,
-  handle_get_code_completions_history,
   handle_get_history,
   handle_save_history,
   handle_save_code_completion_suggestions,
@@ -317,8 +316,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
         try {
           if (message.command == 'GET_HISTORY') {
             handle_get_history(this)
-          } else if (message.command == 'GET_CODE_COMPLETIONS_HISTORY') {
-            handle_get_code_completions_history(this)
           } else if (message.command == 'SAVE_HISTORY') {
             await handle_save_history(this, message)
           } else if (message.command == 'GET_INSTRUCTIONS') {
