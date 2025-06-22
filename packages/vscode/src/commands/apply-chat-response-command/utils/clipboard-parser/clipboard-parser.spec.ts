@@ -179,6 +179,22 @@ describe('clipboard-parser', () => {
 `)
     })
 
+    it('should parse code-completion format', () => {
+      const text =
+        '```typescript\n// src/index.ts 25:5\nconsole.log("completion");\n```'
+      const result = parse_response(text, true)
+
+      expect(result.type).toBe('code-completion')
+      expect(result.code_completion).toBeDefined()
+      if (result.code_completion) {
+        expect(result.code_completion.file_path).toBe('src/index.ts')
+        expect(result.code_completion.line).toBe(25)
+        expect(result.code_completion.character).toBe(5)
+        expect(result.code_completion.content).toBe(
+          'console.log("completion");'
+        )
+      }
+    })
     it('should parse direct diff format in variant b', () => {
       const text = load_clipboard_text('diff-direct-variant-b.txt')
       const result = parse_response(text, true)
