@@ -13,16 +13,16 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-Non-agentic coding tool for AI-assisted programming, designed for real-world software development.
+100% free and open source non-agentic coding tool for AI-assisted programming. Designed for accuracy and cost efficiency.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.) \
 🙋 Created by an independent developer \
-✌️ 100% free and open source
+☕️ Backed by donations
 
 **Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
-- API tools—simple and robust
+- API tools—battle-tested must-haves
 - privacy first—zero telemetry
 - lightweight—about 1MB of code
 
