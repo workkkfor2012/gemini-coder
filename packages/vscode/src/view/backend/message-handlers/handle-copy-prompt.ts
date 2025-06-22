@@ -17,7 +17,7 @@ export const handle_copy_prompt = async (
 
   let current_instruction = ''
   if (provider.web_mode == 'code-completions') {
-    current_instruction = provider.code_completion_suggestions
+    current_instruction = provider.code_completions_instructions
   } else if (provider.web_mode == 'ask') {
     current_instruction = provider.ask_instructions
   } else if (provider.web_mode == 'edit') {
@@ -52,7 +52,7 @@ export const handle_copy_prompt = async (
     )
 
     const instructions = `${chatCodeCompletionsInstructions}${
-      current_instruction ? ` Follow suggestions: ${current_instruction}` : ''
+      current_instruction ? ` Follow instructions: ${current_instruction}` : ''
     }`
 
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`

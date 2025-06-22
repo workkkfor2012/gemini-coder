@@ -29,7 +29,7 @@ export const handle_preview_preset = async (
   } else if (provider.web_mode == 'no-context') {
     current_instructions = provider.no_context_instructions
   } else if (provider.web_mode == 'code-completions') {
-    current_instructions = provider.code_completion_suggestions
+    current_instructions = provider.code_completions_instructions
   }
 
   if (provider.web_mode == 'code-completions' && active_editor) {
@@ -56,7 +56,9 @@ export const handle_preview_preset = async (
     )
 
     const instructions = `${chat_code_completion_instructions}${
-      current_instructions ? ` Follow suggestions: ${current_instructions}` : ''
+      current_instructions
+        ? ` Follow instructions: ${current_instructions}`
+        : ''
     }`
 
     text_to_send = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`

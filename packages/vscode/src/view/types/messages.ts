@@ -14,19 +14,10 @@ export interface GetInstructionsMessage extends BaseMessage {
   command: 'GET_INSTRUCTIONS'
 }
 
-export interface GetCodeCompletionSuggestionsMessage extends BaseMessage {
-  command: 'GET_CODE_COMPLETION_SUGGESTIONS'
-}
-
 export interface SaveInstructionsMessage extends BaseMessage {
   command: 'SAVE_INSTRUCTIONS'
   instruction: string
-  mode: 'ask' | 'edit' | 'no-context'
-}
-
-export interface SaveCodeCompletionSuggestionsMessage extends BaseMessage {
-  command: 'SAVE_CODE_COMPLETION_SUGGESTIONS'
-  instruction: string
+  mode: 'ask' | 'edit' | 'no-context' | 'code-completions'
 }
 
 export interface GetEditFormat extends BaseMessage {
@@ -223,11 +214,7 @@ export interface InstructionsMessage extends BaseMessage {
   ask: string
   edit: string
   no_context: string
-}
-
-export interface CodeCompletionSuggestionsMessage extends BaseMessage {
-  command: 'CODE_COMPLETION_SUGGESTIONS'
-  value: string
+  code_completions: string
 }
 
 export interface ConnectionStatusMessage extends BaseMessage {
@@ -361,9 +348,7 @@ export interface ApiModeMessage extends BaseMessage {
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetInstructionsMessage
-  | GetCodeCompletionSuggestionsMessage
   | SaveInstructionsMessage
-  | SaveCodeCompletionSuggestionsMessage
   | GetEditFormat
   | SaveEditFormatMessage
   | GetConnectionStatusMessage
@@ -407,7 +392,6 @@ export type WebviewMessage =
 
 export type ExtensionMessage =
   | InstructionsMessage
-  | CodeCompletionSuggestionsMessage
   | ConnectionStatusMessage
   | EditFormatMessage
   | PresetsMessage

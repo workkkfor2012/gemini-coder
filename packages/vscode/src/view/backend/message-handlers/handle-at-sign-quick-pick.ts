@@ -23,6 +23,8 @@ export const handle_at_sign_quick_pick = async (
     current_text = provider.edit_instructions
   } else if (mode == 'no-context') {
     current_text = provider.no_context_instructions
+  } else if (mode == 'code-completions') {
+    current_text = provider.code_completions_instructions
   }
 
   const is_after_at_sign = current_text

@@ -9,7 +9,6 @@ import { Preset } from '@shared/types/preset'
 import {
   ExtensionMessage,
   SaveInstructionsMessage,
-  SaveCodeCompletionSuggestionsMessage,
   WebviewMessage
 } from '../types/messages'
 import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
@@ -40,30 +39,24 @@ export const View = () => {
   const [no_context_instructions, set_no_context_instructions] = useState<
     string | undefined
   >()
-  const [code_completion_suggestions, set_code_completion_suggestions] =
+  const [code_completions_instructions, set_code_completions_instructions] =
     useState<string | undefined>(undefined)
 
   const handle_instructions_change = (
     value: string,
-    mode: 'ask' | 'edit' | 'no-context'
+    mode: 'ask' | 'edit' | 'no-context' | 'code-completions'
   ) => {
     if (mode == 'ask') set_ask_instructions(value)
     else if (mode == 'edit') set_edit_instructions(value)
     else if (mode == 'no-context') set_no_context_instructions(value)
+    else if (mode == 'code-completions')
+      set_code_completions_instructions(value)
 
     vscode.postMessage({
       command: 'SAVE_INSTRUCTIONS',
       instruction: value,
       mode: mode
     } as SaveInstructionsMessage)
-  }
-
-  const handle_code_completion_suggestions_change = (value: string) => {
-    set_code_completion_suggestions(value)
-    vscode.postMessage({
-      command: 'SAVE_CODE_COMPLETION_SUGGESTIONS',
-      instruction: value
-    } as SaveCodeCompletionSuggestionsMessage)
   }
 
   useEffect(() => {
@@ -78,16 +71,12 @@ export const View = () => {
         set_ask_instructions(message.ask)
         set_edit_instructions(message.edit)
         set_no_context_instructions(message.no_context)
-      } else if (message.command == 'CODE_COMPLETION_SUGGESTIONS') {
-        set_code_completion_suggestions(message.value)
+        set_code_completions_instructions(message.code_completions)
       }
     }
     window.addEventListener('message', handle_message)
 
-    const initial_messages: WebviewMessage[] = [
-      { command: 'GET_INSTRUCTIONS' },
-      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' }
-    ]
+    const initial_messages: WebviewMessage[] = [{ command: 'GET_INSTRUCTIONS' }]
     initial_messages.forEach((message) => vscode.postMessage(message))
 
     return () => window.removeEventListener('message', handle_message)
@@ -112,7 +101,7 @@ export const View = () => {
     ask_instructions === undefined ||
     edit_instructions === undefined ||
     no_context_instructions === undefined ||
-    code_completion_suggestions === undefined
+    code_completions_instructions === undefined
   ) {
     return null
   }
@@ -133,11 +122,8 @@ export const View = () => {
         ask_instructions={ask_instructions}
         edit_instructions={edit_instructions}
         no_context_instructions={no_context_instructions}
+        code_completions_instructions={code_completions_instructions}
         set_instructions={handle_instructions_change}
-        code_completion_suggestions={code_completion_suggestions}
-        set_code_completion_suggestions={
-          handle_code_completion_suggestions_change
-        }
       />
       <Settings vscode={vscode} is_visible={active_tab == TAB_NAMES.SETTINGS} />
       <Donations

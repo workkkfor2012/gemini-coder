@@ -44,8 +44,6 @@ type Props = {
   on_set_default_presets: () => void
   instructions: string
   set_instructions: (value: string) => void
-  code_completion_suggestions: string
-  set_code_completion_suggestions: (value: string) => void
   on_caret_position_change: (caret_position: number) => void
   home_view_type: HomeViewType
   on_home_view_type_change: (value: HomeViewType) => void
@@ -97,9 +95,7 @@ export const HomeView: React.FC<Props> = (props) => {
     (props.home_view_type == HOME_VIEW_TYPES.API &&
       props.api_mode == 'code-completions')
 
-  const current_prompt = is_in_code_completions_mode
-    ? props.code_completion_suggestions
-    : props.instructions
+  const current_prompt = props.instructions
 
   useEffect(() => {
     let estimated_tokens = 0
@@ -124,11 +120,7 @@ export const HomeView: React.FC<Props> = (props) => {
   ])
 
   const handle_input_change = (value: string) => {
-    if (is_in_code_completions_mode) {
-      props.set_code_completion_suggestions(value)
-    } else {
-      props.set_instructions(value)
-    }
+    props.set_instructions(value)
   }
 
   const handle_submit = async () => {
@@ -290,7 +282,7 @@ export const HomeView: React.FC<Props> = (props) => {
               on_caret_position_change={props.on_caret_position_change}
               translations={{
                 type_something: 'Type something',
-                completion_suggestions: 'Completion suggestions',
+                optional_suggestions: 'Optional suggestions',
                 send_request: 'Send request',
                 initialize_chat: 'Initialize chat',
                 select_preset: 'Select preset',

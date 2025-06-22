@@ -17,9 +17,11 @@ type Props = {
   ask_instructions: string
   edit_instructions: string
   no_context_instructions: string
-  set_instructions: (value: string, mode: 'ask' | 'edit' | 'no-context') => void
-  code_completion_suggestions: string
-  set_code_completion_suggestions: (value: string) => void
+  code_completions_instructions: string
+  set_instructions: (
+    value: string,
+    mode: 'ask' | 'edit' | 'no-context' | 'code-completions'
+  ) => void
 }
 
 export const Home: React.FC<Props> = (props) => {
@@ -98,9 +100,8 @@ export const Home: React.FC<Props> = (props) => {
             props.set_instructions(message.edit, 'edit')
           if (message.no_context !== undefined)
             props.set_instructions(message.no_context, 'no-context')
-          break
-        case 'CODE_COMPLETION_SUGGESTIONS':
-          props.set_code_completion_suggestions(message.value || '')
+          if (message.code_completions !== undefined)
+            props.set_instructions(message.code_completions, 'code-completions')
           break
         case 'EDIT_FORMAT':
           set_chat_edit_format(message.chat_edit_format)
@@ -130,7 +131,6 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_HISTORY' },
       { command: 'GET_CURRENT_TOKEN_COUNT' },
       { command: 'GET_INSTRUCTIONS' },
-      { command: 'GET_CODE_COMPLETION_SUGGESTIONS' },
       { command: 'GET_EDIT_FORMAT' },
       { command: 'GET_HOME_VIEW_TYPE' },
       { command: 'GET_WEB_MODE' },
@@ -317,7 +317,7 @@ export const Home: React.FC<Props> = (props) => {
 
   const get_current_instructions = () => {
     if (is_in_code_completions_mode) {
-      return props.code_completion_suggestions
+      return props.code_completions_instructions
     }
     const mode = home_view_type == HOME_VIEW_TYPES.WEB ? web_mode : api_mode
     if (mode == 'ask') return props.ask_instructions
@@ -388,19 +388,22 @@ export const Home: React.FC<Props> = (props) => {
   }
 
   const instructions =
-    current_mode == 'ask'
+    current_mode === 'ask'
       ? props.ask_instructions
-      : current_mode == 'edit'
+      : current_mode === 'edit'
       ? props.edit_instructions
-      : current_mode == 'no-context'
+      : current_mode === 'no-context'
       ? props.no_context_instructions
+      : current_mode === 'code-completions'
+      ? props.code_completions_instructions
       : ''
 
   const set_instructions = (value: string) => {
     if (
-      current_mode == 'ask' ||
-      current_mode == 'edit' ||
-      current_mode == 'no-context'
+      current_mode === 'ask' ||
+      current_mode === 'edit' ||
+      current_mode === 'no-context' ||
+      current_mode === 'code-completions'
     ) {
       props.set_instructions(value, current_mode)
     }
@@ -428,7 +431,6 @@ export const Home: React.FC<Props> = (props) => {
     code_completions_history === undefined ||
     is_in_code_completions_mode === undefined ||
     instructions === undefined ||
-    props.code_completion_suggestions === undefined ||
     chat_edit_format === undefined ||
     api_edit_format === undefined ||
     home_view_type === undefined ||
@@ -470,8 +472,6 @@ export const Home: React.FC<Props> = (props) => {
       on_set_default_presets={handle_set_default_presets}
       instructions={instructions}
       set_instructions={set_instructions}
-      code_completion_suggestions={props.code_completion_suggestions}
-      set_code_completion_suggestions={props.set_code_completion_suggestions}
       on_caret_position_change={handle_caret_position_change}
       home_view_type={home_view_type}
       on_home_view_type_change={handle_home_view_type_change}

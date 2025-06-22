@@ -20,7 +20,7 @@ export const handle_send_prompt = async (
       provider.api_mode == 'code-completions')
 
   if (is_in_code_completions_mode) {
-    current_instructions = provider.code_completion_suggestions
+    current_instructions = provider.code_completions_instructions
   } else {
     const mode =
       provider.home_view_type === HOME_VIEW_TYPES.WEB
@@ -79,8 +79,8 @@ export const handle_send_prompt = async (
     )
 
     const instructions = `${chat_code_completion_instructions}${
-      provider.code_completion_suggestions
-        ? ` Follow suggestions: ${provider.code_completion_suggestions}`
+      provider.code_completions_instructions
+        ? ` Follow instructions: ${provider.code_completions_instructions}`
         : ''
     }`
 

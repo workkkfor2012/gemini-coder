@@ -7,8 +7,7 @@ import {
   PresetsMessage,
   TokenCountMessage,
   SelectionTextMessage,
-  InstructionsMessage,
-  CodeCompletionSuggestionsMessage
+  InstructionsMessage
 } from '../types/messages'
 import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
@@ -33,8 +32,6 @@ import {
   handle_get_connection_status,
   handle_get_history,
   handle_save_history,
-  handle_save_code_completion_suggestions,
-  handle_get_code_completion_suggestions,
   handle_save_instructions,
   handle_get_instructions,
   handle_request_editor_state,
@@ -71,7 +68,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public ask_instructions: string = ''
   public edit_instructions: string = ''
   public no_context_instructions: string = ''
-  public code_completion_suggestions: string = ''
+  public code_completions_instructions: string = ''
   public web_mode: WebMode
   public chat_edit_format: EditFormat
   public api_edit_format: EditFormat
@@ -136,10 +133,11 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       'no-context-instructions',
       ''
     )
-    this.code_completion_suggestions = this.context.workspaceState.get<string>(
-      'code-completion-suggestions',
-      ''
-    )
+    this.code_completions_instructions =
+      this.context.workspaceState.get<string>(
+        'code-completions-instructions',
+        ''
+      )
 
     const update_editor_state = () => {
       const has_active_editor = !!vscode.window.activeTextEditor
@@ -322,10 +320,6 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             handle_get_instructions(this)
           } else if (message.command == 'SAVE_INSTRUCTIONS') {
             await handle_save_instructions(this, message)
-          } else if (message.command == 'GET_CODE_COMPLETION_SUGGESTIONS') {
-            handle_get_code_completion_suggestions(this)
-          } else if (message.command == 'SAVE_CODE_COMPLETION_SUGGESTIONS') {
-            await handle_save_code_completion_suggestions(this, message)
           } else if (message.command == 'GET_CONNECTION_STATUS') {
             handle_get_connection_status(this)
           } else if (message.command == 'GET_PRESETS') {
@@ -499,68 +493,61 @@ export class ViewProvider implements vscode.WebviewViewProvider {
       (this.home_view_type == HOME_VIEW_TYPES.API &&
         this.api_mode == 'code-completions')
 
-    if (is_in_code_completions_mode) {
-      const before_caret = this.code_completion_suggestions.slice(
-        0,
-        this.caret_position
-      )
-      const after_caret = this.code_completion_suggestions.slice(
-        this.caret_position
-      )
-      this.code_completion_suggestions = before_caret + text + after_caret
+    let current_instructions = ''
+    let new_instructions = ''
+    let instruction_key = ''
+    const mode: WebMode | ApiMode = is_in_code_completions_mode
+      ? 'code-completions'
+      : this.home_view_type === HOME_VIEW_TYPES.WEB
+      ? this.web_mode
+      : this.api_mode
 
-      this.caret_position += text.length
-
-      this.context.workspaceState.update(
-        'code-completion-suggestions',
-        this.code_completion_suggestions
-      )
-      this.send_message<CodeCompletionSuggestionsMessage>({
-        command: 'CODE_COMPLETION_SUGGESTIONS',
-        value: this.code_completion_suggestions
-      })
-    } else {
-      let current_instructions = ''
-      let new_instructions = ''
-      let instruction_key = ''
-      const mode =
-        this.home_view_type === HOME_VIEW_TYPES.WEB
-          ? this.web_mode
-          : this.api_mode
-      if (mode == 'ask') {
-        instruction_key = 'ask-instructions'
+    switch (mode) {
+      case 'ask':
         current_instructions = this.ask_instructions
-      } else if (mode == 'edit') {
-        instruction_key = 'edit-instructions'
+        break
+      case 'edit':
         current_instructions = this.edit_instructions
-      } else if (mode == 'no-context') {
-        instruction_key = 'no-context-instructions'
+        break
+      case 'no-context':
         current_instructions = this.no_context_instructions
-      } else {
+        break
+      case 'code-completions':
+        current_instructions = this.code_completions_instructions
+        break
+      default:
         return
-      }
-
-      const before_caret = current_instructions.slice(0, this.caret_position)
-      const after_caret = current_instructions.slice(this.caret_position)
-      new_instructions = before_caret + text + after_caret
-
-      if (mode == 'ask') {
-        this.ask_instructions = new_instructions
-      } else if (mode == 'edit') {
-        this.edit_instructions = new_instructions
-      } else if (mode == 'no-context') {
-        this.no_context_instructions = new_instructions
-      }
-
-      this.caret_position += text.length
-
-      this.context.workspaceState.update(instruction_key, new_instructions)
-      this.send_message<InstructionsMessage>({
-        command: 'INSTRUCTIONS',
-        ask: this.ask_instructions,
-        edit: this.edit_instructions,
-        no_context: this.no_context_instructions
-      })
     }
+
+    const before_caret = current_instructions.slice(0, this.caret_position)
+    const after_caret = current_instructions.slice(this.caret_position)
+    new_instructions = before_caret + text + after_caret
+    instruction_key = `${mode}-instructions`
+
+    switch (mode) {
+      case 'ask':
+        this.ask_instructions = new_instructions
+        break
+      case 'edit':
+        this.edit_instructions = new_instructions
+        break
+      case 'no-context':
+        this.no_context_instructions = new_instructions
+        break
+      case 'code-completions':
+        this.code_completions_instructions = new_instructions
+        break
+    }
+
+    this.caret_position += text.length
+
+    this.context.workspaceState.update(instruction_key, new_instructions)
+    this.send_message<InstructionsMessage>({
+      command: 'INSTRUCTIONS',
+      ask: this.ask_instructions,
+      edit: this.edit_instructions,
+      no_context: this.no_context_instructions,
+      code_completions: this.code_completions_instructions
+    })
   }
 }
