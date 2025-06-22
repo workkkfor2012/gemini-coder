@@ -13,7 +13,6 @@ interface OriginalFileState {
 async function revert_last_applied_changes(
   context: vscode.ExtensionContext
 ): Promise<boolean> {
-  // Get the stored original states
   const original_states = context.workspaceState.get<OriginalFileState[]>(
     LAST_APPLIED_CHANGES_STATE_KEY
   )
@@ -31,24 +30,20 @@ async function revert_last_applied_changes(
       return false
     }
 
-    // Create a map of workspace names to their root paths
     const workspace_map = new Map<string, string>()
     vscode.workspace.workspaceFolders!.forEach((folder) => {
       workspace_map.set(folder.name, folder.uri.fsPath)
     })
 
-    // Default workspace is the first one
     const default_workspace = vscode.workspace.workspaceFolders![0].uri.fsPath
 
     for (const state of original_states) {
-      // Determine the correct workspace root for this file
       let workspace_root = default_workspace
       if (state.workspace_name) {
         workspace_root =
           workspace_map.get(state.workspace_name) || default_workspace
       }
 
-      // Validate the file path for reversion
       const safe_path = create_safe_path(workspace_root, state.file_path)
 
       if (!safe_path) {
@@ -56,12 +51,10 @@ async function revert_last_applied_changes(
         continue
       }
 
-      // For new files that were created, delete them
       if (state.is_new) {
         if (fs.existsSync(safe_path)) {
           // Close any editors with the file open
           const uri = vscode.Uri.file(safe_path)
-          // Try to close the editor if it's open
           const text_editors = vscode.window.visibleTextEditors.filter(
             (editor) => editor.document.uri.toString() === uri.toString()
           )
@@ -75,11 +68,9 @@ async function revert_last_applied_changes(
             )
           }
 
-          // Delete the file
           fs.unlinkSync(safe_path)
         }
       } else {
-        // For existing files that were modified, restore original content
         const file_uri = vscode.Uri.file(safe_path)
 
         try {

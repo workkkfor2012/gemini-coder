@@ -28,12 +28,10 @@ export function reference_in_chat_command(
         return
       }
 
-      // Check if file is not already checked
       const shared_state = SharedFileState.get_instance()
       const is_checked = shared_state.get_checked_files().includes(file_path)
 
       if (!is_checked) {
-        // Create a temporary FileItem to update the check state
         const temp_item = new FileItem(
           path.basename(file_path),
           uri.resourceUri,

@@ -11,7 +11,6 @@ export function new_folder_command() {
 
       // Handle case when invoked from view/title (no item parameter)
       if (!item) {
-        // Try to get active workspace folder
         if (
           vscode.workspace.workspaceFolders &&
           vscode.workspace.workspaceFolders.length > 0
@@ -38,7 +37,6 @@ export function new_folder_command() {
         return
       }
 
-      // Check if the parent_path is a file and not a directory
       try {
         const stats = fs.statSync(parent_path)
         if (!stats.isDirectory()) {
@@ -49,22 +47,18 @@ export function new_folder_command() {
         // If the path doesn't exist, we'll create it later
       }
 
-      // Ask user for folder name
       const folder_name = await vscode.window.showInputBox({
         prompt: 'Enter folder name',
         placeHolder: ''
       })
 
-      // If user cancelled or didn't enter a name, abort
       if (!folder_name) {
         return
       }
 
       try {
-        // Create safe folder path with sanitization
         const new_folder_path = create_safe_path(parent_path, folder_name)
 
-        // If path sanitization failed, abort
         if (!new_folder_path) {
           vscode.window.showErrorMessage(
             `Invalid folder name: '${folder_name}'`
@@ -72,7 +66,6 @@ export function new_folder_command() {
           return
         }
 
-        // Check if folder already exists
         try {
           await vscode.workspace.fs.stat(vscode.Uri.file(new_folder_path))
           vscode.window.showErrorMessage(
@@ -83,7 +76,6 @@ export function new_folder_command() {
           // Folder doesn't exist, which is what we want
         }
 
-        // Create the folder
         await vscode.workspace.fs.createDirectory(
           vscode.Uri.file(new_folder_path)
         )
