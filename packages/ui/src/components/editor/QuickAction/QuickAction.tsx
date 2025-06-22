@@ -2,7 +2,7 @@ import React from 'react'
 import styles from './QuickAction.module.scss'
 
 type Props = {
-  title: string
+  title: React.ReactNode
   description: string
   on_click: () => void
 }

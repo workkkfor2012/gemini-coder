@@ -347,7 +347,13 @@ export const HomeView: React.FC<Props> = (props) => {
                 (props.web_mode == 'edit' ||
                   props.web_mode == 'code-completions') && (
                   <UiQuickAction
-                    title="Apply Chat Response"
+                    title={
+                      <>
+                        Apply Chat
+                        <br />
+                        Response
+                      </>
+                    }
                     description="Integrate copied message or code block"
                     on_click={() =>
                       props.on_quick_action_click(
@@ -362,7 +368,13 @@ export const HomeView: React.FC<Props> = (props) => {
                 (props.home_view_type == HOME_VIEW_TYPES.API &&
                   props.api_mode == 'edit')) && (
                 <UiQuickAction
-                  title="Revert Last Changes"
+                  title={
+                    <>
+                      Revert Last
+                      <br />
+                      Changes
+                    </>
+                  }
                   description="Restore saved state of the codebase"
                   on_click={() =>
                     props.on_quick_action_click('codeWebChat.revert')
@@ -370,7 +382,13 @@ export const HomeView: React.FC<Props> = (props) => {
                 />
               )}
               <UiQuickAction
-                title="Commit Changes"
+                title={
+                  <>
+                    Commit
+                    <br />
+                    Changes
+                  </>
+                }
                 description="Generate commit message and commit"
                 on_click={() =>
                   props.on_quick_action_click('codeWebChat.commitChanges')
