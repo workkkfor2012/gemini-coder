@@ -223,7 +223,7 @@ export class OpenEditorsProvider
           : `${token_count}`
 
       if (element.description) {
-        element.description = `${formatted_token_count} ${element.description}`
+        element.description = `${formatted_token_count} · ${element.description}`
       } else {
         element.description = formatted_token_count
       }
