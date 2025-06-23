@@ -328,11 +328,11 @@ export const HomeView: React.FC<Props> = (props) => {
 
           <UiSeparator height={16} />
 
-          <div className={styles['related-commands']}>
-            <div className={styles['related-commands__heading']}>
-              RELATED COMMANDS
+          <div className={styles['quick-actions']}>
+            <div className={styles['quick-actions__heading']}>
+              QUICK ACTIONS
             </div>
-            <div className={styles['related-commands__inner']}>
+            <div className={styles['quick-actions__inner']}>
               {props.home_view_type == HOME_VIEW_TYPES.WEB &&
                 (props.web_mode == 'edit' ||
                   props.web_mode == 'code-completions') && (
