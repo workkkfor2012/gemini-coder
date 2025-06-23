@@ -55,7 +55,7 @@ export const Donations: React.FC<Props> = (props) => {
           <UiSeparator height={12} />
 
           {!is_initialized ? (
-            <>Fetching recent coffees...</>
+            <>Fetching donations...</>
           ) : error ? (
             error
           ) : (
