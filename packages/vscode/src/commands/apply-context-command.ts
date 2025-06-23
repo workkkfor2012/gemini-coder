@@ -10,7 +10,7 @@ import {
 import { SavedContext } from '@/types/context'
 import { Logger } from '../utils/logger'
 
-async function resolve_glob_patterns(
+export async function resolve_glob_patterns(
   patterns: string[],
   workspace_provider: WorkspaceProvider
 ): Promise<string[]> {

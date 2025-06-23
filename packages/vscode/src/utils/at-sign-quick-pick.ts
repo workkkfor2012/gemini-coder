@@ -1,7 +1,13 @@
 import * as vscode from 'vscode'
 import { execSync } from 'child_process'
+import * as path from 'path'
+import * as fs from 'fs'
+import { SAVED_CONTEXTS_STATE_KEY } from '../constants/state-keys'
+import { SavedContext } from '../types/context'
 
-export async function at_sign_quick_pick(): Promise<string | undefined> {
+export async function at_sign_quick_pick(
+  context: vscode.ExtensionContext
+): Promise<string | undefined> {
   const items = [
     {
       label: '@Selection',
@@ -10,6 +16,10 @@ export async function at_sign_quick_pick(): Promise<string | undefined> {
     {
       label: '@Changes',
       description: 'Inject changes between current branch and selected branch'
+    },
+    {
+      label: '@SavedContext',
+      description: 'Inject files from a saved context'
     }
   ]
 
@@ -104,6 +114,98 @@ export async function at_sign_quick_pick(): Promise<string | undefined> {
       vscode.window.showErrorMessage(
         'Failed to get Git branches. Make sure you are in a Git repository.'
       )
+    }
+  }
+
+  if (selected.label == '@SavedContext') {
+    const workspace_root = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath
+    if (!workspace_root) {
+      vscode.window.showErrorMessage('No workspace root found.')
+      return
+    }
+
+    const internal_contexts: SavedContext[] =
+      context.workspaceState.get(SAVED_CONTEXTS_STATE_KEY, []) || []
+
+    const contexts_file_path = path.join(
+      workspace_root,
+      '.vscode',
+      'contexts.json'
+    )
+    let file_contexts: SavedContext[] = []
+    if (fs.existsSync(contexts_file_path)) {
+      try {
+        const content = fs.readFileSync(contexts_file_path, 'utf8')
+        const parsed = JSON.parse(content)
+        if (Array.isArray(parsed)) {
+          file_contexts = parsed.filter(
+            (item: any): item is SavedContext =>
+              typeof item == 'object' &&
+              item !== null &&
+              typeof item.name == 'string' &&
+              Array.isArray(item.paths) &&
+              item.paths.every((p: any) => typeof p == 'string')
+          )
+        }
+      } catch (e) {
+        /* ignore */
+      }
+    }
+
+    const source_options: (vscode.QuickPickItem & {
+      value: 'WorkspaceState' | 'JSON'
+    })[] = []
+    if (internal_contexts.length > 0) {
+      source_options.push({
+        label: 'Workspace State',
+        description: `${internal_contexts.length} context${
+          internal_contexts.length === 1 ? '' : 's'
+        }`,
+        value: 'WorkspaceState'
+      })
+    }
+    if (file_contexts.length > 0) {
+      source_options.push({
+        label: 'JSON File (.vscode/contexts.json)',
+        description: `${file_contexts.length} context${
+          file_contexts.length === 1 ? '' : 's'
+        }`,
+        value: 'JSON'
+      })
+    }
+
+    if (source_options.length === 0) {
+      vscode.window.showInformationMessage('No saved contexts found.')
+      return
+    }
+
+    const source =
+      source_options.length > 1
+        ? (
+            await vscode.window.showQuickPick(source_options, {
+              placeHolder: 'Select context source'
+            })
+          )?.value
+        : source_options[0].value
+
+    if (!source) return
+
+    const contexts_to_use =
+      source === 'WorkspaceState' ? internal_contexts : file_contexts
+
+    const context_items = contexts_to_use.map((ctx) => ({
+      label: ctx.name,
+      description: `${ctx.paths.length} path${
+        ctx.paths.length === 1 ? '' : 's'
+      }`
+    }))
+
+    const selected_context = await vscode.window.showQuickPick(context_items, {
+      placeHolder: 'Select a saved context'
+    })
+
+    if (selected_context) {
+      return `SavedContext:${source} "${selected_context.label}" `
     }
   }
 

@@ -3,6 +3,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
+import { replace_saved_context_placeholder } from '@/utils/replace-saved-context-placeholder'
 import { LAST_SELECTED_PRESET_KEY } from '@/constants/state-keys'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 import { chat_code_completion_instructions } from '@/constants/instructions'
@@ -97,49 +98,59 @@ export const handle_send_prompt = async (
 
     const editor = vscode.window.activeTextEditor
 
-    let base_instructions = current_instructions
-
-    if (editor && !editor.selection.isEmpty) {
-      if (base_instructions.includes('@Selection')) {
-        base_instructions = replace_selection_placeholder(base_instructions)
-      }
-    }
-
-    if (base_instructions.includes('@Changes:')) {
-      base_instructions = await replace_changes_placeholder(base_instructions)
-    }
+    const base_instructions = current_instructions
 
     const context_text =
       provider.web_mode != 'no-context'
         ? await files_collector.collect_files()
         : ''
 
-    const chats = valid_preset_names.map((preset_name) => {
-      let instructions = apply_preset_affixes_to_instruction(
-        base_instructions,
-        preset_name
-      )
-
-      if (provider.web_mode == 'edit') {
-        const config = vscode.workspace.getConfiguration('codeWebChat')
-        const edit_format_instructions = config.get<string>(
-          `editFormatInstructions${
-            provider.chat_edit_format.charAt(0).toUpperCase() +
-            provider.chat_edit_format.slice(1)
-          }`
+    const chats = await Promise.all(
+      valid_preset_names.map(async (preset_name) => {
+        let instructions = apply_preset_affixes_to_instruction(
+          base_instructions,
+          preset_name
         )
-        if (edit_format_instructions) {
-          instructions += `\n${edit_format_instructions}`
-        }
-      }
 
-      return {
-        text: context_text
-          ? `${instructions}\n<files>\n${context_text}</files>\n${instructions}`
-          : instructions,
-        preset_name
-      }
-    })
+        if (editor && !editor.selection.isEmpty) {
+          if (instructions.includes('@Selection')) {
+            instructions = replace_selection_placeholder(instructions)
+          }
+        }
+
+        if (instructions.includes('@Changes:')) {
+          instructions = await replace_changes_placeholder(instructions)
+        }
+
+        if (instructions.includes('@SavedContext:')) {
+          instructions = await replace_saved_context_placeholder(
+            instructions,
+            provider.context,
+            provider.workspace_provider
+          )
+        }
+
+        if (provider.web_mode == 'edit') {
+          const config = vscode.workspace.getConfiguration('codeWebChat')
+          const edit_format_instructions = config.get<string>(
+            `editFormatInstructions${
+              provider.chat_edit_format.charAt(0).toUpperCase() +
+              provider.chat_edit_format.slice(1)
+            }`
+          )
+          if (edit_format_instructions) {
+            instructions += `\n${edit_format_instructions}`
+          }
+        }
+
+        return {
+          text: context_text
+            ? `${instructions}\n<files>\n${context_text}</files>\n${instructions}`
+            : instructions,
+          preset_name
+        }
+      })
+    )
 
     provider.websocket_server_instance.initialize_chats(chats)
   }

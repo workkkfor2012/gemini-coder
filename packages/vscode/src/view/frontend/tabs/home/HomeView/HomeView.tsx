@@ -172,19 +172,17 @@ export const HomeView: React.FC<Props> = (props) => {
   }
 
   const handle_preset_copy = (preset_name: string) => {
-    const preset = props.presets.find((p) => p.name == preset_name)
+    const preset = props.presets.find((p) => p.name == preset_name)!
 
-    if (preset) {
-      let modified_instruction = current_prompt
-      if (preset.prompt_prefix) {
-        modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
-      }
-      if (preset.prompt_suffix) {
-        modified_instruction = `${modified_instruction} ${preset.prompt_suffix}`
-      }
-
-      props.copy_to_clipboard(modified_instruction)
+    let modified_instruction = current_prompt
+    if (preset.prompt_prefix) {
+      modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
     }
+    if (preset.prompt_suffix) {
+      modified_instruction = `${modified_instruction} ${preset.prompt_suffix}`
+    }
+
+    props.copy_to_clipboard(modified_instruction)
   }
 
   return (

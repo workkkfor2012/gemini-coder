@@ -191,6 +191,25 @@ export const WithActiveSelection = () => (
   />
 )
 
+export const WithSavedContextPlaceholder = () => (
+  <ChatInput
+    value='Ask about the @SavedContext:JSON "My Context"'
+    chat_history={[]}
+    on_change={(value) => console.log('Changed:', value)}
+    on_submit={() => console.log('Submitted')}
+    on_copy={() => console.log('Copied')}
+    is_connected={true}
+    is_in_code_completions_mode={false}
+    has_active_editor={true}
+    has_active_selection={false}
+    on_caret_position_change={(pos) => console.log('Caret position:', pos)}
+    on_at_sign_click={() => console.log('@ clicked')}
+    is_web_mode={false}
+    on_submit_with_control={() => {}}
+    translations={translations}
+  />
+)
+
 export const WithActiveSelectionAndPlaceholder = () => (
   <ChatInput
     value="Ask about the @Selection"
@@ -228,3 +247,4 @@ export const WithPlaceholderNoSelection = () => (
     translations={translations}
   />
 )
+

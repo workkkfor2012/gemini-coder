@@ -3,6 +3,7 @@ import * as vscode from 'vscode'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
+import { replace_saved_context_placeholder } from '@/utils/replace-saved-context-placeholder'
 import { chat_code_completion_instructions } from '@/constants/instructions'
 
 export const handle_copy_prompt = async (
@@ -67,6 +68,14 @@ export const handle_copy_prompt = async (
 
     if (instructions.includes('@Changes:')) {
       instructions = await replace_changes_placeholder(instructions)
+    }
+
+    if (instructions.includes('@SavedContext:')) {
+      instructions = await replace_saved_context_placeholder(
+        instructions,
+        provider.context,
+        provider.workspace_provider
+      )
     }
 
     if (provider.web_mode == 'edit') {

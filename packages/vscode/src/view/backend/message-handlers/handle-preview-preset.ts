@@ -3,6 +3,7 @@ import { ViewProvider } from '@/view/backend/view-provider'
 import { PreviewPresetMessage } from '@/view/types/messages'
 import { FilesCollector } from '@/utils/files-collector'
 import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
+import { replace_saved_context_placeholder } from '@/utils/replace-saved-context-placeholder'
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 
 export const handle_preview_preset = async (
@@ -68,17 +69,31 @@ export const handle_preview_preset = async (
         ? await files_collector.collect_files()
         : ''
 
-    let instructions = replace_selection_placeholder(current_instructions)
-
-    if (instructions.includes('@Changes:')) {
-      instructions = await replace_changes_placeholder(instructions)
-    }
+    let instructions = current_instructions
 
     if (message.preset.prompt_prefix) {
       instructions = `${message.preset.prompt_prefix} ${instructions}`
     }
     if (message.preset.prompt_suffix) {
       instructions = `${instructions} ${message.preset.prompt_suffix}`
+    }
+
+    if (active_editor && !active_editor.selection.isEmpty) {
+      if (instructions.includes('@Selection')) {
+        instructions = replace_selection_placeholder(instructions)
+      }
+    }
+
+    if (instructions.includes('@Changes:')) {
+      instructions = await replace_changes_placeholder(instructions)
+    }
+
+    if (instructions.includes('@SavedContext:')) {
+      instructions = await replace_saved_context_placeholder(
+        instructions,
+        provider.context,
+        provider.workspace_provider
+      )
     }
 
     if (provider.web_mode == 'edit') {

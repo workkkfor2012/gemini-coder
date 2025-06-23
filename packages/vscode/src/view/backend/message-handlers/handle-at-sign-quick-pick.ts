@@ -1,11 +1,13 @@
 import { ViewProvider } from '@/view/backend/view-provider'
 import { at_sign_quick_pick } from '../../../utils/at-sign-quick-pick'
 import { HOME_VIEW_TYPES } from '@/view/types/home-view-type'
+import * as vscode from 'vscode'
 
 export const handle_at_sign_quick_pick = async (
-  provider: ViewProvider
+  provider: ViewProvider,
+  context: vscode.ExtensionContext
 ): Promise<void> => {
-  const replacement = await at_sign_quick_pick()
+  const replacement = await at_sign_quick_pick(context)
 
   if (!replacement) {
     return

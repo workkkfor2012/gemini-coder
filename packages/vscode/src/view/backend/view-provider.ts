@@ -417,7 +417,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
           } else if (message.command == 'GET_HOME_VIEW_TYPE') {
             handle_get_home_view_type(this)
           } else if (message.command == 'SHOW_AT_SIGN_QUICK_PICK') {
-            await handle_at_sign_quick_pick(this)
+            await handle_at_sign_quick_pick(this, this.context)
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)

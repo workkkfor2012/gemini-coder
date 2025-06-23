@@ -3,6 +3,7 @@ import { FilesCollector } from '../utils/files-collector'
 import { EditFormat } from '@shared/types/edit-format'
 import { at_sign_quick_pick } from '../utils/at-sign-quick-pick'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
+import { replace_saved_context_placeholder } from '../utils/replace-saved-context-placeholder'
 import { replace_changes_placeholder } from '../utils/replace-changes-placeholder'
 
 async function handle_at_sign_in_chat_input(
@@ -13,7 +14,7 @@ async function handle_at_sign_in_chat_input(
 ): Promise<string | undefined> {
   input_box.hide()
 
-  const replacement = await at_sign_quick_pick()
+  const replacement = await at_sign_quick_pick(context)
 
   if (!replacement) {
     input_box.show()
@@ -116,6 +117,14 @@ export function chat_to_clipboard_command(
 
       if (instructions.includes('@Changes:')) {
         instructions = await replace_changes_placeholder(instructions)
+      }
+
+      if (instructions.includes('@SavedContext:')) {
+        instructions = await replace_saved_context_placeholder(
+          instructions,
+          context,
+          file_tree_provider
+        )
       }
 
       const files_collector = new FilesCollector(

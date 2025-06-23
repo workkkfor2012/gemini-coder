@@ -3,6 +3,7 @@ import { FilesCollector } from '../utils/files-collector'
 import { WebSocketManager } from '../services/websocket-manager'
 import { replace_selection_placeholder } from '../utils/replace-selection-placeholder'
 import { apply_preset_affixes_to_instruction } from '../utils/apply-preset-affixes'
+import { replace_saved_context_placeholder } from '../utils/replace-saved-context-placeholder'
 import { EditFormat } from '@shared/types/edit-format'
 import { replace_changes_placeholder } from '../utils/replace-changes-placeholder'
 import { at_sign_quick_pick } from '../utils/at-sign-quick-pick'
@@ -17,7 +18,7 @@ async function handle_at_sign_in_chat_input(
 ): Promise<string | undefined> {
   input_box.hide()
 
-  const replacement = await at_sign_quick_pick()
+  const replacement = await at_sign_quick_pick(context)
 
   if (!replacement) {
     input_box.show()
@@ -109,19 +110,11 @@ async function process_chat_instructions(
   instructions: string,
   preset_names: string[],
   context: vscode.ExtensionContext,
-  file_tree_provider: any,
+  workspace_provider: any,
   open_editors_provider: any
 ) {
-  if (instructions.includes('@Selection')) {
-    instructions = replace_selection_placeholder(instructions)
-  }
-
-  if (instructions.includes('@Changes:')) {
-    instructions = await replace_changes_placeholder(instructions)
-  }
-
   const files_collector = new FilesCollector(
-    file_tree_provider,
+    workspace_provider,
     open_editors_provider
   )
   let context_text = ''
@@ -146,25 +139,46 @@ async function process_chat_instructions(
       }`
     )
 
-  return preset_names.map((preset_name) => {
-    let processed_instructions = apply_preset_affixes_to_instruction(
-      instructions,
-      preset_name
-    )
+  return Promise.all(
+    preset_names.map(async (preset_name) => {
+      let processed_instructions = apply_preset_affixes_to_instruction(
+        instructions,
+        preset_name
+      )
 
-    if (edit_format_instructions && context_text) {
-      processed_instructions += `\n${edit_format_instructions}`
-    }
+      if (processed_instructions.includes('@Selection')) {
+        processed_instructions = replace_selection_placeholder(
+          processed_instructions
+        )
+      }
 
-    const chat_text = context_text
-      ? `${processed_instructions}\n<files>\n${context_text}</files>\n${processed_instructions}`
-      : processed_instructions
+      if (processed_instructions.includes('@Changes:')) {
+        processed_instructions = await replace_changes_placeholder(
+          processed_instructions
+        )
+      }
 
-    return {
-      text: chat_text,
-      preset_name: preset_name
-    }
-  })
+      if (processed_instructions.includes('@SavedContext:')) {
+        processed_instructions = await replace_saved_context_placeholder(
+          processed_instructions,
+          context,
+          workspace_provider
+        )
+      }
+      if (edit_format_instructions && context_text) {
+        processed_instructions += `\n${edit_format_instructions}`
+      }
+
+      const chat_text = context_text
+        ? `${processed_instructions}\n<files>\n${context_text}</files>\n${processed_instructions}`
+        : processed_instructions
+
+      return {
+        text: chat_text,
+        preset_name: preset_name
+      }
+    })
+  )
 }
 
 export async function handle_chat_command(
