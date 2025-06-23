@@ -10,7 +10,6 @@ export const handle_show_preset_picker = async (
   const config = vscode.workspace.getConfiguration('codeWebChat')
   const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
-  // Determine which global state key to use based on mode
   const selected_preset_names_state_key =
     provider.web_mode == 'code-completions'
       ? 'selectedCodeCompletionPresets'
@@ -34,7 +33,6 @@ export const handle_show_preset_picker = async (
     available_preset_names.includes(name)
   )
 
-  // Update the global state with validated selection
   await provider.context.globalState.update(
     selected_preset_names_state_key,
     selected_preset_names
@@ -46,13 +44,21 @@ export const handle_show_preset_picker = async (
         ? preset
         : !preset.promptPrefix && !preset.promptSuffix
     )
-    .map((preset) => ({
-      label: preset.name,
-      description: `${preset.chatbot}${
-        preset.model ? ` - ${preset.model}` : ''
-      }`,
-      picked: selected_preset_names.includes(preset.name)
-    }))
+    .map((preset) => {
+      const is_unnamed = !preset.name || /^\(\d+\)$/.test(preset.name.trim())
+      const model = preset.model
+        ? (CHATBOTS[preset.chatbot] as any).models[preset.model] || preset.model
+        : ''
+
+      return {
+        label: is_unnamed ? preset.chatbot : preset.name,
+        name: preset.name,
+        description: is_unnamed
+          ? model
+          : `${preset.chatbot}${model ? ` · ${model}` : ''}`,
+        picked: selected_preset_names.includes(preset.name)
+      }
+    })
 
   const placeholder =
     provider.web_mode == 'code-completions'

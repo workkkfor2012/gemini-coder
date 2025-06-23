@@ -15,7 +15,8 @@ export async function at_sign_quick_pick(
     },
     {
       label: '@Changes',
-      description: 'Inject changes between current branch and selected branch'
+      description:
+        'Inject changes between the current branch and the selected branch'
     },
     {
       label: '@SavedContext',
