@@ -113,7 +113,7 @@
       align-items: center;
       gap: var(--padding-4px);
       cursor: default;
-      padding-right: 19px;
+      padding-right: var(--padding-4px);
 
       &__drag_handle {
         display: flex;
