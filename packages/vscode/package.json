@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat (CWC)",
   "description": "AI coding for the rest of us",
-  "version": "1.124.0",
+  "version": "1.125.0",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
