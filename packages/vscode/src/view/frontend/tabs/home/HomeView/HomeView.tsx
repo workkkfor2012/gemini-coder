@@ -328,20 +328,16 @@ export const HomeView: React.FC<Props> = (props) => {
 
           <UiSeparator height={16} />
 
-          <div className={styles['workflow-commands']}>
-            <span>WORKFLOW COMMANDS</span>
-            <div className={styles['workflow-commands__inner']}>
+          <div className={styles['related-commands']}>
+            <div className={styles['related-commands__heading']}>
+              RELATED COMMANDS
+            </div>
+            <div className={styles['related-commands__inner']}>
               {props.home_view_type == HOME_VIEW_TYPES.WEB &&
                 (props.web_mode == 'edit' ||
                   props.web_mode == 'code-completions') && (
                   <UiQuickAction
-                    title={
-                      <>
-                        Apply Chat
-                        <br />
-                        Response
-                      </>
-                    }
+                    title="Apply Chat Response"
                     description="Integrate copied message or code block"
                     on_click={() =>
                       props.on_quick_action_click(
@@ -356,13 +352,7 @@ export const HomeView: React.FC<Props> = (props) => {
                 (props.home_view_type == HOME_VIEW_TYPES.API &&
                   props.api_mode == 'edit')) && (
                 <UiQuickAction
-                  title={
-                    <>
-                      Revert Last
-                      <br />
-                      Changes
-                    </>
-                  }
+                  title="Revert Last Changes"
                   description="Restore saved state of the codebase"
                   on_click={() =>
                     props.on_quick_action_click('codeWebChat.revert')
@@ -370,13 +360,7 @@ export const HomeView: React.FC<Props> = (props) => {
                 />
               )}
               <UiQuickAction
-                title={
-                  <>
-                    Commit
-                    <br />
-                    Changes
-                  </>
-                }
+                title="Commit Changes"
                 description="Generate commit message and commit"
                 on_click={() =>
                   props.on_quick_action_click('codeWebChat.commitChanges')
@@ -387,7 +371,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
           {props.home_view_type == HOME_VIEW_TYPES.WEB && (
             <>
-              <UiSeparator height={16} />
+              <UiSeparator height={12} />
               <UiPresets
                 presets={props.presets.map((preset) => {
                   return {

@@ -2,16 +2,23 @@ import React from 'react'
 import styles from './QuickAction.module.scss'
 
 type Props = {
-  title: React.ReactNode
+  title: string
   description: string
   on_click: () => void
 }
 
 export const QuickAction: React.FC<Props> = (props) => {
   return (
-    <button className={styles.container} onClick={props.on_click}>
-      <div className={styles.title}>{props.title}</div>
-      <div className={styles.description}>{props.description}</div>
-    </button>
+    <div
+      className={styles.container}
+      onClick={props.on_click}
+      role="button"
+      title={props.description}
+    >
+      <div className={styles.container__inner}>
+        <span>{props.title}</span>
+        <span>{props.description}</span>
+      </div>
+    </div>
   )
 }
