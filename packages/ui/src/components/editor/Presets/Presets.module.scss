@@ -88,7 +88,7 @@
         }
       }
 
-      &__title {
+      &__text {
         overflow: hidden;
         text-overflow: ellipsis;
 
@@ -100,9 +100,10 @@
           opacity: var(--disabled-opacity);
         }
 
-        &--unnamed {
-          font-style: italic;
-          padding-right: 1px;
+        > span:nth-child(2) {
+          margin-left: 0.5em;
+          opacity: 0.7;
+          font-size: 0.9em;
         }
       }
     }

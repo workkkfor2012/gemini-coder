@@ -668,72 +668,58 @@
           "type": "array",
           "default": [
             {
-              "name": "AI Studio",
+              "name": "(0)",
               "chatbot": "AI Studio",
               "temperature": 0.5,
               "systemInstructions": "You're a helpful coding assistant."
             },
             {
-              "name": "Gemini",
+              "name": "(1)",
               "chatbot": "Gemini"
             },
             {
-              "name": "ChatGPT",
+              "name": "(2)",
               "chatbot": "ChatGPT"
             },
             {
-              "name": "Claude",
+              "name": "(3)",
               "chatbot": "Claude"
             },
             {
-              "name": "Grok",
+              "name": "(4)",
               "chatbot": "Grok"
             },
             {
-              "name": "Grok (Think)",
-              "chatbot": "Grok",
-              "options": [
-                "think"
-              ]
-            },
-            {
-              "name": "Perplexity",
+              "name": "(5)",
               "chatbot": "Perplexity"
             },
             {
-              "name": "DeepSeek",
+              "name": "(6)",
               "chatbot": "DeepSeek"
             },
             {
-              "name": "DeepSeek - DeepThink (R1)",
-              "chatbot": "DeepSeek",
-              "options": [
-                "deep-think"
-              ]
-            },
-            {
-              "name": "Qwen",
+              "name": "(7)",
               "chatbot": "Qwen"
             },
             {
-              "name": "Yuanbao",
+              "name": "(8)",
               "chatbot": "Yuanbao",
               "model": "deepseek"
             },
             {
-              "name": "Doubao",
+              "name": "(9)",
               "chatbot": "Doubao"
             },
             {
-              "name": "Mistral",
+              "name": "(10)",
               "chatbot": "Mistral"
             },
             {
-              "name": "HuggingChat",
+              "name": "(11)",
               "chatbot": "HuggingChat"
             },
             {
-              "name": "Open WebUI",
+              "name": "(12)",
               "chatbot": "Open WebUI",
               "port": 3000,
               "temperature": 0.5,

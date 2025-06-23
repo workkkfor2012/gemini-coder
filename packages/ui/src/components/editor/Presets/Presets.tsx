@@ -13,6 +13,7 @@ export namespace Presets {
   export type Preset = {
     id?: string | number
     name: string
+    model?: string
     chatbot: keyof typeof CHATBOTS
     has_affixes: boolean
   }
@@ -110,7 +111,25 @@ export const Presets: React.FC<Presets.Props> = (props) => {
 
             const is_unnamed =
               !preset.name || /^\(\d+\)$/.test(preset.name.trim())
-            const display_name = is_unnamed ? 'Unnamed' : preset.name
+            const display_name = is_unnamed ? preset.chatbot : preset.name
+
+            const get_subtitle = (): string => {
+              const { chatbot, model } = preset
+
+              const model_display_name = model
+                ? (CHATBOTS[chatbot] as any).models[model] || model
+                : null
+
+              if (is_unnamed) {
+                return model_display_name || ''
+              }
+
+              if (model_display_name) {
+                return `${chatbot} · ${model_display_name}`
+              }
+
+              return chatbot
+            }
 
             return (
               <div
@@ -147,20 +166,19 @@ export const Presets: React.FC<Presets.Props> = (props) => {
                   />
 
                   <div
-                    className={cn(styles.presets__item__left__title, {
-                      [styles['presets__item__left__title--selected']]:
+                    className={cn(styles.presets__item__left__text, {
+                      [styles['presets__item__left__text--selected']]:
                         !props.is_in_code_completions_mode
                           ? props.selected_presets.includes(preset.name)
                           : props.selected_code_completion_presets.includes(
                               preset.name
                             ),
-                      [styles['presets__item__left__title--disabled']]:
-                        is_disabled_in_code_completion_mode,
-                      [styles['presets__item__left__title--unnamed']]:
-                        is_unnamed
+                      [styles['presets__item__left__text--disabled']]:
+                        is_disabled_in_code_completion_mode
                     })}
                   >
-                    {display_name}
+                    <span>{display_name}</span>
+                    <span>{get_subtitle()}</span>
                   </div>
                 </div>
                 <div
