@@ -71,19 +71,24 @@ export const handle_copy_prompt = async (
     const context_text =
       mode != 'no-context' ? await files_collector.collect_files() : ''
 
-    let instructions = replace_selection_placeholder(final_instruction)
+    const instructions = replace_selection_placeholder(final_instruction)
 
-    if (instructions.includes('@Changes:')) {
-      instructions = await replace_changes_placeholder(instructions)
+    let pre_context_instructions = instructions
+    if (pre_context_instructions.includes('@Changes:')) {
+      pre_context_instructions = await replace_changes_placeholder(
+        pre_context_instructions
+      )
     }
 
-    if (instructions.includes('@SavedContext:')) {
-      instructions = await replace_saved_context_placeholder(
-        instructions,
+    if (pre_context_instructions.includes('@SavedContext:')) {
+      pre_context_instructions = await replace_saved_context_placeholder(
+        pre_context_instructions,
         provider.context,
         provider.workspace_provider
       )
     }
+
+    let post_context_instructions = instructions
 
     if (mode == 'edit') {
       const edit_format =
@@ -97,14 +102,14 @@ export const handle_copy_prompt = async (
         }`
       )
       if (edit_format_instructions) {
-        instructions += `\n${edit_format_instructions}`
+        pre_context_instructions += `\n${edit_format_instructions}`
+        post_context_instructions += `\n${edit_format_instructions}`
       }
     }
 
-    const text = `${
-      context_text ? `${instructions}\n<files>\n${context_text}</files>\n` : ''
-    }${instructions}`
-
+    const text = context_text
+      ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+      : pre_context_instructions
     vscode.env.clipboard.writeText(text)
   } else {
     vscode.window.showWarningMessage(

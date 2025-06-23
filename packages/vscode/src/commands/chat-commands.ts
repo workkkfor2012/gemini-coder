@@ -141,37 +141,40 @@ async function process_chat_instructions(
 
   return Promise.all(
     preset_names.map(async (preset_name) => {
-      let processed_instructions = apply_preset_affixes_to_instruction(
+      let base_instructions = apply_preset_affixes_to_instruction(
         instructions,
         preset_name
       )
 
-      if (processed_instructions.includes('@Selection')) {
-        processed_instructions = replace_selection_placeholder(
-          processed_instructions
+      if (base_instructions.includes('@Selection')) {
+        base_instructions = replace_selection_placeholder(base_instructions)
+      }
+
+      let pre_context_instructions = base_instructions
+      if (pre_context_instructions.includes('@Changes:')) {
+        pre_context_instructions = await replace_changes_placeholder(
+          pre_context_instructions
         )
       }
 
-      if (processed_instructions.includes('@Changes:')) {
-        processed_instructions = await replace_changes_placeholder(
-          processed_instructions
-        )
-      }
-
-      if (processed_instructions.includes('@SavedContext:')) {
-        processed_instructions = await replace_saved_context_placeholder(
-          processed_instructions,
+      if (pre_context_instructions.includes('@SavedContext:')) {
+        pre_context_instructions = await replace_saved_context_placeholder(
+          pre_context_instructions,
           context,
           workspace_provider
         )
       }
+
+      let post_context_instructions = base_instructions
+
       if (edit_format_instructions && context_text) {
-        processed_instructions += `\n${edit_format_instructions}`
+        pre_context_instructions += `\n${edit_format_instructions}`
+        post_context_instructions += `\n${edit_format_instructions}`
       }
 
       const chat_text = context_text
-        ? `${processed_instructions}\n<files>\n${context_text}</files>\n${processed_instructions}`
-        : processed_instructions
+        ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+        : pre_context_instructions
 
       return {
         text: chat_text,

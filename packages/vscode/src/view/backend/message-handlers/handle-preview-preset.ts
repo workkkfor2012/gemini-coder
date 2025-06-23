@@ -84,17 +84,22 @@ export const handle_preview_preset = async (
       }
     }
 
-    if (instructions.includes('@Changes:')) {
-      instructions = await replace_changes_placeholder(instructions)
+    let pre_context_instructions = instructions
+    if (pre_context_instructions.includes('@Changes:')) {
+      pre_context_instructions = await replace_changes_placeholder(
+        pre_context_instructions
+      )
     }
 
-    if (instructions.includes('@SavedContext:')) {
-      instructions = await replace_saved_context_placeholder(
-        instructions,
+    if (pre_context_instructions.includes('@SavedContext:')) {
+      pre_context_instructions = await replace_saved_context_placeholder(
+        pre_context_instructions,
         provider.context,
         provider.workspace_provider
       )
     }
+
+    let post_context_instructions = instructions
 
     if (provider.web_mode == 'edit') {
       const config = vscode.workspace.getConfiguration('codeWebChat')
@@ -105,13 +110,14 @@ export const handle_preview_preset = async (
         }`
       )
       if (edit_format_instructions) {
-        instructions += `\n${edit_format_instructions}`
+        pre_context_instructions += `\n${edit_format_instructions}`
+        post_context_instructions += `\n${edit_format_instructions}`
       }
     }
 
-    text_to_send = `${
-      context_text ? `${instructions}\n<files>\n${context_text}</files>\n` : ''
-    }${instructions}`
+    text_to_send = context_text
+      ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+      : pre_context_instructions
   } else {
     vscode.window.showWarningMessage(
       'Cannot preview in code completion mode without an active editor.'

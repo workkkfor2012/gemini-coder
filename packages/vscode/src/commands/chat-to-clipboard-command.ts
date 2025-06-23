@@ -110,18 +110,22 @@ export function chat_to_clipboard_command(
         return
       }
 
-      // Replace placeholders before processing
       if (instructions.includes('@Selection')) {
         instructions = replace_selection_placeholder(instructions)
       }
 
-      if (instructions.includes('@Changes:')) {
-        instructions = await replace_changes_placeholder(instructions)
+      let pre_context_instructions = instructions
+      let post_context_instructions = instructions
+
+      if (pre_context_instructions.includes('@Changes:')) {
+        pre_context_instructions = await replace_changes_placeholder(
+          pre_context_instructions
+        )
       }
 
-      if (instructions.includes('@SavedContext:')) {
-        instructions = await replace_saved_context_placeholder(
-          instructions,
+      if (pre_context_instructions.includes('@SavedContext:')) {
+        pre_context_instructions = await replace_saved_context_placeholder(
+          pre_context_instructions,
           context,
           file_tree_provider
         )
@@ -156,14 +160,13 @@ export function chat_to_clipboard_command(
         )
 
       if (edit_format_instructions && context_text) {
-        instructions += `\n${edit_format_instructions}`
+        pre_context_instructions += `\n${edit_format_instructions}`
+        post_context_instructions += `\n${edit_format_instructions}`
       }
 
-      const text = `${
-        context_text
-          ? `${instructions}\n<files>\n${context_text}</files>\n`
-          : ''
-      }${instructions}`
+      const text = context_text
+        ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+        : pre_context_instructions
 
       await vscode.env.clipboard.writeText(text)
       vscode.window.showInformationMessage('Chat prompt copied to clipboard!')

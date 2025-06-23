@@ -78,7 +78,8 @@ const get_context = (
 export const replace_saved_context_placeholder = async (
   instruction: string,
   context: vscode.ExtensionContext,
-  workspace_provider: WorkspaceProvider
+  workspace_provider: WorkspaceProvider,
+  just_opening_tag: boolean = false
 ): Promise<string> => {
   const regex = /@SavedContext:(WorkspaceState|JSON)\s*"([^"]+)"/g
   const matches = [...instruction.matchAll(regex)]
@@ -148,17 +149,22 @@ export const replace_saved_context_placeholder = async (
       continue
     }
 
-    let context_text = ''
-    for (const file_path of resolved_paths) {
-      context_text += await get_file_content_as_xml(
-        file_path,
-        workspace_provider
-      )
-    }
+    let replacement_text: string
+    if (just_opening_tag) {
+      replacement_text = `<files name="${name}">`
+    } else {
+      let context_text = ''
+      for (const file_path of resolved_paths) {
+        context_text += await get_file_content_as_xml(
+          file_path,
+          workspace_provider
+        )
+      }
 
-    const replacement_text = context_text
-      ? `\n${name}:\n<files>\n${context_text}</files>\n`
-      : ''
+      replacement_text = context_text
+        ? `\n<files name="${name}">\n${context_text}</files>\n`
+        : ''
+    }
     replacements.set(full_match, replacement_text)
   }
 
