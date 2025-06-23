@@ -9,6 +9,7 @@ import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder
 import { chat_code_completion_instructions } from '@/constants/instructions'
 import { ConfigPresetFormat } from '../helpers/preset-format-converters'
 import { HOME_VIEW_TYPES } from '@/view/types/home-view-type'
+import { CHATBOTS } from '@shared/constants/chatbots'
 
 export const handle_send_prompt = async (
   provider: ViewProvider,
@@ -202,13 +203,17 @@ async function validate_presets(params: {
 
     const create_items = () => {
       return available_presets.map((preset) => {
-        const is_unnamed = !preset.name || /^\(\d+\)$/.test(preset.name)
+        const is_unnamed = !preset.name || /^\(\d+\)$/.test(preset.name.trim())
+        const model = preset.model
+          ? (CHATBOTS[preset.chatbot] as any).models[preset.model] ||
+            preset.model
+          : ''
         return {
           label: is_unnamed ? preset.chatbot : preset.name,
           name: preset.name,
           description: is_unnamed
-            ? `${preset.model ? `${preset.model}` : ''}`
-            : `${preset.chatbot}${preset.model ? ` · ${preset.model}` : ''}`
+            ? model
+            : `${preset.chatbot}${model ? ` · ${model}` : ''}`
         }
       })
     }
