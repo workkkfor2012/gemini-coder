@@ -74,21 +74,25 @@ export const handle_copy_prompt = async (
     const instructions = replace_selection_placeholder(final_instruction)
 
     let pre_context_instructions = instructions
-    if (pre_context_instructions.includes('@Changes:')) {
-      pre_context_instructions = await replace_changes_placeholder(
-        pre_context_instructions
-      )
+    let post_context_instructions = instructions
+
+    if (instructions.includes('@Changes:')) {
+      pre_context_instructions = await replace_changes_placeholder(instructions)
     }
 
-    if (pre_context_instructions.includes('@SavedContext:')) {
+    if (instructions.includes('@SavedContext:')) {
       pre_context_instructions = await replace_saved_context_placeholder(
         pre_context_instructions,
         provider.context,
         provider.workspace_provider
       )
+      post_context_instructions = await replace_saved_context_placeholder(
+        post_context_instructions,
+        provider.context,
+        provider.workspace_provider,
+        true
+      )
     }
-
-    let post_context_instructions = instructions
 
     if (mode == 'edit') {
       const edit_format =

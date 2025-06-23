@@ -151,21 +151,27 @@ async function process_chat_instructions(
       }
 
       let pre_context_instructions = base_instructions
+      let post_context_instructions = base_instructions
+
       if (pre_context_instructions.includes('@Changes:')) {
         pre_context_instructions = await replace_changes_placeholder(
           pre_context_instructions
         )
       }
 
-      if (pre_context_instructions.includes('@SavedContext:')) {
+      if (base_instructions.includes('@SavedContext:')) {
         pre_context_instructions = await replace_saved_context_placeholder(
           pre_context_instructions,
           context,
           workspace_provider
         )
+        post_context_instructions = await replace_saved_context_placeholder(
+          post_context_instructions,
+          context,
+          workspace_provider,
+          true
+        )
       }
-
-      let post_context_instructions = base_instructions
 
       if (edit_format_instructions && context_text) {
         pre_context_instructions += `\n${edit_format_instructions}`

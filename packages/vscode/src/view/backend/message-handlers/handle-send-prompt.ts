@@ -121,6 +121,7 @@ export const handle_send_prompt = async (
         }
 
         let pre_context_instructions = instructions
+        let post_context_instructions = instructions
         if (pre_context_instructions.includes('@Changes:')) {
           pre_context_instructions = await replace_changes_placeholder(
             pre_context_instructions
@@ -133,9 +134,13 @@ export const handle_send_prompt = async (
             provider.context,
             provider.workspace_provider
           )
+          post_context_instructions = await replace_saved_context_placeholder(
+            post_context_instructions,
+            provider.context,
+            provider.workspace_provider,
+            true
+          )
         }
-
-        let post_context_instructions = instructions
 
         if (provider.web_mode == 'edit') {
           const config = vscode.workspace.getConfiguration('codeWebChat')
