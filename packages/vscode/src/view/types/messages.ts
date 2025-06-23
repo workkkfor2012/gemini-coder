@@ -60,6 +60,7 @@ export interface SendPromptMessage extends BaseMessage {
 export interface CopyPromptMessage extends BaseMessage {
   command: 'COPY_PROMPT'
   instruction: string
+  preset_name?: string
 }
 
 export interface ShowPresetPickerMessage extends BaseMessage {

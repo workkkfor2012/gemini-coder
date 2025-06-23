@@ -5,9 +5,13 @@ import { replace_selection_placeholder } from '@/utils/replace-selection-placeho
 import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
 import { replace_saved_context_placeholder } from '@/utils/replace-saved-context-placeholder'
 import { chat_code_completion_instructions } from '@/constants/instructions'
+import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
+import { HOME_VIEW_TYPES } from '@/view/types/home-view-type'
 
 export const handle_copy_prompt = async (
-  provider: ViewProvider
+  provider: ViewProvider,
+  instruction_to_copy: string,
+  preset_name?: string
 ): Promise<void> => {
   const files_collector = new FilesCollector(
     provider.workspace_provider,
@@ -17,18 +21,21 @@ export const handle_copy_prompt = async (
 
   const active_editor = vscode.window.activeTextEditor
 
-  let current_instruction = ''
-  if (provider.web_mode == 'code-completions') {
-    current_instruction = provider.code_completions_instructions
-  } else if (provider.web_mode == 'ask') {
-    current_instruction = provider.ask_instructions
-  } else if (provider.web_mode == 'edit') {
-    current_instruction = provider.edit_instructions
-  } else if (provider.web_mode == 'no-context') {
-    current_instruction = provider.no_context_instructions
+  let final_instruction = instruction_to_copy
+  if (preset_name !== undefined) {
+    final_instruction = apply_preset_affixes_to_instruction(
+      instruction_to_copy,
+      preset_name
+    )
   }
 
-  if (provider.web_mode == 'code-completions' && active_editor) {
+  const is_in_code_completions_mode =
+    (provider.home_view_type == HOME_VIEW_TYPES.WEB &&
+      provider.web_mode == 'code-completions') ||
+    (provider.home_view_type == HOME_VIEW_TYPES.API &&
+      provider.api_mode == 'code-completions')
+
+  if (is_in_code_completions_mode && active_editor) {
     const document = active_editor.document
     const position = active_editor.selection.active
     const active_path = document.uri.fsPath
@@ -51,20 +58,20 @@ export const handle_copy_prompt = async (
       relative_path,
       position.line,
       position.character
-    )}${
-      current_instruction ? ` Follow instructions: ${current_instruction}` : ''
-    }`
+    )}${final_instruction ? ` Follow instructions: ${final_instruction}` : ''}`
 
     const text = `${instructions}\n<files>\n${context_text}<file path="${relative_path}">\n<![CDATA[\n${text_before_cursor}<missing text>${text_after_cursor}\n]]>\n</file>\n</files>\n${instructions}`
 
     vscode.env.clipboard.writeText(text)
-  } else if (provider.web_mode != 'code-completions') {
+  } else if (!is_in_code_completions_mode) {
+    const mode =
+      provider.home_view_type == HOME_VIEW_TYPES.WEB
+        ? provider.web_mode
+        : provider.api_mode
     const context_text =
-      provider.web_mode != 'no-context'
-        ? await files_collector.collect_files()
-        : ''
+      mode != 'no-context' ? await files_collector.collect_files() : ''
 
-    let instructions = replace_selection_placeholder(current_instruction)
+    let instructions = replace_selection_placeholder(final_instruction)
 
     if (instructions.includes('@Changes:')) {
       instructions = await replace_changes_placeholder(instructions)
@@ -78,12 +85,15 @@ export const handle_copy_prompt = async (
       )
     }
 
-    if (provider.web_mode == 'edit') {
+    if (mode == 'edit') {
+      const edit_format =
+        provider.home_view_type == HOME_VIEW_TYPES.WEB
+          ? provider.chat_edit_format
+          : provider.api_edit_format
       const config = vscode.workspace.getConfiguration('codeWebChat')
       const edit_format_instructions = config.get<string>(
         `editFormatInstructions${
-          provider.chat_edit_format.charAt(0).toUpperCase() +
-          provider.chat_edit_format.slice(1)
+          edit_format.charAt(0).toUpperCase() + edit_format.slice(1)
         }`
       )
       if (edit_format_instructions) {
@@ -103,5 +113,9 @@ export const handle_copy_prompt = async (
     return
   }
 
-  vscode.window.showInformationMessage('Prompt copied to clipboard!')
+  vscode.window.showInformationMessage(
+    `Prompt${
+      preset_name ? ` with preset "${preset_name}"` : ''
+    } copied to clipboard!`
+  )
 }

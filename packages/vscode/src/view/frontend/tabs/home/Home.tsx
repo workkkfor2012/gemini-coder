@@ -219,13 +219,17 @@ export const Home: React.FC<Props> = (props) => {
     update_chat_history(params.prompt)
   }
 
-  const handle_copy_to_clipboard = (instruction: string) => {
+  const handle_copy_to_clipboard = (
+    instruction: string,
+    preset_name?: string
+  ) => {
     props.vscode.postMessage({
       command: 'COPY_PROMPT',
-      instruction
+      instruction,
+      preset_name
     } as WebviewMessage)
 
-    if (instruction.trim()) {
+    if (instruction.trim() && !preset_name) {
       update_chat_history(instruction)
     }
   }

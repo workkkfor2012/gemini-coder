@@ -16,7 +16,7 @@ import { QuickAction as UiQuickAction } from '@ui/components/editor/QuickAction'
 type Props = {
   is_visible: boolean
   initialize_chats: (params: { prompt: string; preset_names: string[] }) => void
-  copy_to_clipboard: (instruction: string) => void
+  copy_to_clipboard: (instruction: string, preset_name?: string) => void
   on_create_preset: () => void
   on_at_sign_click: () => void
   on_quick_action_click: (command: string) => void
@@ -172,17 +172,7 @@ export const HomeView: React.FC<Props> = (props) => {
   }
 
   const handle_preset_copy = (preset_name: string) => {
-    const preset = props.presets.find((p) => p.name == preset_name)!
-
-    let modified_instruction = current_prompt
-    if (preset.prompt_prefix) {
-      modified_instruction = `${preset.prompt_prefix} ${modified_instruction}`
-    }
-    if (preset.prompt_suffix) {
-      modified_instruction = `${modified_instruction} ${preset.prompt_suffix}`
-    }
-
-    props.copy_to_clipboard(modified_instruction)
+    props.copy_to_clipboard(current_prompt, preset_name)
   }
 
   return (
