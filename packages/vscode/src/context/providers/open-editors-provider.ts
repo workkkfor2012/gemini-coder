@@ -24,15 +24,11 @@ export class OpenEditorsProvider
   private _file_change_watcher: vscode.Disposable
   private _ignored_extensions: Set<string> = new Set()
   private _initialized: boolean = false
-  // Track files opened from workspace view
   private _opened_from_workspace_view: Set<string> = new Set()
-  // Keep track of files we've already attempted to open in non-preview mode
   private _non_preview_files: Set<string> = new Set()
-  // Track which tabs are currently in preview mode
   private _preview_tabs: Map<string, boolean> = new Map()
   private _on_did_change_checked_files = new vscode.EventEmitter<void>()
   readonly onDidChangeCheckedFiles = this._on_did_change_checked_files.event
-  // Reference to SharedFileState for checking workspace file states
   private _shared_state: SharedFileState
   private _config_change_handler: vscode.Disposable
   private workspace_provider: WorkspaceProvider
@@ -56,10 +52,9 @@ export class OpenEditorsProvider
 
     this._file_change_watcher = vscode.workspace.onDidChangeTextDocument(
       (e) => {
-        if (e.document.isDirty) return // Only process saved changes
+        if (e.document.isDirty) return
 
         const file_path = e.document.uri.fsPath
-        // Clear token count for this file to force recalculation
         this._file_token_counts.delete(file_path)
         this._on_did_change_tree_data.fire()
       }
@@ -97,16 +92,13 @@ export class OpenEditorsProvider
   private _uncheck_ignored_files(old_ignored_extensions?: Set<string>): void {
     const checked_files = this.get_checked_files()
 
-    // Find files that now match ignored extensions but didn't before
     const files_to_uncheck = checked_files.filter((file_path) => {
       if (old_ignored_extensions) {
-        // Only uncheck if it wasn't ignored before but is now
         return (
           !should_ignore_file(file_path, old_ignored_extensions) &&
           should_ignore_file(file_path, this._ignored_extensions)
         )
       }
-      // Without old extensions comparison, uncheck all that match current ignored list
       return should_ignore_file(file_path, this._ignored_extensions)
     })
 
@@ -250,7 +242,6 @@ export class OpenEditorsProvider
   }
 
   private _get_open_editors(): vscode.Uri[] {
-    // Use a Map to track unique file paths and their URIs
     const open_files_map = new Map<string, vscode.Uri>()
 
     vscode.window.tabGroups.all.forEach((tab_group) => {
@@ -263,7 +254,6 @@ export class OpenEditorsProvider
             open_files_map.set(file_path, uri)
           }
 
-          // Update preview state regardless
           this._preview_tabs.set(file_path, !!tab.isPreview)
         }
       })
@@ -309,7 +299,6 @@ export class OpenEditorsProvider
         ? path.relative(workspace_root, path.dirname(file_path))
         : path.dirname(file_path)
 
-      // Create description with workspace folder name and relative path if multiple workspaces
       let description = relative_path ? `${relative_path}` : ''
 
       if (this._workspace_roots.length > 1 && workspace_root) {
@@ -346,7 +335,6 @@ export class OpenEditorsProvider
   private async _open_file_in_non_preview_mode(uri: vscode.Uri): Promise<void> {
     const file_path = uri.fsPath
 
-    // Skip if we've already tried to open this file in non-preview mode
     if (this._non_preview_files.has(file_path)) {
       return
     }
@@ -370,8 +358,6 @@ export class OpenEditorsProvider
     const key = item.resourceUri.fsPath
     this._checked_items.set(key, state)
 
-    // If the checkbox is being checked AND the file is currently in preview mode
-    // then convert it to non-preview mode
     if (
       state === vscode.TreeItemCheckboxState.Checked &&
       this._preview_tabs.get(key) === true
@@ -417,7 +403,6 @@ export class OpenEditorsProvider
 
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
-      // If file is in preview mode, convert it to non-preview mode
       if (this._preview_tabs.get(file_path) === true) {
         await this._open_file_in_non_preview_mode(uri)
       }
@@ -455,7 +440,6 @@ export class OpenEditorsProvider
 
       this._checked_items.set(file_path, vscode.TreeItemCheckboxState.Checked)
 
-      // If file is in preview mode, convert it to non-preview mode
       if (this._preview_tabs.get(file_path) === true) {
         await this._open_file_in_non_preview_mode(vscode.Uri.file(file_path))
       }
