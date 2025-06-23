@@ -112,11 +112,11 @@ async function process_chat_instructions(
   file_tree_provider: any,
   open_editors_provider: any
 ) {
-  if (instructions.includes('@selection')) {
+  if (instructions.includes('@Selection')) {
     instructions = replace_selection_placeholder(instructions)
   }
 
-  if (instructions.includes('@changes:')) {
+  if (instructions.includes('@Changes:')) {
     instructions = await replace_changes_placeholder(instructions)
   }
 

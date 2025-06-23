@@ -70,7 +70,7 @@ export const handle_preview_preset = async (
 
     let instructions = replace_selection_placeholder(current_instructions)
 
-    if (instructions.includes('@changes:')) {
+    if (instructions.includes('@Changes:')) {
       instructions = await replace_changes_placeholder(instructions)
     }
 

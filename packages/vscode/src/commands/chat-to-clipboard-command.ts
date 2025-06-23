@@ -110,11 +110,11 @@ export function chat_to_clipboard_command(
       }
 
       // Replace placeholders before processing
-      if (instructions.includes('@selection')) {
+      if (instructions.includes('@Selection')) {
         instructions = replace_selection_placeholder(instructions)
       }
 
-      if (instructions.includes('@changes:')) {
+      if (instructions.includes('@Changes:')) {
         instructions = await replace_changes_placeholder(instructions)
       }
 

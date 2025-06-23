@@ -193,7 +193,7 @@ export const WithActiveSelection = () => (
 
 export const WithActiveSelectionAndPlaceholder = () => (
   <ChatInput
-    value="Ask about the @selection"
+    value="Ask about the @Selection"
     chat_history={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}
@@ -212,7 +212,7 @@ export const WithActiveSelectionAndPlaceholder = () => (
 
 export const WithPlaceholderNoSelection = () => (
   <ChatInput
-    value="Ask about the @selection"
+    value="Ask about the @Selection"
     chat_history={[]}
     on_change={(value) => console.log('Changed:', value)}
     on_submit={() => console.log('Submitted')}

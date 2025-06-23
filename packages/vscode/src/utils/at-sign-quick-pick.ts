@@ -4,11 +4,11 @@ import { execSync } from 'child_process'
 export async function at_sign_quick_pick(): Promise<string | undefined> {
   const items = [
     {
-      label: '@selection',
+      label: '@Selection',
       description: 'Inject text selection of the active editor'
     },
     {
-      label: '@changes',
+      label: '@Changes',
       description: 'Inject changes between current branch and selected branch'
     }
   ]
@@ -22,11 +22,11 @@ export async function at_sign_quick_pick(): Promise<string | undefined> {
     return
   }
 
-  if (selected.label == '@selection') {
-    return 'selection '
+  if (selected.label == '@Selection') {
+    return 'Selection '
   }
 
-  if (selected.label == '@changes') {
+  if (selected.label == '@Changes') {
     try {
       const workspace_folders = vscode.workspace.workspaceFolders
       if (!workspace_folders || workspace_folders.length == 0) {
@@ -94,10 +94,10 @@ export async function at_sign_quick_pick(): Promise<string | undefined> {
       if (selected_branch) {
         // For single root workspace, keep existing format
         if (workspace_with_branches.length === 1) {
-          return `changes:${selected_branch.label} `
+          return `Changes:${selected_branch.label} `
         } else {
           // For multi-root workspace, return format: changes:[folder name]/[branch name]
-          return `changes:${selected_branch.label} `
+          return `Changes:${selected_branch.label} `
         }
       }
     } catch (error) {

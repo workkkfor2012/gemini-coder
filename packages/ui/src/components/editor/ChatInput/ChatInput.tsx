@@ -62,10 +62,10 @@ export const ChatInput: React.FC<Props> = (props) => {
       return <span>{text}</span>
     }
 
-    const regex = /(@selection|@changes:\S+(?:\/\S+)?)/g
+    const regex = /(@Selection|@Changes:\S+(?:\/\S+)?)/g
     const parts = text.split(regex)
     return parts.map((part, index) => {
-      if (part == '@selection') {
+      if (part == '@Selection') {
         const is_clickable = !!props.on_at_sign_click
         return (
           <span
@@ -80,7 +80,7 @@ export const ChatInput: React.FC<Props> = (props) => {
             )}
             title={
               is_clickable
-                ? 'Click to remove @selection'
+                ? 'Click to remove @Selection'
                 : !props.has_active_selection
                 ? 'No active selection in editor'
                 : undefined
@@ -90,7 +90,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           </span>
         )
       }
-      if (part && part.startsWith('@changes:')) {
+      if (part && part.startsWith('@Changes:')) {
         return (
           <span key={index} className={styles['selection-keyword']}>
             {part}
@@ -253,7 +253,7 @@ export const ChatInput: React.FC<Props> = (props) => {
           className={styles['highlight-container']}
           ref={highlight_ref}
           onClick={() => {
-            if (props.value.includes('@selection') && props.on_at_sign_click)
+            if (props.value.includes('@Selection') && props.on_at_sign_click)
               props.on_at_sign_click()
           }}
         >

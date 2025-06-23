@@ -100,12 +100,12 @@ export const handle_send_prompt = async (
     let base_instructions = current_instructions
 
     if (editor && !editor.selection.isEmpty) {
-      if (base_instructions.includes('@selection')) {
+      if (base_instructions.includes('@Selection')) {
         base_instructions = replace_selection_placeholder(base_instructions)
       }
     }
 
-    if (base_instructions.includes('@changes:')) {
+    if (base_instructions.includes('@Changes:')) {
       base_instructions = await replace_changes_placeholder(base_instructions)
     }
 

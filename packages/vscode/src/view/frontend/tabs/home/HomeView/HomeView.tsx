@@ -114,11 +114,11 @@ export const HomeView: React.FC<Props> = (props) => {
     let text = current_prompt
 
     if (
-      text.includes('@selection') &&
+      text.includes('@Selection') &&
       props.has_active_selection &&
       props.selection_text
     ) {
-      text = text.replace(/@selection/g, props.selection_text)
+      text = text.replace(/@Selection/g, props.selection_text)
     }
 
     estimated_tokens = Math.ceil(text.length / 4)
