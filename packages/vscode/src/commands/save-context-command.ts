@@ -278,6 +278,10 @@ export function save_context_command(
         })
       }
 
+      all_prefixed_paths = all_prefixed_paths.map((p) =>
+        p.replace(/\\/g, '/')
+      )
+
       all_prefixed_paths.sort((a, b) => {
         const workspace_folders = vscode.workspace.workspaceFolders
 
@@ -301,8 +305,8 @@ export function save_context_command(
         const path_part_a = get_path_part_for_sorting(a)
         const path_part_b = get_path_part_for_sorting(b)
 
-        const is_nested_a = path_part_a.includes(path.sep)
-        const is_nested_b = path_part_b.includes(path.sep)
+        const is_nested_a = path_part_a.includes('/')
+        const is_nested_b = path_part_b.includes('/')
 
         if (is_nested_a && !is_nested_b) {
           return -1
