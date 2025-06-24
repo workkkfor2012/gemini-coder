@@ -6,7 +6,6 @@ import SimpleBar from 'simplebar-react'
 
 type Props = {
   vscode: any
-  is_visible: boolean
 }
 
 export const Settings: React.FC<Props> = (props) => {
@@ -61,10 +60,7 @@ export const Settings: React.FC<Props> = (props) => {
   )
 
   return (
-    <div
-      className={styles.container}
-      style={{ display: !props.is_visible ? 'none' : undefined }}
-    >
+    <div className={styles.container}>
       <SimpleBar
         style={{
           height: '100%'

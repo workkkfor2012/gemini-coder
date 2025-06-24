@@ -1,9 +1,7 @@
-import { Home } from './tabs/home'
-import { Donations } from './tabs/donations/Donations'
-import { Header as UiHeader } from '@ui/components/editor/Header'
+import { Home } from './home'
 import { useEffect, useState } from 'react'
 import { Template as UiTemplate } from '@ui/components/editor/Template'
-import { EditView as UiEditView } from '@ui/components/editor/EditView'
+import { Page as UiPage } from '@ui/components/editor/Page'
 import { EditPresetForm as UiEditPresetForm } from '@ui/components/editor/EditPresetForm'
 import { Preset } from '@shared/types/preset'
 import {
@@ -12,21 +10,13 @@ import {
   WebviewMessage
 } from '../types/messages'
 import { TextButton as UiTextButton } from '@ui/components/editor/TextButton'
-import { Settings } from './tabs/settings/Settings'
+import { Settings } from './settings/Settings'
 
 const vscode = acquireVsCodeApi()
 
-const TAB_NAMES = {
-  HOME: 'Home',
-  SETTINGS: 'Settings',
-  DONATIONS: 'Guestbook'
-} as const
-
-type TabName = (typeof TAB_NAMES)[keyof typeof TAB_NAMES]
-
 export const View = () => {
-  const [active_tab, set_active_tab] = useState<TabName>(TAB_NAMES.HOME)
   const [updating_preset, set_updating_preset] = useState<Preset>()
+  const [viewing_settings, set_viewing_settings] = useState(false)
   const [updated_preset, set_updated_preset] = useState<Preset>()
   const [is_in_code_completions_mode, set_is_in_code_completions_mode] =
     useState(false)
@@ -106,39 +96,13 @@ export const View = () => {
     return null
   }
 
-  const tabs = (
-    <>
-      <UiHeader
-        tabs={Object.values(TAB_NAMES)}
-        active_tab={active_tab}
-        on_tab_click={set_active_tab}
-      />
-      <Home
-        vscode={vscode}
-        is_visible={active_tab == TAB_NAMES.HOME}
-        on_preset_edit={(preset) => {
-          set_updating_preset(preset)
-        }}
-        ask_instructions={ask_instructions}
-        edit_instructions={edit_instructions}
-        no_context_instructions={no_context_instructions}
-        code_completions_instructions={code_completions_instructions}
-        set_instructions={handle_instructions_change}
-      />
-      <Settings vscode={vscode} is_visible={active_tab == TAB_NAMES.SETTINGS} />
-      <Donations
-        vscode={vscode}
-        is_visible={active_tab == TAB_NAMES.DONATIONS}
-      />
-    </>
-  )
-
-  let edit_view: React.ReactNode | undefined = undefined
+  let overlay: React.ReactNode | undefined = undefined
 
   if (updating_preset) {
-    edit_view = (
-      <UiEditView
+    overlay = (
+      <UiPage
         on_back_click={edit_preset_back_click_handler}
+        title="Edit Preset"
         header_slot={
           <UiTextButton
             on_click={handle_preview_preset}
@@ -164,9 +128,38 @@ export const View = () => {
             vscode.postMessage({ command: 'PICK_OPEN_ROUTER_MODEL' })
           }}
         />
-      </UiEditView>
+      </UiPage>
+    )
+  } else if (viewing_settings) {
+    overlay = (
+      <UiPage
+        on_close_click={() => set_viewing_settings(false)}
+        title="Settings"
+      >
+        <Settings vscode={vscode} />
+      </UiPage>
     )
   }
 
-  return <UiTemplate edit_view_slot={edit_view} tabs_slot={tabs} />
+  return (
+    <UiTemplate
+      overlay_slot={overlay}
+      base_slot={
+        <Home
+          vscode={vscode}
+          on_preset_edit={(preset) => {
+            set_updating_preset(preset)
+          }}
+          on_settings_click={() => {
+            set_viewing_settings(true)
+          }}
+          ask_instructions={ask_instructions}
+          edit_instructions={edit_instructions}
+          no_context_instructions={no_context_instructions}
+          code_completions_instructions={code_completions_instructions}
+          set_instructions={handle_instructions_change}
+        />
+      }
+    />
+  )
 }

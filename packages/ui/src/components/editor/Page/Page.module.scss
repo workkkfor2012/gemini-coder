@@ -11,18 +11,36 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--header-height);
-  gap: var(--padding-2px);
-  padding: 0 15px var(--padding-6px) var(--padding-14px);
+  padding: var(--padding-8px) var(--padding-12px) var(--padding-6px)
+    var(--padding-14px);
   border-bottom: 1px solid var(--vscode-sideBarSectionHeader-border);
+  position: relative;
+
+  &__title {
+    position: absolute;
+    left: 50%;
+    font-weight: 600;
+    transform: translateX(-50%);
+    font-size: var(--font-size-14px);
+  }
 
   &__back {
     display: flex;
     align-items: center;
+    gap: var(--padding-2px);
 
     > span {
       font-size: var(--font-size-13px);
-      color: var(--vscode-foreground);
+      font-weight: 500;
+      color: var(--vscode-editor-foreground);
+    }
+  }
+
+  &__right {
+    display: flex;
+
+    &__slot {
+      padding-right: var(--padding-3px);
     }
   }
 }

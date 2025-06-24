@@ -1,7 +1,6 @@
 .container {
   display: flex;
   flex-direction: column;
-  gap: var(--padding-6px);
 
   &--disabled {
     opacity: var(--disabled-opacity);
@@ -14,6 +13,7 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--padding-12px);
+  margin-bottom: var(--padding-2px);
 
   &__left {
     display: flex;
@@ -129,6 +129,6 @@
   }
 
   &__create {
-    margin: 0 var(--padding-12px);
+    margin: var(--padding-8px) var(--padding-12px) 0 var(--padding-12px);
   }
 }

@@ -27,7 +27,7 @@ export const Switch = <T extends string>(props: SwitchProps<T>) => {
         ] as HTMLElement
         set_pill_style({
           left: current_option_element.offsetLeft,
-          width: current_option_element.offsetWidth,
+          width: current_option_element.offsetWidth + 0.5,
           height: current_option_element.offsetHeight
         })
       }

@@ -1,18 +1,19 @@
 import { useEffect, useState } from 'react'
 import { HomeView } from './HomeView'
-import {
-  WebviewMessage,
-  ExtensionMessage,
-  PresetsMessage
-} from '../../../types/messages'
+
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import { HOME_VIEW_TYPES, HomeViewType } from '@/view/types/home-view-type'
 import { ApiMode, WebMode } from '@shared/types/modes'
+import {
+  ExtensionMessage,
+  PresetsMessage,
+  WebviewMessage
+} from '@/view/types/messages'
 
 type Props = {
   vscode: any
-  is_visible: boolean
+  on_settings_click: () => void
   on_preset_edit: (preset: Preset) => void
   ask_instructions: string
   edit_instructions: string
@@ -446,9 +447,9 @@ export const Home: React.FC<Props> = (props) => {
 
   return (
     <HomeView
-      is_visible={props.is_visible}
       initialize_chats={handle_initialize_chats}
       copy_to_clipboard={handle_copy_to_clipboard}
+      on_settings_click={props.on_settings_click}
       on_at_sign_click={handle_at_sign_click}
       is_connected={is_connected}
       presets={presets}
