@@ -216,8 +216,15 @@ export const ai_studio: Chatbot = {
       create_apply_response_button()
     }
 
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach(() => {
+    // AI Studio is quite sluggish with showing already generated tokens,
+    // therefore we handle waiting for finished response differently than
+    // in other chatbots.
+    let debounce_timer: NodeJS.Timeout
+    const observer = new MutationObserver(() => {
+      clearTimeout(debounce_timer)
+      debounce_timer = setTimeout(() => {
+        show_response_ready_notification({ chatbot_name: 'AI Studio' })
+
         const all_footers = document.querySelectorAll(
           'ms-chat-turn .turn-footer'
         )
@@ -225,13 +232,12 @@ export const ai_studio: Chatbot = {
           if (
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {
-            show_response_ready_notification({ chatbot_name: 'AI Studio' })
             add_buttons({
               footer
             })
           }
         })
-      })
+      }, 100)
     })
 
     observer.observe(document.body, {
