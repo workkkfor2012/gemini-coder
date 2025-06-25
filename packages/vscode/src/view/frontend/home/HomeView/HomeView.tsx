@@ -83,7 +83,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
     const container_width = container_ref.current.offsetWidth
     const switch_width = switch_container_ref.current.offsetWidth
-    const calculated_width = container_width - switch_width - 58
+    const calculated_width = container_width - switch_width - 60
 
     set_dropdown_max_width(calculated_width)
   }
@@ -411,33 +411,21 @@ export const HomeView: React.FC<Props> = (props) => {
             QUICK ACTIONS
           </div>
           <div className={styles['footer__commands__inner']}>
-            {props.home_view_type == HOME_VIEW_TYPES.WEB &&
-              (props.web_mode == 'edit' ||
-                props.web_mode == 'code-completions') && (
-                <UiQuickAction
-                  title="Apply Chat Response"
-                  description="Integrate copied message or code block"
-                  on_click={() =>
-                    props.on_quick_action_click('codeWebChat.applyChatResponse')
-                  }
-                />
-              )}
-            {((props.home_view_type == HOME_VIEW_TYPES.WEB &&
-              (props.web_mode == 'edit' ||
-                props.web_mode == 'code-completions')) ||
-              (props.home_view_type == HOME_VIEW_TYPES.API &&
-                props.api_mode == 'edit')) && (
-              <UiQuickAction
-                title="Revert Last Changes"
-                description="Restore saved state of the codebase"
-                on_click={() =>
-                  props.on_quick_action_click('codeWebChat.revert')
-                }
-              />
-            )}
+            <UiQuickAction
+              title="Apply Chat Response"
+              description="Integrate copied message or a code block"
+              on_click={() =>
+                props.on_quick_action_click('codeWebChat.applyChatResponse')
+              }
+            />
+            <UiQuickAction
+              title="Revert Last Changes"
+              description="Restore saved state of the codebase"
+              on_click={() => props.on_quick_action_click('codeWebChat.revert')}
+            />
             <UiQuickAction
               title="Commit Changes"
-              description="Generate commit message and commit"
+              description="Generate a commit message and commit"
               on_click={() =>
                 props.on_quick_action_click('codeWebChat.commitChanges')
               }
