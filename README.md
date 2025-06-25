@@ -21,7 +21,7 @@
 **Guiding principles:**
 
 - initialize popular chatbots—don't scrape responses
-- API tools—must-have essentials
+- API tools—full-context accuracy
 - privacy first—zero telemetry
 - lightweight—about 1MB of code
 
