@@ -29,6 +29,7 @@
 
 - you're an experienced engineer working on a large codebase
 - you're a student or hobbyist on a budget
+- you prefer not to rely on coding agent's unpredictability
 - you prefer community-driven initiatives to proprietary black boxes
 
 **See how simple it is to implement a feature with ChatGPT:**
