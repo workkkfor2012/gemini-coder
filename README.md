@@ -20,8 +20,7 @@
 
 **Guiding principles:**
 
-- initialize popular chatbots—don't scrape responses
-- API tools—full-context accuracy
+- initialize chatbots—don't scrape responses
 - privacy first—zero telemetry
 - lightweight—about 1MB of code
 
@@ -29,6 +28,8 @@
 
 - you're an experienced engineer working on a large codebase
 - you're a student or hobbyist on a budget
+- you want to get the most out of your web chat subscription
+- you need reliable API tools that fully utilize the chosen context
 - you prefer not to rely on coding agent's unpredictability
 - you prefer community-driven initiatives to proprietary black boxes
 
