@@ -223,8 +223,6 @@ export const ai_studio: Chatbot = {
     const observer = new MutationObserver(() => {
       clearTimeout(debounce_timer)
       debounce_timer = setTimeout(() => {
-        show_response_ready_notification({ chatbot_name: 'AI Studio' })
-
         const all_footers = document.querySelectorAll(
           'ms-chat-turn .turn-footer'
         )
@@ -232,6 +230,7 @@ export const ai_studio: Chatbot = {
           if (
             footer.querySelector('mat-icon')?.textContent?.trim() == 'thumb_up'
           ) {
+            show_response_ready_notification({ chatbot_name: 'AI Studio' })
             add_buttons({
               footer
             })
