@@ -408,7 +408,7 @@ export const HomeView: React.FC<Props> = (props) => {
       <div className={styles.footer}>
         <div className={styles['footer__commands']}>
           <div className={styles['footer__commands__heading']}>
-            QUICK ACTIONS
+            ONE-CLICK ACTIONS
           </div>
           <div className={styles['footer__commands__inner']}>
             <UiQuickAction

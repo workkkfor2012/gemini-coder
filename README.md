@@ -29,8 +29,8 @@
 - you're an experienced engineer working on a large codebase
 - you're a student or hobbyist on a budget
 - you want to get the most out of your web chat subscription
-- you need reliable API tools that fully utilize the chosen context
-- you prefer not to rely on coding agent's unpredictability
+- you need reliable API tools that use the chosen context fully
+- you don't have the time for coding agents finding relevant context
 - you prefer community-driven initiatives to proprietary black boxes
 
 **See how simple it is to implement a feature with ChatGPT:**
