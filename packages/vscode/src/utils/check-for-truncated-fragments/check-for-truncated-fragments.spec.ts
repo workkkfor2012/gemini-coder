@@ -61,6 +61,17 @@ describe('check_for_truncated_fragments', () => {
     expect(check_for_truncated_fragments(files)).toBe(true)
   })
 
+  it('should return true when a file contains JSX-style block comment ellipsis', () => {
+    const files: ClipboardFile[] = [
+      {
+        file_path: 'test.tsx',
+        content: '<div>\n{/* ... lorem ipsum */}\n</div>'
+      }
+    ]
+
+    expect(check_for_truncated_fragments(files)).toBe(true)
+  })
+
   it('should return true when any file in a list contains ellipsis', () => {
     const files: ClipboardFile[] = [
       {

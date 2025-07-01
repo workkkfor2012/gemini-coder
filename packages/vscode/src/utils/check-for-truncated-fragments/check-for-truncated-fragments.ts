@@ -6,6 +6,8 @@ export const check_for_truncated_fragments = (
   // Check each file's content for truncated fragments
   return files.some((file) => {
     const content = file.content
-    return /^\s*(\/\/|#|--)\s+\.\.\.|^\s*\/\*.*\.\.\..*\*\//m.test(content)
+    return /^\s*(\/\/|#|--)\s+\.\.\.|^\s*\/\*.*\.\.\..*\*\/|^\s*\{\/\*.*\.\.\..*\*\/}/m.test(
+      content
+    )
   })
 }
