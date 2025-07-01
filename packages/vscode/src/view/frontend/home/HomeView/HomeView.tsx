@@ -294,7 +294,8 @@ export const HomeView: React.FC<Props> = (props) => {
                 on_submit={handle_submit}
                 on_submit_with_control={handle_submit_with_control}
                 on_copy={
-                  props.home_view_type == HOME_VIEW_TYPES.WEB
+                  props.home_view_type == HOME_VIEW_TYPES.WEB &&
+                  props.web_mode != 'no-context'
                     ? handle_copy
                     : undefined
                 }
