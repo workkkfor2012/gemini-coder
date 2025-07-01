@@ -275,7 +275,7 @@ export const HomeView: React.FC<Props> = (props) => {
                       inititalizations
                     </span>
                     <a href="https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-                      Chrome Web Store ���
+                      Chrome Web Store ↗
                     </a>
                     <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
                       Firefox Add-ons ↗
