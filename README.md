@@ -13,7 +13,7 @@
 
 ## <span style="background-color: #fbb100; color: black; padding: 0.2em 0.6em; border-radius: 999px">Meet CWC</span>
 
-100% free and open source non-agentic coding tool for AI-assisted programming. Built for developers working on large, real-world projects. Optimized for speed, accuracy and cost efficiency through manual context selection, CWC offers a developer experience unmatched by any other tool.
+100% free and open source VS Code extension created by an independent developer aimed at making AI coding inexpensive, fast and accurate.
 
 🧩 Built for VS Code and its derivatives (Cursor, Windsurf, VSCodium, etc.) \
 🙋 Created by an independent developer
