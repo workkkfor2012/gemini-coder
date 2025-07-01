@@ -32,6 +32,9 @@
 }
 
 .footer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--padding-2px);
   width: 100%;
   background: var(--vscode-sideBar-background);
   padding: var(--padding-6px) 0 var(--padding-4px) 0;
@@ -52,6 +55,41 @@
     &__inner {
       display: flex;
       flex-direction: column;
+    }
+  }
+
+  &__links {
+    padding: 0 var(--padding-12px);
+    display: flex;
+    gap: var(--padding-6px);
+    justify-content: space-between;
+    color: black;
+
+    a {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+      gap: var(--padding-2px);
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      &:hover span:last-child {
+        text-decoration: underline;
+      }
+    }
+
+    &__left {
+      overflow: hidden;
+      a > span:last-child {
+        text-overflow: ellipsis;
+        overflow: hidden;
+      }
+    }
+
+    &__right {
+      display: flex;
+      gap: var(--padding-6px);
     }
   }
 }

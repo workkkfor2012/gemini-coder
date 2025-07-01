@@ -275,7 +275,7 @@ export const HomeView: React.FC<Props> = (props) => {
                       inititalizations
                     </span>
                     <a href="https://chromewebstore.google.com/detail/code-web-chat-connector/ljookipcanaglfaocjbgdicfbdhhjffp">
-                      Chrome Web Store ↗
+                      Chrome Web Store ���
                     </a>
                     <a href="https://addons.mozilla.org/en-US/firefox/addon/gemini-coder-connector/">
                       Firefox Add-ons ↗
@@ -431,6 +431,24 @@ export const HomeView: React.FC<Props> = (props) => {
                 props.on_quick_action_click('codeWebChat.commitChanges')
               }
             />
+          </div>
+        </div>
+        <div className={styles.footer__links}>
+          <div className={styles.footer__links__left}>
+            <a href="https://codeweb.chat/">
+              <span className="codicon codicon-book"></span>{' '}
+              <span>Documentation</span>
+            </a>
+          </div>
+          <div className={styles.footer__links__right}>
+            <a href="https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details">
+              <span className="codicon codicon-feedback"></span>{' '}
+              <span>Rate</span>
+            </a>
+            <a href="https://buymeacoffee.com/robertpiosik">
+              <span className="codicon codicon-coffee"></span>{' '}
+              <span>Donate</span>
+            </a>
           </div>
         </div>
       </div>

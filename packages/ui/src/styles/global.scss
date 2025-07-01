@@ -19,3 +19,7 @@ button {
   padding: 0;
   cursor: pointer;
 }
+
+a:focus {
+  outline: none;
+}

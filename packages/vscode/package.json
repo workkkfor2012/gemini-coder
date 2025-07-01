@@ -316,24 +316,6 @@
         "icon": "$(settings)"
       },
       {
-        "command": "codeWebChat.openDocumentation",
-        "title": "Documentation",
-        "category": "Code Web Chat",
-        "icon": "$(question)"
-      },
-      {
-        "command": "codeWebChat.rateExtension",
-        "title": "Rate Extension",
-        "category": "Code Web Chat",
-        "icon": "$(feedback)"
-      },
-      {
-        "command": "codeWebChat.donate",
-        "title": "Donate",
-        "category": "Code Web Chat",
-        "icon": "$(coffee)"
-      },
-      {
         "command": "codeWebChat.openRepository",
         "title": "Repository",
         "category": "Code Web Chat",
@@ -449,18 +431,6 @@
           "when": "false"
         },
         {
-          "command": "codeWebChat.openDocumentation",
-          "when": "false"
-        },
-        {
-          "command": "codeWebChat.rateExtension",
-          "when": "false"
-        },
-        {
-          "command": "codeWebChat.donate",
-          "when": "false"
-        },
-        {
           "command": "codeWebChat.openRepository",
           "when": "false"
         },
@@ -535,11 +505,6 @@
           "group": "navigation@4"
         },
         {
-          "command": "codeWebChat.openDocumentation",
-          "when": "view == codeWebChatView",
-          "group": "navigation@1"
-        },
-        {
           "command": "codeWebChat.openRepository",
           "when": "view == codeWebChatView",
           "group": "navigation@2"
@@ -553,16 +518,6 @@
           "command": "codeWebChat.openReddit",
           "when": "view == codeWebChatView",
           "group": "navigation@4"
-        },
-        {
-          "command": "codeWebChat.rateExtension",
-          "when": "view == codeWebChatView",
-          "group": "navigation@5"
-        },
-        {
-          "command": "codeWebChat.donate",
-          "when": "view == codeWebChatView",
-          "group": "navigation@6"
         },
         {
           "command": "codeWebChat.openSettings",

@@ -155,10 +155,6 @@ export async function activate(context: vscode.ExtensionContext) {
     generate_commit_message_command(context),
     commit_changes_command(context),
     open_url_command({
-      command: 'codeWebChat.openDocumentation',
-      url: 'https://codeweb.chat/'
-    }),
-    open_url_command({
       command: 'codeWebChat.openRepository',
       url: 'https://github.com/robertpiosik/CodeWebChat'
     }),
@@ -173,10 +169,6 @@ export async function activate(context: vscode.ExtensionContext) {
     open_url_command({
       command: 'codeWebChat.rateExtension',
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
-    }),
-    open_url_command({
-      command: 'codeWebChat.donate',
-      url: 'https://buymeacoffee.com/robertpiosik'
     }),
     open_settings_command(),
     apply_context_from_clipboard_command(workspace_provider)
