@@ -280,37 +280,19 @@ export function chat_command(
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
 
-    let selected_names = context.globalState.get<string[]>(
-      'selectedPresets',
-      []
+    // 查找第一个配置为 "AI Studio" 的预设
+    const ai_studio_preset = web_chat_presets.find(
+      (preset) => preset.chatbot === 'AI Studio' && CHATBOTS[preset.chatbot]
     )
 
-    if (!selected_names.length) {
-      const preset_quick_pick_items = web_chat_presets
-        .filter((preset) => CHATBOTS[preset.chatbot])
-        .map((preset) => ({
-          label: preset.name,
-          description: `${preset.chatbot}${
-            preset.model ? ` - ${preset.model}` : ''
-          }`,
-          picked: false
-        }))
-
-      const selected_presets = await vscode.window.showQuickPick(
-        preset_quick_pick_items,
-        {
-          placeHolder: 'Select one or more chat presets',
-          canPickMany: true
-        }
+    if (!ai_studio_preset) {
+      vscode.window.showErrorMessage(
+        '未找到配置的 "AI Studio" 预设。请在设置中添加一个 AI Studio 预设以使用此命令。'
       )
-
-      if (!selected_presets || selected_presets.length == 0) {
-        return
-      }
-
-      selected_names = selected_presets.map((preset) => preset.label)
-      await context.globalState.update('selectedPresets', selected_names)
+      return
     }
+
+    const selected_names = [ai_studio_preset.name]
 
     await handle_chat_command(
       context,

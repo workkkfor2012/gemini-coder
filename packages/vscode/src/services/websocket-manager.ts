@@ -40,6 +40,13 @@ export class WebSocketManager {
     this.context = context
     this.websites_provider = websites_provider || null
     this.current_extension_version = context.extension.packageJSON.version
+
+    Logger.log({
+      function_name: 'WebSocketManager.constructor',
+      message: 'Initializing WebSocket Manager',
+      data: { version: this.current_extension_version, port: this.port }
+    })
+
     this._initialize_server()
   }
 
@@ -165,11 +172,7 @@ export class WebSocketManager {
     this.client.on('message', async (data) => {
       try {
         const message = JSON.parse(data.toString())
-        Logger.log({
-          function_name: 'connect_to_server',
-          message: 'Incoming WS message',
-          data: message
-        })
+        Logger.websocket('RECEIVE', message)
 
         if (message.action == 'client-id-assignment') {
           this.client_id = message.client_id
@@ -184,11 +187,28 @@ export class WebSocketManager {
           vscode.commands.executeCommand('codeWebChat.applyChatResponse')
         } else if (message.action == 'ping') {
           if (message.vscode_extension_version) {
+            Logger.debug({
+              function_name: 'connect_to_server',
+              message: 'Version check',
+              data: {
+                server_version: message.vscode_extension_version,
+                current_version: this.current_extension_version
+              }
+            })
+
             const is_newer = this._is_version_newer(
               message.vscode_extension_version,
               this.current_extension_version
             )
             if (is_newer) {
+              Logger.warn({
+                function_name: 'connect_to_server',
+                message: 'Newer version detected, disconnecting',
+                data: {
+                  server_version: message.vscode_extension_version,
+                  current_version: this.current_extension_version
+                }
+              })
               this.should_reconnect = false
               this.client?.close()
               vscode.window.showErrorMessage(
@@ -308,11 +328,7 @@ export class WebSocketManager {
         client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
       }
 
-      Logger.log({
-        function_name: 'initialize_chats',
-        message: 'Sending initialize chat message',
-        data: message
-      })
+      Logger.websocket('SEND', message)
 
       this.client?.send(JSON.stringify(message))
     }
@@ -350,11 +366,7 @@ export class WebSocketManager {
       client_id: this.client_id || 0 // 0 is a temporary fallback and should be removed few weeks from 28.03.25
     }
 
-    Logger.log({
-      function_name: 'preview_preset',
-      message: 'Sending preview preset message',
-      data: message
-    })
+    Logger.websocket('SEND', message)
 
     this.client?.send(JSON.stringify(message))
   }

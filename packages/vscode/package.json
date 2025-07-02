@@ -2,7 +2,7 @@
   "name": "gemini-coder",
   "displayName": "Code Web Chat (CWC)",
   "description": "Initialize your favorite chatbot, then apply the response with a single click",
-  "version": "1.130.2",
+  "version": "1.130.9",
   "scripts": {
     "build": "npx vsce package --no-dependencies",
     "vscode:prepublish": "npm run compile",
@@ -338,6 +338,18 @@
           "light": "resources/reddit-logo-light.svg",
           "dark": "resources/reddit-logo-dark.svg"
         }
+      },
+      {
+        "command": "codeWebChat.showLogs",
+        "title": "Show Logs",
+        "category": "Code Web Chat",
+        "icon": "$(output)"
+      },
+      {
+        "command": "codeWebChat.clearLogs",
+        "title": "Clear Logs",
+        "category": "Code Web Chat",
+        "icon": "$(clear-all)"
       }
     ],
     "menus": {

@@ -19,6 +19,7 @@ import {
   handle_show_preset_picker,
   handle_copy_prompt,
   handle_send_prompt,
+  handle_send_prompt_with_ai_studio,
   handle_update_preset,
   handle_delete_preset,
   handle_duplicate_preset,
@@ -344,6 +345,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             )
           } else if (message.command == 'SEND_PROMPT') {
             await handle_send_prompt(this, message.preset_names)
+          } else if (message.command == 'SEND_PROMPT_WITH_AI_STUDIO') {
+            await handle_send_prompt_with_ai_studio(this)
           } else if (message.command == 'PREVIEW_PRESET') {
             await handle_preview_preset(this, message)
           } else if (message.command == 'COPY_PROMPT') {

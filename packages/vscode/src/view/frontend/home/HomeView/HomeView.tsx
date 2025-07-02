@@ -15,6 +15,7 @@ import { QuickAction as UiQuickAction } from '@ui/components/editor/QuickAction'
 import { IconButton } from '@ui/components/editor/IconButton/IconButton'
 
 type Props = {
+  initialize_chat_with_ai_studio: (params: { prompt: string }) => void
   initialize_chats: (params: { prompt: string; preset_names: string[] }) => void
   copy_to_clipboard: (instruction: string, preset_name?: string) => void
   on_settings_click: () => void
@@ -171,13 +172,10 @@ export const HomeView: React.FC<Props> = (props) => {
 
   const handle_submit = async () => {
     if (props.home_view_type == HOME_VIEW_TYPES.WEB) {
-      props.initialize_chats({
-        prompt: current_prompt,
-        preset_names: !is_in_code_completions_mode
-          ? props.selected_presets
-          : props.selected_code_completion_presets
-      })
+      // 核心修改：无条件调用 AI Studio 处理器
+      props.initialize_chat_with_ai_studio({ prompt: current_prompt })
     } else {
+      // API 模式逻辑保持不变
       if (is_in_code_completions_mode) {
         props.on_code_completion_click()
       } else {
@@ -188,6 +186,7 @@ export const HomeView: React.FC<Props> = (props) => {
 
   const handle_submit_with_control = async () => {
     if (props.home_view_type == HOME_VIEW_TYPES.WEB) {
+      // Ctrl+Enter 逻辑保持不变，它应该弹出选择菜单
       props.initialize_chats({
         prompt: current_prompt,
         preset_names: []

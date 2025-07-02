@@ -57,6 +57,10 @@ export interface SendPromptMessage extends BaseMessage {
   preset_names: string[]
 }
 
+export interface SendPromptWithAiStudioMessage extends BaseMessage {
+  command: 'SEND_PROMPT_WITH_AI_STUDIO'
+}
+
 export interface CopyPromptMessage extends BaseMessage {
   command: 'COPY_PROMPT'
   instruction: string
@@ -358,6 +362,7 @@ export type WebviewMessage =
   | SaveSelectedPresetsMessage
   | SavePresetsOrderMessage
   | SendPromptMessage
+  | SendPromptWithAiStudioMessage
   | CopyPromptMessage
   | ShowPresetPickerMessage
   | RequestEditorStateMessage

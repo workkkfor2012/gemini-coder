@@ -208,13 +208,23 @@ export const Home: React.FC<Props> = (props) => {
     }
   }
 
-  const handle_initialize_chats = async (params: {
+  const handle_initialize_chats_with_presets = async (params: {
     prompt: string
     preset_names: string[]
   }) => {
     props.vscode.postMessage({
       command: 'SEND_PROMPT',
       preset_names: params.preset_names
+    } as WebviewMessage)
+
+    update_chat_history(params.prompt)
+  }
+
+  const handle_initialize_chat_with_ai_studio = async (params: {
+    prompt: string
+  }) => {
+    props.vscode.postMessage({
+      command: 'SEND_PROMPT_WITH_AI_STUDIO'
     } as WebviewMessage)
 
     update_chat_history(params.prompt)
@@ -447,7 +457,8 @@ export const Home: React.FC<Props> = (props) => {
 
   return (
     <HomeView
-      initialize_chats={handle_initialize_chats}
+      initialize_chat_with_ai_studio={handle_initialize_chat_with_ai_studio}
+      initialize_chats={handle_initialize_chats_with_presets}
       copy_to_clipboard={handle_copy_to_clipboard}
       on_settings_click={props.on_settings_click}
       on_at_sign_click={handle_at_sign_click}

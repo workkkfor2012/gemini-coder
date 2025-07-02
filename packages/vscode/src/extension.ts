@@ -2,6 +2,7 @@ import * as vscode from 'vscode'
 import { context_initialization } from './context/context-initialization'
 import { ViewProvider } from './view/backend/view-provider'
 import { WebSocketManager } from './services/websocket-manager'
+import { Logger } from './utils/logger'
 import {
   migrate_file_refactoring_to_array,
   migrate_api_tool_configs,
@@ -43,11 +44,22 @@ import {
 let websocket_server_instance: WebSocketManager | null = null
 
 export async function activate(context: vscode.ExtensionContext) {
+  // 初始化日志系统
+  Logger.initialize()
+  Logger.log({
+    function_name: 'activate',
+    message: 'Code Web Chat extension is activating...'
+  })
+
   const { workspace_provider, open_editors_provider, websites_provider } =
     context_initialization(context)
 
   if (!workspace_provider || !open_editors_provider || !websites_provider) {
     // No workspace opened
+    Logger.log({
+      function_name: 'activate',
+      message: 'No workspace opened, extension activation skipped'
+    })
     return
   }
 
@@ -171,6 +183,23 @@ export async function activate(context: vscode.ExtensionContext) {
       url: 'https://marketplace.visualstudio.com/items?itemName=robertpiosik.gemini-coder&ssr=false#review-details'
     }),
     open_settings_command(),
-    apply_context_from_clipboard_command(workspace_provider)
+    apply_context_from_clipboard_command(workspace_provider),
+
+    // 日志相关命令
+    vscode.commands.registerCommand('codeWebChat.showLogs', () => {
+      Logger.show()
+    }),
+    vscode.commands.registerCommand('codeWebChat.clearLogs', () => {
+      Logger.clear()
+      Logger.log({
+        function_name: 'clearLogs',
+        message: 'Logs cleared by user'
+      })
+    })
   )
+
+  Logger.log({
+    function_name: 'activate',
+    message: 'Code Web Chat extension activated successfully'
+  })
 }
