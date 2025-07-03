@@ -54,6 +54,28 @@ export type ClientIdAssignmentMessage = {
   client_id: number
 }
 
+export type StartSessionMessage = {
+  action: 'start-session'
+  sessionId: string
+  initialPrompt: string
+  chatConfig: {
+    url: string
+    model?: string
+    temperature?: number
+    top_p?: number
+    system_instructions?: string
+    options?: string[]
+  }
+  client_id: number
+}
+
+export type SendToSessionMessage = {
+  action: 'send-to-session'
+  sessionId: string
+  prompt: string
+  client_id: number
+}
+
 export type WebSocketMessage =
   | InitializeChatsMessage
   | InitializeChatMessage
@@ -61,3 +83,5 @@ export type WebSocketMessage =
   | BrowserConnectionStatusMessage
   | ClientIdAssignmentMessage
   | ApplyChatResponseMessage
+  | StartSessionMessage
+  | SendToSessionMessage

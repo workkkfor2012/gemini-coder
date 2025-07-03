@@ -2,7 +2,9 @@ import {
   WebSocketMessage,
   InitializeChatsMessage,
   InitializeChatMessage,
-  ApplyChatResponseMessage
+  ApplyChatResponseMessage,
+  StartSessionMessage,
+  SendToSessionMessage
 } from '@shared/types/websocket-message'
 import browser from 'webextension-polyfill'
 import { send_saved_websites, send_message_to_server } from './websocket'
@@ -21,13 +23,57 @@ interface ChatQueueItem {
 const chat_queue: ChatQueueItem[] = []
 let is_processing = false
 
+// Session to tab mapping
+const sessionTabs = new Map<string, number>()
+
 const CHAT_INITIALIZATION_TIMEOUT = 5000
 
 export const handle_messages = (message: WebSocketMessage) => {
-  if (message.action == 'initialize-chats') {
-    handle_initialize_chats_message(message as InitializeChatsMessage)
-  } else if (message.action == 'initialize-chat') {
-    handle_initialize_chat_message(message as InitializeChatMessage)
+  // 【无条件日志】确保函数被调用的第一时间就记录
+  console.log(`🎬 [Browser Extension] ENTERED handle_messages function:`, {
+    action: message.action,
+    messageType: typeof message,
+    hasAction: 'action' in message,
+    timestamp: new Date().toISOString()
+  })
+
+  try {
+    console.log(`🔍 [Browser Extension] Full message object:`, message)
+
+    if (message.action == 'initialize-chats') {
+      console.log(`📋 [Browser Extension] Routing to handle_initialize_chats_message`)
+      handle_initialize_chats_message(message as InitializeChatsMessage)
+    } else if (message.action == 'initialize-chat') {
+      console.log(`💬 [Browser Extension] Routing to handle_initialize_chat_message`)
+      handle_initialize_chat_message(message as InitializeChatMessage)
+    } else if (message.action == 'start-session') {
+      console.log(`🚀 [Browser Extension] ROUTING TO handle_start_session_message`)
+      console.log(`🔍 [Browser Extension] start-session message details:`, {
+        sessionId: (message as any).sessionId,
+        initialPrompt: (message as any).initialPrompt?.substring(0, 100) + '...',
+        chatConfigUrl: (message as any).chatConfig?.url,
+        clientId: (message as any).client_id
+      })
+      handle_start_session_message(message as StartSessionMessage)
+      console.log(`✅ [Browser Extension] RETURNED FROM handle_start_session_message`)
+    } else if (message.action == 'send-to-session') {
+      console.log(`📤 [Browser Extension] Routing to handle_send_to_session_message`)
+      handle_send_to_session_message(message as SendToSessionMessage)
+    } else {
+      console.warn(`❓ [Browser Extension] Unknown action received: ${message.action}`)
+    }
+
+    console.log(`✅ [Browser Extension] handle_messages completed successfully for action: ${message.action}`)
+  } catch (error) {
+    console.error(`💥 [Browser Extension] CRITICAL ERROR in handle_messages:`)
+    if (error instanceof Error) {
+      console.error(`   Error name: ${error.name}`)
+      console.error(`   Error message: ${error.message}`)
+      console.error(`   Stack trace:`, error.stack)
+    } else {
+      console.error(`   Non-Error object:`, error)
+    }
+    console.error(`   Message that caused error:`, message)
   }
 }
 
@@ -256,4 +302,135 @@ export const setup_message_listeners = () => {
       return false // For messages that don't need a response
     }
   )
+}
+
+// 处理开始新会话的消息
+const handle_start_session_message = async (message: StartSessionMessage) => {
+  // 【无条件日志】函数入口立即记录
+  console.log(`🎯 [Browser Extension] ENTERED handle_start_session_message function`)
+  console.log(`🔍 [Browser Extension] Message validation:`, {
+    hasSessionId: !!message.sessionId,
+    hasChatConfig: !!message.chatConfig,
+    hasUrl: !!message.chatConfig?.url,
+    hasInitialPrompt: !!message.initialPrompt,
+    sessionId: message.sessionId,
+    url: message.chatConfig?.url,
+    client_id: message.client_id,
+    promptLength: message.initialPrompt?.length || 0
+  })
+
+  try {
+    // 验证必要字段
+    if (!message.chatConfig || !message.chatConfig.url) {
+      console.error(`❌ [Browser Extension] Invalid message: missing chatConfig or URL`)
+      return
+    }
+
+    const targetUrl = `${message.chatConfig.url}#cwc-session-${message.sessionId}`
+    console.log(`🌐 [Browser Extension] Preparing to create tab with URL: ${targetUrl}`)
+
+    // 【关键修改：使用Promise方式处理webextension-polyfill API】
+    console.log(`🚀 [Browser Extension] Calling browser.tabs.create...`)
+
+    try {
+      const tab = await browser.tabs.create({
+        url: targetUrl,
+        active: true
+      })
+
+      if (!tab) {
+        console.error(`💣 [Browser Extension] Tab creation returned null/undefined`)
+        return
+      }
+
+      console.log(`📑 [Browser Extension] Tab created successfully:`, {
+        tabId: tab.id,
+        url: tab.url,
+        sessionId: message.sessionId,
+        status: tab.status
+      })
+
+      if (tab.id) {
+        // 记录会话ID到标签页的映射
+        sessionTabs.set(message.sessionId, tab.id)
+        console.log(`🗂️ [Browser Extension] Session mapping stored: ${message.sessionId} -> ${tab.id}`)
+
+        // 等待标签页加载完成后发送初始化消息
+        const listener = (tabId: number, changeInfo: any) => {
+          if (tabId === tab.id && changeInfo.status === 'complete') {
+            console.log(`✅ [Browser Extension] Tab ${tabId} loading complete, preparing initialization message`)
+            browser.tabs.onUpdated.removeListener(listener)
+
+            const initMessage = {
+              action: 'initialize-session',
+              sessionId: message.sessionId,
+              initialPrompt: message.initialPrompt,
+              chatConfig: message.chatConfig,
+              client_id: message.client_id
+            }
+
+            console.log(`📨 [Browser Extension] Sending initialization message to tab ${tab.id}:`, initMessage)
+
+            // 向标签页发送初始化消息
+            browser.tabs.sendMessage(tab.id!, initMessage).then(() => {
+              console.log(`✅ [Browser Extension] Initialization message sent successfully to tab ${tab.id}`)
+            }).catch((error) => {
+              console.error(`❌ [Browser Extension] Error sending message to tab ${tab.id}:`, error)
+            })
+          }
+        }
+
+        browser.tabs.onUpdated.addListener(listener)
+        console.log(`👂 [Browser Extension] Added tab update listener for tab ${tab.id}`)
+      } else {
+        console.error(`❌ [Browser Extension] Tab created but tab.id is undefined:`, tab)
+      }
+    } catch (tabCreateError) {
+      console.error(`💣 [Browser Extension] Error creating tab:`, tabCreateError)
+      console.error(`💣 [Browser Extension] Target URL was:`, targetUrl)
+    }
+
+    console.log(`✅ [Browser Extension] browser.tabs.create call completed (async)`)
+
+  } catch (error) {
+    console.error(`💥 [Browser Extension] EXCEPTION in handle_start_session_message:`)
+    if (error instanceof Error) {
+      console.error(`   Error name: ${error.name}`)
+      console.error(`   Error message: ${error.message}`)
+      console.error(`   Stack trace:`, error.stack)
+    } else {
+      console.error(`   Non-Error object:`, error)
+    }
+    console.error(`   Message that caused error:`, message)
+  }
+
+  console.log(`🏁 [Browser Extension] EXITING handle_start_session_message function`)
+}
+
+// 处理发送到会话的消息
+const handle_send_to_session_message = async (message: SendToSessionMessage) => {
+  try {
+    const tabId = sessionTabs.get(message.sessionId)
+
+    if (tabId) {
+      // 检查标签页是否仍然存在
+      try {
+        await browser.tabs.get(tabId)
+
+        // 向标签页发送消息
+        browser.tabs.sendMessage(tabId, {
+          action: 'send-message',
+          prompt: message.prompt
+        })
+      } catch (error) {
+        // 标签页不存在，从映射中移除
+        sessionTabs.delete(message.sessionId)
+        console.warn(`Tab for session ${message.sessionId} no longer exists`)
+      }
+    } else {
+      console.warn(`No tab found for session ${message.sessionId}`)
+    }
+  } catch (error) {
+    console.error('Failed to send message to session:', error)
+  }
 }

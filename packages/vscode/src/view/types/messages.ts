@@ -61,6 +61,21 @@ export interface SendPromptWithAiStudioMessage extends BaseMessage {
   command: 'SEND_PROMPT_WITH_AI_STUDIO'
 }
 
+export interface GetActiveSessionIdMessage extends BaseMessage {
+  command: 'GET_ACTIVE_SESSION_ID'
+}
+
+export interface StartNewSessionMessage extends BaseMessage {
+  command: 'START_NEW_SESSION'
+  prompt: string
+  preset: any
+}
+
+export interface SendToSessionMessage extends BaseMessage {
+  command: 'SEND_TO_SESSION'
+  prompt: string
+}
+
 export interface CopyPromptMessage extends BaseMessage {
   command: 'COPY_PROMPT'
   instruction: string
@@ -350,6 +365,11 @@ export interface ApiModeMessage extends BaseMessage {
   mode: ApiMode
 }
 
+export interface ActiveSessionIdMessage extends BaseMessage {
+  command: 'ACTIVE_SESSION_ID_UPDATED'
+  sessionId: string | null
+}
+
 // Union type of all possible incoming messages from webview
 export type WebviewMessage =
   | GetInstructionsMessage
@@ -395,6 +415,9 @@ export type WebviewMessage =
   | GetWebModeMessage
   | GetApiModeMessage
   | SaveApiModeMessage
+  | GetActiveSessionIdMessage
+  | StartNewSessionMessage
+  | SendToSessionMessage
 
 export type ExtensionMessage =
   | InstructionsMessage
@@ -419,3 +442,4 @@ export type ExtensionMessage =
   | HomeViewTypeMessage
   | WebModeMessage
   | ApiModeMessage
+  | ActiveSessionIdMessage

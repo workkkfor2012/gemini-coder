@@ -9,6 +9,44 @@ import { replace_changes_placeholder } from '../utils/replace-changes-placeholde
 import { at_sign_quick_pick } from '../utils/at-sign-quick-pick'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { ConfigPresetFormat } from '@/view/backend/helpers/preset-format-converters'
+import { Chat } from '@shared/types/websocket-message'
+
+// 辅助函数：从预设配置创建聊天配置
+function get_chat_config_from_preset(preset: ConfigPresetFormat): Chat {
+  const chatbot = CHATBOTS[preset.chatbot as keyof typeof CHATBOTS]
+
+  if (!chatbot) {
+    throw new Error(`Chatbot "${preset.chatbot}" not found in constants.`)
+  }
+
+  let url: string
+  if (preset.chatbot === 'Open WebUI') {
+    if (preset.port) {
+      url = `http://localhost:${preset.port}/`
+    } else {
+      url = 'http://openwebui/'
+    }
+  } else {
+    url = chatbot.url
+  }
+
+  return {
+    url,
+    model: preset.model,
+    temperature: preset.temperature,
+    top_p: preset.top_p,
+    system_instructions: preset.systemInstructions,
+    options: preset.options
+  }
+}
+
+// 辅助函数：通过名称获取预设
+function get_preset_by_name(preset_name: string): ConfigPresetFormat | null {
+  const config = vscode.workspace.getConfiguration('codeWebChat')
+  const web_chat_presets = config.get<ConfigPresetFormat[]>('presets', [])
+
+  return web_chat_presets.find(preset => preset.name === preset_name) || null
+}
 
 async function handle_at_sign_in_chat_input(
   input_box: vscode.InputBox,
@@ -108,11 +146,11 @@ async function get_chat_instructions(
 
 async function process_chat_instructions(
   instructions: string,
-  preset_names: string[],
+  preset_name: string,
   context: vscode.ExtensionContext,
   workspace_provider: any,
   open_editors_provider: any
-) {
+): Promise<string | null> {
   const files_collector = new FilesCollector(
     workspace_provider,
     open_editors_provider
@@ -139,55 +177,48 @@ async function process_chat_instructions(
       }`
     )
 
-  return Promise.all(
-    preset_names.map(async (preset_name) => {
-      let base_instructions = apply_preset_affixes_to_instruction(
-        instructions,
-        preset_name
-      )
-
-      if (base_instructions.includes('@Selection')) {
-        base_instructions = replace_selection_placeholder(base_instructions)
-      }
-
-      let pre_context_instructions = base_instructions
-      let post_context_instructions = base_instructions
-
-      if (pre_context_instructions.includes('@Changes:')) {
-        pre_context_instructions = await replace_changes_placeholder(
-          pre_context_instructions
-        )
-      }
-
-      if (base_instructions.includes('@SavedContext:')) {
-        pre_context_instructions = await replace_saved_context_placeholder(
-          pre_context_instructions,
-          context,
-          workspace_provider
-        )
-        post_context_instructions = await replace_saved_context_placeholder(
-          post_context_instructions,
-          context,
-          workspace_provider,
-          true
-        )
-      }
-
-      if (edit_format_instructions && context_text) {
-        pre_context_instructions += `\n${edit_format_instructions}`
-        post_context_instructions += `\n${edit_format_instructions}`
-      }
-
-      const chat_text = context_text
-        ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
-        : pre_context_instructions
-
-      return {
-        text: chat_text,
-        preset_name: preset_name
-      }
-    })
+  let base_instructions = apply_preset_affixes_to_instruction(
+    instructions,
+    preset_name
   )
+
+  if (base_instructions.includes('@Selection')) {
+    base_instructions = replace_selection_placeholder(base_instructions)
+  }
+
+  let pre_context_instructions = base_instructions
+  let post_context_instructions = base_instructions
+
+  if (pre_context_instructions.includes('@Changes:')) {
+    pre_context_instructions = await replace_changes_placeholder(
+      pre_context_instructions
+    )
+  }
+
+  if (base_instructions.includes('@SavedContext:')) {
+    pre_context_instructions = await replace_saved_context_placeholder(
+      pre_context_instructions,
+      context,
+      workspace_provider
+    )
+    post_context_instructions = await replace_saved_context_placeholder(
+      post_context_instructions,
+      context,
+      workspace_provider,
+      true
+    )
+  }
+
+  if (edit_format_instructions && context_text) {
+    pre_context_instructions += `\n${edit_format_instructions}`
+    post_context_instructions += `\n${edit_format_instructions}`
+  }
+
+  const chat_text = context_text
+    ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+    : pre_context_instructions
+
+  return chat_text
 }
 
 export async function handle_chat_command(
@@ -250,16 +281,37 @@ export function chat_using_command(
 
     if (!selected_preset) return
 
-    const chats = await process_chat_instructions(
+    const preset_name = selected_preset.label
+    const selected_preset_config = get_preset_by_name(preset_name)
+
+    if (!selected_preset_config) {
+      vscode.window.showErrorMessage(`Preset "${preset_name}" not found.`)
+      return
+    }
+
+    // 处理指令
+    const processed_instructions = await process_chat_instructions(
       instructions,
-      [selected_preset.label],
+      preset_name,
       context,
       file_tree_provider,
       open_editors_provider
     )
-    if (!chats) return
 
-    websocket_server_instance.initialize_chats(chats)
+    if (processed_instructions === null) return
+
+    // 创建聊天配置
+    const chat_config = get_chat_config_from_preset(selected_preset_config)
+
+    // 使用新的会话方法
+    const sessionId = await websocket_server_instance.startNewSession({
+      prompt: processed_instructions,
+      preset: selected_preset_config
+    })
+
+    if (sessionId) {
+      console.log(`Started new session with ID: ${sessionId}`)
+    }
   })
 }
 
@@ -292,14 +344,31 @@ export function chat_command(
       return
     }
 
-    const selected_names = [ai_studio_preset.name]
+    const instructions = await get_chat_instructions(context)
+    if (!instructions) return
 
-    await handle_chat_command(
+    // 处理指令
+    const processed_instructions = await process_chat_instructions(
+      instructions,
+      ai_studio_preset.name,
       context,
       file_tree_provider,
-      open_editors_provider,
-      websocket_server_instance,
-      selected_names
+      open_editors_provider
     )
+
+    if (processed_instructions === null) return
+
+    // 创建聊天配置
+    const chat_config = get_chat_config_from_preset(ai_studio_preset)
+
+    // 使用新的会话方法
+    const sessionId = await websocket_server_instance.startNewSession({
+      prompt: processed_instructions,
+      preset: ai_studio_preset
+    })
+
+    if (sessionId) {
+      console.log(`Started new session with ID: ${sessionId}`)
+    }
   })
 }

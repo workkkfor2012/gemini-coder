@@ -49,6 +49,7 @@ export const Home: React.FC<Props> = (props) => {
   const [api_mode, set_api_mode] = useState<ApiMode>()
   const [chat_edit_format, set_chat_edit_format] = useState<EditFormat>()
   const [api_edit_format, set_api_edit_format] = useState<EditFormat>()
+  const [activeSessionId, setActiveSessionId] = useState<string | null>(null)
 
   const is_in_code_completions_mode =
     (home_view_type == HOME_VIEW_TYPES.WEB && web_mode == 'code-completions') ||
@@ -117,6 +118,9 @@ export const Home: React.FC<Props> = (props) => {
         case 'API_MODE':
           set_api_mode(message.mode)
           break
+        case 'ACTIVE_SESSION_ID_UPDATED':
+          setActiveSessionId(message.sessionId)
+          break
       }
     }
 
@@ -135,7 +139,8 @@ export const Home: React.FC<Props> = (props) => {
       { command: 'GET_EDIT_FORMAT' },
       { command: 'GET_HOME_VIEW_TYPE' },
       { command: 'GET_WEB_MODE' },
-      { command: 'GET_API_MODE' }
+      { command: 'GET_API_MODE' },
+      { command: 'GET_ACTIVE_SESSION_ID' }
     ]
     initial_messages.forEach((message) => props.vscode.postMessage(message))
 
@@ -228,6 +233,39 @@ export const Home: React.FC<Props> = (props) => {
     } as WebviewMessage)
 
     update_chat_history(params.prompt)
+  }
+
+  // 主按钮提交逻辑
+  const handle_main_button_submit = (prompt: string) => {
+    if (activeSessionId) {
+      props.vscode.postMessage({
+        command: 'SEND_TO_SESSION',
+        prompt,
+      } as WebviewMessage)
+    } else {
+      const preset = presets?.[0] // 简化逻辑，使用第一个预设
+      if (preset) {
+        props.vscode.postMessage({
+          command: 'START_NEW_SESSION',
+          prompt,
+          preset,
+        } as WebviewMessage)
+      }
+    }
+    update_chat_history(prompt)
+  }
+
+  // "开启新会话"按钮的逻辑
+  const handle_start_new_session = (prompt: string) => {
+    const preset = presets?.[0] // 简化逻辑
+    if (preset) {
+      props.vscode.postMessage({
+        command: 'START_NEW_SESSION',
+        prompt,
+        preset,
+      } as WebviewMessage)
+      update_chat_history(prompt)
+    }
   }
 
   const handle_copy_to_clipboard = (
@@ -457,17 +495,18 @@ export const Home: React.FC<Props> = (props) => {
 
   return (
     <HomeView
-      initialize_chat_with_ai_studio={handle_initialize_chat_with_ai_studio}
-      initialize_chats={handle_initialize_chats_with_presets}
+      activeSessionId={activeSessionId}
+      on_main_button_submit={handle_main_button_submit}
+      on_start_new_session_click={handle_start_new_session}
       copy_to_clipboard={handle_copy_to_clipboard}
       on_settings_click={props.on_settings_click}
       on_at_sign_click={handle_at_sign_click}
+      on_quick_action_click={handle_quick_action_click}
       is_connected={is_connected}
       presets={presets}
       selected_presets={selected_presets}
       selected_code_completion_presets={selected_code_completion_presets}
       on_create_preset={handle_create_preset}
-      on_quick_action_click={handle_quick_action_click}
       has_active_editor={has_active_editor}
       has_active_selection={has_active_selection}
       chat_history={current_history || []}

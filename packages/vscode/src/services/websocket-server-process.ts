@@ -90,8 +90,8 @@ class WebSocketServer {
 
     this.connections.add(ws)
 
-    // Handle messages from clients
-    ws.on('message', (message: any) => this._handle_message(message))
+    // [MODIFICATION] Pass the sender's identity to the message handler
+    ws.on('message', (message: any) => this._handle_message(ws, is_browser_client, message))
 
     // Handle client disconnection
     ws.on('close', () => this._handle_disconnection(ws, is_browser_client))
@@ -174,23 +174,75 @@ class WebSocketServer {
     }
   }
 
-  private _handle_message(message: any): void {
+  // [REFACTORED] The message handler now knows the source of the message
+  private _handle_message(sender_ws: WebSocket, is_from_browser: boolean, message: any): void {
     const msg_string = message.toString()
-    const msg_data = JSON.parse(msg_string)
 
-    if (msg_data.action == 'initialize-chat') {
+    let msg_data
+    try {
+      msg_data = JSON.parse(msg_string)
+    } catch (error) {
+      console.error(`❌ [WebSocket Server] Error parsing JSON:`, error)
+      console.error(`   Raw message:`, msg_string)
+      return
+    }
+
+    const source = is_from_browser ? 'Browser' : 'VSCode'
+    console.log(`📥 [WebSocket Server] Received message from ${source}:`, msg_data)
+
+    if (is_from_browser) {
+      // Logic for messages received FROM the browser client
+      // These should be forwarded TO VS Code clients
+      console.log(`🌐 [WebSocket Server] Processing message from Browser`)
+
       if (
-        this.current_browser_client &&
-        this.current_browser_client.ws.readyState === WebSocket.OPEN
+        msg_data.action === 'apply-chat-response' ||
+        msg_data.action === 'invoke-fast-replace' // Legacy
       ) {
+        const target_client_id = msg_data.client_id
+        const target_client = this.vscode_clients.get(target_client_id)
+        if (target_client && target_client.ws.readyState === WebSocket.OPEN) {
+          console.log(`� [WebSocket Server] Forwarding "${msg_data.action}" to VSCode client ${target_client_id}`)
+          target_client.ws.send(JSON.stringify({ ...msg_data, action: 'apply-chat-response' }))
+        } else {
+          console.warn(`⚠️ [WebSocket Server] Could not find or send to VSCode client ${target_client_id}`)
+        }
+      } else if (msg_data.action === 'update-saved-websites') {
+        this.saved_websites = msg_data.websites
+        console.log(`📤 [WebSocket Server] Broadcasting "update-saved-websites" to all VSCode clients`)
+        for (const client of this.vscode_clients.values()) {
+          if (client.ws.readyState === WebSocket.OPEN) {
+            client.ws.send(msg_string)
+          }
+        }
+      } else {
+        console.warn(`❓ [WebSocket Server] Unhandled action "${msg_data.action}" from Browser.`)
+      }
+
+    } else {
+      // Logic for messages received FROM a VS Code client
+      // These should be forwarded TO the browser client
+      console.log(`💻 [WebSocket Server] Processing message from VSCode`)
+
+      if (!this.current_browser_client || this.current_browser_client.ws.readyState !== WebSocket.OPEN) {
+        console.warn(`⚠️ [WebSocket Server] Cannot forward message from VSCode: Browser is not connected. Action: "${msg_data.action}"`)
+        console.log(`🔍 [WebSocket Server] Browser client status:`, {
+          has_client: !!this.current_browser_client,
+          ready_state: this.current_browser_client?.ws.readyState
+        })
+        return
+      }
+
+      const browser_ws = this.current_browser_client.ws
+
+      if (msg_data.action === 'initialize-chat') {
+        console.log(`💬 [WebSocket Server] Processing initialize-chat message from VSCode`)
         const browser_version = this.current_browser_client.version
-        const needs_legacy_format = this._is_version_lower_than(
-          browser_version,
-          '1.2.0'
-        )
+        const needs_legacy_format = this._is_version_lower_than(browser_version, '1.2.0')
+
+        console.log(`🔄 [WebSocket Server] Browser version: ${browser_version}, needs legacy format: ${needs_legacy_format}`)
 
         if (needs_legacy_format) {
-          // Convert InitializeChatMessage to InitializeChatsMessage for older clients
           const legacy_message = {
             action: 'initialize-chats',
             text: msg_data.text,
@@ -206,37 +258,22 @@ class WebSocketServer {
             ],
             client_id: msg_data.client_id
           }
-          this.current_browser_client.ws.send(JSON.stringify(legacy_message))
+          console.log(`📤 [WebSocket Server] Sending legacy "initialize-chats" to browser`)
+          browser_ws.send(JSON.stringify(legacy_message))
         } else {
-          // Forward the message as-is for newer browser clients
-          this.current_browser_client.ws.send(msg_string)
+          console.log(`📤 [WebSocket Server] Forwarding "initialize-chat" to browser`)
+          browser_ws.send(msg_string)
         }
-      }
-    } else if (msg_data.action == 'update-saved-websites') {
-      // Store the updated websites
-      this.saved_websites = msg_data.websites
-
-      // Forward to VS Code clients
-      for (const client of this.vscode_clients.values()) {
-        if (client.ws.readyState == WebSocket.OPEN) {
-          client.ws.send(msg_string)
-        }
-      }
-    } else if (
-      msg_data.action == 'invoke-fast-replace' || // <-- remove few weeks after 19 Apr 2025
-      msg_data.action == 'apply-chat-response'
-    ) {
-      // Forward the message to the specific VS Code client based on client_id
-      const target_client_id = msg_data.client_id
-      const target_client = this.vscode_clients.get(target_client_id)
-      if (target_client && target_client.ws.readyState == WebSocket.OPEN) {
-        // target_client.ws.send(msg_string) <-- bring back after removing "invoke-fast-replace"
-        target_client.ws.send(
-          JSON.stringify({
-            ...msg_data,
-            action: 'apply-chat-response'
-          })
-        )
+      } else if (msg_data.action === 'start-session') {
+        console.log(`🚀 [WebSocket Server] Processing start-session message from VSCode`)
+        console.log(`📤 [WebSocket Server] Forwarding start-session message to browser`)
+        browser_ws.send(msg_string)
+        console.log(`✅ [WebSocket Server] start-session message forwarded successfully`)
+      } else if (msg_data.action === 'send-to-session') {
+        console.log(`📤 [WebSocket Server] Forwarding "send-to-session" to browser`)
+        browser_ws.send(msg_string)
+      } else {
+        console.warn(`❓ [WebSocket Server] Unhandled action "${msg_data.action}" from VSCode.`)
       }
     }
   }

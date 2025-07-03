@@ -1143,13 +1143,11 @@ export class WorkspaceProvider
   }
 
   get_checked_files(): string[] {
-    return Array.from(this.checked_items.entries())
+    const checked_paths = Array.from(this.checked_items.entries())
       .filter(
         ([file_path, state]) =>
-          state == vscode.TreeItemCheckboxState.Checked &&
+          state === vscode.TreeItemCheckboxState.Checked &&
           fs.existsSync(file_path) &&
-          (fs.lstatSync(file_path).isFile() ||
-            fs.lstatSync(file_path).isSymbolicLink()) &&
           (() => {
             const workspace_root = this.get_workspace_root_for_file(file_path)
             return workspace_root
@@ -1157,7 +1155,14 @@ export class WorkspaceProvider
               : false
           })()
       )
-      .map(([path, _]) => path)
+      .map(([path]) => path);
+
+      // Only log when there are checked paths to avoid spam
+      if (checked_paths.length > 0) {
+        console.log(`📋 [WorkspaceProvider] get_checked_files returning ${checked_paths.length} paths:`, checked_paths);
+      }
+
+      return checked_paths;
   }
 
   public async set_checked_files(file_paths: string[]): Promise<void> {

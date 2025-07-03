@@ -4,6 +4,7 @@ import SimpleBar from 'simplebar-react'
 import { Presets as UiPresets } from '@ui/components/editor/Presets'
 import { ChatInput as UiChatInput } from '@ui/components/editor/ChatInput'
 import { Separator as UiSeparator } from '@ui/components/editor/Separator'
+import { Button as UiButton } from '@ui/components/editor/Button'
 import { HorizontalSelector as UiHorizontalSelector } from '@ui/components/editor/HorizontalSelector'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
@@ -36,6 +37,9 @@ type Props = {
   on_web_mode_change: (mode: WebMode) => void
   on_api_mode_change: (mode: ApiMode) => void
   chat_edit_format: EditFormat
+  activeSessionId: string | null
+  on_main_button_submit: (prompt: string) => void
+  on_start_new_session_click: (prompt: string) => void
   api_edit_format: EditFormat
   on_chat_edit_format_change: (edit_format: EditFormat) => void
   on_api_edit_format_change: (edit_format: EditFormat) => void
@@ -172,8 +176,8 @@ export const HomeView: React.FC<Props> = (props) => {
 
   const handle_submit = async () => {
     if (props.home_view_type == HOME_VIEW_TYPES.WEB) {
-      // 核心修改：无条件调用 AI Studio 处理器
-      props.initialize_chat_with_ai_studio({ prompt: current_prompt })
+      // 使用新的主按钮处理器
+      props.on_main_button_submit(current_prompt)
     } else {
       // API 模式逻辑保持不变
       if (is_in_code_completions_mode) {
@@ -315,7 +319,7 @@ export const HomeView: React.FC<Props> = (props) => {
                   type_something: 'Type something',
                   optional_suggestions: 'Optional suggestions',
                   send_request: 'Send request',
-                  initialize_chat: 'Initialize chat',
+                  initialize_chat: props.activeSessionId ? 'Update Chat' : 'Initialize Chat',
                   select_preset: 'Select preset',
                   select_config: 'Select config',
                   code_completions_mode_unavailable_with_text_selection:
@@ -324,6 +328,19 @@ export const HomeView: React.FC<Props> = (props) => {
                     'This mode requires active editor'
                 }}
               />
+
+              {props.home_view_type == HOME_VIEW_TYPES.WEB && (
+                <>
+                  <UiSeparator height={4} />
+                  <UiButton
+                    on_click={() => props.on_start_new_session_click(current_prompt)}
+                    disabled={!current_prompt.trim() || !props.is_connected}
+                    title="Start a completely new chat session"
+                  >
+                    Start New Session
+                  </UiButton>
+                </>
+              )}
             </div>
 
             {((props.home_view_type == HOME_VIEW_TYPES.WEB &&

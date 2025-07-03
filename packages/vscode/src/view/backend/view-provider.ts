@@ -7,12 +7,18 @@ import {
   PresetsMessage,
   TokenCountMessage,
   SelectionTextMessage,
-  InstructionsMessage
+  InstructionsMessage,
+  ActiveSessionIdMessage
 } from '../types/messages'
 import { WebsitesProvider } from '../../context/providers/websites-provider'
 import { OpenEditorsProvider } from '@/context/providers/open-editors-provider'
 import { WorkspaceProvider } from '@/context/providers/workspace-provider'
+import { FilesCollector } from '@/utils/files-collector'
 import { token_count_emitter } from '@/context/context-initialization'
+import { apply_preset_affixes_to_instruction } from '@/utils/apply-preset-affixes'
+import { replace_selection_placeholder } from '@/utils/replace-selection-placeholder'
+import { replace_changes_placeholder } from '@/utils/replace-changes-placeholder'
+import { replace_saved_context_placeholder } from '@/utils/replace-saved-context-placeholder'
 import { Preset } from '@shared/types/preset'
 import { EditFormat } from '@shared/types/edit-format'
 import {
@@ -75,6 +81,7 @@ export class ViewProvider implements vscode.WebviewViewProvider {
   public api_edit_format: EditFormat
   public api_mode: ApiMode
   public home_view_type: HomeViewType = HOME_VIEW_TYPES.WEB
+  public activeSessionId: string | null = null
 
   constructor(
     public readonly extension_uri: vscode.Uri,
@@ -104,6 +111,12 @@ export class ViewProvider implements vscode.WebviewViewProvider {
     this.web_mode = this.context.workspaceState.get<WebMode>('web-mode', 'edit')
     this.api_mode = this.context.workspaceState.get<ApiMode>('api-mode', 'edit')
     this.home_view_type = HOME_VIEW_TYPES.WEB
+
+    // 从 workspaceState 加载会话ID
+    this.activeSessionId = this.context.workspaceState.get<string | null>(
+      'activeSessionId',
+      null
+    )
 
     this._config_listener = vscode.workspace.onDidChangeConfiguration(
       (event) => {
@@ -347,6 +360,172 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             await handle_send_prompt(this, message.preset_names)
           } else if (message.command == 'SEND_PROMPT_WITH_AI_STUDIO') {
             await handle_send_prompt_with_ai_studio(this)
+          } else if (message.command == 'GET_ACTIVE_SESSION_ID') {
+            this.send_message<ActiveSessionIdMessage>({
+              command: 'ACTIVE_SESSION_ID_UPDATED',
+              sessionId: this.activeSessionId
+            })
+          } else if (message.command === 'START_NEW_SESSION') {
+            try {
+              console.log('🚀 [ViewProvider] Received START_NEW_SESSION command', {
+                prompt: message.prompt,
+                preset: message.preset?.name
+              });
+
+              await vscode.workspace.saveAll();
+
+              const files_collector = new FilesCollector(
+                this.workspace_provider,
+                this.open_editors_provider,
+                this.websites_provider
+              );
+
+              const context_text = await files_collector.collect_files();
+
+              console.log('📁 [ViewProvider] Collected context for new session:', {
+                context_length: context_text.length,
+                snippet: context_text.substring(0, 100) + "..."
+              });
+
+              let base_instructions = message.prompt;
+
+              const config = vscode.workspace.getConfiguration('codeWebChat');
+              const presets_from_config = config.get<ConfigPresetFormat[]>('presets', []) || [];
+              const current_preset_config = presets_from_config.find(p => p.name === message.preset.name);
+
+              if (current_preset_config) {
+                base_instructions = apply_preset_affixes_to_instruction(base_instructions, current_preset_config.name);
+              }
+
+              if (base_instructions.includes('@Selection')) {
+                base_instructions = replace_selection_placeholder(base_instructions);
+              }
+
+              let pre_context_instructions = base_instructions;
+              let post_context_instructions = base_instructions;
+
+              if (pre_context_instructions.includes('@Changes:')) {
+                pre_context_instructions = await replace_changes_placeholder(pre_context_instructions);
+              }
+              if (pre_context_instructions.includes('@SavedContext:')) {
+                pre_context_instructions = await replace_saved_context_placeholder(
+                  pre_context_instructions,
+                  this.context,
+                  this.workspace_provider
+                );
+                post_context_instructions = await replace_saved_context_placeholder(
+                  post_context_instructions,
+                  this.context,
+                  this.workspace_provider,
+                  true
+                );
+              }
+
+              const mode = this.web_mode;
+              if (mode === 'edit' && context_text) {
+                const edit_format = this.chat_edit_format;
+                const edit_format_instructions = config.get<string>(
+                  `editFormatInstructions${edit_format.charAt(0).toUpperCase() + edit_format.slice(1)}`
+                );
+                if (edit_format_instructions) {
+                  pre_context_instructions += `\n${edit_format_instructions}`;
+                  post_context_instructions += `\n${edit_format_instructions}`;
+                }
+              }
+
+              const final_prompt = context_text
+                ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+                : pre_context_instructions;
+
+              console.log('📝 [ViewProvider] Constructed final prompt for START_NEW_SESSION:', {
+                length: final_prompt.length,
+                snippet: final_prompt.substring(0, 200) + "..."
+              });
+
+              const sessionId = await this.websocket_server_instance.startNewSession({
+                prompt: final_prompt,
+                preset: message.preset
+              });
+
+              if (sessionId) {
+                console.log(`🎉 [ViewProvider] New session started with ID: ${sessionId}`);
+                this.activeSessionId = sessionId;
+                await this.context.workspaceState.update('activeSessionId', sessionId);
+                this.send_message<ActiveSessionIdMessage>({
+                  command: 'ACTIVE_SESSION_ID_UPDATED',
+                  sessionId
+                });
+              } else {
+                console.error('❌ [ViewProvider] Failed to start new session: sessionId is undefined.');
+                vscode.window.showErrorMessage('Failed to start a new session. Please check the logs.');
+              }
+            } catch (error) {
+              console.error('💥 [ViewProvider] Error handling START_NEW_SESSION:', error);
+              vscode.window.showErrorMessage(`An error occurred while starting a new session: ${error instanceof Error ? error.message : String(error)}`);
+            }
+          } else if (message.command == 'SEND_TO_SESSION') {
+            try {
+              if (this.activeSessionId) {
+                console.log('🔄 [ViewProvider] Processing SEND_TO_SESSION with full context collection');
+
+                // 使用和 START_NEW_SESSION 相同的完整处理流程
+                const files_collector = new FilesCollector(
+                  this.workspace_provider,
+                  this.open_editors_provider,
+                  this.websites_provider
+                );
+
+                const context_text = await files_collector.collect_files();
+                console.log('📁 [ViewProvider] SEND_TO_SESSION context collected:', context_text ? `${context_text.length} chars` : 'no context');
+
+                let base_instructions = message.prompt;
+
+                // 应用选择占位符替换
+                if (base_instructions.includes('@Selection')) {
+                  base_instructions = replace_selection_placeholder(base_instructions);
+                }
+
+                let pre_context_instructions = base_instructions;
+                let post_context_instructions = base_instructions;
+
+                // 应用变更占位符替换
+                if (pre_context_instructions.includes('@Changes:')) {
+                  pre_context_instructions = await replace_changes_placeholder(pre_context_instructions);
+                }
+
+                // 应用保存的上下文占位符替换
+                if (pre_context_instructions.includes('@SavedContext:')) {
+                  pre_context_instructions = await replace_saved_context_placeholder(
+                    pre_context_instructions,
+                    this.context,
+                    this.workspace_provider
+                  );
+                  post_context_instructions = await replace_saved_context_placeholder(
+                    post_context_instructions,
+                    this.context,
+                    this.workspace_provider,
+                    true
+                  );
+                }
+
+                // 构建最终的prompt
+                const final_prompt = context_text
+                  ? `${pre_context_instructions}\n<files>\n${context_text}</files>\n${post_context_instructions}`
+                  : pre_context_instructions;
+
+                console.log('🚀 [ViewProvider] SEND_TO_SESSION sending processed prompt:', final_prompt.length, 'chars');
+
+                await this.websocket_server_instance.sendToSession({
+                  sessionId: this.activeSessionId,
+                  prompt: final_prompt
+                });
+              } else {
+                vscode.window.showErrorMessage('No active session. Please start a new session first.');
+              }
+            } catch (error) {
+              console.error('💥 [ViewProvider] Error handling SEND_TO_SESSION:', error);
+              vscode.window.showErrorMessage(`An error occurred while sending to session: ${error instanceof Error ? error.message : String(error)}`);
+            }
           } else if (message.command == 'PREVIEW_PRESET') {
             await handle_preview_preset(this, message)
           } else if (message.command == 'COPY_PROMPT') {

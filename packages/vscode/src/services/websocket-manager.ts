@@ -5,7 +5,9 @@ import * as path from 'path'
 import * as net from 'net'
 import {
   InitializeChatMessage,
-  UpdateSavedWebsitesMessage
+  UpdateSavedWebsitesMessage,
+  StartSessionMessage,
+  SendToSessionMessage
 } from '@shared/types/websocket-message'
 import { CHATBOTS } from '@shared/constants/chatbots'
 import { DEFAULT_PORT, SECURITY_TOKENS } from '@shared/constants/websocket'
@@ -368,6 +370,177 @@ export class WebSocketManager {
 
     Logger.websocket('SEND', message)
 
+    this.client?.send(JSON.stringify(message))
+  }
+
+  public async startNewSession(params: {
+    prompt: string
+    preset: any
+  }): Promise<string | null> {
+    Logger.log({
+      function_name: 'startNewSession',
+      message: 'Starting new session request',
+      data: {
+        preset_name: params.preset.name,
+        prompt_length: params.prompt.length,
+        has_connected_browsers: this.has_connected_browsers
+      }
+    })
+
+    if (!this.has_connected_browsers) {
+      Logger.error({
+        function_name: 'startNewSession',
+        message: 'Cannot start session: No connected browsers',
+        data: { preset_name: params.preset.name }
+      })
+      throw new Error('Does not have connected browsers.')
+    }
+
+    const sessionId = `session-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
+    Logger.log({
+      function_name: 'startNewSession',
+      message: 'Generated session ID',
+      data: { sessionId }
+    })
+
+    const config = vscode.workspace.getConfiguration('codeWebChat')
+    const web_chat_presets = config.get<any[]>('presets') ?? []
+
+    const preset = web_chat_presets.find((p) => p.name === params.preset.name)
+    if (!preset) {
+      Logger.error({
+        function_name: 'startNewSession',
+        message: 'Preset not found',
+        data: {
+          preset_name: params.preset.name,
+          available_presets: web_chat_presets.map(p => p.name)
+        }
+      })
+      vscode.window.showErrorMessage(`Preset "${params.preset.name}" not found.`)
+      return null
+    }
+
+    Logger.log({
+      function_name: 'startNewSession',
+      message: 'Found preset configuration',
+      data: {
+        preset_name: preset.name,
+        chatbot: preset.chatbot,
+        model: preset.model
+      }
+    })
+
+    const chatbot = CHATBOTS[preset.chatbot as keyof typeof CHATBOTS]
+    let url: string
+    if (preset.chatbot === 'Open WebUI') {
+      if (preset.port) {
+        url = `http://localhost:${preset.port}/`
+      } else {
+        url = 'http://openwebui/'
+      }
+    } else {
+      url = chatbot.url
+    }
+
+    const message: StartSessionMessage = {
+      action: 'start-session',
+      sessionId,
+      initialPrompt: params.prompt,
+      chatConfig: {
+        url,
+        model: preset.model,
+        temperature: preset.temperature,
+        top_p: preset.top_p,
+        system_instructions: preset.systemInstructions,
+        options: preset.options
+      },
+      client_id: this.client_id || 0
+    }
+
+    Logger.log({
+      function_name: 'startNewSession',
+      message: 'Prepared start-session message',
+      data: {
+        sessionId,
+        url,
+        client_id: this.client_id,
+        websocket_ready: this.client?.readyState === WebSocket.WebSocket.OPEN
+      }
+    })
+
+    if (!this.client) {
+      Logger.error({
+        function_name: 'startNewSession',
+        message: 'WebSocket client is null',
+        data: { sessionId }
+      })
+      throw new Error('WebSocket client is not initialized.')
+    }
+
+    if (this.client.readyState !== WebSocket.WebSocket.OPEN) {
+      Logger.error({
+        function_name: 'startNewSession',
+        message: 'WebSocket is not open',
+        data: {
+          sessionId,
+          readyState: this.client.readyState,
+          readyStateText: this._getReadyStateText(this.client.readyState)
+        }
+      })
+      throw new Error(`WebSocket is not open. Current state: ${this._getReadyStateText(this.client.readyState)}`)
+    }
+
+    Logger.websocket('SEND', message)
+
+    try {
+      this.client.send(JSON.stringify(message))
+      Logger.log({
+        function_name: 'startNewSession',
+        message: 'Successfully sent start-session message',
+        data: { sessionId }
+      })
+    } catch (error) {
+      Logger.error({
+        function_name: 'startNewSession',
+        message: 'Failed to send start-session message',
+        data: {
+          sessionId,
+          error: error,
+          readyState: this.client.readyState
+        }
+      })
+      throw error
+    }
+
+    return sessionId
+  }
+
+  private _getReadyStateText(readyState: number): string {
+    switch (readyState) {
+      case WebSocket.WebSocket.CONNECTING: return 'CONNECTING'
+      case WebSocket.WebSocket.OPEN: return 'OPEN'
+      case WebSocket.WebSocket.CLOSING: return 'CLOSING'
+      case WebSocket.WebSocket.CLOSED: return 'CLOSED'
+      default: return `UNKNOWN(${readyState})`
+    }
+  }
+
+  public async sendToSession(params: {
+    sessionId: string
+    prompt: string
+  }): Promise<void> {
+    if (!this.has_connected_browsers) {
+      throw new Error('Does not have connected browsers.')
+    }
+
+    const message: SendToSessionMessage = {
+      action: 'send-to-session',
+      sessionId: params.sessionId,
+      prompt: params.prompt,
+      client_id: this.client_id || 0
+    }
+
+    Logger.websocket('SEND', message)
     this.client?.send(JSON.stringify(message))
   }
 }

@@ -54,7 +54,7 @@ export async function connect_websocket() {
     )
 
     websocket.onopen = () => {
-      console.log('Connected with the VS Code!')
+      console.log('✅ [Browser Extension] Connected with the VS Code!')
       is_reconnecting = false
 
       // Send any saved websites immediately after connection is established
@@ -62,19 +62,69 @@ export async function connect_websocket() {
     }
 
     websocket.onmessage = async (event) => {
-      const message = JSON.parse(event.data) as WebSocketMessage
-      console.debug(message)
-      handle_messages(message)
+      // 【关键修改：无条件日志】第一时间记录所有到达的消息
+      console.log(`🔍 [Browser Extension] UNFILTERED MESSAGE RECEIVED:`, {
+        data: event.data,
+        type: typeof event.data,
+        length: event.data?.length || 0,
+        timestamp: new Date().toISOString()
+      })
+
+      try {
+        const rawMessage = event.data
+        console.log(`📥 [Browser Extension] Processing raw message:`, rawMessage)
+
+        if (!rawMessage) {
+          console.warn(`⚠️ [Browser Extension] Received empty or null message`)
+          return
+        }
+
+        const message = JSON.parse(rawMessage) as WebSocketMessage
+        console.log(`✨ [Browser Extension] Successfully parsed message:`, message)
+
+        if (!message.action) {
+          console.warn(`⚠️ [Browser Extension] Message missing action property:`, message)
+          return
+        }
+
+        console.log(`🎯 [Browser Extension] About to handle action: "${message.action}"`)
+
+        // 特别处理start-session消息
+        if (message.action === 'start-session') {
+          console.log(`🚀 [Browser Extension] SPECIAL HANDLING for start-session message:`, {
+            sessionId: (message as any).sessionId,
+            hasInitialPrompt: !!(message as any).initialPrompt,
+            hasChatConfig: !!(message as any).chatConfig,
+            chatConfigUrl: (message as any).chatConfig?.url
+          })
+        }
+
+        handle_messages(message)
+
+        console.log(`✅ [Browser Extension] Message handled successfully for action: ${message.action}`)
+      } catch (error) {
+        console.error(`❌ [Browser Extension] CRITICAL ERROR in message handler:`)
+        if (error instanceof Error) {
+          console.error(`   Error name: ${error.name}`)
+          console.error(`   Error message: ${error.message}`)
+          console.error(`   Stack trace:`, error.stack)
+        } else {
+          console.error(`   Non-Error object caught:`, error)
+        }
+        console.error(`   Raw event data that caused error:`, event.data)
+        console.error(`   Event object:`, event)
+      }
     }
 
-    websocket.onclose = () => {
-      console.log('Disconnected from VS Code, attempting to reconnect...')
+    websocket.onclose = (event) => {
+      console.log(`🚶 [Browser Extension] Disconnected from VS Code. Code: ${event.code}, Reason: ${event.reason}`)
       websocket = null
       is_reconnecting = false
       setTimeout(connect_websocket, CONFIG.RECONNECT_DELAY)
     }
 
-    websocket.onerror = () => {
+    websocket.onerror = (error) => {
+      console.error(`💥 [Browser Extension] WebSocket error:`, error)
       is_reconnecting = false
       websocket = null
     }

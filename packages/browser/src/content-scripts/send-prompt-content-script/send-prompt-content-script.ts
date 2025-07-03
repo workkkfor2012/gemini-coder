@@ -22,17 +22,26 @@ import { perplexity } from './chatbots/perplexity'
 // In case it changes before finding textarea element (e.g. in mobile AI Studio, when changing model)
 const current_url = window.location.href
 
-// Extract batch ID from URL hash if available
+// Extract batch ID or session ID from URL hash if available
 const hash = window.location.hash
 const hash_prefix_old = '#gemini-coder'
 const hash_prefix_new = '#cwc'
+const session_prefix = '#cwc-session-'
 const is_gemini_coder_hash = hash.startsWith(hash_prefix_old)
-const is_cwc_hash = hash.startsWith(hash_prefix_new)
-const batch_id = is_gemini_coder_hash
-  ? hash.substring(hash_prefix_old.length + 1) || 'default'
-  : is_cwc_hash
-  ? hash.substring(hash_prefix_new.length + 1) || 'default'
-  : ''
+const is_cwc_hash = hash.startsWith(hash_prefix_new) && !hash.startsWith(session_prefix)
+const is_session_hash = hash.startsWith(session_prefix)
+
+// 提取会话ID或批次ID
+let batch_id = ''
+let session_id = ''
+
+if (is_session_hash) {
+  session_id = hash.substring(session_prefix.length)
+} else if (is_gemini_coder_hash) {
+  batch_id = hash.substring(hash_prefix_old.length + 1) || 'default'
+} else if (is_cwc_hash) {
+  batch_id = hash.substring(hash_prefix_new.length + 1) || 'default'
+}
 
 const ai_studio_url = 'https://aistudio.google.com/prompts/new_chat'
 const is_ai_studio = current_url.startsWith(ai_studio_url)
@@ -277,6 +286,80 @@ const main = async () => {
 
   if (chatbot?.inject_apply_response_button) {
     chatbot.inject_apply_response_button(stored_data.client_id)
+  }
+}
+
+// 监听来自background script的会话消息
+browser.runtime.onMessage.addListener((message: any, sender: any, sendResponse: any): any => {
+  if (message.action === 'initialize-session') {
+    // 处理会话初始化
+    handle_session_initialization(message)
+    return true // 异步处理
+  } else if (message.action === 'send-message') {
+    // 处理发送消息到现有会话
+    handle_send_message_to_session(message)
+    return true // 异步处理
+  }
+  return false // 不处理的消息
+})
+
+// 获取当前聊天配置
+const get_current_chat = (): Chat | null => {
+  // 基于当前URL和chatbot创建基本的聊天配置
+  const base_chat: Chat = {
+    url: current_url.split('#')[0].split('?')[0],
+    model: undefined,
+    temperature: undefined,
+    top_p: undefined,
+    system_instructions: undefined,
+    options: []
+  }
+
+  return base_chat
+}
+
+// 处理会话初始化
+const handle_session_initialization = async (message: any) => {
+  try {
+    // 使用传入的chatConfig而不是自动生成的配置
+    const chat_config_from_message = message.chatConfig
+    if (!chat_config_from_message) {
+      console.error('Chat configuration not found for session initialization')
+      return
+    }
+
+    if (chatbot?.wait_until_ready) {
+      await chatbot.wait_until_ready()
+    }
+
+    await initialize_chat({
+      message: message.initialPrompt,
+      chat: chat_config_from_message
+    })
+
+    if (chatbot?.inject_apply_response_button) {
+      // 使用传入的client_id而不是默认值
+      chatbot.inject_apply_response_button(message.client_id || 0)
+    }
+  } catch (error) {
+    console.error('Failed to initialize session:', error)
+  }
+}
+
+// 处理发送消息到会话
+const handle_send_message_to_session = async (message: any) => {
+  try {
+    // 使用通用的消息发送方法
+    if (chatbot?.enter_message_and_send) {
+      await chatbot.enter_message_and_send(message.prompt)
+    } else {
+      await enter_message_and_send({
+        input_element: get_textarea_element(),
+        message: message.prompt
+      })
+    }
+  } catch (error) {
+    console.error('Failed to send message to session:', error)
   }
 }
 
