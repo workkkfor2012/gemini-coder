@@ -39,7 +39,11 @@ type Props = {
   chat_edit_format: EditFormat
   activeSessionId: string | null
   on_main_button_submit: (prompt: string) => void
-  on_start_new_session_click: (prompt: string) => void
+  on_start_new_session_click: (params: {
+    prompt: string
+    temperature: number
+    top_p: number
+  }) => void
   api_edit_format: EditFormat
   on_chat_edit_format_change: (edit_format: EditFormat) => void
   on_api_edit_format_change: (edit_format: EditFormat) => void
@@ -172,6 +176,25 @@ export const HomeView: React.FC<Props> = (props) => {
 
   const handle_input_change = (value: string) => {
     props.set_instructions(value)
+  }
+
+  const handle_start_new_session_with_mode = (
+    mode: 'analyze' | 'explain' | 'generate'
+  ) => {
+    let temp = 0
+    let top_p = 0
+    if (mode === 'explain') {
+      temp = 0.1
+      top_p = 0.9
+    } else if (mode === 'generate') {
+      temp = 0.3
+      top_p = 0.9
+    }
+    props.on_start_new_session_click({
+      prompt: current_prompt,
+      temperature: temp,
+      top_p: top_p
+    })
   }
 
   const handle_submit = async () => {
@@ -332,13 +355,36 @@ export const HomeView: React.FC<Props> = (props) => {
               {props.home_view_type == HOME_VIEW_TYPES.WEB && (
                 <>
                   <UiSeparator height={4} />
-                  <UiButton
-                    on_click={() => props.on_start_new_session_click(current_prompt)}
-                    disabled={!current_prompt.trim() || !props.is_connected}
-                    title="Start a completely new chat session"
-                  >
-                    Start New Session
-                  </UiButton>
+                  {/*
+                    - 移除了原有的 "Start New Session" 按钮
+                    - 替换为三个特定模式的按钮
+                  */}
+                  <div style={{ display: 'flex', gap: '4px' }}>
+                    <UiButton
+                      on_click={() => handle_start_new_session_with_mode('analyze')}
+                      disabled={!current_prompt.trim() || !props.is_connected}
+                      title="分析 (temperature=0, top_p=0)"
+                      style={{ flex: 1 }}
+                    >
+                      分析
+                    </UiButton>
+                    <UiButton
+                      on_click={() => handle_start_new_session_with_mode('explain')}
+                      disabled={!current_prompt.trim() || !props.is_connected}
+                      title="解释 (temperature=0.1, top_p=0.9)"
+                      style={{ flex: 1 }}
+                    >
+                      解释
+                    </UiButton>
+                    <UiButton
+                      on_click={() => handle_start_new_session_with_mode('generate')}
+                      disabled={!current_prompt.trim() || !props.is_connected}
+                      title="生成 (temperature=0.3, top_p=0.9)"
+                      style={{ flex: 1 }}
+                    >
+                      生成
+                    </UiButton>
+                  </div>
                 </>
               )}
             </div>

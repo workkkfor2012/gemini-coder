@@ -406,8 +406,13 @@ export class WebSocketManager {
     const config = vscode.workspace.getConfiguration('codeWebChat')
     const web_chat_presets = config.get<any[]>('presets') ?? []
 
-    const preset = web_chat_presets.find((p) => p.name === params.preset.name)
-    if (!preset) {
+    // --- 修改开始 ---
+    // 原始逻辑错误地重新查找预设，丢弃了从UI传来的临时参数。
+    // const preset = web_chat_presets.find((p) => p.name === params.preset.name)
+
+    // 我们需要基础预设信息（例如 chatbot 类型）来构建 URL。
+    const basePresetConfig = web_chat_presets.find((p) => p.name === params.preset.name)
+    if (!basePresetConfig) {
       Logger.error({
         function_name: 'startNewSession',
         message: 'Preset not found',
@@ -419,6 +424,11 @@ export class WebSocketManager {
       vscode.window.showErrorMessage(`Preset "${params.preset.name}" not found.`)
       return null
     }
+
+    // 将基础预设与从UI传来的临时修改（如 temperature, top_p）合并。
+    // `params.preset` 中的值会覆盖 `basePresetConfig` 中的同名属性。
+    const preset = { ...basePresetConfig, ...params.preset };
+    // --- 修改结束 ---
 
     Logger.log({
       function_name: 'startNewSession',
@@ -450,7 +460,7 @@ export class WebSocketManager {
         url,
         model: preset.model,
         temperature: preset.temperature,
-        top_p: preset.top_p,
+        top_p: preset.top_p ?? preset.topP, // 修改此行，支持 top_p 和 topP 两种命名方式
         system_instructions: preset.systemInstructions,
         options: preset.options
       },

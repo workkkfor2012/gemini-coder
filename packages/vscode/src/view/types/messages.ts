@@ -76,6 +76,11 @@ export interface SendToSessionMessage extends BaseMessage {
   prompt: string
 }
 
+export interface ShowErrorMessageMessage extends BaseMessage {
+  command: 'SHOW_ERROR_MESSAGE'
+  message: string
+}
+
 export interface CopyPromptMessage extends BaseMessage {
   command: 'COPY_PROMPT'
   instruction: string
@@ -418,6 +423,7 @@ export type WebviewMessage =
   | GetActiveSessionIdMessage
   | StartNewSessionMessage
   | SendToSessionMessage
+  | ShowErrorMessageMessage
 
 export type ExtensionMessage =
   | InstructionsMessage

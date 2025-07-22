@@ -243,29 +243,51 @@ export const Home: React.FC<Props> = (props) => {
         prompt,
       } as WebviewMessage)
     } else {
-      const preset = presets?.[0] // 简化逻辑，使用第一个预设
-      if (preset) {
-        props.vscode.postMessage({
-          command: 'START_NEW_SESSION',
-          prompt,
-          preset,
-        } as WebviewMessage)
-      }
+      // 主按钮（回车）默认使用"解释"模式的参数
+      handle_start_new_session({
+        prompt: prompt,
+        temperature: 0.1,
+        top_p: 0.9,
+      })
     }
     update_chat_history(prompt)
   }
 
   // "开启新会话"按钮的逻辑
-  const handle_start_new_session = (prompt: string) => {
-    const preset = presets?.[0] // 简化逻辑
-    if (preset) {
+  const handle_start_new_session = (params: {
+    prompt: string
+    temperature: number
+    top_p: number
+  }) => {
+    // 查找默认的 "AI Studio" 预设
+    const ai_studio_preset = presets?.find(
+      (p) => p.chatbot === 'AI Studio'
+    )
+
+    if (!ai_studio_preset) {
+      // 通过 vscode API 显示错误消息
       props.vscode.postMessage({
-        command: 'START_NEW_SESSION',
-        prompt,
-        preset,
+        command: 'SHOW_ERROR_MESSAGE',
+        message: '未找到配置的 "AI Studio" 预设。请在设置中添加一个 AI Studio 预设以使用此功能。'
       } as WebviewMessage)
-      update_chat_history(prompt)
+      return
     }
+
+    // 注释：核心逻辑。我们在这里创建一个预设的临时副本，
+    // 并用按钮特定的参数覆盖它。
+    // 这样后端服务就不需要任何改动，可以直接使用这个修改后的预设。
+    const modified_preset: Preset = {
+      ...ai_studio_preset,
+      temperature: params.temperature,
+      top_p: params.top_p
+    }
+
+    props.vscode.postMessage({
+      command: 'START_NEW_SESSION',
+      prompt: params.prompt,
+      preset: modified_preset // 发送修改后的预设
+    } as WebviewMessage)
+    update_chat_history(params.prompt)
   }
 
   const handle_copy_to_clipboard = (

@@ -600,6 +600,8 @@ export class ViewProvider implements vscode.WebviewViewProvider {
             handle_get_home_view_type(this)
           } else if (message.command == 'SHOW_AT_SIGN_QUICK_PICK') {
             await handle_at_sign_quick_pick(this, this.context)
+          } else if (message.command == 'SHOW_ERROR_MESSAGE') {
+            vscode.window.showErrorMessage(message.message)
           }
         } catch (error: any) {
           console.error('Error handling message:', message, error)
